@@ -1,0 +1,22 @@
+debug commands 1
+
+extend_with match_parse
+go http://www.idyll.org/
+
+split "org"
+echo __matchlist__
+
+findall "t."
+echo __matchlist__
+
+split "org"
+popmatch 0
+getmatch test 'm[0].split()'
+showvar test
+
+split "org"
+setmatch "m.split()[0]"
+
+popmatch 0
+echo __matchlist__
+echo __match__
