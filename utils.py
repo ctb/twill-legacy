@@ -5,7 +5,6 @@ Apart from various simple utility functions, twill's robust parsing
 code is implemented in the ConfigurableParsingFactory class.
 """
 
-from cStringIO import StringIO
 import os
 import base64
 
@@ -15,7 +14,8 @@ import _mechanize_dist as mechanize
 from _mechanize_dist import ClientForm
 from _mechanize_dist._util import time
 from _mechanize_dist._http import HTTPRefreshProcessor
-from _mechanize_dist import BrowserStateError
+
+from errors import TwillException
 
 class ResultWrapper:
     """
@@ -468,6 +468,8 @@ def gather_filenames(arglist):
         if os.path.isdir(filename):
             thislist = []
             for (dirpath, dirnames, filenames) in os.walk(filename):
+                if '.svn' in dirpath:   # ignore subversion files
+                    continue
                 for f in filenames:
                     if _is_valid_filename(f):
                         f = os.path.join(dirpath, f)
