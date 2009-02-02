@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.4: http://docutils.sourceforge.net/" />
+<title>Developing twill</title>
+<style type="text/css">
+
+/*
+:Author: David Goodger
+:Contact: goodger@users.sourceforge.net
+:Date: $Date: 2005-12-18 01:56:14 +0100 (Sun, 18 Dec 2005) $
+:Revision: $Revision: 4224 $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+
+See http://docutils.sf.net/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin-left: 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left {
+  clear: left }
+
+img.align-right {
+  clear: right }
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font-family: serif ;
+  font-size: 100% }
+
+pre.literal-block, pre.doctest-block {
+  margin-left: 2em ;
+  margin-right: 2em ;
+  background-color: #eeeeee }
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+tt.docutils {
+  background-color: #eeeeee }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document" id="developing-twill">
+<h1 class="title">Developing twill</h1>
+<p>twill is entirely written in Python.  You will need Python 2.3 or later
+to develop it.</p>
+<div class="section">
+<h1><a id="package-tests" name="package-tests">Package tests</a></h1>
+<p>twill comes with several unit tests.  They depend on <a class="reference" href="http://somethingaboutorange.com/mrl/projects/nose/">nose</a> and
+<a class="reference" href="http://www.mems-exchange.org/software/quixote/">Quixote 2.3</a>.  To run them, type 'python setup.py test'
+in the top package directory.</p>
+</div>
+<div class="section">
+<h1><a id="licensing" name="licensing">Licensing</a></h1>
+<p>twill 0.8 and above are licensed under the <a class="reference" href="http://www.opensource.org/licenses/mit-license.php">MIT license</a>.  All code
+currently contained in twill is Copyright (C) 2005, 2006, 2007
+C. Titus Brown &lt;<a class="reference" href="mailto:titus&#64;idyll.org">titus&#64;idyll.org</a>&gt;.</p>
+<p>In plain English: I own the code, but you're welcome to use it,
+subsume it into other projects, and distribute it freely.  However,
+you must retain copyright attribution.</p>
+<p><a class="reference" href="http://pyparsing.sourceforge.net/">pyparsing</a>, <a class="reference" href="http://www.crummy.com/software/BeautifulSoup/">BeautifulSoup</a>, and <a class="reference" href="http://wwwsearch.sf.net/">mechanize</a> are all included with
+twill, but are under their own licenses.</p>
+</div>
+<div class="section">
+<h1><a id="developer-releases" name="developer-releases">Developer releases</a></h1>
+<p>&quot;Developer releases&quot; incorporating all recent significant changes are
+made available at <a class="reference" href="http://darcs.idyll.org/~t/projects/twill-latest.tar.gz">http://darcs.idyll.org/~t/projects/twill-latest.tar.gz</a></p>
+<p>You can install them with easy_install by typing</p>
+<pre class="literal-block">
+easy_install -f http://darcs.idyll.org/~t/projects/twill-latest.tar.gz
+</pre>
+</div>
+<div class="section">
+<h1><a id="obtaining-twill-with-darcs" name="obtaining-twill-with-darcs">Obtaining twill with darcs</a></h1>
+<p><a class="reference" href="http://abridgegame.org/darcs/">darcs</a> is a distributed version control system that allows users to
+maintain their own versions of various programs.  It's a convenient
+way for me to make the latest source code available quickly, and
+it also is a dandy way to submit patches.</p>
+<p>To obtain twill using darcs, install darcs and then type</p>
+<pre class="literal-block">
+darcs get http://darcs.idyll.org/~t/projects/twill/
+</pre>
+<p>To propose a change to the lead developer, make the changes and
+then do a 'send':</p>
+<pre class="literal-block">
+darcs record -am &quot;explanation of change&quot;
+darcs send -a
+</pre>
+<p>To pull in changes made by the lead developer some time later:</p>
+<pre class="literal-block">
+darcs pull
+</pre>
+</div>
+<div class="section">
+<h1><a id="advanced-documentation" name="advanced-documentation">Advanced documentation</a></h1>
+<p>twill uses a melange of different packages.  Here are some potentially
+useful links:</p>
+<blockquote>
+<ul class="simple">
+<li><a class="reference" href="http://www.voidspace.org.uk/python/articles/urllib2.shtml">urllib2.py: the missing manual</a> -- a detailed discussion of urllib2
+functionality that can be directly applied to twill.</li>
+</ul>
+</blockquote>
+<div class="section">
+<h2><a id="future-plans" name="future-plans">Future Plans</a></h2>
+<p>TODO:</p>
+<p>for 9.0 (beta).</p>
+<blockquote>
+<ol class="arabic simple">
+<li>RECORDING.</li>
+<li>execute directories/directory trees.</li>
+<li>expose 'browser' &amp; document re Grig; regexp esp.; make source docs.</li>
+<li>twill-fork: make file writing stuff optional; test massive fork fn.</li>
+<li>add config directives for socket timeout.</li>
+<li>directory stuff: import from specific place, access script location.</li>
+</ol>
+</blockquote>
+<p>Misc fixes &amp; cleanups:</p>
+<blockquote>
+<ol class="arabic simple">
+<li>Paul McGuire's pyparsing suggestions.</li>
+<li>cookie &quot;1&quot; vs 1, in cookielib.</li>
+<li>extend_with etc. -- module namespaces, e.g. extmodule.fn?</li>
+<li>implement more complex proxy support.  proxies proxies proxies.</li>
+<li>'history' to show command history...</li>
+<li>record commands to script</li>
+<li>command line option for stdout -&gt; file</li>
+</ol>
+</blockquote>
+<p>Random ideas:</p>
+<blockquote>
+<ol class="arabic">
+<li><p class="first">Build twill interfaces for zope.testbrowser and mechanoid and pycurl.</p>
+<p>(This shouldn't be too difficult, since both are based on mechanize...)</p>
+</li>
+<li><p class="first">Develop twill-like languages for <a class="reference" href="http://pamie.sourceforge.net/">PAMIE</a> and <a class="reference" href="http://kb.mozillazine.org/PyXPCOM">PyXPCOM</a>.  Note that the
+hard work, at least for PAMIE, is already done; check out the
+<a class="reference" href="tutoriala.html">PAMIE examples page</a>.</p>
+</li>
+</ol>
+</blockquote>
+<p>Contributions are welcome &amp; will be duly acknowledged!</p>
+</div>
+</div>
+</div>
+</body>
+</html>

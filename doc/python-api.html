@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.3.7: http://docutils.sourceforge.net/" />
+<title>twill's Python API</title>
+<link rel="stylesheet" href="default.css" type="text/css" />
+</head>
+<body>
+<div class="document" id="twill-s-python-api">
+<h1 class="title">twill's Python API</h1>
+<p>Using TwillBrowser
+Making extensions</p>
+<p>twill is essentially a thin shell around the <a class="reference" href="http://wwwsearch.sf.net/">mechanize</a> package.  All
+twill commands are implemented in the <tt class="docutils literal"><span class="pre">commands.py</span></tt> file, and
+<a class="reference" href="http://pyparsing.sourceforge.net/">pyparsing</a> does the work of parsing the input and converting it into
+Python commands (see <tt class="docutils literal"><span class="pre">parse.py</span></tt>).  Interactive shell work and
+readline support is implemented via the <a class="reference" href="http://docs.python.org/lib/module-cmd.html">cmd</a> module (from the
+standard Python library).</p>
+<div class="section" id="using-twill-from-python">
+<h1><a name="using-twill-from-python">Using twill from Python</a></h1>
+<p>There are two fairly simple ways to use twill from Python.  (They are
+compatible with each other, so you don't need to choose between them;
+just use whichever is appropriate.)</p>
+<p>The first is to simply import all of the commands in <tt class="docutils literal"><span class="pre">commands.py</span></tt> and
+use them directly from Python.  For example,</p>
+<pre class="literal-block">
+from twill.commands import *
+go(&quot;http://www.python.org/&quot;)
+showforms()
+</pre>
+<p>This has the advantage of being very simple, as well as being tied
+directly to the documented set of commands in <a class="reference" href="commands.html">the commands
+reference</a>.</p>
+<p>However, the functions in <tt class="docutils literal"><span class="pre">commands.py</span></tt> are too simple for some situations.
+In particular, they do not have any return values, so in order to e.g. get
+the HTML for a particular page, you will need to talk to the actual &quot;Web
+browser&quot; object that twill uses.</p>
+<p>To talk to the Web browser directly, call the <tt class="docutils literal"><span class="pre">get_browser</span></tt> function:</p>
+<pre class="literal-block">
+from twill import get_browser
+b = get_browser()
+
+b.go(&quot;http://www.python.org/&quot;)
+b.showforms()
+</pre>
+<p>This is the second way to use twill from Python, and it is much more flexible.
+All of the functions in <tt class="docutils literal"><span class="pre">commands.py</span></tt> use this same browser object, so
+you can mix and match:</p>
+<pre class="literal-block">
+from twill import get_browser
+b = get_browser()
+
+from twill.commands import *
+go(&quot;http://www.python.org/&quot;)
+b.showforms()
+</pre>
+<p>The basic difference is that functions available through the browser object
+are intended for use from Python, while <tt class="docutils literal"><span class="pre">commands.py</span></tt> functions define
+the twill <em>language</em>.  In fact, all of the functions in <tt class="docutils literal"><span class="pre">commands.py</span></tt>
+are small snippets of code wrapped around the browser object.</p>
+<p>For more information on the functions exposed by the browser object,
+see the <strong>TwillBrowser</strong> section below.</p>
+</div>
+<div class="section" id="twillbrowser">
+<h1><a name="twillbrowser">TwillBrowser</a></h1>
+<p>...</p>
+</div>
+<div class="section" id="extending-twill">
+<h1><a name="extending-twill">Extending twill</a></h1>
+<p>Right now twill is very easy to extend: just build a Python module
+that exports the functions you want to call, place it in the
+PYTHONPATH, and run <tt class="docutils literal"><span class="pre">extend_with</span> <span class="pre">&lt;modulename&gt;</span></tt>.  See
+<tt class="docutils literal"><span class="pre">extensions/mailman_sf.py</span></tt> for an extension that helps deal
+with mailman lists on SourceForge; this extension is used by
+<tt class="docutils literal"><span class="pre">examples/discard-sf-mailman-msgs</span></tt>.</p>
+<p>Notes:</p>
+<blockquote>
+<ul class="simple">
+<li>If your extension raises <tt class="docutils literal"><span class="pre">SystemExit</span></tt>, twill will stop
+processing the script.  This is a useful way to build in
+conditionals, e.g. see the <tt class="docutils literal"><span class="pre">discard-sf-mailman-msgs</span></tt> example
+script.</li>
+</ul>
+</blockquote>
+</div>
+<div class="section" id="passing-variables-from-python-into-twill">
+<h1><a name="passing-variables-from-python-into-twill">Passing variables from Python into twill</a></h1>
+<p>Suppose you write an extension function, and you want to return some
+values from that extension function for later use in filling out forms.
+How do you do this?</p>
+<p>The simplest way is to simply insert them into the global or local
+dictionary, like so:</p>
+<pre class="literal-block">
+from twill.namespaces import get_twill_glocals
+global_dict, local_dict = get_twill_glocals()
+
+global_dict['varname'] = value
+</pre>
+<p>You can then use the usual variable access methods to substitute for
+varname, e.g.</p>
+<pre class="literal-block">
+formvalue 1 field $varname
+</pre>
+</div>
+<div class="section" id="using-twill-in-other-python-programs">
+<h1><a name="using-twill-in-other-python-programs">Using twill in other Python programs</a></h1>
+<p>All of the commands available in twill are implemented as top-level functions
+in the <cite>twill.commands</cite> module.  For example, to use twill functionality from
+another Python program, you can do:</p>
+<pre class="literal-block">
+from twill.commands import go, showforms, formclear, fv, submit
+
+go('http://issola.caltech.edu/~t/qwsgi/qwsgi-demo.cgi/')
+go('./widgets')
+showforms()
+
+formclear('1')
+fv(&quot;1&quot;, &quot;name&quot;, &quot;test&quot;)
+fv(&quot;1&quot;, &quot;password&quot;, &quot;testpass&quot;)
+fv(&quot;1&quot;, &quot;confirm&quot;, &quot;yes&quot;)
+showforms()
+
+submit('0')
+</pre>
+<p>Note that all arguments need to be strings, at least for the moment.</p>
+<p>You can capture command output by passing any write-enabled file handle
+to twill.set_output, e.g.</p>
+<pre class="literal-block">
+twill.set_output(StringIO())
+</pre>
+<p>will send all non-error output into a StringIO() object.</p>
+<p>twill also provides a simple wrapper for <a class="reference" href="http://wwwsearch.sf.net/">mechanize</a> functionality, in
+the <cite>browser.py</cite> module.  This may be useful for twill extensions as
+well as for other toolkits, but the API is still unstable.</p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,23 @@
+# load in the mailman_sf & argparse extensions
+extend_with mailman_sf
+extend_with argparse
+
+# parse the arguments, requiring *at least* one -- the name of the list
+get_args 1
+go "https://lists.sourceforge.net/lists/admindb/${arg1}"
+
+code 200
+notfind "No such list"
+
+# fill out the page with the list password.
+getpassword "Enter list password: "
+formvalue 1 adminpw __password__
+submit 0
+code 200
+
+# if there aren't any messages on the page, exit.
+exit_if_empty
+
+# if not empty, discard all messages & submit
+discard_all_messages
+submit 0

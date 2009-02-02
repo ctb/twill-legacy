@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.4: http://docutils.sourceforge.net/" />
+<title>twill: a simple scripting language for Web browsing</title>
+<style type="text/css">
+
+/*
+:Author: David Goodger
+:Contact: goodger@users.sourceforge.net
+:Date: $Date: 2005-12-18 01:56:14 +0100 (Sun, 18 Dec 2005) $
+:Revision: $Revision: 4224 $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+
+See http://docutils.sf.net/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin-left: 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left {
+  clear: left }
+
+img.align-right {
+  clear: right }
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font-family: serif ;
+  font-size: 100% }
+
+pre.literal-block, pre.doctest-block {
+  margin-left: 2em ;
+  margin-right: 2em ;
+  background-color: #eeeeee }
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+tt.docutils {
+  background-color: #eeeeee }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document" id="twill-a-simple-scripting-language-for-web-browsing">
+<h1 class="title">twill: a simple scripting language for Web browsing</h1>
+<p>twill is a simple language that allows users to browse the Web from
+a command-line interface.  With twill, you can navigate through Web
+sites that use forms, cookies, and most standard Web features.</p>
+<p>twill supports automated Web testing and has a simple Python interface.
+Check out the <a class="reference" href="examples.html">examples</a>!</p>
+<p>twill is open source and written in Python.</p>
+<div class="section">
+<h1><a id="downloading-twill" name="downloading-twill">Downloading twill</a></h1>
+<p>The latest release of twill is <a class="reference" href="ANNOUNCE-0.9.txt">twill 0.9</a>,
+released Thursday, December 27th, 2007; it is available for download at
+<a class="reference" href="http://darcs.idyll.org/~t/projects/twill-0.9.tar.gz">http://darcs.idyll.org/~t/projects/twill-0.9.tar.gz</a>.  You can also use
+Python's <a class="reference" href="http://peak.telecommunity.com/DevCenter/EasyInstall">easy_install</a> to install or upgrade twill.</p>
+<p>twill works with Python 2.3 or later.</p>
+<p>To start using twill, install it and then type <tt class="docutils literal"><span class="pre">twill-sh</span></tt>.  At the
+prompt type:</p>
+<pre class="literal-block">
+go http://www.slashdot.org/
+show
+showforms
+showhistory
+</pre>
+</div>
+<div class="section">
+<h1><a id="documentation" name="documentation">Documentation</a></h1>
+<p>The documentation for the latest release is always at
+<a class="reference" href="http://twill.idyll.org/">http://twill.idyll.org/</a>.</p>
+<p>The in-development version of the docs can be found at
+<a class="reference" href="http://darcs.idyll.org/~t/projects/twill/doc/">http://darcs.idyll.org/~t/projects/twill/doc/</a>.</p>
+<p>Documentation is available for the following topics:</p>
+<blockquote>
+<ul class="simple">
+<li><a class="reference" href="examples.html">Examples</a> -- some short examples.</li>
+<li><a class="reference" href="browsing.html">Web browsing with twill</a> -- General introduction to twill.</li>
+<li><a class="reference" href="commands.html">Language reference</a> -- the twill scripting language.</li>
+<li><a class="reference" href="testing.html">Testing Web sites with twill</a> -- how to use twill to test Web sites.</li>
+<li><a class="reference" href="extensions.html">Extension modules</a> -- extension modules that come with twill.</li>
+<li><a class="reference" href="python-api.html">Python API</a> -- for Python programmers interested in using twill from
+Python.</li>
+<li><a class="reference" href="developer.html">Developer information</a> -- for Python developers interested in extending
+or fixing twill.</li>
+<li><a class="reference" href="other.html">Other tools and packages</a> -- projects relevant to, or based upon, twill.</li>
+<li><a class="reference" href="problems.html">Known problems</a> -- those problems that are still lurking in the code.</li>
+</ul>
+</blockquote>
+</div>
+<div class="section">
+<h1><a id="mailing-list" name="mailing-list">Mailing List</a></h1>
+<p>There's a moderately active mailing list at <a class="reference" href="mailto:twill&#64;lists.idyll.org">twill&#64;lists.idyll.org</a>; there is
+also an <a class="reference" href="http://lists.idyll.org/pipermail/twill/">archive</a> for this list.</p>
+</div>
+<div class="section">
+<h1><a id="contributing" name="contributing">Contributing</a></h1>
+<p>Bug reports, fixes, extensions, and links to interesting blog or
+use case reports are always welcome!  You can send them to the mailing
+list or to Titus directly.</p>
+<p>When reporting bugs, please be sure to use the '-f' flag for <tt class="docutils literal"><span class="pre">twill-sh</span></tt>
+so that we can see the full traceback.</p>
+</div>
+<div class="section">
+<h1><a id="authors-and-license" name="authors-and-license">Authors and License</a></h1>
+<p>The main author of twill is C. Titus Brown, <a class="reference" href="mailto:titus&#64;idyll.org">titus&#64;idyll.org</a>.  A
+number of people have contributed bug reports and code since the first
+release; they are acknowledged below.</p>
+<p>The twill source code is Copyright (C) 2005, 2006, 2007 C. Titus
+Brown.  twill is available under the <a class="reference" href="http://www.opensource.org/licenses/mit-license.php">MIT license</a>.</p>
+<p><a class="reference" href="http://pyparsing.sourceforge.net/">pyparsing</a>, <a class="reference" href="http://wwwsearch.sf.net/">mechanize</a>, and <a class="reference" href="http://www.crummy.com/software/BeautifulSoup/">BeautifulSoup</a> are included with twill for
+convenience, but are under their own licenses.</p>
+</div>
+<div class="section">
+<h1><a id="acknowledgements" name="acknowledgements">Acknowledgements</a></h1>
+<p>Cory Dodt had a great idea with PBP, and I thank him for his insight.
+Ian Bicking gave me the idea of reimplementing PBP on top of IPython
+(since abandoned in favor of <a class="reference" href="http://docs.python.org/lib/module-cmd.html">cmd</a>), and suggested the &quot;in-process&quot;
+hack.  Grig Gheorghiu was strangely enthusiastic about the simple demo
+I showed him and has religiously promoted twill ever since.  John
+J. Lee has promptly and enthusiastically checked in my various patches
+to mechanize.  Michele Simionato is an early adopter who has helped
+quite a bit.  Thanks, guys...</p>
+<p>Bug reports have come in from the following fine people: Chris Miles,
+MATSUNO Tokuhiro, Elvelind Grandin, Mike Rovner, sureshvv, Terry Peppers,
+Kieran Holland, Alexander Shvedunov, Norman Khine, Leonardo Santagada,
+Sebastien Pierre, Herve Cauwelier, aledain, Uy Do, David Hancock,
+and Tomi Hautakoski.</p>
+<p>Patches have been submitted by Joeri van Ruth, Paul McGuire, Ed Rahn,
+Nic Ferrier, Robert Leftwich, James Cameron, William Volkman,
+Tommi Virtanen, Simon Buenzli, sureshvv, Jeff Martin, Stephen
+Thorne, and Bob Halley.</p>
+<p>Features were proposed by Ben Bangert, and Tristan De Buysscher.</p>
+<p>Thanks, all!</p>
+<hr class="docutils" />
+</div>
+</div>
+</body>
+</html>

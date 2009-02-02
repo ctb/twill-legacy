@@ -1,0 +1,21 @@
+debug commands 1
+extend_with dns_check
+
+# for twill testing
+#twill-test-1.ignore             A       192.168.1.1
+#twill-test-2.ignore             A       192.168.1.2
+#twill-test-3.ignore             CNAME   twill-test-1.ignore.idyll.org.
+#twill-test-4.ignore             MX 10   twill-test-2.ignore.idyll.org.
+
+dns_resolves twill-test-1.ignore.idyll.org 192.168.1.1
+dns_resolves twill-test-2.ignore.idyll.org 192.168.1.2
+dns_cname twill-test-3.ignore.idyll.org twill-test-1.ignore.idyll.org
+
+dns_resolves twill-test-3.ignore.idyll.org twill-test-1.ignore.idyll.org
+
+# '.'s are handled
+dns_mx twill-test-4.ignore.idyll.org. twill-test-2.ignore.idyll.org
+dns_mx twill-test-4.ignore.idyll.org twill-test-2.ignore.idyll.org.
+dns_mx twill-test-4.ignore.idyll.org. twill-test-2.ignore.idyll.org.
+
+dns_ns idyll.org nsa.idyll.org

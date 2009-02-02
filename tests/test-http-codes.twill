@@ -1,0 +1,25 @@
+code 200
+setglobal start __url__
+
+# test code 403, access denied
+go ./restricted
+code 403
+url "restricted"
+reload
+code 403
+
+# test code 404, does not exist
+go $start
+go ./does-not-exist
+code 404
+url "does-not-exist"
+reload
+code 404
+
+# test code 500, server error
+go $start
+go ./exception
+code 500
+url "exception"
+reload
+code 500

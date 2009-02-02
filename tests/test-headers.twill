@@ -1,0 +1,13 @@
+go /display_environ
+notfind "'''HTTP_FOO''' : '''bar'''"
+
+add_extra_header foo bar
+go /display_environ
+show
+find "'''HTTP_FOO''' : '''bar'''"
+show_extra_headers
+
+clear_extra_headers
+go /display_environ
+notfind "'''HTTP_FOO''' : '''bar'''"
+show_extra_headers

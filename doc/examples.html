@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.3.7: http://docutils.sourceforge.net/" />
+<title>twill Examples</title>
+<link rel="stylesheet" href="default.css" type="text/css" />
+</head>
+<body>
+<div class="document" id="twill-examples">
+<h1 class="title">twill Examples</h1>
+<div class="section" id="example-logging-into-slashdot">
+<h1><a name="example-logging-into-slashdot">Example: logging into slashdot.</a></h1>
+<p>This script logs you into slashdot (assuming you have an account!).</p>
+<pre class="literal-block">
+setlocal username &lt;your username&gt;
+setlocal password &lt;your password&gt;
+
+go http://www.slashdot.org/
+formvalue 1 unickname $username
+formvalue 1 upasswd $password
+submit
+
+code 200     # make sure form submission is correct!
+</pre>
+</div>
+<div class="section" id="example-searching-google-and-going-to-the-first-hit">
+<h1><a name="example-searching-google-and-going-to-the-first-hit">Example: searching Google and going to the first hit</a></h1>
+<p><em>Please be aware that automated searching of Google violates their
+Terms of Service.  This is for example purposes only!</em></p>
+<pre class="literal-block">
+setlocal query &quot;twill Python&quot;
+
+go http://www.google.com/
+
+fv 1 q $query
+submit btnI     # use the &quot;I'm feeling lucky&quot; button
+
+show
+</pre>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,126 @@
+================
+Developing twill
+================
+
+twill is entirely written in Python.  You will need Python 2.3 or later
+to develop it.
+
+Package tests
+~~~~~~~~~~~~~
+
+twill comes with several unit tests.  They depend on nose_ and
+`Quixote 2.3`_.  To run them, type 'python setup.py test'
+in the top package directory.
+
+.. _nose: http://somethingaboutorange.com/mrl/projects/nose/
+.. _Quixote 2.3: http://www.mems-exchange.org/software/quixote/
+
+Licensing
+~~~~~~~~~
+
+twill 0.8 and above are licensed under the `MIT license`_.  All code
+currently contained in twill is Copyright (C) 2005, 2006, 2007
+C. Titus Brown <titus@idyll.org>.
+
+In plain English: I own the code, but you're welcome to use it,
+subsume it into other projects, and distribute it freely.  However,
+you must retain copyright attribution.
+
+pyparsing_, BeautifulSoup_, and mechanize_ are all included with
+twill, but are under their own licenses.
+
+.. _MIT license: http://www.opensource.org/licenses/mit-license.php
+
+Developer releases
+~~~~~~~~~~~~~~~~~~
+
+"Developer releases" incorporating all recent significant changes are
+made available at http://darcs.idyll.org/~t/projects/twill-latest.tar.gz
+
+You can install them with easy_install by typing ::
+
+   easy_install -f http://darcs.idyll.org/~t/projects/twill-latest.tar.gz
+
+Obtaining twill with darcs
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+darcs_ is a distributed version control system that allows users to
+maintain their own versions of various programs.  It's a convenient
+way for me to make the latest source code available quickly, and
+it also is a dandy way to submit patches.
+
+To obtain twill using darcs, install darcs and then type
+
+::
+
+   darcs get http://darcs.idyll.org/~t/projects/twill/
+
+To propose a change to the lead developer, make the changes and
+then do a 'send':
+
+::
+
+   darcs record -am "explanation of change"
+   darcs send -a
+
+To pull in changes made by the lead developer some time later:
+
+::
+
+   darcs pull
+
+Advanced documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+twill uses a melange of different packages.  Here are some potentially
+useful links:
+
+ * `urllib2.py: the missing manual`_ -- a detailed discussion of urllib2
+   functionality that can be directly applied to twill.
+
+.. _`urllib2.py: the missing manual`: http://www.voidspace.org.uk/python/articles/urllib2.shtml
+
+Future Plans
+------------
+
+TODO:
+
+for 9.0 (beta).
+
+ 1. RECORDING.
+ 2. execute directories/directory trees.
+ 3. expose 'browser' & document re Grig; regexp esp.; make source docs.
+ 4. twill-fork: make file writing stuff optional; test massive fork fn.
+ 5. add config directives for socket timeout.
+ 6. directory stuff: import from specific place, access script location.
+
+Misc fixes & cleanups:
+
+ 1. Paul McGuire's pyparsing suggestions.
+ 2. cookie "1" vs 1, in cookielib.
+ 3. extend_with etc. -- module namespaces, e.g. extmodule.fn?
+ 4. implement more complex proxy support.  proxies proxies proxies.
+ 5. 'history' to show command history...
+ 6. record commands to script
+ 7. command line option for stdout -> file
+
+Random ideas:
+
+ 1. Build twill interfaces for zope.testbrowser and mechanoid and pycurl.
+
+    (This shouldn't be too difficult, since both are based on mechanize...)
+
+ 2. Develop twill-like languages for PAMIE_ and PyXPCOM_.  Note that the
+    hard work, at least for PAMIE, is already done; check out the
+    `PAMIE examples page`_.
+
+Contributions are welcome & will be duly acknowledged!
+
+.. _mechanize: http://wwwsearch.sf.net/
+.. _pyparsing: http://pyparsing.sourceforge.net/
+.. _darcs: http://abridgegame.org/darcs/
+
+.. _PAMIE: http://pamie.sourceforge.net/
+.. _PAMIE examples page: tutoriala.html
+.. _PyXPCOM: http://kb.mozillazine.org/PyXPCOM
+.. _BeautifulSoup: http://www.crummy.com/software/BeautifulSoup/

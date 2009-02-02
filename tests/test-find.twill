@@ -1,0 +1,9 @@
+setglobal init __url__
+code 200
+
+find "session ID is None"
+echo found __match__
+
+go /login
+url g.*
+echo found __match__

@@ -1,0 +1,11 @@
+go /test_global_form
+
+showforms
+
+## this will break if the global form cannot be 'clicked on' by mechanize
+fv 1 global_form_entry hi
+
+## test for self-inflicted bug regarding select_form
+go /test_global_form
+fv 2 hello world
+submit

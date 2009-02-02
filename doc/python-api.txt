@@ -1,0 +1,149 @@
+==================
+twill's Python API
+==================
+
+Using TwillBrowser
+Making extensions
+
+twill is essentially a thin shell around the mechanize_ package.  All
+twill commands are implemented in the ``commands.py`` file, and
+pyparsing_ does the work of parsing the input and converting it into
+Python commands (see ``parse.py``).  Interactive shell work and
+readline support is implemented via the `cmd`_ module (from the
+standard Python library).
+
+Using twill from Python
+~~~~~~~~~~~~~~~~~~~~~~~
+
+There are two fairly simple ways to use twill from Python.  (They are
+compatible with each other, so you don't need to choose between them;
+just use whichever is appropriate.)
+
+The first is to simply import all of the commands in ``commands.py`` and
+use them directly from Python.  For example, ::
+
+   from twill.commands import *
+   go("http://www.python.org/")
+   showforms()
+
+This has the advantage of being very simple, as well as being tied
+directly to the documented set of commands in `the commands
+reference`_.
+
+However, the functions in ``commands.py`` are too simple for some situations.
+In particular, they do not have any return values, so in order to e.g. get
+the HTML for a particular page, you will need to talk to the actual "Web
+browser" object that twill uses.
+
+To talk to the Web browser directly, call the ``get_browser`` function: ::
+
+   from twill import get_browser
+   b = get_browser()
+
+   b.go("http://www.python.org/")
+   b.showforms()
+
+This is the second way to use twill from Python, and it is much more flexible.
+All of the functions in ``commands.py`` use this same browser object, so
+you can mix and match: ::
+
+   from twill import get_browser
+   b = get_browser()
+
+   from twill.commands import *
+   go("http://www.python.org/")
+   b.showforms()
+
+The basic difference is that functions available through the browser object
+are intended for use from Python, while ``commands.py`` functions define
+the twill *language*.  In fact, all of the functions in ``commands.py``
+are small snippets of code wrapped around the browser object.
+
+For more information on the functions exposed by the browser object,
+see the **TwillBrowser** section below.
+
+.. _the commands reference: commands.html
+
+TwillBrowser
+~~~~~~~~~~~~
+
+...
+
+Extending twill
+~~~~~~~~~~~~~~~
+
+Right now twill is very easy to extend: just build a Python module
+that exports the functions you want to call, place it in the
+PYTHONPATH, and run ``extend_with <modulename>``.  See
+``extensions/mailman_sf.py`` for an extension that helps deal
+with mailman lists on SourceForge; this extension is used by
+``examples/discard-sf-mailman-msgs``.
+
+Notes:
+
+  * If your extension raises ``SystemExit``, twill will stop
+    processing the script.  This is a useful way to build in
+    conditionals, e.g. see the ``discard-sf-mailman-msgs`` example
+    script.
+
+Passing variables from Python into twill
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Suppose you write an extension function, and you want to return some
+values from that extension function for later use in filling out forms.
+How do you do this?
+
+The simplest way is to simply insert them into the global or local
+dictionary, like so: ::
+
+  from twill.namespaces import get_twill_glocals
+  global_dict, local_dict = get_twill_glocals()
+
+  global_dict['varname'] = value
+
+You can then use the usual variable access methods to substitute for
+varname, e.g. ::
+
+  formvalue 1 field $varname
+
+Using twill in other Python programs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+All of the commands available in twill are implemented as top-level functions
+in the `twill.commands` module.  For example, to use twill functionality from
+another Python program, you can do:
+
+::
+
+   from twill.commands import go, showforms, formclear, fv, submit
+
+   go('http://issola.caltech.edu/~t/qwsgi/qwsgi-demo.cgi/')
+   go('./widgets')
+   showforms()
+
+   formclear('1')
+   fv("1", "name", "test")
+   fv("1", "password", "testpass")
+   fv("1", "confirm", "yes")
+   showforms()
+
+   submit('0')
+
+Note that all arguments need to be strings, at least for the moment.
+
+You can capture command output by passing any write-enabled file handle
+to twill.set_output, e.g. ::
+
+   twill.set_output(StringIO())
+
+will send all non-error output into a StringIO() object.
+
+twill also provides a simple wrapper for mechanize_ functionality, in
+the `browser.py` module.  This may be useful for twill extensions as
+well as for other toolkits, but the API is still unstable.
+
+.. _mechanize: http://wwwsearch.sf.net/
+.. _pyparsing: http://pyparsing.sourceforge.net/
+.. _darcs: http://abridgegame.org/darcs/
+
+.. _cmd: http://docs.python.org/lib/module-cmd.html

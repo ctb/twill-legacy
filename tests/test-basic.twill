@@ -1,0 +1,225 @@
+#### This is a script designed to test basic functionality for most of
+#### the commands in twill.  The only things not tested are the commands
+#### that only print stuff out, and:
+####
+#### add_auth, extend_with, runfile, setglobal/setlocal interaction
+#### also, be sure to test $/__ interpolation.
+
+#debug http 1
+#debug commands 1
+
+setglobal init __url__
+
+# should fail silently
+back
+
+go $init
+code 200
+
+# miscellaneous gunk for better code coverage
+#save_html /dev/null  # doesn't work on Windows... <sigh>
+sleep 0
+agent test
+
+clear_cookies
+
+go $init
+code 200
+showlinks
+
+# intro page.
+
+find "Your session ID is None"
+find "this is visit #0"
+find 'You are logged in as "None"'
+notfind 'this is visit #1'
+
+## reload and assign a session ID
+
+reload
+code 200
+notfind "Your session ID is None"
+
+# increment visit number.
+follow increment
+code 200
+find "this is visit #1"
+
+reload
+code 200
+find "this is visit #2"
+
+# save & then clear cookies.
+show_cookies
+save_cookies 'test-basic.cookies'
+clear_cookies
+
+# return to main page; did clear work?
+
+go ./
+find "Your session ID is None"
+find "this is visit #0"
+find 'You are logged in as "None"'
+notfind 'this is visit #2'
+
+# yep!  all right. load cookies, check that.
+load_cookies 'test-basic.cookies'
+
+back
+back
+back
+back
+
+go ./
+code 200
+notfind "Your session ID is None"
+find "this is visit #2"
+
+# ok, cookies check out. now check login/access restricted.
+
+showhistory
+
+go restricted/
+code 403
+back
+
+showhistory
+echo 'URL IS' __url__
+url $init
+
+show
+
+find 'this is visit #2'
+
+reload
+
+echo 'URL4 is' __url__
+
+#code 200
+#find 'this is visit #2'
+
+go ./login
+
+# test formclear
+showforms
+fv 1 username test
+formclear 1
+fv 1 "submit me" click
+submit
+code 200
+find "Log in:"
+
+
+fv 1 username test
+setlocal name "submit you"
+setglobal name $name
+fv 1 $name click
+submit
+
+code 200
+show
+find 'You are logged in as "test"'
+find 'this is visit #2'
+
+save_cookies 'test-basic.cookies'
+clear_cookies
+
+# ok, clear username?
+go ./
+code 200
+find 'You are logged in as "None"'
+
+# yep, reload & visit restricted.
+load_cookies 'test-basic.cookies'
+go ./
+code 200
+find 'You are logged in as "test"'
+
+go restricted/
+code 200
+
+# success!  log out, and try again.
+go ../logout
+go ./restricted
+code 403
+
+### test input/password
+
+back
+
+go ./login
+show
+code 200
+
+getinput "Enter some (weird) input: "
+fv 1 username __input__
+fv 1 "submit me" click
+submit
+
+code 200
+find __input__
+
+echo 'found"' __input__ '"on the page, hooray!'
+
+getpassword "Enter your (weird) secret identity: "
+go ./login
+fv 1 "submit me" click
+fv 1 username __password__
+submit
+
+show
+
+code 200
+find __password__
+echo 'found"' __password__ '"on the page, hooray!'
+
+### test space transform.
+
+go ./
+code 200
+
+# test links with spaces in the URL
+follow "test spaces"
+code 200
+
+# test links with spaces in the link text
+back
+follow "test spaces2"
+code 200
+
+# test quoted handling
+echo __input__
+echo '__noinput__'
+
+# comments at end of line!
+go ./ ##### this is a test
+
+# submit-button-less form
+go ./simpleform
+fv 1 n testa
+fv 1 n2 testb
+submit
+find "testa testb"
+
+# file upload
+go ./upload_file
+formfile 1 upload ../README.txt
+submit
+code 200
+find "twill: a simple scripting"
+
+# ok, separate issue: redirect + enctype problem that I fixed in
+# wwwsearch, urllib2_support, HTTPRedirectHandler, redirect_request.
+# (redirects after a POST retain content-type inappropriately)
+
+## @@CTB
+go ./formpostredirect
+fv 1 test "hello"
+submit
+
+show
+code 200
+
+go /
+
+runfile test-go.twill

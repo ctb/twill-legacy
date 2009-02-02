@@ -1,0 +1,8 @@
+# starting URL is provided to it by the unit test support framework.
+
+go ./multisubmitform
+code 200
+
+fv 1 sub_a click
+submit
+find "used_sub_a"

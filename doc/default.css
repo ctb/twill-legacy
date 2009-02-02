@@ -1,0 +1,44 @@
+body,p,table,li,h1,h2,h3,hr
+{
+font-family: verdana, arial, 'sans serif'; 
+font-size: 95%
+}
+
+strong
+{
+font-family: verdana, arial, 'sans serif'; 
+font-size: 85%
+}
+
+
+h1.title
+{
+font-size: 110%
+}
+
+body
+{
+#ffffff;
+}
+
+a:link {COLOR: navy;}
+a:visited {COLOR: firebrick;}
+a:active {COLOR: seashell;}
+a:hover {COLOR: navy;}
+
+div {
+    margin:0;
+    padding:0 .25em 0 0;
+/*     text-align: right
+     border:1px solid #aaa;
+     background-color:#ececec; */
+    }
+
+
+pre.literal-block, pre.doctest-block {
+  margin-left: 2em ;
+  margin-right: 2em ;
+  background-color: #ffffff;
+  border: thin black solid;
+  padding: 5px;
+}

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.3.7: http://docutils.sourceforge.net/" />
+<title>Web browsing with twill</title>
+<link rel="stylesheet" href="default.css" type="text/css" />
+</head>
+<body>
+<div class="document" id="web-browsing-with-twill">
+<h1 class="title">Web browsing with twill</h1>
+<p>twill strives to be a complete implementation of a Web browser,
+omitting only JavaScript support.  It includes support for cookies,
+basic authentication, and most (all?) HTTP trickery, including
+HTTP-EQUIV redirects.  Please <a class="reference" href="mailto:twill&#64;lists.idyll.org">let me know</a> if you find a situation
+where it doesn't work!</p>
+<p>twill implements a variety of <a class="reference" href="commands.html">commands</a>.  With the built-in language,
+you can do things like go to a specific URL; follow links; fill out
+forms and submit them; save, load, and delete cookies; and change the
+agent string.  You can also easily extend twill with new and specialized
+Python commands.</p>
+<div class="section" id="using-twill-interactively">
+<h1><a name="using-twill-interactively">Using twill interactively</a></h1>
+<p>twill-sh lets you interactively browse the Web.  It features built-in
+help, e.g. &quot;help go&quot; will describe the command 'go' to you;
+command-line completion with TAB; and history browsing (UP/DOWN arrows).</p>
+</div>
+<div class="section" id="proxy-servers">
+<h1><a name="proxy-servers">Proxy servers</a></h1>
+<p>twill understands the <tt class="docutils literal"><span class="pre">http_proxy</span></tt> environment variable generically
+used to set proxy server information.  To use a proxy in UNIX or
+Windows, just set the <tt class="docutils literal"><span class="pre">http_proxy</span></tt> environment variable, e.g.</p>
+<pre class="literal-block">
+% export http_proxy=&quot;http://www.someproxy.com:3128&quot;
+</pre>
+<p>or</p>
+<pre class="literal-block">
+% setenv http_proxy=&quot;http://www.someotherproxy.com:3148&quot;
+</pre>
+</div>
+<div class="section" id="recording-scripts">
+<h1><a name="recording-scripts">Recording scripts</a></h1>
+<p>Writing twill scripts is boring.  One simple way to get at least a
+rough initial script is to use the <a class="reference" href="http://maxq.tigris.org/">maxq</a> recorder to generate a twill
+script.  <a class="reference" href="http://maxq.tigris.org/">maxq</a> acts as an HTTP proxy and records all HTTP traffic; I
+have written a simple twill script generator for it.  The script
+generator and installation docs are included in the twill distribution
+under the directory <tt class="docutils literal"><span class="pre">maxq/</span></tt>.</p>
+<p>A more recent option is to use the Firefox extension <a class="reference" href="http://developer.spikesource.com/wiki/index.php/Projects:TestGen4Web">TestGen4Web</a>, which
+will record your Web browsing in a standard format.  Matt Harrison is
+working on converter.</p>
+</div>
+<div class="section" id="running-and-using-tidy">
+<h1><a name="running-and-using-tidy">Running and using tidy</a></h1>
+<p>The <tt class="docutils literal"><span class="pre">tidy</span></tt> program does a nice job of producing correct HTML from
+mangled, broken, eeevil Web pages.  By default, twill will run pages
+through <tt class="docutils literal"><span class="pre">tidy</span></tt> before processing them.  This is on by default
+because the Python libraries that parse HTML are very bad at dealing
+with incorrect HTML, and will often return incorrect results on &quot;real
+world&quot; Web pages.</p>
+<p>To disable this feature, set <tt class="docutils literal"><span class="pre">config</span> <span class="pre">do_run_tidy</span> <span class="pre">0</span></tt>.</p>
+<p>If <tt class="docutils literal"><span class="pre">tidy</span></tt> is not installed, twill will silently ignore it.  It may
+be desirable to <em>require</em> a functioning <tt class="docutils literal"><span class="pre">tidy</span></tt> installation; so, to fail
+when <tt class="docutils literal"><span class="pre">tidy</span></tt> <em>isn't</em> installed, set <tt class="docutils literal"><span class="pre">config</span> <span class="pre">tidy_should_exist</span> <span class="pre">1</span></tt>.</p>
+<p>See the <a class="reference" href="http://tidy.sourceforge.net/">tidy page</a> for more information on <tt class="docutils literal"><span class="pre">tidy</span></tt>.</p>
+</div>
+<div class="section" id="miscellaneous-implementation-details">
+<h1><a name="miscellaneous-implementation-details">Miscellaneous implementation details</a></h1>
+<blockquote>
+<ul class="simple">
+<li>twill ignores robots.txt.</li>
+<li>http-equiv=refresh headers are handled immediately, independent of the
+'pause' component of the 'content' attribute.</li>
+<li>twill does not understand javascript.</li>
+</ul>
+</blockquote>
+</div>
+<div class="section" id="robust-parsing-of-html">
+<h1><a name="robust-parsing-of-html">Robust parsing of HTML</a></h1>
+<p>Often (usually?) you don't control the HTML on Web pages you visit.
+There are several different configuration options that control how
+lenient twill is in parsing Web pages.</p>
+<p>The three basic options to look at are 'use_tidy',
+'use_BeautifulSoup', and 'allow_parse_errors'.  By default, twill will
+attempt to use the 'tidy' HTML preprocessor program to clean up HTML
+before parsing the page.  twill will also attempt to use the
+<a class="reference" href="http://www.crummy.com/software/BeautifulSoup/">BeautifulSoup</a> parser, if installed, to parse the page.  And, finally,
+for really miserable pages, the form parsing code will ignore parse
+errors as much as possible.  To turn on strict HTML parsing, set the
+config options like so:</p>
+<pre class="literal-block">
+config use_tidy 0
+config use_BeautifulSoup 0
+config allow_parse_errors 0
+</pre>
+<p>(By default, all options are set to '1'.)</p>
+<p>You can set 'require_tidy' and 'require_BeautifulSoup' to require
+that tidy and BeautifulSoup be installed for your script.</p>
+<p>The 'tidy_ok' command can be used to assert that tidy reports no warnings
+or errors.</p>
+</div>
+</div>
+</body>
+</html>

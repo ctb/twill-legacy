@@ -1,0 +1,78 @@
+ANNOUNCING twill v0.9b1.
+
+twill is a simple language for browsing the Web.  It's designed for
+automated testing of Web sites, but it can be used to interact with
+Web sites in a variety of ways.  In particular, twill supports form
+submission, cookies, redirects, and HTTP authentication.
+
+This release of twill is officially "Pretty Dang Stable".
+
+A twill script to use the "I'm feeling lucky" button on Google looks
+like this:
+
+    setlocal query "twill Python"
+
+    go http://www.google.com/
+
+    fv 1 q $query
+    submit btnI     # use the "I'm feeling lucky" button
+
+    show
+
+(Note that using this script abuses Google's Terms of Service.  So don't.)
+
+You can install the latest release of twill with easy_install,
+
+    easy_install twill
+
+or download this release at
+
+    http://darcs.idyll.org/~t/projects/twill-0.9b1.tar.gz
+
+Documentation is included in the .tar.gz and is also online at
+
+    http://twill.idyll.org/
+
+Miscellaneous details:
+
+twill is implemented in Python and uses pyparsing and mechanize.  In
+addition to the existing simple command language, twill can easily be
+extended with Python.  twill also provides a fairly simple and
+well-documented wrapper around mechanize.
+
+twill does not understand JavaScript, I'm sorry to say.
+
+---
+
+Significant changes with 0.9b1
+
+  * Switched to MIT license.
+
+  * twill tests now work under Windows and cygwin (switch to subprocess).
+    Fixed a variety of Windows-specific bugs in the process ;).
+
+  * Complete integration with latest mechanize, including global form
+    access.
+
+  * Added Seo Sanghyeon's patch to enable form element TAB completion on
+    'formvalue' command.
+
+  * twill-sh now gathers scripts from subdirectories.
+
+  * Added paste.lint test into wsgi_intercept test code.
+
+  * Cleared up confusing test output when test server didn't run.
+
+  * Started using the BeautifulSoup code included with mechanize.
+
+  * Added TWILL_TEST_PORT for running tests on something other than port 8080.
+
+  * Added Andy Chamber's patch to the formfill extension module.
+
+  * Fixed DNS tests to be reliant on name records I control.
+
+  * Removed ClientCookie dependencies.
+
+  * Defended my PhD.
+
+  * Added newline '\n' processing in arguments.

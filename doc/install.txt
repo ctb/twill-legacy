@@ -1,0 +1,86 @@
+================
+Installing twill
+================
+
+.. contents::
+
+The recommended way to install twill is to use easy_install_: ::
+
+   easy_install twill
+
+You can also install it directly from the distribution tar.gz file
+by unpacking the .tar.gz file and running ::
+
+   python setup.py install
+
+Either way, **you need to have setuptools installed**; setuptools
+doesn't come with Python 2.3 or Python 2.4, so you will need to
+install it before you install twill.  To install both easy_install and
+setuptools, grab ez_setup.py from ::
+
+  http://peak.telecommunity.com/dist/ez_setup.py
+
+and run 'python ez_setup.py'.  This will install setuptools and put
+an easy_install program in your Python scripts directory.
+
+Installing twill on Windows
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The most frequent problem people seem to encounter on Windows is the
+inability to run 'twill-sh'.  This happens because the Python
+installation's 'scripts' directory isn't in the path by default.
+According to the `Python Windows FAQ`_, the magic incantation is
+something like this: ::
+
+   PATH C:\Python23\scripts;%PATH%
+
+(You should replace "C:\Python23" with the directory of your Python
+installation.)
+
+Installing twill on Mac OS X
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As with Windows, the problem most frequently encountered seems to be
+that the Python 'bin' directory isn't part of your path by default.
+This means that the twill shell program, 'twill-sh', will not be found
+unless you add the script directory into your path.  On current
+versions of Mac OS X, something like this should work: for bash
+shells,::
+
+   export PATH=$PATH:/System/Library/Frameworks/Python.framework/Versions/2.3/bin
+
+or for csh-based shells, ::
+
+   set path=($path /System/Library/Frameworks/Python.framework/Versions/2.3/bin)
+
+Troubleshooting your installation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The first and only thing you should do before asking the list (twill@lists.idyll.org) for help is to see if you have the twill package installed correctly: ::
+
+   % python
+   >>> import twill.shell
+   >>> twill.shell.main()
+
+(This should drop you into the twill shell irrespective of whether 'twill-sh'
+is on your path.)  **If this works**, twill is installed correctly and you
+just need to adjust your path (see above for examples).  If you still
+need help, or the above code doesn't work, please copy and paste the results
+of entering the above code into your e-mail to the list -- thanks!
+
+Upgrading twill
+~~~~~~~~~~~~~~~
+
+If you don't want to download a new tar.gz file, you can use
+easy_install to upgrade twill.  To get the latest release, use ::
+
+   easy_install -U twill
+
+To download the latest development release (which is usually pretty
+stable) use ::
+
+   easy_install -f http://issola.caltech.edu/~t/dist/ -U twill
+
+.. _easy_install: http://peak.telecommunity.com/DevCenter/EasyInstall
+.. _setuptools: http://peak.telecommunity.com/DevCenter/setuptools
+.. _Python Windows FAQ: http://www.python.org/doc/faq/windows.html

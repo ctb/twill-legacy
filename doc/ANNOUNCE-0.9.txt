@@ -1,0 +1,59 @@
+ANNOUNCING twill v0.9.
+
+twill is a simple language for browsing the Web.  It's designed for
+automated testing of Web sites, but it can be used to interact with
+Web sites in a variety of ways.  In particular, twill supports form
+submission, cookies, redirects, and HTTP authentication.
+
+This release of twill is officially "Pretty Dang Stable".
+
+A twill script to use the "I'm feeling lucky" button on Google looks
+like this:
+
+    setlocal query "twill Python"
+
+    go http://www.google.com/
+
+    fv 1 q $query
+    submit btnI     # use the "I'm feeling lucky" button
+
+    show
+
+(Note that using this script abuses Google's Terms of Service.  So don't.)
+
+You can install the latest release of twill with easy_install,
+
+    easy_install twill
+
+or download this release at
+
+    http://darcs.idyll.org/~t/projects/twill-0.9.tar.gz
+
+Documentation is included in the .tar.gz and is also online at
+
+    http://twill.idyll.org/
+
+Miscellaneous details:
+
+twill is implemented in Python and uses pyparsing and mechanize.  In
+addition to the existing simple command language, twill can easily be
+extended with Python.  twill also provides a fairly simple and
+well-documented wrapper around mechanize.
+
+Note that twill does not understand JavaScript.
+
+---
+
+Significant changes with 0.9:
+
+ - many small bugs were fixed, of course!
+
+ - patched subprocess pipe problem (Chris Abraham).  This fixes problems
+   with long-running twill processes.
+
+ - twill now "plays nice" with other versions of mechanize and ClientForm
+   (good for including it in distributions).
+
+ - Corrected license information => MIT in all files.
+
+ - new 'info' command gives human-readable page summary.

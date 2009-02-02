@@ -1,0 +1,66 @@
+extend_with require
+require success
+
+setlocal init_url __url__
+config use_tidy 0
+
+extend_with formfill
+
+go /testform
+
+fv_multi the_form some_id=value
+
+# OK, reset
+formclear 1
+
+###
+# test multiselect set
+
+fv_multi 1 selecttest=value1 selecttest=value2 selecttest=value3
+submit
+show
+find "SELECTTEST: ==selvalue1 AND selvalue2 AND selvalue3=="
+
+##
+# test formclear after set
+
+fv_multi 1 selecttest=value1 selecttest=value2 selecttest=value3
+
+formclear 1
+submit
+show
+find "NO FORM"
+
+# test +/- stuff
+formclear 1
+
+fv_multi_sub 1 selecttest=+value1 selecttest=value2 selecttest=-value3
+
+find "SELECTTEST: ==selvalue1 AND selvalue2=="
+
+fv_multi_sub 1 selecttest=+value1 selecttest=+value2 selecttest=-value1
+
+find "SELECTTEST: ==selvalue2=="
+
+fv_multi_sub 1 selecttest=test.value3 selecttest=Test.Value4 selecttest=testme.val
+show
+
+###
+
+# test fv_match and fv_multi_match
+
+fv_match the_form item_ X
+submit
+find "item_a=X AND item_b=X AND item_c=X"
+
+fv_multi_match the_form item_ 1 2 3
+submit
+find "item_a=1 AND item_b=2 AND item_c=3"
+
+fv_multi_match the_form item_ 1 2
+submit
+find "item_a=1 AND item_b=2 AND item_c=2"
+
+###
+
+no_require

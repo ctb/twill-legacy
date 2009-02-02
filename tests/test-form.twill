@@ -1,0 +1,156 @@
+extend_with require
+require success
+
+setlocal init_url __url__
+
+config use_tidy 0
+
+go /multisubmitform
+
+go /testform
+
+# first test selecting by ID...
+fv the_form some_id value
+
+# OK, reset
+formclear 1
+
+fv 1 selecttest val
+submit submit_button
+find "SELECTTEST: ==val=="
+
+###
+
+formclear 1
+fv 1 submit_button click
+submit submit_button
+find "NO FORM"
+
+###
+# test multiselect set
+
+fv 1 selecttest value1
+fv 1 selecttest value2
+fv 1 selecttest value3
+submit
+show
+find "SELECTTEST: ==selvalue1 AND selvalue2 AND selvalue3=="
+
+##
+# test formclear after set
+
+fv 1 selecttest value1
+fv 1 selecttest value2
+fv 1 selecttest value3
+
+formclear 1
+submit
+show
+find "NO FORM"
+
+# test +/- stuff
+formclear 1
+
+fv 1 selecttest +value1
+fv 1 selecttest value2
+fv 1 selecttest -value3
+
+submit
+find "SELECTTEST: ==selvalue1 AND selvalue2=="
+
+fv 1 selecttest +value1
+fv 1 selecttest +value2
+fv 1 selecttest -value1
+
+submit
+find "SELECTTEST: ==selvalue2=="
+
+###
+
+showforms
+fv 1 item test
+showforms
+submit
+show
+find "NAMETEST: ==item=test=="
+
+###
+
+fv 1 3 test
+showforms
+submit
+show
+find "NAMETEST: ==item_a=test=="
+
+###
+
+fv 1 selecttest test.value3
+fv 1 selecttest Test.Value4
+fv 1 selecttest testme.val
+submit
+show
+
+###
+
+formaction 1 "${init_url}testformaction"
+fv 1 selecttest value1
+fv 1 item test
+submit
+find "==item AND selecttest=="
+
+###
+
+go /test_simple_checkbox
+fv 1 checkboxtest 0
+fv 1 checkboxtest 1
+fv 1 checkboxtest on
+
+#
+# first, test basic premises: checkbox default is false,
+#
+
+go /test_checkbox
+fv 1 post click
+submit
+find "CHECKBOXTEST: ==False=="
+
+#
+# ...and checkbox can be set to True.
+#
+
+fv 1 checkboxtest True
+submit
+find "CHECKBOXTEST: ==True=="
+
+fv 1 checkboxtest 1
+submit
+find "CHECKBOXTEST: ==True=="
+
+fv 1 checkboxtest -1
+submit
+find "CHECKBOXTEST: ==True=="
+
+#
+# ...and checkbox can be set to False.
+#
+
+fv 1 checkboxtest False
+submit
+find "CHECKBOXTEST: ==False=="
+
+fv 1 checkboxtest 0
+submit
+find "CHECKBOXTEST: ==False=="
+
+#
+# make sure we can clear the form, too.
+#
+
+fv 1 checkboxtest True
+formclear 1
+submit
+find "CHECKBOXTEST: ==False=="
+
+###
+
+no_require

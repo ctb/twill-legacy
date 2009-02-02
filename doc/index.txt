@@ -1,0 +1,141 @@
+===================================================
+twill: a simple scripting language for Web browsing
+===================================================
+
+twill is a simple language that allows users to browse the Web from
+a command-line interface.  With twill, you can navigate through Web
+sites that use forms, cookies, and most standard Web features.
+
+twill supports automated Web testing and has a simple Python interface.
+Check out the examples_!
+
+twill is open source and written in Python.
+
+Downloading twill
+-----------------
+
+The latest release of twill is `twill 0.9 <ANNOUNCE-0.9.txt>`__,
+released Thursday, December 27th, 2007; it is available for download at
+http://darcs.idyll.org/~t/projects/twill-0.9.tar.gz.  You can also use
+Python's easy_install_ to install or upgrade twill.
+
+twill works with Python 2.3 or later.
+
+To start using twill, install it and then type ``twill-sh``.  At the
+prompt type: ::
+
+   go http://www.slashdot.org/
+   show
+   showforms
+   showhistory
+
+Documentation
+-------------
+
+The documentation for the latest release is always at
+http://twill.idyll.org/.
+
+The in-development version of the docs can be found at
+http://darcs.idyll.org/~t/projects/twill/doc/.
+
+Documentation is available for the following topics:
+
+ * `Examples`_ -- some short examples.
+
+ * `Web browsing with twill`_ -- General introduction to twill.
+
+ * `Language reference`_ -- the twill scripting language.
+
+ * `Testing Web sites with twill`_ -- how to use twill to test Web sites.
+
+ * `Extension modules`_ -- extension modules that come with twill.
+
+ * `Python API`_ -- for Python programmers interested in using twill from
+   Python.
+
+ * `Developer information`_ -- for Python developers interested in extending
+   or fixing twill.
+
+ * `Other tools and packages`_ -- projects relevant to, or based upon, twill.
+
+ * `Known problems`_ -- those problems that are still lurking in the code.
+
+Mailing List
+------------
+
+There's a moderately active mailing list at twill@lists.idyll.org; there is
+also an archive_ for this list.
+
+Contributing
+------------
+
+Bug reports, fixes, extensions, and links to interesting blog or
+use case reports are always welcome!  You can send them to the mailing
+list or to Titus directly.
+
+When reporting bugs, please be sure to use the '-f' flag for ``twill-sh``
+so that we can see the full traceback.
+
+Authors and License
+-------------------
+
+The main author of twill is C. Titus Brown, titus@idyll.org.  A
+number of people have contributed bug reports and code since the first
+release; they are acknowledged below.
+
+The twill source code is Copyright (C) 2005, 2006, 2007 C. Titus
+Brown.  twill is available under the `MIT license`_.
+
+pyparsing_, mechanize_, and BeautifulSoup_ are included with twill for
+convenience, but are under their own licenses.
+
+Acknowledgements
+----------------
+
+Cory Dodt had a great idea with PBP, and I thank him for his insight.
+Ian Bicking gave me the idea of reimplementing PBP on top of IPython
+(since abandoned in favor of cmd_), and suggested the "in-process"
+hack.  Grig Gheorghiu was strangely enthusiastic about the simple demo
+I showed him and has religiously promoted twill ever since.  John
+J. Lee has promptly and enthusiastically checked in my various patches
+to mechanize.  Michele Simionato is an early adopter who has helped
+quite a bit.  Thanks, guys...
+
+Bug reports have come in from the following fine people: Chris Miles,
+MATSUNO Tokuhiro, Elvelind Grandin, Mike Rovner, sureshvv, Terry Peppers,
+Kieran Holland, Alexander Shvedunov, Norman Khine, Leonardo Santagada,
+Sebastien Pierre, Herve Cauwelier, aledain, Uy Do, David Hancock,
+and Tomi Hautakoski.
+
+Patches have been submitted by Joeri van Ruth, Paul McGuire, Ed Rahn,
+Nic Ferrier, Robert Leftwich, James Cameron, William Volkman,
+Tommi Virtanen, Simon Buenzli, sureshvv, Jeff Martin, Stephen
+Thorne, and Bob Halley.
+
+Features were proposed by Ben Bangert, and Tristan De Buysscher.
+
+Thanks, all!
+
+----
+
+.. _Installing twill: install.html
+.. _Web browsing with twill: browsing.html
+.. _Language reference: commands.html
+.. _Developer information: developer.html
+.. _Python API: python-api.html
+.. _Testing Web sites with twill: testing.html
+.. _Other tools and packages: other.html
+.. _Known problems: problems.html
+.. _Extension modules: extensions.html
+.. _archive: http://lists.idyll.org/pipermail/twill/
+
+.. _cmd: http://docs.python.org/lib/module-cmd.html
+
+.. _MIT license: http://www.opensource.org/licenses/mit-license.php
+.. _easy_install: http://peak.telecommunity.com/DevCenter/EasyInstall
+
+.. _mechanize: http://wwwsearch.sf.net/
+.. _pyparsing: http://pyparsing.sourceforge.net/
+.. _BeautifulSoup: http://www.crummy.com/software/BeautifulSoup/
+
+.. _examples: examples.html

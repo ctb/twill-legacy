@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.3.7: http://docutils.sourceforge.net/" />
+<title>Known Problems or Error Messages</title>
+<link rel="stylesheet" href="default.css" type="text/css" />
+</head>
+<body>
+<div class="document" id="known-problems-or-error-messages">
+<h1 class="title">Known Problems or Error Messages</h1>
+<p>Problems posted to the twill mailing list (or sent to Titus personally)
+will end up here if they are either outside the scope of twill, or
+intractable within the context of the twill project!</p>
+<p>Last updated Apr 2006.</p>
+<div class="section" id="inspect-module-masking">
+<h1><a name="inspect-module-masking">1. inspect module masking</a></h1>
+<p>The error message</p>
+<pre class="literal-block">
+AttributeError: 'module' object has no attribute 'getmro'
+</pre>
+<p>is caused by masking of the default Python 'inspect' module with another
+module named 'inspect'.  Known to happen in Webware installs.
+(Reported by David Hancock.)</p>
+</div>
+<div class="section" id="empty-textarea-form-elements-are-filled-with-a-newline-by-tidy">
+<h1><a name="empty-textarea-form-elements-are-filled-with-a-newline-by-tidy">2. Empty 'textarea' form elements are filled with a newline by 'tidy'.</a></h1>
+<p>Specifically,</p>
+<pre class="literal-block">
+&lt;textarea&gt;&lt;/textarea&gt;
+</pre>
+<p>is turned into</p>
+<pre class="literal-block">
+&lt;textarea&gt;
+&lt;/textarea&gt;
+</pre>
+<p>by tidy.  Set 'config use_tidy 0' to turn this off.  You can use</p>
+<pre class="literal-block">
+&lt;textarea /&gt;
+</pre>
+<p>to sneak an empty textarea through tidy.</p>
+<p>(Reported by Gabor Farkas.)</p>
+</div>
+<div class="section" id="unicode-support-is-still-young">
+<h1><a name="unicode-support-is-still-young">3. Unicode support is still young.</a></h1>
+<p>It's not yet clear how well mechanize and twill adhere to either the
+official recommendations
+(<a class="reference" href="http://www.w3.org/TR/REC-html40/charset.html">http://www.w3.org/TR/REC-html40/charset.html</a>) or the unofficial
+recommendations (<a class="reference" href="http://www.alanwood.net/unicode/htmlunicode.html">http://www.alanwood.net/unicode/htmlunicode.html</a>) for
+dealing with unicode.  There are definitely some problems in the version
+of mechanize included with twill in 0.8.4; this should be resolved in
+later releases.</p>
+</div>
+<div class="section" id="various-kinds-of-broken-html-will-break-the-form-parser">
+<h1><a name="various-kinds-of-broken-html-will-break-the-form-parser">4. Various kinds of broken HTML will break the form parser.</a></h1>
+<p>For example, twill (or, rather, ClientForm) sees no forms in this HTML</p>
+<pre class="literal-block">
+&lt;font&gt;
+&lt;INPUT type=&quot;this&quot;&gt;
+
+&lt;FORM&gt;
+&lt;input type=&quot;blah&quot;&gt;
+&lt;/form&gt;
+</pre>
+</div>
+<div class="section" id="windows-problems-and-tidy">
+<h1><a name="windows-problems-and-tidy">5. Windows problems and tidy</a></h1>
+<p>If you get the error message</p>
+<pre class="literal-block">
+The process cannot access the file because it is being used by another process.
+</pre>
+<p>on Windows, try turning 'tidy' processing off:</p>
+<blockquote>
+config use_tidy 0</blockquote>
+<p>(and report it to the list if this does or does not solve the problem!)</p>
+</div>
+<div class="section" id="sys-path-mangling">
+<h1><a name="sys-path-mangling">6. sys.path mangling</a></h1>
+<p>twill, on import, alters the Python <tt class="docutils literal"><span class="pre">sys.path</span></tt> by appending
+<tt class="docutils literal"><span class="pre">twill/extensions</span></tt> to sys.path and inserting
+<tt class="docutils literal"><span class="pre">twill/other_packages</span></tt> in the front of the module path.  This may
+cause problems with packages with conflicting names.</p>
+<p>In particular, other modules whose names &quot;shadow&quot; twill's included
+extensions will be imported instead of the included extensions.  Also,
+only twill's versions of pyparsing, mechanize, ClientForm, and
+ClientCookie will be import-able.</p>
+<p>There is no good, simple way to get around this; setuptools may be our
+only hope.</p>
+</div>
+</div>
+</body>
+</html>

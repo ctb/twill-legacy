@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.3.7: http://docutils.sourceforge.net/" />
+<title>Installing twill</title>
+<link rel="stylesheet" href="default.css" type="text/css" />
+</head>
+<body>
+<div class="document" id="installing-twill">
+<h1 class="title">Installing twill</h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first"><a name="contents">Contents</a></p>
+<ul class="simple">
+<li><a class="reference" href="#installing-twill-on-windows" id="id1" name="id1">Installing twill on Windows</a></li>
+<li><a class="reference" href="#installing-twill-on-mac-os-x" id="id2" name="id2">Installing twill on Mac OS X</a></li>
+<li><a class="reference" href="#troubleshooting-your-installation" id="id3" name="id3">Troubleshooting your installation</a></li>
+<li><a class="reference" href="#upgrading-twill" id="id4" name="id4">Upgrading twill</a></li>
+</ul>
+</div>
+<p>The recommended way to install twill is to use <a class="reference" href="http://peak.telecommunity.com/DevCenter/EasyInstall">easy_install</a>:</p>
+<pre class="literal-block">
+easy_install twill
+</pre>
+<p>You can also install it directly from the distribution tar.gz file
+by unpacking the .tar.gz file and running</p>
+<pre class="literal-block">
+python setup.py install
+</pre>
+<p>Either way, <strong>you need to have setuptools installed</strong>; setuptools
+doesn't come with Python 2.3 or Python 2.4, so you will need to
+install it before you install twill.  To install both easy_install and
+setuptools, grab ez_setup.py from</p>
+<pre class="literal-block">
+http://peak.telecommunity.com/dist/ez_setup.py
+</pre>
+<p>and run 'python ez_setup.py'.  This will install setuptools and put
+an easy_install program in your Python scripts directory.</p>
+<div class="section" id="installing-twill-on-windows">
+<h1><a class="toc-backref" href="#id1" name="installing-twill-on-windows">Installing twill on Windows</a></h1>
+<p>The most frequent problem people seem to encounter on Windows is the
+inability to run 'twill-sh'.  This happens because the Python
+installation's 'scripts' directory isn't in the path by default.
+According to the <a class="reference" href="http://www.python.org/doc/faq/windows.html">Python Windows FAQ</a>, the magic incantation is
+something like this:</p>
+<pre class="literal-block">
+PATH C:\Python23\scripts;%PATH%
+</pre>
+<p>(You should replace &quot;C:Python23&quot; with the directory of your Python
+installation.)</p>
+</div>
+<div class="section" id="installing-twill-on-mac-os-x">
+<h1><a class="toc-backref" href="#id2" name="installing-twill-on-mac-os-x">Installing twill on Mac OS X</a></h1>
+<p>As with Windows, the problem most frequently encountered seems to be
+that the Python 'bin' directory isn't part of your path by default.
+This means that the twill shell program, 'twill-sh', will not be found
+unless you add the script directory into your path.  On current
+versions of Mac OS X, something like this should work: for bash
+shells,:</p>
+<pre class="literal-block">
+export PATH=$PATH:/System/Library/Frameworks/Python.framework/Versions/2.3/bin
+</pre>
+<p>or for csh-based shells,</p>
+<pre class="literal-block">
+set path=($path /System/Library/Frameworks/Python.framework/Versions/2.3/bin)
+</pre>
+</div>
+<div class="section" id="troubleshooting-your-installation">
+<h1><a class="toc-backref" href="#id3" name="troubleshooting-your-installation">Troubleshooting your installation</a></h1>
+<p>The first and only thing you should do before asking the list (<a class="reference" href="mailto:twill&#64;lists.idyll.org">twill&#64;lists.idyll.org</a>) for help is to see if you have the twill package installed correctly:</p>
+<pre class="literal-block">
+% python
+&gt;&gt;&gt; import twill.shell
+&gt;&gt;&gt; twill.shell.main()
+</pre>
+<p>(This should drop you into the twill shell irrespective of whether 'twill-sh'
+is on your path.)  <strong>If this works</strong>, twill is installed correctly and you
+just need to adjust your path (see above for examples).  If you still
+need help, or the above code doesn't work, please copy and paste the results
+of entering the above code into your e-mail to the list -- thanks!</p>
+</div>
+<div class="section" id="upgrading-twill">
+<h1><a class="toc-backref" href="#id4" name="upgrading-twill">Upgrading twill</a></h1>
+<p>If you don't want to download a new tar.gz file, you can use
+easy_install to upgrade twill.  To get the latest release, use</p>
+<pre class="literal-block">
+easy_install -U twill
+</pre>
+<p>To download the latest development release (which is usually pretty
+stable) use</p>
+<pre class="literal-block">
+easy_install -f http://issola.caltech.edu/~t/dist/ -U twill
+</pre>
+</div>
+</div>
+</body>
+</html>

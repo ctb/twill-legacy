@@ -1,0 +1,16 @@
+#http://www.answermysearches.com/mechanize-useful-tips/229/
+
+twill script: ::
+
+add_extra_header User-Agent "Mozilla/5.0 (compatible; MyProgram/0.1)"
+go http://www.python.org/
+show
+
+in Python: ::
+
+from twill.commands import *
+add_extra_header('User-Agent', 'Mozilla/5.0 (compatible; MyProgram/0.1)')
+go("http://python.org/")
+
+html = browser.get_html()
+print html

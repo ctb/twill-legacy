@@ -1,0 +1,116 @@
+==============================
+Propaganda, tools and packages
+==============================
+
+Other opinions
+~~~~~~~~~~~~~~
+
+Grig Gheorgiu has written a blog entry on `Web app testing using twill`_.
+Michele Simionato wrote a nice long article on `Testing Web Apps`_, and
+Nitesh Djanjani `tried it out`_ as well.
+
+.. _Web app testing using twill: http://agiletesting.blogspot.com/2005/09/web-app-testing-with-python-part-3.html
+.. _Testing Web Apps: http://www.onlamp.com/pub/a/python/2005/11/03/twill.html
+.. _tried it out: http://www.oreillynet.com/pub/wlg/8201
+
+Tools based on twill
+~~~~~~~~~~~~~~~~~~~~
+
+Petrik De Heus wrote a Wikipedia `watchlist RSS feed`_ with twill.
+
+.. _watchlist RSS feed: http://www.deheus.net/petrik/blog/post/68/
+
+Tools useful for twill users
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Matt Harrison is working on a `TestGen4Web-to-twill converter`_.
+
+.. _TestGen4Web-to-twill converter:  http://panela.blog-city.com/generate_twill_scripts_and_mechanize_unittests_from_testgen4.htm
+
+Offshoots from the twill project
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+I wrote a simple `wsgi_intercept`_ standalone package based on the WSGI
+interception stuff for in-process testing of WSGI apps by twill.  This
+is for people who want to talk directly to their Web
+apps without going through a network connection.
+
+.. _wsgi_intercept: http://darcs.idyll.org/~t/projects/wsgi_intercept/README.html
+
+Other Python-based Web testing and browsing tools
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For those who want to use Python-based toolkits to test their Web
+apps, there are many great options.  Here are the ones I know
+about:
+
+PBP_ is very similar to twill -- twill was initially based on it -- but the
+project seems to be more-or-less defunct.
+Both twill and PBP are based on mechanize_.
+
+funkload_ is a nifty looking tool that does functional load testing.
+It is built on webunit_.
+
+webtest_ is an extension to ``unittest`` for testing Web frameworks.
+It's primarily used for CherryPy, I think.
+
+zope.testbrowser_ is a wrapper around mechanize_ that exposes a more
+convenient interface for testing.  Check out the `zope.testbrowser README`_
+for more information.
+
+mechanoid_ is a fork of mechanize_ that claims many bug fixes and a
+different programming style.  It's primarily used for scripting Web
+sites, not for testing, but it can easily be used for testing.
+
+PAMIE_ and PyXPCOM_ provide a Python interface for interacting with IE
+and Mozilla-based browsers, respectively.
+
+Finally, Selenium_ is an in-browser testing system that several people
+have given rave reviews.  Check out this `article on Selenium`_ for
+some starting tips.  Note that it's not written in Python...
+
+You might also consider checking out Ian Bicking's proto-implementation
+of `twill in Javascript`_.
+
+(Thanks to Grig Gheorghiu for assembling much of this list!)
+
+Tools in Other Languages
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+As twill is based upon mechanize, so is Perl's `WWW::Mechanize::Shell`_
+based upon `WWW::Mechanize`_.  There's even an `HTTP::Recorder`_.
+WebTst_ also looks interesting.
+
+For PHP, web_tester_ looks useful.
+
+.. _PBP: http://pbp.berlios.de/
+.. _maxq: http://maxq.tigris.org/
+.. _mechanize: http://wwwsearch.sf.net/
+.. _pyparsing: http://pyparsing.sourceforge.net/
+.. _funkload: http://funkload.nuxeo.org/
+.. _webunit: http://mechanicalcat.net/tech/webunit/
+.. _webtest: http://www.cherrypy.org/file/trunk/cherrypy/test/webtest.py
+.. _zope.testbrowser: http://cheeseshop.python.org/pypi?:action=display&name=zope.testbrowser
+.. _zope.testbrowser README: http://svn.zope.org/*checkout*/Zope3/trunk/src/zope/testbrowser/README.txt
+.. _Selenium: http://confluence.public.thoughtworks.org/display/SEL/Home
+.. _article on Selenium: http://agiletesting.blogspot.com/2005/10/article-on-selenium-in-october-issue.html
+
+.. _WSGI applications: http://www.python.org/peps/pep-0333.html
+.. _WSGI:  http://www.python.org/peps/pep-0333.html
+.. _Quixote: http://www.mems-exchange.org/software/quixote/
+.. _mechanoid: http://python.org/pypi/mechanoid
+.. _twill in Javascript: http://blog.ianbicking.org/twill-in-javascript.html
+
+.. _PAMIE: http://pamie.sourceforge.net/
+.. _PAMIE examples page: tutoriala.html
+.. _PyXPCOM: http://kb.mozillazine.org/PyXPCOM
+.. _tidy page: http://tidy.sourceforge.net/
+.. _easy_install/setuptools: http://peak.telecommunity.com/DevCenter/EasyInstall
+.. _installing easy_install: http://peak.telecommunity.com/DevCenter/EasyInstall#installing-easy-install
+
+.. _WebTst: http://webtst.sourceforge.net/documentation.html
+
+.. _`WWW::Mechanize`: http://search.cpan.org/perldoc?WWW::Mechanize::Shell
+.. _`WWW::Mechanize::Shell`: http://search.cpan.org/perldoc?WWW::Mechanize::Shell
+.. _`HTTP::Recorder`: http://www.perl.com/pub/a/2004/06/04/recorder.html
+.. _web_tester: http://www.lastcraft.com/web_tester_documentation.php

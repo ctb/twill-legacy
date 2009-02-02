@@ -1,0 +1,93 @@
+================================
+Known Problems or Error Messages
+================================
+
+Problems posted to the twill mailing list (or sent to Titus personally)
+will end up here if they are either outside the scope of twill, or
+intractable within the context of the twill project!
+
+Last updated Apr 2006.
+
+1. inspect module masking
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The error message ::
+
+   AttributeError: 'module' object has no attribute 'getmro'
+
+is caused by masking of the default Python 'inspect' module with another
+module named 'inspect'.  Known to happen in Webware installs.
+(Reported by David Hancock.)
+
+2. Empty 'textarea' form elements are filled with a newline by 'tidy'.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Specifically, ::
+
+   <textarea></textarea>
+
+is turned into ::
+
+   <textarea>
+   </textarea>
+
+by tidy.  Set 'config use_tidy 0' to turn this off.  You can use ::
+
+   <textarea />
+
+to sneak an empty textarea through tidy.
+
+(Reported by Gabor Farkas.)
+
+3. Unicode support is still young.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It's not yet clear how well mechanize and twill adhere to either the
+official recommendations
+(http://www.w3.org/TR/REC-html40/charset.html) or the unofficial
+recommendations (http://www.alanwood.net/unicode/htmlunicode.html) for
+dealing with unicode.  There are definitely some problems in the version
+of mechanize included with twill in 0.8.4; this should be resolved in
+later releases.
+
+4. Various kinds of broken HTML will break the form parser.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For example, twill (or, rather, ClientForm) sees no forms in this HTML ::
+
+   <font>
+   <INPUT type="this">
+
+   <FORM>
+   <input type="blah">
+   </form>
+
+
+5. Windows problems and tidy
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you get the error message ::
+
+   The process cannot access the file because it is being used by another process.
+
+on Windows, try turning 'tidy' processing off:
+
+   config use_tidy 0
+
+(and report it to the list if this does or does not solve the problem!)
+
+6. sys.path mangling
+~~~~~~~~~~~~~~~~~~~~
+
+twill, on import, alters the Python ``sys.path`` by appending
+``twill/extensions`` to sys.path and inserting
+``twill/other_packages`` in the front of the module path.  This may
+cause problems with packages with conflicting names.
+
+In particular, other modules whose names "shadow" twill's included
+extensions will be imported instead of the included extensions.  Also,
+only twill's versions of pyparsing, mechanize, ClientForm, and
+ClientCookie will be import-able.
+
+There is no good, simple way to get around this; setuptools may be our
+only hope.

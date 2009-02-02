@@ -1,0 +1,11 @@
+version
+help help
+help exit
+help version
+
+redirect_output /dev/null
+reset_output
+
+extend_with test_extensions
+flag_true
+assert_flag

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.3.7: http://docutils.sourceforge.net/" />
+<title>Propaganda, tools and packages</title>
+<link rel="stylesheet" href="default.css" type="text/css" />
+</head>
+<body>
+<div class="document" id="propaganda-tools-and-packages">
+<h1 class="title">Propaganda, tools and packages</h1>
+<div class="section" id="other-opinions">
+<h1><a name="other-opinions">Other opinions</a></h1>
+<p>Grig Gheorgiu has written a blog entry on <a class="reference" href="http://agiletesting.blogspot.com/2005/09/web-app-testing-with-python-part-3.html">Web app testing using twill</a>.
+Michele Simionato wrote a nice long article on <a class="reference" href="http://www.onlamp.com/pub/a/python/2005/11/03/twill.html">Testing Web Apps</a>, and
+Nitesh Djanjani <a class="reference" href="http://www.oreillynet.com/pub/wlg/8201">tried it out</a> as well.</p>
+</div>
+<div class="section" id="tools-based-on-twill">
+<h1><a name="tools-based-on-twill">Tools based on twill</a></h1>
+<p>Petrik De Heus wrote a Wikipedia <a class="reference" href="http://www.deheus.net/petrik/blog/post/68/">watchlist RSS feed</a> with twill.</p>
+</div>
+<div class="section" id="tools-useful-for-twill-users">
+<h1><a name="tools-useful-for-twill-users">Tools useful for twill users</a></h1>
+<p>Matt Harrison is working on a <a class="reference" href="http://panela.blog-city.com/generate_twill_scripts_and_mechanize_unittests_from_testgen4.htm">TestGen4Web-to-twill converter</a>.</p>
+</div>
+<div class="section" id="offshoots-from-the-twill-project">
+<h1><a name="offshoots-from-the-twill-project">Offshoots from the twill project</a></h1>
+<p>I wrote a simple <a class="reference" href="http://darcs.idyll.org/~t/projects/wsgi_intercept/README.html">wsgi_intercept</a> standalone package based on the WSGI
+interception stuff for in-process testing of WSGI apps by twill.  This
+is for people who want to talk directly to their Web
+apps without going through a network connection.</p>
+</div>
+<div class="section" id="other-python-based-web-testing-and-browsing-tools">
+<h1><a name="other-python-based-web-testing-and-browsing-tools">Other Python-based Web testing and browsing tools</a></h1>
+<p>For those who want to use Python-based toolkits to test their Web
+apps, there are many great options.  Here are the ones I know
+about:</p>
+<p><a class="reference" href="http://pbp.berlios.de/">PBP</a> is very similar to twill -- twill was initially based on it -- but the
+project seems to be more-or-less defunct.
+Both twill and PBP are based on <a class="reference" href="http://wwwsearch.sf.net/">mechanize</a>.</p>
+<p><a class="reference" href="http://funkload.nuxeo.org/">funkload</a> is a nifty looking tool that does functional load testing.
+It is built on <a class="reference" href="http://mechanicalcat.net/tech/webunit/">webunit</a>.</p>
+<p><a class="reference" href="http://www.cherrypy.org/file/trunk/cherrypy/test/webtest.py">webtest</a> is an extension to <tt class="docutils literal"><span class="pre">unittest</span></tt> for testing Web frameworks.
+It's primarily used for CherryPy, I think.</p>
+<p><a class="reference" href="http://cheeseshop.python.org/pypi?:action=display&amp;name=zope.testbrowser">zope.testbrowser</a> is a wrapper around <a class="reference" href="http://wwwsearch.sf.net/">mechanize</a> that exposes a more
+convenient interface for testing.  Check out the <a class="reference" href="http://svn.zope.org/*checkout*/Zope3/trunk/src/zope/testbrowser/README.txt">zope.testbrowser README</a>
+for more information.</p>
+<p><a class="reference" href="http://python.org/pypi/mechanoid">mechanoid</a> is a fork of <a class="reference" href="http://wwwsearch.sf.net/">mechanize</a> that claims many bug fixes and a
+different programming style.  It's primarily used for scripting Web
+sites, not for testing, but it can easily be used for testing.</p>
+<p><a class="reference" href="http://pamie.sourceforge.net/">PAMIE</a> and <a class="reference" href="http://kb.mozillazine.org/PyXPCOM">PyXPCOM</a> provide a Python interface for interacting with IE
+and Mozilla-based browsers, respectively.</p>
+<p>Finally, <a class="reference" href="http://confluence.public.thoughtworks.org/display/SEL/Home">Selenium</a> is an in-browser testing system that several people
+have given rave reviews.  Check out this <a class="reference" href="http://agiletesting.blogspot.com/2005/10/article-on-selenium-in-october-issue.html">article on Selenium</a> for
+some starting tips.  Note that it's not written in Python...</p>
+<p>You might also consider checking out Ian Bicking's proto-implementation
+of <a class="reference" href="http://blog.ianbicking.org/twill-in-javascript.html">twill in Javascript</a>.</p>
+<p>(Thanks to Grig Gheorghiu for assembling much of this list!)</p>
+</div>
+<div class="section" id="tools-in-other-languages">
+<h1><a name="tools-in-other-languages">Tools in Other Languages</a></h1>
+<p>As twill is based upon mechanize, so is Perl's <a class="reference" href="http://search.cpan.org/perldoc?WWW::Mechanize::Shell">WWW::Mechanize::Shell</a>
+based upon <a class="reference" href="http://search.cpan.org/perldoc?WWW::Mechanize::Shell">WWW::Mechanize</a>.  There's even an <a class="reference" href="http://www.perl.com/pub/a/2004/06/04/recorder.html">HTTP::Recorder</a>.
+<a class="reference" href="http://webtst.sourceforge.net/documentation.html">WebTst</a> also looks interesting.</p>
+<p>For PHP, <a class="reference" href="http://www.lastcraft.com/web_tester_documentation.php">web_tester</a> looks useful.</p>
+</div>
+</div>
+</body>
+</html>

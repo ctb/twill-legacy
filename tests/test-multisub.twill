@@ -1,0 +1,32 @@
+go /multisubmitform
+code 200
+
+fv 1 sub_a click
+submit
+find "used_sub_a"
+find "referer"
+
+showforms
+fv 1 sub_a click
+submit sub_a
+find "used_sub_a"
+find "referer"
+
+fv 1 sub_b click
+submit
+find "used_sub_b"
+find "referer"
+
+fv 1 sub_a click
+submit sub_b
+find "used_sub_b"
+find "referer"
+
+fv 1 sub_a click
+submit
+find "used_sub_a"
+find "referer"
+
+config readonly_controls_writeable 1
+fv 1 sub_a click
+submit

@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.3.7: http://docutils.sourceforge.net/" />
+<title>twill Extension Modules</title>
+<link rel="stylesheet" href="default.css" type="text/css" />
+</head>
+<body>
+<div class="document" id="twill-extension-modules">
+<h1 class="title">twill Extension Modules</h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first"><a name="contents">Contents</a></p>
+<ul class="simple">
+<li><a class="reference" href="#check-links-a-simple-link-checker" id="id1" name="id1">check_links -- a simple link checker</a></li>
+<li><a class="reference" href="#match-parse-extensions-for-slicing-and-dicing-variables-with-regexps" id="id2" name="id2">match_parse -- extensions for slicing and dicing variables with regexps</a></li>
+<li><a class="reference" href="#require-assert-that-specific-conditions-hold-after-each-page-is-loaded" id="id3" name="id3">require -- assert that specific conditions hold after each page is loaded</a></li>
+<li><a class="reference" href="#mailman-sf-discard-spam-messages-from-your-sourceforge-mailing-lists" id="id4" name="id4">mailman_sf -- discard spam messages from your SourceForge mailing lists</a></li>
+<li><a class="reference" href="#argparse-pass-arguments-into-twill-scripts-via-sys-argv" id="id5" name="id5">argparse -- pass arguments into twill scripts via sys.argv</a></li>
+<li><a class="reference" href="#dns-check-make-assertions-about-domain-name-service-records" id="id6" name="id6">dns_check -- make assertions about domain name service records</a></li>
+<li><a class="reference" href="#csv-iterate-iterate-over-lists-of-values" id="id7" name="id7">csv_iterate -- iterate over lists of values</a></li>
+<li><a class="reference" href="#dirstack-manipulate-the-current-working-directory-cwd" id="id8" name="id8">dirstack -- manipulate the current working directory (cwd)</a></li>
+<li><a class="reference" href="#formfill-convenience-functions-for-filling-out-forms" id="id9" name="id9">formfill -- convenience functions for filling out forms</a></li>
+</ul>
+</div>
+<p>Several different extension modules are distributed with twill, under
+'twill.extensions'.</p>
+<div class="section" id="check-links-a-simple-link-checker">
+<h1><a class="toc-backref" href="#id1" name="check-links-a-simple-link-checker">check_links -- a simple link checker</a></h1>
+<p>A simple link checker is included with twill.  To use it, do</p>
+<pre class="literal-block">
+go &lt;page&gt;
+
+extend_with check_links
+check_links
+</pre>
+<p>'check_links' will visit each link on the current page and verify that
+the HTTP status code is 200 (success).  A list of failing links will be
+printed out at the end of the function.</p>
+<p>The 'check_links' function takes an optional argument, a regexp to filter
+for links that should be checked.  By default the filter matches everything;
+if you only wanted to check links on e.g. idyll.org, you could do</p>
+<pre class="literal-block">
+go http://idyll.org/
+check_links .*\.idyll\.org
+</pre>
+<p>A few notes:</p>
+<blockquote>
+<ul class="simple">
+<li>'follow' is used to visit each link, so the referrer URL should
+be set correctly.</li>
+<li>HTTP basic authentication and cookies work as you'd expect, so you
+can set up twill with all of the permissions necessary to visit restricted
+links &amp; only then run check_links.</li>
+</ul>
+</blockquote>
+</div>
+<div class="section" id="match-parse-extensions-for-slicing-and-dicing-variables-with-regexps">
+<h1><a class="toc-backref" href="#id2" name="match-parse-extensions-for-slicing-and-dicing-variables-with-regexps">match_parse -- extensions for slicing and dicing variables with regexps</a></h1>
+<p>The 'match_parse' extension module contains a number of functions for
+dealing with multiple matches, etc.  Here's some example code:</p>
+<pre class="literal-block">
+extend_with match_parse
+go http://www.idyll.org/
+
+split &quot;org&quot;
+echo __matchlist__
+
+findall &quot;t.&quot;
+echo __matchlist__
+
+split &quot;org&quot;
+popmatch 0
+getmatch test 'm[0].split()'
+showvar test
+
+split &quot;org&quot;
+setmatch &quot;m.split()[0]&quot;
+
+popmatch 0
+echo __matchlist__
+echo __match__
+</pre>
+</div>
+<div class="section" id="require-assert-that-specific-conditions-hold-after-each-page-is-loaded">
+<h1><a class="toc-backref" href="#id3" name="require-assert-that-specific-conditions-hold-after-each-page-is-loaded">require -- assert that specific conditions hold after each page is loaded</a></h1>
+<p>The 'require' extension module contains four functions that let you
+assert specific conditions.  For example,</p>
+<pre class="literal-block">
+extend_with require
+require success
+</pre>
+<p>will assert that after each page load, the HTTP code is 200 (&quot;success&quot;).
+'require' does nothing on a 'back' call (which doesn't actually reload
+a page).</p>
+<p>Currently there are only two assertions available, 'success' and
+'links_ok'.  'links_ok' automatically runs 'check_links' (see above) after
+each page is loaded.  'links_ok' will not check links twice unless
+you call 'flush_visited' (see below).</p>
+<p>The other functions in this module are:</p>
+<p><strong>skip_require</strong> -- don't check the requirements for the next action.</p>
+<p><strong>no_require</strong> -- turn off requirements checking &amp; reset conditions.</p>
+<p><strong>flush_visited</strong> -- flush the list of visited links.</p>
+</div>
+<div class="section" id="mailman-sf-discard-spam-messages-from-your-sourceforge-mailing-lists">
+<h1><a class="toc-backref" href="#id4" name="mailman-sf-discard-spam-messages-from-your-sourceforge-mailing-lists">mailman_sf -- discard spam messages from your SourceForge mailing lists</a></h1>
+<p>The 'mailman_sf' extension module contains two functions, 'discard_all_messages'
+and 'exit_if_empty'.  Here's some example code:</p>
+<pre class="literal-block">
+# load in the mailman_sf extensions module
+extend_with mailman_sf
+
+# unfortunately we have to hard-code in the mailing list name for
+# the moment.  not sure how to do substitutions here.
+go https://lists.sourceforge.net/lists/admindb/pywx-announce
+
+# fill out the page with the list password.
+getpassword &quot;Enter list password: &quot;
+formvalue 1 adminpw __password__
+submit 0
+code 200
+
+# if there aren't any messages on the page, exit.
+exit_if_empty
+
+# if not empty, discard all messages &amp; submit
+discard_all_messages
+submit 0
+</pre>
+</div>
+<div class="section" id="argparse-pass-arguments-into-twill-scripts-via-sys-argv">
+<h1><a class="toc-backref" href="#id5" name="argparse-pass-arguments-into-twill-scripts-via-sys-argv">argparse -- pass arguments into twill scripts via sys.argv</a></h1>
+<p>The 'argparse' extension module contains one function, 'get_args'.  'get_args'
+loads all of the post-scriptfile command-line arguments into variables, e.g.</p>
+<pre class="literal-block">
+% ./twill-sh script1 script2 script3 -- val1 val2 val3
+...
+&gt;&gt; extend_with argparse
+&gt;&gt; get_args
+&gt;&gt; echo &quot;args are ${arg1} ${args} ${arg3}&quot;
+args are val1 val2 val3
+</pre>
+</div>
+<div class="section" id="dns-check-make-assertions-about-domain-name-service-records">
+<h1><a class="toc-backref" href="#id6" name="dns-check-make-assertions-about-domain-name-service-records">dns_check -- make assertions about domain name service records</a></h1>
+<p>dns_check implements functions to test domain name service (DNS) resolution.
+You'll need <a class="reference" href="http://www.dnspython.org/">dnspython</a> to use it.</p>
+<p>Functions:</p>
+<blockquote>
+<ul class="simple">
+<li>dns_resolves -- assert that a host resolves to a specific IP address.</li>
+<li>dns_a -- assert that a host directly resolves to a specific IP address</li>
+<li>dns_cname -- assert that a host is an alias for another hostname.</li>
+<li>dnx_mx -- assert that a given host is a mail exchanger for the given name.</li>
+<li>dns_ns -- assert that a given hostname is a name server for the given name.</li>
+</ul>
+</blockquote>
+</div>
+<div class="section" id="csv-iterate-iterate-over-lists-of-values">
+<h1><a class="toc-backref" href="#id7" name="csv-iterate-iterate-over-lists-of-values">csv_iterate -- iterate over lists of values</a></h1>
+<p>csv_iterate provides a single function, 'csv_iterate', that lets you
+run a script once for each row in a file of comma-separated values.
+For example, if you had a file 'test.csv' containing</p>
+<pre class="literal-block">
+value1, value2
+value3, value4
+</pre>
+<p>and a script 'test' containing</p>
+<pre class="literal-block">
+echo &quot;first value is ${col1}, second is ${col2}&quot;
+</pre>
+<p>then</p>
+<pre class="literal-block">
+&gt;&gt; csv_iterate test.csv test
+</pre>
+<p>would produce</p>
+<pre class="literal-block">
+first value is value1, second is value2
+first value is value3, second is value4
+</pre>
+<p>This is designed for building test suites containing many different
+combinations of values for specific forms.</p>
+</div>
+<div class="section" id="dirstack-manipulate-the-current-working-directory-cwd">
+<h1><a class="toc-backref" href="#id8" name="dirstack-manipulate-the-current-working-directory-cwd">dirstack -- manipulate the current working directory (cwd)</a></h1>
+<p>dirstack provides two functions, 'chdir' and 'popd', which change the
+directory and recover the original directory, respectively.  The cwd
+is kept in the global variable '__dir__'.</p>
+<p>For example</p>
+<pre class="literal-block">
+&gt;&gt; chdir /tmp
+&gt;&gt; echo __dir__
+&gt;&gt; popd
+&gt;&gt; echo __dir__
+</pre>
+<p>will change to the '/tmp' directory, print out '/tmp', and then change
+back to the original directory.</p>
+</div>
+<div class="section" id="formfill-convenience-functions-for-filling-out-forms">
+<h1><a class="toc-backref" href="#id9" name="formfill-convenience-functions-for-filling-out-forms">formfill -- convenience functions for filling out forms</a></h1>
+<p>formfill provides three functions, 'fv_match', 'fv_multi', and
+'fv_multi_sub'.</p>
+<p>'fv_match' allows you to set many form fields all at once, based
+on regexp matching to the form field name, e.g.</p>
+<pre class="literal-block">
+fv_match &lt;form&gt; test-(\d+) 'hello world!'
+</pre>
+<p>will set all fields with the name 'test-#' (# is any number) to 'hello world!'</p>
+<p>'fv_multi' allows you to set many form fields at once, using a
+more compact notation:</p>
+<pre class="literal-block">
+fv_multi &lt;form&gt; field1=value1 field2=value2 ...
+</pre>
+<p>'fv_multi' uses the same field-matching convention that 'formvalue' uses:
+it simply iterates over all arguments, splits at the first '=', and
+runs 'formvalue' directly.</p>
+<p>'fv_multi_sub' does the same thing as 'fv_multi' and then executes
+'submit'.</p>
+<p>(Thanks to Ben Bangert for the idea!)</p>
+</div>
+</div>
+</body>
+</html>

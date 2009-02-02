@@ -1,0 +1,117 @@
+=======================
+Web browsing with twill
+=======================
+
+twill strives to be a complete implementation of a Web browser,
+omitting only JavaScript support.  It includes support for cookies,
+basic authentication, and most (all?) HTTP trickery, including
+HTTP-EQUIV redirects.  Please `let me know`_ if you find a situation
+where it doesn't work!
+
+twill implements a variety of commands_.  With the built-in language,
+you can do things like go to a specific URL; follow links; fill out
+forms and submit them; save, load, and delete cookies; and change the
+agent string.  You can also easily extend twill with new and specialized
+Python commands.
+
+.. _let me know: twill@lists.idyll.org
+.. _commands: commands.html
+
+Using twill interactively
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+twill-sh lets you interactively browse the Web.  It features built-in
+help, e.g. "help go" will describe the command 'go' to you;
+command-line completion with TAB; and history browsing (UP/DOWN arrows).
+
+Proxy servers
+~~~~~~~~~~~~~
+
+twill understands the ``http_proxy`` environment variable generically
+used to set proxy server information.  To use a proxy in UNIX or
+Windows, just set the ``http_proxy`` environment variable, e.g. ::
+
+   % export http_proxy="http://www.someproxy.com:3128"
+
+or ::
+
+   % setenv http_proxy="http://www.someotherproxy.com:3148"
+
+Recording scripts
+~~~~~~~~~~~~~~~~~
+
+Writing twill scripts is boring.  One simple way to get at least a
+rough initial script is to use the maxq_ recorder to generate a twill
+script.  maxq_ acts as an HTTP proxy and records all HTTP traffic; I
+have written a simple twill script generator for it.  The script
+generator and installation docs are included in the twill distribution
+under the directory ``maxq/``.
+
+A more recent option is to use the Firefox extension TestGen4Web_, which
+will record your Web browsing in a standard format.  Matt Harrison is
+working on converter.
+
+.. _converter: http://panela.blog-city.com/generate_twill_scripts_and_mechanize_unittests_from_testgen4.htm
+.. _TestGen4Web: http://developer.spikesource.com/wiki/index.php/Projects:TestGen4Web
+
+Running and using tidy
+~~~~~~~~~~~~~~~~~~~~~~
+
+The ``tidy`` program does a nice job of producing correct HTML from
+mangled, broken, eeevil Web pages.  By default, twill will run pages
+through ``tidy`` before processing them.  This is on by default
+because the Python libraries that parse HTML are very bad at dealing
+with incorrect HTML, and will often return incorrect results on "real
+world" Web pages.
+
+To disable this feature, set ``config do_run_tidy 0``.
+
+If ``tidy`` is not installed, twill will silently ignore it.  It may
+be desirable to *require* a functioning ``tidy`` installation; so, to fail
+when ``tidy`` *isn't* installed, set ``config tidy_should_exist 1``.
+
+See the `tidy page`_ for more information on ``tidy``.
+
+Miscellaneous implementation details
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ * twill ignores robots.txt.
+
+ * http-equiv=refresh headers are handled immediately, independent of the
+   'pause' component of the 'content' attribute.
+
+ * twill does not understand javascript.
+
+.. _maxq: http://maxq.tigris.org/
+.. _tidy page: http://tidy.sourceforge.net/
+
+
+Robust parsing of HTML
+~~~~~~~~~~~~~~~~~~~~~~
+
+Often (usually?) you don't control the HTML on Web pages you visit.
+There are several different configuration options that control how
+lenient twill is in parsing Web pages.
+
+The three basic options to look at are 'use_tidy',
+'use_BeautifulSoup', and 'allow_parse_errors'.  By default, twill will
+attempt to use the 'tidy' HTML preprocessor program to clean up HTML
+before parsing the page.  twill will also attempt to use the
+BeautifulSoup_ parser, if installed, to parse the page.  And, finally,
+for really miserable pages, the form parsing code will ignore parse
+errors as much as possible.  To turn on strict HTML parsing, set the
+config options like so: ::
+
+   config use_tidy 0
+   config use_BeautifulSoup 0
+   config allow_parse_errors 0
+
+(By default, all options are set to '1'.)
+
+You can set 'require_tidy' and 'require_BeautifulSoup' to require
+that tidy and BeautifulSoup be installed for your script.
+
+The 'tidy_ok' command can be used to assert that tidy reports no warnings
+or errors.
+
+.. _BeautifulSoup: http://www.crummy.com/software/BeautifulSoup/

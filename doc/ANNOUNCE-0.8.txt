@@ -1,0 +1,78 @@
+ANNOUNCING twill v0.8.
+
+twill is a simple language for testing Web applications.  It's designed
+for automated testing of Web sites, but it can be used to interact with
+Web sites in a variety of ways.
+
+twill has an interactive shell, 'twill-sh', and can also run scripts.
+
+twill is a reimplementation of Cory Dodt's PBP.  It is built on top
+of Python and John J. Lee's mechanize.
+
+A twill script looks like this:
+
+  # go to the /. login page
+  go http://slashdot.org/login.pl
+
+  # fill in the form
+  fv 1 unickname test
+  fv 1 upasswd test
+  submit
+
+  # ok, there's no such account ;). show error HTML.
+  show
+
+---
+
+This is the sixth public release of twill, version 0.8.
+
+(Tagline: "85% unit tested.")
+
+You can install twill with easy_install via PyPi, or download
+the latest .tar.gz at:
+
+    http://darcs.idyll.org/~t/projects/twill-0.8.tar.gz
+
+Documentation is included in the .tar.gz and is also online at
+
+    http://www.idyll.org/~t/www-tools/twill.html
+
+---
+
+Miscellaneous details:
+
+twill is implemented in Python and uses pyparsing and mechanize.  In
+addition to the existing simple command language, twill can easily be
+extended with Python.  twill also provides a fairly simple and
+well-documented wrapper around mechanize.
+
+twill scripts can be recorded with maxq, although scripts may require
+some hand tweaking at the moment.  See the twill documentation for
+more information.
+
+twill does not understand JavaScript, I'm sorry to say.
+
+---
+
+New features:
+
+ * test WSGI Python applications in-process;
+
+ * Updated to latest versions of mechanize, ClientCookie, ClientForm, and
+   pullparser;
+
+ * Significant increase in number of unit tests & their code coverage;
+
+ * Automatic 'tidy' preprocessing when available;
+
+ * easy_install/eggs now supported;
+
+ * http-equiv redirect now works;
+
+ * new commands:
+
+   - 'formaction' changes form URLs;
+   - 'tidy_ok' checks for 'tidy' correctness;
+   - 'showhistory' command;
+
+Special thanks to sureshvv and Simon Buenzli...

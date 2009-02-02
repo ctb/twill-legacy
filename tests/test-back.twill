@@ -1,0 +1,65 @@
+setglobal init __url__
+code 200
+
+#
+# test to make sure links are properly parsed on back() calls
+#
+
+follow spaces
+back
+
+follow spaces
+back
+
+follow spaces
+back
+
+#
+# test to make sure that forms are properly loaded on back() calls.
+#
+
+go /multisubmitform
+showforms
+go /
+back
+showforms
+fv 1 sub_a blah
+
+back
+
+#
+# back at initial page: fine.
+#
+
+echo url is __url__
+go /
+code 200
+echo url is now __url__
+#restricted
+#code 403
+back
+
+#
+# now test restricted
+#
+
+echo url is __url__
+go /restricted
+code 403
+echo url is now __url__
+back
+
+#
+# sureshvv's bug: make sure that restricted pages are properly viewed
+# as HTML/non-HTML, independent of what the last page was.
+#
+
+showhistory
+go /plaintext
+code 200
+
+showhistory
+go /restricted
+code 403
+show
+showforms

@@ -1,0 +1,915 @@
+2007-12-27  Titus Brown  <t@iorich.caltech.edu>
+
+	* Added better error message to 'url' (Matt Wilson).
+
+2007-12-23  Titus Brown  <t@iorich.caltech.edu>
+
+	* Updated version to 0.9.
+
+	* Updated license information => MIT in all files, along
+	  with Web link and copyright (Will Maier)
+
+	* Updated tests to work with nose > 0.9.x.
+
+2007-12-04  Titus Brown  <t@iorich.caltech.edu>
+
+	* Fixed iterator double call in wsgi_intercept (Antti Kaihola).
+
+2007-07-02  C. Titus Brown  <t@chreotha>
+
+	* Fixed small documentation error in commands (Bill Mill).
+
+	* Fixed another problem match_parse: made popmatch work properly
+	  (Sheryl).
+
+2007-07-01  C. Titus Brown  <t@chreotha>
+
+	* Moved 'mechanize' to '_mechanize_dist', 'ClientForm' to
+	'_mechanize_dist.ClientForm', as requested for Debian dists.
+
+	* Fixed a problem with __matchlist__ in match_parse extension
+  	  (Sheryl).
+
+	* All raised exceptions now inherit from TwillException (Kevin Turner).
+
+	* Eliminated FakeResponse and switched to using
+	  mechanize.make_response (Jacob Hallan, JJL).
+
+	* Updated mechanize to latest; includes my two patches to mechanize.
+
+2007-06-04  Titus Brown  <t@iorich.caltech.edu>
+
+	* Updated mechanize to latest.
+
+	* Patched subprocess pipe freeing problem (Chris Abraham).  (This
+	  is a moderately serious bug for long-running programs that use
+	  subprocess to try to run programs that don't exist.)
+
+	  My patch modifies run_tidy to remember if subprocess failed because
+	  tidy didn't exist.
+
+2007-05-28  Titus Brown  <t@iorich.caltech.edu>
+
+	* Added 'info' command, docs, and tests.
+
+	* Removed gopherlib references in mechanize; added test.
+
+2007-03-19  Titus Brown  <t@localhost.localdomain>
+
+	* Fixed bug in my patch to mechanize 'select_form'.
+
+	* Removed debug 'print' in wsgi_intercept.py.
+
+2007-03-06  Titus Brown  <t@localhost.localdomain>
+
+	* RELEASE 0.9b1.
+
+	* Changed version to 0.9b1.
+
+	* Fixed global_form selection on form set (Matt Singer).
+
+2007-02-18  Titus Brown  <t@localhost.localdomain>
+
+	* Added paste.lint tests into wsgi_intercept test code; fixed
+	  only problem noted.
+
+2007-02-15  Titus Brown  <t@localhost.localdomain>
+
+	* Fixed browser.get_form to only allow valid form numbers (Mariusz).
+
+	* Fixed showforms to properly display form numbers (Mariusz).
+
+2007-02-14  Titus Brown  <t@localhost.localdomain>
+
+	* Added a basic check for Web server to tests: tests no longer
+	  run if the test Web server isn't available.
+
+	* Added get_browser() to twill.commands exports.
+
+2007-02-08  Titus Brown  <t@localhost.localdomain>
+
+	* Global forms no longer show up IF EMPTY.
+
+2007-02-04  Titus Brown  <t@localhost.localdomain>
+
+	* Switched to MIT license.
+
+2007-01-29  Titus Brown  <t@localhost.localdomain>
+
+	* Removed BeautifulSoup.py in favor of the one included with
+	  mechanize.
+
+	* Added pages 'show_environ' and 'show_post' to twilltestserver.
+
+	* Added commands 'add_extra_header', 'show_extra_headers', and
+	  'clear_extra_headers', + tests & docs.  (Shaun Walbridge)
+
+	* Always display proper form number in showforms.
+
+2007-01-24  Titus Brown  <t@localhost.localdomain>
+
+	* Made twill tests work under Windows-cygwin too!
+
+2007-01-23  Titus Brown  <t@localhost.localdomain>
+
+	* Made twill tests work under Windows+cygwin by switching to
+	  subprocess.
+
+2007-01-16  Titus Brown  <t@localhost.localdomain>
+
+	* Fixed twill tests (!?)
+
+2007-01-14  Titus Brown  <t@localhost.localdomain>
+
+	* global_form is now form[0] if present.
+
+	* Deprecated allow_parse_errors config option; isn't needed for
+	  latest mechanize.
+
+	* Updated mechanize and ClientForm to latest svn; patched to pass
+	  twill tests.  Preserved originals in mechanize/_html.py.jjl,
+	  ClientForm.py.jjl.
+
+2007-01-09  Titus Brown  <t@localhost.localdomain>
+
+	* Added complete_fv to formvalue completion patch.
+
+	* Added formvalue completion patch (Seo Sanghyeon).
+
+2006-11-29  Titus Brown  <t@localhost.localdomain>
+
+	* Fixed test-form.twill to match new output format.
+
+	* Patched __init__.py to remove UNIX-specific '/' from the
+	  sys.path insert statement.  (Ramon Felciano)
+
+	* Patched wsgi_intercept: REMOTE_ADDRESS ==> REMOTE_ADDR.
+
+2006-11-01  Titus Brown  <t@localhost.localdomain>
+
+	* formvalue now returns an informative error message when
+	  a file upload field is touched (Matthew Singer)
+
+	* Added Andy Chamber's formfill patch.
+
+	* Added tests for Andy Chambers's formfill patch.
+
+	* Fixed bug in mechanize/_html.py links parsing.
+
+2006-10-26  Titus Brown  <t@localhost.localdomain>
+
+	* Added TWILL_TEST_PORT in for running tests on something other
+	  than port 8080.
+
+2006-10-19  Titus Brown  <t@localhost.localdomain>
+
+	* Updated mechanize & ClientForm to svn latest.
+
+2006-10-17  Titus Brown  <t@localhost.localdomain>
+
+	* Fix to BS parsing problem (?)
+
+2006-10-16  Titus Brown  <t@localhost.localdomain>
+
+	* Changed assertions in test-broken-html.py to refer to tidy.
+
+	* Put a pkg_resources.require('dnspython>=1.4') in for test-dns.py
+
+2006-10-15  Titus Brown  <t@vallista.idyll.org>
+
+	* Switched over to using pkg_resources.require for quixote version
+	  require/check.
+
+	* Fixed DNS tests with fake idyll.org hosts (Alex Martelli)
+
+2006-09-20  Titus Brown  <t@issola.caltech.edu>
+
+	* Bumped version to 0.9.
+
+	* Switched references to urllib2 over to mechanize, per JJL.
+
+2006-07-12  Titus Brown  <t@issola.caltech.edu>
+
+	* removed ClientCookie dependencies
+
+2006-07-09  Titus Brown  <t@issola.caltech.edu>
+
+	* Updated gather code to properly deal with lexical ordering in
+	  directory hierarchies.
+
+	* Finished fixing up the HTML processing code to the latest mechanize.
+
+2006-07-07  Titus Brown  <t@issola.caltech.edu>
+
+	* added newline '\n' processing in arguments.  still need to test.
+
+	* added utils.gather_files to gather script files from subdirectories.
+
+2006-06-19  Titus Brown  <t@issola.caltech.edu>
+
+	* Fixed name server change in test-dns.twill.
+
+	* Fixed __match__ info in docs.
+
+2006-06-04  Titus Brown  <t@issola.caltech.edu>
+
+	* RELEASE 0.8.5.
+
+2006-05-19  Titus Brown  <t@issola.caltech.edu>
+
+	* Added 'formfill' extension module, tests, & docs. (Ben Bangert)
+
+	* 'debug' now takes boolean (+/-) arguments, too.
+
+2006-05-17  Titus Brown  <t@issola.caltech.edu>
+
+	* Bumped version number.
+
+	* Explicitly str-ified form/field names.  (Sebastien Pierre)
+
+	* Added path mangling issue to 'known problems'.
+
+	* Modified 'extend_with' import command to also print out
+	  location of imported module.
+
+	* Fixed unnecessary path mangling that introduced the package
+	  directory into sys.path; associated check_links idiocy.
+	  (Herve Cauwelier)
+
+	* Fixed test breakage due to amazon.com DNS changes.
+
+2006-05-15  Titus Brown  <t@issola.caltech.edu>
+
+	* Bumped version number, fixed import order issue.
+
+2006-05-11  Titus Brown  <t@issola.caltech.edu>
+
+	* Added 'check_links' collecting behavior, 'report_bad_links' function.
+
+	* Added debug logging to csv_iterate.
+
+2006-05-08  Titus Brown  <t@issola.caltech.edu>
+
+	* Added dirstack extension module
+
+2006-05-07  Titus Brown  <t@issola.caltech.edu>
+
+	* Fixed general https problem ('back' didn't work because the
+	  response fp was 'close'd but not wrapped in addinfourl for
+	  HTTPS URLs).  (re ARINC)
+
+	* Fixed check_links problem with 'https:' URLs, refactored a tad.
+	  (re ARINC)
+
+	* Fixed wsgi_intercept generator problem, added test.
+
+	* Fixed a reference to an absolute URL in the tests.
+
+2006-04-29  Titus Brown  <t@issola.caltech.edu>
+
+	* Added (re-added!?) test-wsgi-intercept.py test.
+
+	* 'execute_string' no longer resets context, unlike 'execute_file'.
+
+	* Fixed a few miscellaneous problems with argparse.get_args; added
+	  optional 'require' argument to get_args.
+
+	* added 'interactive' flag to twill.shell; turned off verbose
+	  output for 'extend_with' command if not interactive.
+
+2006-04-24  Titus Brown  <t@issola.caltech.edu>
+
+	* Added csv_iterate module.
+
+	* Fixed argparse to use $arg1...$argN instead of $arg0.
+
+2006-04-23  Titus Brown  <t@issola.caltech.edu>
+
+	* Fixed argparse to listen to arguments after '--' only.
+
+	* Updated 'problems.txt' again with a Windows-specific 'tidy'
+	  problem.  (aledain)
+
+	* Refactored '_all_the_same...' code by moving it into utils.py.
+
+	* browser.get_form() now checks for exact match to form ID.
+	  (Uy Do)
+
+	* browser.get_form_field() now checks for exact match to control ID
+	  (Uy Do)
+
+	* Updated ClientCookie to latest svn.
+
+	* Added another weird form parsing error: </br> problems in forms.
+	  (David Hancock)
+
+	* Verified issue with ParseErrors caused by INPUTs in the wrong
+	  place.  Put in test-broken-html.  Cannot fix easily... <sigh>
+	  (Tomi Hautakoski)
+
+	* Fixed wsgi_intercept/write_fn issue.
+
+2006-04-13  Titus Brown  <t@issola.caltech.edu>
+
+	* Changed 'save_html' to default to deriving the filename from the
+	  URL (Tristan De Buysscher).
+
+2006-03-30  Titus Brown  <t@issola.caltech.edu>
+
+	* Added redirect_error, reset_error to commands.py, and
+	  added function 'twill.set_errout'.
+
+	* Added '-n', '--never-fail' option to 'twill-sh'.
+
+	* Fixed a problem with ClientForm.AmbiguityError being raised in
+	  bad places.
+
+	* Updated ClientForm to latest.
+
+2006-03-26  Titus Brown  <t@issola.caltech.edu>
+
+	* Updated dns_check with Bob Halley's suggestions.
+
+	* Added docs & (fragile) tests to the dns_check extension module.
+
+	* Added dns_check.py extension module.  No docs/tests yet.
+
+2006-03-25  Titus Brown  <t@issola.caltech.edu>
+
+	* Allowed failure to import setuptools in setup.py.
+
+2006-03-23  Titus Brown  <t@issola.caltech.edu>
+
+	* Major twill/shell.py patch to allow for dynamic addition of 
+	  methods to shell objects.
+
+	* RELEASE 0.8.4.
+
+	* Improved extension module docstrings.
+
+	* Added better printout when 'extend_with' is used.
+
+	* Added argparse extension module (Michele Simionato).
+
+2006-03-22  Titus Brown  <t@issola.caltech.edu>
+
+	* Changed __match__ to listen to subgroups. (Leonardo Santagada).
+
+	* Added Stephen Thorne's fix for multiple checkboxes with the same
+	  name/different values.
+
+2006-03-21  Titus Brown  <t@issola.caltech.edu>
+
+	* Added 'acknowledge_equiv_refresh' option & added helpful
+	  error message on infinite refresh detection (Leonardo Santagada).
+
+	* Added in Stephen Thorne's fix for readonly-controls printout.
+
+	* Added in Stephen Thorne's checkbox test & added 'on'/'off' for
+	  checkbox stuff.
+
+	* Added in Stephen Thorne's "with_default_realm" auth patch.
+
+2006-03-17  Titus Brown  <t@issola.caltech.edu>
+
+	* Added in Jeff Martin's ${variable} expansion patch.
+
+	* List values can now be selected/deselected with +/-.
+
+	* Checkboxes can now be set with True or a non-zero number, and
+	  cleared with a False or '0'.
+
+	* Switched over to using 'require success' instead of code 200
+	  on some scripts.
+
+	* Fixed a number of unknown options ;).
+
+	* 'config' now fails on unknown options.
+
+2006-03-15  Titus Brown  <t@issola.caltech.edu>
+
+	* Moved utils.journey() function into TwillBrowser class as
+	  _journey, refactored, simplified & eliminated _new_page()
+	  method.
+
+	* Added check_links extension module.
+
+	* Added simple extension module documentation.
+
+	* Added installation instructions.
+
+2006-03-14  Titus Brown  <t@issola.caltech.edu>
+
+	* Added list of known problems.
+
+	* Added Web testing programs for Perl & PHP to docs.
+
+2006-03-09  Titus Brown  <t@issola.caltech.edu>
+
+	* Switched mechanize default encodings over to utf-8 (Terry
+	  Peppers, many others!)
+
+2006-03-06  Titus Brown  <t@issola.caltech.edu>
+
+	* fixed twill.shell.main() so that -i flag makes interact run
+	  even on failure exit.  (Kieran Holland)
+
+	* Added setuptools entry_points magic for twill-sh script.
+
+2006-03-05  Titus Brown  <t@issola.caltech.edu>
+
+	* SystemExit problems in the twill shell, fixed.
+
+	* Added 'redirect_output' and 'reset_output'. (Norman Khine)
+
+	* Fixed memory leak in reset_browser(). (Alexander Shvedunov)
+
+	* Increased test coverage overall to 85%.
+
+	* Now test the shell code fairly well.
+
+	* Cleaned up some of the stdout issues with nose.
+
+	* fixed buggishness in shell code.
+
+	* Made sure to close fp in tidy code.
+
+2006-02-28  Titus Brown  <t@issola.caltech.edu>
+
+	* runfile now allows multiple filenames properly.
+
+2006-02-21  Titus Brown  <t@issola.caltech.edu>
+
+	* TwillAssertionError no longer subclasses AssertionError.
+
+	* execute_command now takes a cmdinfo argument so that line number
+	  of input can be traced in errors.
+
+2006-02-16  Titus Brown  <t@issola.caltech.edu>
+
+	* Fixed 'run_tidy' >& error on windows.
+
+	* Fixed "file:" URLs for which result.code doesn't exist.
+
+2006-02-09  Titus Brown  <t@issola.caltech.edu>
+
+	* Added 'equiv-refresh' debug option.
+
+2006-02-08  Titus Brown  <t@issola.caltech.edu>
+
+	* 0.8.3 RELEASE
+
+	* fixed minor links parsing bug (seek(0) prior to parsing!)
+
+	* renamed wwwsearch/ to other_packages/.
+
+	* added BeautifulSoup.
+
+2006-02-06  Titus Brown  <t@issola.caltech.edu>
+
+	* 0.8.2 RELEASE.
+
+	* Documented config options.
+
+	* Added in parse_errors stuff: config parse options now all work.
+
+	* Wedged in all of the mechanize parse Factory refactoring.
+
+	* Refactored a bit to use Factory() amalgamation.  In particular,
+	  removed title() override in PatchedMechanizeBrowser; built a
+	  Factory subclass in utils; and removed external references to
+	  TidyAware code.
+
+2006-02-05  Titus Brown  <t@issola.caltech.edu>
+
+	* Added 'set_output' command to redirect all output elsewhere.
+
+	* Updated pyparsing to 1.4.1.
+
+2006-02-04  Titus Brown  <t@issola.caltech.edu>
+
+	* added execute_string.
+
+	* Updated wsgi_intercept to latest (non-caching) version.
+
+	* Removed test-wsgi-intercept code.
+
+2006-02-01  Titus Brown  <t@issola.caltech.edu>
+
+	* Added ignore_errors functioning into wwwsearch code; now, when
+	  ignore_errors=True on form parsing, parse errors are ignored.
+
+	* Renamed 'do_run_tidy' to 'use_tidy', and 'tidy_should_exist' to
+	  'require_tidy'.
+
+	* Fixed redirect error once and for all by switching to using the
+	  *correct* Request class.
+
+2006-01-23  Titus Brown  <t@issola.caltech.edu>
+
+	* Added extensions/ __init__.py
+
+	* Removed special setup cmdclass.
+
+2006-01-22  Titus Brown  <t@issola.caltech.edu>
+
+	* Removed space mangling in favor of JJL's fix in mechanize.
+
+	* Fixed multiple 'showlinks' problem (in _mechanize.py).
+
+	* Catch all parsing exceptions. (Kieran Holland)
+
+	* Added return values to a number of functions in commands.py,
+	  documented appropriately.
+
+	* Added '?' behavior for 'go', so that 'go ?name=value' works.
+	  (Sebastjan Trepca)
+
+	* Updated pyparsing to 1.4p1 version.
+
+	* Updated mechanize/ClientCookie/ClientForm.
+
+	* Removed ez_setup dependency.
+
+2005-12-19  Titus Brown  <t@issola.caltech.edu>
+
+	* Added tv@debian.org's 'find' regexp flags patch.
+
+	* Added tv@debian.org's quoted patch.
+
+	* Added tv@debian.org's patch to widen showforms field names.
+
+	* Added tv@debian.org's patch to fix checkbox/submit multiplicity
+	  errors.
+
+	* Added Jason Pellerin's tests patch.
+
+2005-12-11  Titus Brown  <t@issola.caltech.edu>
+
+	* Added twill.get_browser(); deprecated twill.get_browser_state().
+
+	* Broke mechanize stuff out into _browser.py.
+
+	* Removed browser.url() in favor of get_url().
+
+2005-12-10  Titus Brown  <t@issola.caltech.edu>
+
+	* RELEASE 0.8.1.
+
+	* Added Tom Parker's patch for multiple identical submit buttons.
+
+2005-12-08  Titus Brown  <t@issola.caltech.edu>
+
+	* fixed wsgi_intercept start_response params: added exc_info.
+
+	* added 'sleep' argument to TestInfo init.
+
+2005-12-06  Titus Brown  <t@issola.caltech.edu>
+
+	* Added sureshvv's commands in as 'match_parse' extension.
+
+	* Moved extensions/ into twill/extensions; modified sys.path
+	  accordingly in package import.
+
+2005-12-05  Titus Brown  <t@issola.caltech.edu>
+
+	* Fixed a problem where tidy was occasionally mangling long titles
+	  with unnecessary newlines.
+
+	* Fixed a bug in PatchedMechanizeBrowser.title() where seek(0) was
+	  not getting called.
+
+2005-12-03  Titus Brown  <t@issola.caltech.edu>
+
+	* formfile now uses 'rb' to open files.  (Tom Parker)
+
+	* local namespace now automatically created if it doesn't exist.
+
+	* Applied tv's patches for checkbox/hidden problems and incorrect
+	  error messages.
+
+	* Fixed form submission to add referer headers; updated tests.
+	  (Tom Parker)
+
+	* Fixed tests: setup -> setup_module, teardown -> teardown_module.
+
+2005-11-29  Titus Brown  <t@issola.caltech.edu>
+
+	* RELEASE 0.8.
+
+	* Additional coverage and some miscellaneous fixes.
+
+2005-11-28  Titus Brown  <t@issola.caltech.edu>
+
+	* Made http-equiv=refresh stuff work by overriding it in utils.py.
+	  My fix is probably bad.  oh well, shouldn't make a difference...
+
+2005-11-27  Titus Brown  <t@issola.caltech.edu>
+
+	* Verified that eggs stuff now "just works".
+
+	* Put in a fix for an HTTP Basic Auth bug (that is fixed in Py 2.5!)
+
+	* Added in a test of 'formaction'.
+
+	* Added in a bunch of form tests to test-form, fixed bugs discovered
+	  thereby.
+
+	* Added in sureshvv's formaction/fa patch.
+
+	* Added in docs re 'tidy'.
+
+	* Put in a rough 'tidy' implementation by wrapping FormsFactory and
+	  LinksFactory.parser_class.
+
+	* Removed 'get_title' from RequestWrapper, moved to using
+	  MechanizeBrowser.title().
+
+	* Added 'utils.run_tidy' function & 'test-tidy.py' under tests/.
+
+	* Moved the journey-exception-wrapping into the mechanize mech_open
+	  function; this fixes a bug reported by sureshvv.  Augmented
+	  test-back.twill to test this, and added a 'plaintext' function
+	  to the twill test server.
+
+2005-11-20  Titus Brown  <t@issola.caltech.edu>
+
+	* Switched to using pullparser to extract title in utils.
+
+	* Increased code coverage of unit tests significantly.
+
+2005-11-19  Titus Brown  <t@issola.caltech.edu>
+
+	* Fixed 'code' command to display non-numeric codes from get_code()
+	  (which may return None).  'code' itself still requires an integer.
+
+	* Fixed test-wsgi-intercept.py to init global/local dictionaries.
+
+	* Added 'test-find.*'
+
+	* Set __match__ to matching string in find, url, and title.
+
+2005-11-18  Titus Brown  <t@issola.caltech.edu>
+
+	* Version upgraded to 0.8.
+
+	* Removed ez_setup hooks for the moment, because they interfered
+	  with build/install.
+
+	* Finished updating to latest mechanize code.  whew.
+
+	* Miscellaneous fixes to browser.py.
+
+	* Miscellaneous fixes to ClientCookie/_Util.py.
+
+	* Added 'showhistory' command.
+
+	* WSGI intercept stuff is now much cleaner.  Could be even cleaner,
+	  yes...
+
+	* Updated ClientForm/ClientCookie/pullparser.
+
+2005-11-17  Titus Brown  <t@issola.caltech.edu>
+
+	* substantially updated README with links to other tools.
+
+	* KeyboardInterrupts don't error out in twill-sh; they just force
+	  a silent exit.
+
+	* Added a code 500 test to 'test-http-codes'.
+
+2005-11-15  Titus Brown  <t@issola.caltech.edu>
+
+	* Fixed failure to seek(0) before parsing response; problem
+	  in _parse_html.  It broke 'back()' behavior for forms.
+	  Added test-back.{py,twill}.
+	
+	* Test cleanup: add try: finally: around __main__ stuff, and
+	  add 'initial_url' args.
+
+	* Added 'advanced docs' section.
+
+	* Added http_proxy documentation.
+
+	* Fixed problems caused by failure to construct a valid
+	  result object when HTTP errors (e.g. 404) happen.  Tested
+	  by test-http-codes.py.
+
+	* Added test-http-codes, cleaned up testlib a bit.
+
+	* Fixed a stupid bug in parse.py with 'local_dict' != 'locals_dict'.
+
+2005-11-14  Titus Brown  <t@issola.caltech.edu>
+
+	* Added small section to README about 'nose' unit tests.
+
+	* Cleaned up the 'myhttplib' WSGI intercept code & added a test.
+
+2005-11-11  Titus Brown  <t@issola.caltech.edu>
+
+	* Downgraded 0.8 version to 0.7.4.  RELEASE.
+
+2005-11-10  Titus Brown  <t@issola.caltech.edu>
+
+	* Moved 'test/' to 'tests/', added 'test-multisub.py',
+	  moved 'twillserver.py' to 'twilltestserver.py', and fixed
+	  it to run simple_server when executed from the command line.
+
+	* Fixed two form submission bugs, pointed out by Mike Rovner.
+
+2005-11-09  Titus Brown  <t@issola.caltech.edu>
+
+	* Added William Volkman's patch fixing 'agent'.
+
+2005-11-06  Titus Brown  <t@issola.caltech.edu>
+
+	* Updated 'formvalue' and 'submit' help docs.
+
+2005-11-05  Titus Brown  <t@issola.caltech.edu>
+
+	* Added 'config' command, 'readonly_controls_writeable' option.
+	  (James Cameron bug/fix)
+
+	* Updated version numbers to 0.8.
+
+	* Added command 'showlinks'.
+
+	* Changed 'state' variable to 'browser' in commands.py
+
+2005-11-04  Titus Brown  <t@issola.caltech.edu>
+
+	* Put test/ tests into a nosetest-compatible format.  Yay,
+	  unit tests!
+
+2005-10-30  Titus Brown  <t@issola.caltech.edu>
+
+	* Now catch errors from __ and $ eval failure (i.e. not in any
+	  namespace) and reset the evaluation to just be the original name.
+	  (bug reported by sureshvv).
+
+2005-10-29  Titus Brown  <t@issola.caltech.edu>
+
+	* Cleared content-type header in wwwsearch.zip, urllib2_support.py,
+	  class HTTPRedirectHandler, redirect_request.  This fixes a bug
+	  I noticed when testing collar: redirects inappropriately retain
+	  content-type, and this breaks Quixote, at the least, when
+	  enctype multipart/form-data is used in a POST prior to the
+	  redirect.  (CTB: this should be dealt with more generally.)
+
+	* Fixed back() behavior in _mechanize.  (I probably broke it in the
+	  first place, sigh.)  Now accords with latest trunk _mechanize.py.
+
+	* Fixed order of __url__ setting in parse.execute_command.
+
+	* Added 'url' and 'exit' commands.
+
+	* Added 'debug twill' to set printout of twill commands as they
+	  are executed.
+
+	* Attempted to add http_auth testing, but failed.  (non-functional
+	  code left in test/)
+
+	* Overrode 'view_html' bool function in PatchedMechanizeBrowser.
+	  It now assumes that no content-type means text/html, and also
+	  allows 'text/xml' to be used.  (James Cameron's issue.)
+
+	* moved _TwillBrowserState into browser.py, named it TwillBrowser().
+
+	* twill-sh now prints out the exception str when executing files,
+	  even when 'fail' flag is not set.
+
+2005-10-18  Titus Brown  <t@issola.caltech.edu>
+
+	* fixed bug in get_form_field that inverted the priorities of
+	  form/field searches.
+
+	* added documentation for add_auth, form/field identification.
+
+2005-10-09  Titus Brown  <t@issola.caltech.edu>
+
+	* Added tv@debian.org's patch: add 'title' assertion,
+	  and show error messages when TwillAssertions are caught.
+
+2005-10-07  Titus Brown  <t@issola.caltech.edu>
+
+	* Updated to version 0.7.3 in the code; RELEASE.
+
+	* Added 'twill-fork' script for stress-testing.
+
+2005-10-01  Titus Brown  <t@issola.caltech.edu>
+
+	* Increased code coverage of tests by adding in a few commands
+	  to test_twill.twill.
+
+	* Added Robert Leftwich's patch to allow the use of ImageControl
+	  for 'submit'.
+
+2005-09-20  Titus Brown  <t@issola.caltech.edu>
+
+	* Added Nic Ferrier's patch to request text/html first.
+
+2005-09-18  Titus Brown  <t@issola.caltech.edu>
+
+	* Switched to using eval for $variable substitution.
+
+	* Created namespaces.py, moved local/global dictionary stuff in
+	  there.  Created local namespace stack; namespaces now mean
+	  something ;).
+
+	* Added setglobal and setlocal, then agonized about local/global
+	  dictionaries.
+
+	* Added Ed Rahn's patch: run, runfile, and $variable substition.
+	  Documented appropriately.
+
+2005-09-10  Titus Brown  <t@issola.caltech.edu>
+
+	* Updated version to 0.7.2.  RELEASE.
+
+	* Updated setup.py to contain full Pypi info & Trove classification.
+
+	* Made sure current directory was in sys.path on load;
+	  useful for extend_with!
+
+	* Added debug http functionality.
+
+	* Added save_html <filename>.
+
+2005-09-03  Titus Brown  <t@issola.caltech.edu>
+
+	* Fixed extend_with to update the interactive shell.
+	
+2005-08-20  Titus Brown  <t@issola.caltech.edu>
+
+	* Updated pyparsing.py to 1.3.2.
+
+2005-06-08  Titus Brown  <t@issola.caltech.edu>
+
+	* Added 'add_auth' command for HTTP basic authentication.
+
+	* Added 'formfile' command for file uploads.
+
+	* Added 'test/README.txt' for testing docs.
+
+	* Applied Joeri van Ruth's patch to make '-' as a filename
+	  read from stdin.
+
+2005-06-06  Titus Brown  <t@issola.caltech.edu>
+
+	* Now checks for exact matches to fieldnames before trying out
+	  regexps.
+
+	* Submit w/o submit buttons now working.
+
+	* Fixed quoted handling of __stuff__.
+
+	* More intelligent pyparsing stuff from Paul McGuire; in particular,
+	  comments on the ends of lines are allowed, and '#' in arguments
+	  is disallowed.
+
+2005-06-04  Titus Brown  <t@issola.caltech.edu>
+
+	* added a couple of command line options using 'optparse'.
+
+	* added __url__ ==> current URL.
+
+	* added some of Paul McGuire's suggestions for cleaning up the
+	  pyparsing code.
+
+	* better error reporting on all exceptions while executing
+	  file.
+
+	* Fixed a relative URL issue: twill now tries several URLs in order,
+	  only prepending 'http://' when it's tried other URLs first.  Added
+	  test.
+
+	* Added Joeri van Ruth's patches: new sleep command, and transmit
+	  value of submit buttons on form submission.  Added tests for the
+	  latter.  Documented.
+
+2005-05-26  Titus Brown  <t@issola.caltech.edu>
+
+	* all files specified on command-line now executed.
+
+	* emacs backup files (filename~) now skipped by twill-sh.
+
+	* error output on script execution now includes line number &
+	filename.
+
+2005-05-25  Titus Brown  <t@issola.caltech.edu>
+
+	* added reset_state; run it on each execute_file.
+
+2005-05-24  Titus Brown  <t@issola.caltech.edu>
+
+	* 'go domainname' now works as expected.
+
+	* Made various form-related submit() errors clearer.
+
+	* Fixed problem with spaces in link *text*.  (Actually a more
+	general bug that caused link searches to fail in most cases.)
+
+2005-05-23  Titus Brown  <t@issola.caltech.edu>
+
+	* Fixed problem with spaces in links/URLs.
+

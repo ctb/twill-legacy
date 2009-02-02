@@ -1,0 +1,46 @@
+# blah
+go http://issola.caltech.edu/~t/qwsgi/qwsgi-demo.cgi/
+
+go ./simple
+back
+
+follow simple
+code 200
+back
+
+follow error
+code 500
+back
+
+follow publish_error
+code 400
+back
+
+follow 12
+follow factorial
+find 479001600
+back
+follow next
+follow next
+find 14
+
+go ../
+follow dumpreq
+find PATH_INFO
+back
+
+follow widgets
+showforms
+back
+
+follow form_demo
+showforms
+back
+
+# can't "follow srcdir" because there's another link on the page
+# that actually goes to srcdir/pages.ptl instead...
+go ./srcdir
+find '__init__.pyc'
+back
+
+echo SUCCESS!

@@ -1,0 +1,19 @@
+% darcs tag --checkpoint -m release-0.8
+ -- tag release-0.8, and allow for --partial get.
+
+% darcs dist -d twill-0.8.3
+
+where to change version number:
+
+   setup.py, version & download URL;
+   twill/__init__.py
+   doc/index.txt, version, download URL, and date;
+
+for release:
+
+    * copy doc/ over to twill/.
+    * tag;
+    * generate .tar.gz
+    * generate egg;
+    * update pypi (setup.py register);
+    * announce on clp, twill@lists.idyll.org, web-sig@python.org;
