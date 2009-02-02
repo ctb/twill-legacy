@@ -23,3 +23,9 @@ config acknowledge_equiv_refresh on
 reload
 url /login
 code 200
+
+# check quotes around url
+go /test_refresh3
+url /login
+code 200
+

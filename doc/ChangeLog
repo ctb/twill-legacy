@@ -1,3 +1,7 @@
+2009-02-02  Titus Brown  <t@lyorn.idyll.org>
+
+	* Fixed problem with quoted refresh URLs (Sergey Kishchenko).
+
 2007-12-27  Titus Brown  <t@iorich.caltech.edu>
 
 	* Added better error message to 'url' (Matt Wilson).

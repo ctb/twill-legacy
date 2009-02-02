@@ -91,7 +91,7 @@ class TwillTest(Directory):
                   'simpleform', 'upload_file', 'http_auth', 'formpostredirect',
                   'exit', 'multisubmitform', "exception", "plaintext",
                   "testform", "testformaction",
-                  "test_refresh", "test_refresh2",
+                  "test_refresh", "test_refresh2", "test_refresh3",
                   "test_checkbox", "test_simple_checkbox","echo",
                   "test_checkboxes", 'test_global_form',
                   'tidy_fixable_html', 'BS_fixable_html', 'unfixable_html',
@@ -231,6 +231,24 @@ hello, world.
 <head>
 <title>o2.ie</title>
 <meta http-equiv="refresh" content="0;URL=/login">
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+<body>
+</body>
+</html>
+hello, world.
+"""
+
+    def test_refresh3(self):
+        """
+        check for situation where given URL is quoted.
+        """
+        return """\
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>o2.ie</title>
+<meta http-equiv="refresh" content="0;'URL=/login'">
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 </head>
 <body>

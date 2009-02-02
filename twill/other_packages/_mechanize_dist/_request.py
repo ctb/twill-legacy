@@ -31,6 +31,8 @@ class Request(urllib2.Request):
         if not _rfc3986.is_clean_uri(url):
             warn("url argument is not a URI "
                  "(contains illegal characters) %r" % url)
+        url = url.strip("'")
+        url = url.strip('"')
         urllib2.Request.__init__(self, url, data, headers)
         self.selector = None
         self.unredirected_hdrs = {}
