@@ -1,5 +1,5 @@
 import twilltestlib
-from _mechanize_dist import ClientForm
+from twill.other_packages._mechanize_dist import ClientForm
 from cStringIO import StringIO
 
 def test_form_parse():

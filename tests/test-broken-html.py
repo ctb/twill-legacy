@@ -3,7 +3,7 @@
 parser) can parse.
 """
 
-from _mechanize_dist import ClientForm
+from twill.other_packages._mechanize_dist import ClientForm
 
 import twilltestlib
 from twill import commands

@@ -6,7 +6,7 @@ import sys
 from cStringIO import StringIO
 
 from errors import TwillAssertionError, TwillNameError
-from pyparsing import OneOrMore, Word, printables, quotedString, Optional, \
+from other_packages.pyparsing import OneOrMore, Word, printables, quotedString, Optional, \
      alphas, alphanums, ParseException, ZeroOrMore, restOfLine, Combine, \
      Literal, Group, removeQuotes, CharsNotIn
 
