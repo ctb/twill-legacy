@@ -360,7 +360,7 @@ hello, world.
         if request.form and request.form.has_key('selecttest'):
             vals = request.form['selecttest']
 
-            if isinstance(vals, str):
+            if isinstance(vals, basestring):
                 vals = [vals,]
 
             s += "SELECTTEST: ==%s==<p>" % " AND ".join(vals,)
@@ -405,7 +405,7 @@ hello, world.
         if request.form and request.form.has_key('checkboxtest'):
             val = request.form['checkboxtest']
 
-            if not isinstance(val, str):
+            if not isinstance(val, basestring):
                 val = val[0]
 
             s += "CHECKBOXTEST: ==%s==<p>" % val
@@ -428,7 +428,7 @@ hello, world.
         if request.form and request.form.has_key('checkboxtest'):
             val = request.form['checkboxtest']
 
-            if not isinstance(val, str):
+            if not isinstance(val, basestring):
                 val = ','.join(val)
 
             s += "CHECKBOXTEST: ==%s==<p>" % val
@@ -450,7 +450,7 @@ hello, world.
         if request.form and request.form.has_key('checkboxtest'):
             val = request.form['checkboxtest']
 
-            if not isinstance(val, str):
+            if not isinstance(val, basestring):
                 val = val[0]
 
             s += "CHECKBOXTEST: ==%s==<p>" % val
