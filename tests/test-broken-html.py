@@ -3,8 +3,6 @@
 parser) can parse.
 """
 
-from _mechanize_dist import ClientForm
-
 import twilltestlib
 from twill import commands
 
@@ -49,7 +47,7 @@ def test_raw():
 #    try:
 #        b._browser.forms()
 #        assert 0, "this page has a parse error."
-#    except ClientForm.ParseError:
+#    except mechanize.ParseError:
 #        pass
 
 def test_tidy():
@@ -85,7 +83,7 @@ def test_tidy():
 #    try:
 #        b._browser.forms()
 #        assert 0, "this page has a parse error."
-#    except ClientForm.ParseError:
+#    except mechanize.ParseError:
 #        pass
 
 def test_BeautifulSoup():
@@ -122,7 +120,7 @@ def test_BeautifulSoup():
 #    try:
 #        b._browser.forms()
 #        assert 0, "this page has a parse error."
-#    except ClientForm.ParseError:
+#    except mechanize.ParseError:
 #        pass
 
 def test_allow_parse_errors():

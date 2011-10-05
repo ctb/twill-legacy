@@ -1,8 +1,8 @@
 import twilltestlib
 import twill
+import mechanize
 from twill import namespaces, commands
 from twill.errors import TwillAssertionError
-from _mechanize_dist import BrowserStateError, ClientForm
 
 def test():
     url = twilltestlib.get_url()
@@ -14,7 +14,7 @@ def test():
     try:
         browser.get_title()
         assert 0, "should never get here"
-    except BrowserStateError:
+    except mechanize.BrowserStateError:
         pass
 
     ### now test a few special cases
@@ -43,7 +43,7 @@ def test():
     try:
         commands.fv('1', 'selecttest', 'value')
         assert 0
-    except ClientForm.ItemNotFoundError:
+    except mechanize.ItemNotFoundError:
         pass
 
     # test ambiguous match to name
