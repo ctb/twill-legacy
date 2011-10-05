@@ -74,6 +74,9 @@ class TwillBrowser(object):
         # callables to be called after each page load.
         self._post_load_hooks = []
 
+    def set_handle_equiv(self, *args, **kwargs):
+        self._browser.set_handle_equiv(*args, **kwargs)
+
     ### get/set HTTP authentication stuff.
 
     def _set_creds(self, creds):
@@ -451,14 +454,9 @@ Note: submit is using submit button: name="%s", value="%s"
                                   "", mechanize.Request)
 
         #
-        # add referer information.  this may require upgrading the
-        # request object to have an 'add_unredirected_header' function.
+        # add referer information.
         #
-
-        upgrade = self._browser._ua_handlers.get('_http_request_upgrade')
-        if upgrade:
-            request = upgrade.http_request(request)
-            request = self._browser._add_referer_header(request)
+        request = self._browser._add_referer_header(request)
 
         #
         # now actually GO.
