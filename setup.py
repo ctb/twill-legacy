@@ -19,7 +19,6 @@ setup(name = 'twill',
       license='MIT',
 
       packages = ['twill', 'twill.other_packages',
-                  'twill.other_packages._mechanize_dist',
                   'twill.extensions',
                   'twill.extensions.match_parse'],
 
