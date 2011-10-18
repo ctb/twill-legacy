@@ -81,7 +81,7 @@ def process_args(args, globals_dict, locals_dict):
 
             print '*** VAL IS', val, 'FOR', arg
             
-            if isinstance(val, str):
+            if isinstance(val, basestring):
                 newargs.append(val)
             else:
                 newargs.extend(val)
@@ -89,7 +89,7 @@ def process_args(args, globals_dict, locals_dict):
         # $variable substitution
         elif arg.startswith('$') and not arg.startswith('${'):
             try:
-                val = eval(arg[1:], globals_dict, locals_dict)
+                val = str(eval(arg[1:], globals_dict, locals_dict))
             except NameError:           # not in dictionary; don't interpret.
                 val = arg
             newargs.append(val)
