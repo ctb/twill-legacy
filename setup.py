@@ -10,7 +10,7 @@ except ImportError:
 
 setup(name = 'twill',
       
-      version = '0.9',
+      version = '0.9.1',
       download_url = 'http://darcs.idyll.org/~t/projects/twill-0.9.tar.gz',
       
       description = 'twill Web browsing language',
