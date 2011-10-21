@@ -9,25 +9,24 @@ except ImportError:
 #### twill info.
 
 setup(name = 'twill',
-      
+
       version = '0.9.1',
-      download_url = 'http://darcs.idyll.org/~t/projects/twill-0.9.tar.gz',
-      
+      download_url = 'git://github.com/JonathanRRogers/twill.git',
+
       description = 'twill Web browsing language',
       author = 'C. Titus Brown',
       author_email = 'titus@idyll.org',
-      license='MIT',
 
       packages = ['twill', 'twill.other_packages',
                   'twill.extensions',
                   'twill.extensions.match_parse'],
 
-      # allow both 
+      # allow both
       entry_points = dict(console_scripts=['twill-sh = twill.shell:main'],),
       scripts = ['twill-fork'],
-      
-      maintainer = 'C. Titus Brown',
-      maintainer_email = 'titus@caltech.edu',
+
+      maintainer = "Jonathan Rogers",
+      maintainer_email = "jrogers@socialserve.com",
 
       url = 'http://twill.idyll.org/',
       long_description = """\
@@ -47,5 +46,6 @@ Web pages or grabbing data from password-protected sites automatically.
                      'Topic :: Software Development :: Testing',
                      ],
 
-      test_suite = 'nose.collector'
+      test_suite = 'nose.collector',
+      requires = ['mechanize', 'wsgi_intercept']
       )
