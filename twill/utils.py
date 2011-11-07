@@ -15,6 +15,8 @@ import mechanize
 from mechanize._util import time
 from mechanize._http import HTTPRefreshProcessor
 from mechanize import BrowserStateError
+from twill.errors import TwillException
+
 
 class ResultWrapper:
     """
