@@ -206,7 +206,7 @@ go ./upload_file
 formfile 1 upload ../README.txt
 submit
 code 200
-find "twill: a simple scripting"
+find "retwill: a fork from twill"
 
 # ok, separate issue: redirect + enctype problem that I fixed in
 # wwwsearch, urllib2_support, HTTPRedirectHandler, redirect_request.

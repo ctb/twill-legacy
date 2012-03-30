@@ -1,5 +1,7 @@
-twill: a simple scripting language for Web browsing
+retwill: a fork from twill
 ===================================================
+
+retwill is a fork of the acclaimed but apparently abandoned language twill
 
 twill is a simple scripting language intended for programmatic or
 automated browsing of Web sites.
