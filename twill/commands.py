@@ -7,6 +7,7 @@ import sys
 import _mechanize_dist as mechanize
 from _mechanize_dist import ClientForm
 from _mechanize_dist._headersutil import is_html
+from lxml.html.soupparser import fromstring
 
 OUT=None
 ERR=sys.stderr
@@ -227,24 +228,33 @@ def find(what, flags=''):
     * i: ignorecase
     * m: multiline
     * s: dotall
+    * x: uses XPath
 
     For explanations of these, please see the Python re module
     documentation.
     """
-    regexp = re.compile(what, _parseFindFlags(flags))
     page = browser.get_html()
-
-    m = regexp.search(page)
-    if not m:
-        raise TwillAssertionError("no match to '%s'" % (what,))
-
-    if m.groups():
-        match_str = m.group(1)
-    else:
-        match_str = m.group(0)
-
     _, local_dict = get_twill_glocals()
-    local_dict['__match__'] = match_str
+    if 'x' not in flags:
+        regexp = re.compile(what, _parseFindFlags(flags))
+
+        m = regexp.search(page)
+        if not m:
+            raise TwillAssertionError("no match to '%s'" % (what,))
+
+        if m.groups():
+            match_str = m.group(1)
+        else:
+            match_str = m.group(0)
+
+        local_dict['__match__'] = match_str
+    else:
+        tree = fromstring(page)
+        elements = tree.xpath(what)
+        if not elements:
+            raise TwillAssertionError("no element to path '%s'" % (what,))
+
+        local_dict['__match__'] = unicode(elements[0])
 
 def notfind(what, flags=''):
     """
