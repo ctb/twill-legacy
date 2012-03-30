@@ -6,14 +6,14 @@ except ImportError:
     print '(WARNING: importing distutils, not setuptools!)'
     from distutils.core import setup
 
-#### twill info.
+#### retwill info.
 
-setup(name = 'twill',
+setup(name = 'retwill',
       
-      version = '0.9',
-      download_url = 'http://darcs.idyll.org/~t/projects/twill-0.9.tar.gz',
+      version = '0.1dev',
+      #download_url = 'http://darcs.idyll.org/~t/projects/twill-0.9.tar.gz',
       
-      description = 'twill Web browsing language',
+      description = "retwill - fork of C. Titus Brown's twill Web browsing language,
       author = 'C. Titus Brown',
       author_email = 'titus@idyll.org',
       license='MIT',
@@ -27,12 +27,15 @@ setup(name = 'twill',
       entry_points = dict(console_scripts=['twill-sh = twill.shell:main'],),
       scripts = ['twill-fork'],
       
-      maintainer = 'C. Titus Brown',
-      maintainer_email = 'titus@caltech.edu',
+      maintainer = 'Adam Victor Nazareth Brandizzi ',
+      maintainer_email = 'brandizzi@gmail.com',
 
-      url = 'http://twill.idyll.org/',
+      url = 'http://bitbucket.org/brandizzi/retwill/',
       long_description = """\
-A scripting system for automating Web browsing.  Useful for testing
+retwill is a fork of the acclaimed but apparently abandoned twill Web browsing
+language.
+
+Twill is a scripting system for automating Web browsing.  Useful for testing
 Web pages or grabbing data from password-protected sites automatically.
 """,
       classifiers = ['Development Status :: 4 - Beta',
@@ -48,5 +51,7 @@ Web pages or grabbing data from password-protected sites automatically.
                      'Topic :: Software Development :: Testing',
                      ],
 
-      test_suite = 'nose.collector'
+      #obsoletes = 'twill',
+      test_suite = 'nose.collector',
+      requires = 'lxml',
       )
