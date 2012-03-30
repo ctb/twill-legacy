@@ -13,7 +13,7 @@ setup(name = 'retwill',
       version = '0.1dev',
       #download_url = 'http://darcs.idyll.org/~t/projects/twill-0.9.tar.gz',
       
-      description = "retwill - fork of C. Titus Brown's twill Web browsing language,
+      description = "retwill - fork of C. Titus Brown's twill Web browsing language",
       author = 'C. Titus Brown',
       author_email = 'titus@idyll.org',
       license='MIT',
