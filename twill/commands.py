@@ -262,11 +262,13 @@ def notfind(what, flags=''):
     
     Fail if the regular expression is on the page.
     """
-    regexp = re.compile(what, _parseFindFlags(flags))
-    page = browser.get_html()
-
-    if regexp.search(page):
+    try:
+        find(what, flags)
+    except TwillAssertionError:
+        pass
+    else:
         raise TwillAssertionError("match to '%s'" % (what,))
+    
 
 def back():
     """

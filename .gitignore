@@ -1,2 +1,3 @@
 *.pyc
 twill.egg-info
+tests/.twill-history
