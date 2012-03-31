@@ -18,8 +18,7 @@ setup(name = 'retwill',
       author_email = 'titus@idyll.org',
       license='MIT',
 
-      packages = ['twill', 'twill.other_packages',
-                  'twill.other_packages._mechanize_dist',
+      packages = ['twill',
                   'twill.extensions',
                   'twill.extensions.match_parse'],
 
@@ -53,5 +52,7 @@ Web pages or grabbing data from password-protected sites automatically.
 
       #obsoletes = 'twill',
       test_suite = 'nose.collector',
-      requires = 'lxml',
+      requires = [
+                'lxml', 'nose', 'quixote', 'pyparsing', 
+                'beautifulsoup', 'wsgi_intercept'],
       )
