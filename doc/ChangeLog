@@ -1,3 +1,10 @@
+2011-10-21  Jonathan Rogers <jrogers@socialserve.com>
+
+	* Updated version to 0.9.1.
+
+	* Removed internal copies of Mechanize and wsgi_intercept and made Twill
+	  work with current, upstream versions
+
 2009-02-02  Titus Brown  <t@lyorn.idyll.org>
 
 	* Fixed problem with quoted refresh URLs (Sergey Kishchenko).

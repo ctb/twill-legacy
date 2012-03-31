@@ -9,26 +9,19 @@ except ImportError:
 #### retwill info.
 
 setup(name = 'retwill',
-      
       version = '0.1dev',
       #download_url = 'http://darcs.idyll.org/~t/projects/twill-0.9.tar.gz',
-      
       description = "retwill - fork of C. Titus Brown's twill Web browsing language",
       author = 'C. Titus Brown',
       author_email = 'titus@idyll.org',
-      license='MIT',
-
       packages = ['twill',
                   'twill.extensions',
                   'twill.extensions.match_parse'],
-
-      # allow both 
+      # allow both
       entry_points = dict(console_scripts=['twill-sh = twill.shell:main'],),
       scripts = ['twill-fork'],
-      
       maintainer = 'Adam Victor Nazareth Brandizzi ',
       maintainer_email = 'brandizzi@gmail.com',
-
       url = 'http://bitbucket.org/brandizzi/retwill/',
       long_description = """\
 retwill is a fork of the acclaimed but apparently abandoned twill Web browsing
@@ -50,7 +43,7 @@ Web pages or grabbing data from password-protected sites automatically.
                      'Topic :: Software Development :: Testing',
                      ],
 
-      #obsoletes = 'twill',
+      obsoletes = 'twill',
       test_suite = 'nose.collector',
       requires = [
                 'lxml', 'nose', 'quixote', 'pyparsing', 

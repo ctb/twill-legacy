@@ -5,17 +5,18 @@ Apart from various simple utility functions, twill's robust parsing
 code is implemented in the ConfigurableParsingFactory class.
 """
 
+from cStringIO import StringIO
 import os
 import base64
 
 import subprocess
 
-import _mechanize_dist as mechanize
-from _mechanize_dist import ClientForm
-from _mechanize_dist._util import time
-from _mechanize_dist._http import HTTPRefreshProcessor
+import mechanize
+from mechanize._util import time
+from mechanize._http import HTTPRefreshProcessor
+from mechanize import BrowserStateError
+from twill.errors import TwillException
 
-from errors import TwillException
 
 class ResultWrapper:
     """
@@ -150,17 +151,17 @@ def set_form_control_value(control, val):
     """
     Helper function to deal with setting form values on checkboxes, lists etc.
     """
-    if isinstance(control, ClientForm.CheckboxControl):
+    if isinstance(control, mechanize.CheckboxControl):
         try:
             checkbox = control.get()
             checkbox.selected = make_boolean(val)
             return
-        except ClientForm.AmbiguityError:
+        except mechanize.AmbiguityError:
             # if there's more than one checkbox, use the behaviour for
-            # ClientForm.ListControl, below.
+            # mechanize.ListControl, below.
             pass
             
-    if isinstance(control, ClientForm.ListControl):
+    if isinstance(control, mechanize.ListControl):
         #
         # for ListControls (checkboxes, multiselect, etc.) we first need
         # to find the right *value*.  Then we need to set it +/-.
@@ -181,13 +182,13 @@ def set_form_control_value(control, val):
 
         try:
             item = control.get(name=val)
-        except ClientForm.ItemNotFoundError:
+        except mechanize.ItemNotFoundError:
             try:
                 item = control.get(label=val)
-            except ClientForm.AmbiguityError:
-                raise ClientForm.ItemNotFoundError('multiple matches to value/label "%s" in list control' % (val,))
-            except ClientForm.ItemNotFoundError:
-                raise ClientForm.ItemNotFoundError('cannot find value/label "%s" in list control' % (val,))
+            except mechanize.AmbiguityError:
+                raise mechanize.ItemNotFoundError('multiple matches to value/label "%s" in list control' % (val,))
+            except mechanize.ItemNotFoundError:
+                raise mechanize.ItemNotFoundError('cannot find value/label "%s" in list control' % (val,))
 
         if flag:
             item.selected = 1
@@ -447,7 +448,7 @@ class FunctioningHTTPRefreshProcessor(HTTPRefreshProcessor):
 
 ####
 
-class HistoryStack(mechanize._mechanize.History):
+class HistoryStack(mechanize.History):
     def __len__(self):
         return len(self._history)
     def __getitem__(self, i):
