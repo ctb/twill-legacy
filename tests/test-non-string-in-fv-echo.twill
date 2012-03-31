@@ -1,0 +1,15 @@
+setglobal init __url__
+echo __url__
+code 200
+
+run 'value = 123'
+go /login
+
+fv 1 username  $value
+submit 'submit me'
+
+code 200
+
+find 'You are logged in as "123".'
+
+echo $value

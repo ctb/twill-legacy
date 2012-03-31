@@ -373,7 +373,7 @@ def main():
     if not args or options.interact:
         welcome_msg = ""
         if not args:
-            welcome_msg = "\n -= Welcome to twill! =-\n"
+            welcome_msg = "\n -= Welcome to retwill! =-\n"
 
         interactive = True
         shell = TwillCommandLoop(initial_url=options.url)
