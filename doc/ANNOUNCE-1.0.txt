@@ -66,3 +66,5 @@ Significant changes with 1.0
 
         go http://www.pudim.com.br
         find "//div[@id='SiteBuilder_Conteudo']" x
+
+    * Using Python's logging module.

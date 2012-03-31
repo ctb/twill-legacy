@@ -8,7 +8,10 @@ Commands:
    
 """
 
+import logging
 import twill.utils
+
+logger = loggin.getLogger(__name__)
 
 def get_args(require=0):
     """
@@ -32,7 +35,7 @@ def get_args(require=0):
         for i, arg in enumerate(shell.twillargs):
             global_dict["arg%d" % (i + 1,)] = arg
 
-        print>>commands.OUT, "get_args: loaded %d args as $arg1..$arg%d." % \
-                             (i + 1, i + 1)
+        logger.info("get_args: loaded %d args as $arg1..$arg%d.",
+                             (i + 1, i + 1))
     else:
-        print>>commands.OUT, "no arguments to parse!"
+        logger.info("no arguments to parse!")

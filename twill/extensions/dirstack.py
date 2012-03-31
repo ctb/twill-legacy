@@ -7,6 +7,9 @@ Commands:
    popd  -- change to the last directory on the directory stack.
 """
 import os
+import logging
+
+logger = loggin.getLogger(__name__)
 
 _dirstack = []
 
@@ -24,7 +27,7 @@ def chdir(where):
     print cwd
 
     os.chdir(where)
-    print>>commands.OUT, 'changed directory to "%s"' % (where,)
+    logger.info('changed directory to "%s"', where)
 
     commands.setglobal('__dir__', where)
 
@@ -39,6 +42,6 @@ def popd():
     
     where = _dirstack.pop()
     os.chdir(where)
-    print>>commands.OUT, 'popped back to directory "%s"' % (where,)
+    logger.info('popped back to directory "%s"', where)
 
     commands.setglobal('__dir__', where)
