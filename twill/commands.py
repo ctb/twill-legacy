@@ -6,6 +6,7 @@ twill-sh.
 import sys
 import mechanize
 from mechanize._headersutil import is_html
+from lxml.html.soupparser import fromstring
 
 OUT=None
 ERR=sys.stderr
