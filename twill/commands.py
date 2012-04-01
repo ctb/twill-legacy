@@ -887,8 +887,8 @@ def info():
 
 
     logger.info('\nPage information:')
-    logger.info('\tURL:', current_url)
-    logger.info('\tHTTP code:', code)
+    logger.info('\tURL: %s', current_url)
+    logger.info('\tHTTP code: %s', code)
     m = ['\tContent type: ', content_type[0]]
     if check_html:
         m.append('(HTML)')

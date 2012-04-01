@@ -491,7 +491,7 @@ There are %d cookie(s) in the cookiejar.
         
         if len(self.cj):
             for cookie in self.cj:
-                logger.info('\t', cookie)
+                logger.info('\t%s', cookie)
 
             logger.info('')
 

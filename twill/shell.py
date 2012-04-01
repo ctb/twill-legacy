@@ -6,6 +6,7 @@ This is an implementation of a command-line interpreter based on the
 """
 
 import cmd
+import os
 import traceback
 from twill import commands, parse, __version__, logconfig
 import namespaces
@@ -308,6 +309,14 @@ def main():
     parser.add_option('-u', '--url', nargs=1, action="store", dest="url",
                       help="start at the given URL before each script")
 
+    parser.add_option('-l', '--loglevel', nargs=1, action="store", dest="loglevel",
+                      help="set the log level")
+
+    parser.add_option('-L', '--logfile', nargs=1, action="store", dest="logfile",
+                      help="use logfile as output for log, or discards log if value is 'none'")
+
+    parser.add_option('-o', '--output', nargs=1, action="store", dest="outfile",
+                      help="print output to outfile, or discards output if value is 'none'")
     ####
 
     # parse arguments.
@@ -329,12 +338,41 @@ def main():
         print('twill version %s.' % __version__)
         sys.exit(0)
 
+    if options.loglevel:
+        if options.loglevel not in logconfig.loglevels:
+            sys.exit("valid log levels are " + 
+                    ", ".join(logconfig.loglevels.keys()))
+        logconfig.logger.setLevel(logconfig.loglevels[options.loglevel])
+
+    if options.logfile:
+        try:
+            path = options.logfile if options.logfile != 'none' else os.devnull
+            logfile = open(path, 'w')
+            logfile.write('')
+            logconfig.set_handler_for_stream(logfile)
+        except IOError as e:
+            sys.exit("Invalid logfile '%s': %s", options.logfile, e)
+
+    if options.outfile:
+        try:
+            path = options.outfile if options.outfile != 'none' else os.devnull
+            outfile = open(path, 'w')
+            outfile.write('')
+            sys.stdout = outfile
+        except IOError as e:
+            sys.exit("Invalid output file '%s': %s", options.logfile, e)
+
     if options.quiet:
-        assert not options.interact, "interactive mode is incompatible with -q"
-        assert args, "interactive mode is incompatible with -q"
+        if options.interact:
+            logger.critical("interactive mode is incompatible with -q")
+            sys.exit(1)
+        if not args:
+            sys.exit("interactive mode is incompatible with -q")
 
         old_stdout = sys.stdout
-        sys.stdout = StringIO()
+        sys.stdout = open(os.devnull, 'w')
+        logconfig.set_handler_for_stream(sys.stdout)
+        
 
     # If run from the command line, find & run any scripts put on the command
     # line.  If none, drop into an interactive AutoShell.

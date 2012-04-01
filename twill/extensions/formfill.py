@@ -81,7 +81,7 @@ def fv_multi_match(formname, regexp, *values):
     matches = [ ctl for ctl in form.controls if regexp.search(str(ctl.name)) ]
 
     if matches:
-        logger.info('-- matches %d, values %d %s', len(matches), len(values))
+        logger.info('-- matches %d, values %d', len(matches), len(values))
 
         n = 0
         for control in matches:

@@ -67,4 +67,22 @@ Significant changes with 1.0
         go http://www.pudim.com.br
         find "//div[@id='SiteBuilder_Conteudo']" x
 
-    * Using Python's logging module.
+    * Using Python's logging module. It allowed us to add new useful command
+      line arguments:
+
+        --loglevel / -l
+            allows the user to set the log level to one of the default Python
+            logging module levels: CRITICAL, ERROR, WARNING, INFO, DEBUG, 
+            or NOTSET
+
+        --logfile / -L
+            allows the user to redirect the log output to a file, or discard
+            the output if the passed name is 'none'. (If you want to send the
+            output to a file named 'none', just precede it by the representaton
+            of the current directory: --logfile=./none)
+
+        --output / -o
+            allows the user to redirect the script output to a file, or discard
+            the output if the passed name is 'none'. (If you want to send the
+            output to a file named 'none', just precede it by the representaton
+            of the current directory: --logfile=./none)
