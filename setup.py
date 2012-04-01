@@ -13,7 +13,7 @@ except ImportError:
 #### retwill info.
 
 setup(name = 'retwill',
-      version = '1.0dev',
+      version = '1.0.0b1',
       #download_url = 'http://darcs.idyll.org/~t/projects/twill-0.9.tar.gz',
       description = "retwill - fork of C. Titus Brown's twill Web browsing language",
       author = 'C. Titus Brown',
