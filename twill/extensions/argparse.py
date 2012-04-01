@@ -8,7 +8,7 @@ Commands:
    
 """
 
-import logging
+from twill import logconfig
 import twill.utils
 
 logger = loggin.getLogger(__name__)

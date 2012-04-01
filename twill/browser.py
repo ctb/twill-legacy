@@ -5,7 +5,7 @@ See _browser.py for mechanize code.
 """
 # Python imports
 import re
-import logging
+from twill import logconfig
 
 # wwwsearch imports
 import mechanize
@@ -17,7 +17,7 @@ from utils import print_form, ConfigurableParsingFactory, \
      ResultWrapper, unique_match, HistoryStack
 from errors import TwillException
 
-logger = logging.getLogger(__name__)
+logger = logconfig.logger
 
 #
 # TwillBrowser

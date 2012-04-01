@@ -16,9 +16,9 @@ Commands:
 
 __all__ = ['require', 'skip_require', 'flush_visited', 'no_require']
 
-import logging
+from twill import logconfig
 
-logger = logging.getLogger(__name__)
+logger = logconfig.logger
 
 ###
 

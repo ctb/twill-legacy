@@ -4,7 +4,7 @@ Code parsing and evaluation for the twill mini-language.
 
 import sys
 from cStringIO import StringIO
-import logging
+from twill import logconfig
 
 from errors import TwillAssertionError, TwillNameError
 from pyparsing import OneOrMore, Word, printables, quotedString, Optional, \
@@ -15,7 +15,7 @@ import twill.commands as commands
 import namespaces
 import re
 
-logger = logging.getLogger(__name__)
+logger = logconfig.logger
 
 ### pyparsing stuff
 
@@ -82,7 +82,7 @@ def process_args(args, globals_dict, locals_dict):
                 val = arg
 
 
-            print '*** VAL IS', val, 'FOR', arg
+            logger.info('*** VAL IS %s FOR %s', val, arg)
             
             if isinstance(val, basestring):
                 newargs.append(val)
@@ -215,7 +215,7 @@ def _execute_script(inp, **kw):
                 continue
 
             cmdinfo = "%s:%d" % (sourceinfo, n,)
-            print 'AT LINE:', cmdinfo
+            logger.info('AT LINE: %s', cmdinfo)
 
             cmd, args = parse_command(line, globals_dict, locals_dict)
             if cmd is None:

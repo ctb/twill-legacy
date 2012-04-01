@@ -7,7 +7,7 @@ Commands:
    popd  -- change to the last directory on the directory stack.
 """
 import os
-import logging
+from twill import logconfig
 
 logger = loggin.getLogger(__name__)
 
@@ -24,7 +24,7 @@ def chdir(where):
     
     cwd = os.getcwd()
     _dirstack.append(cwd)
-    print cwd
+    logger.info(cwd)
 
     os.chdir(where)
     logger.info('changed directory to "%s"', where)

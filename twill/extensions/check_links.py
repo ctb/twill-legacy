@@ -18,7 +18,7 @@ together with their referring pages.
 __all__ = ['check_links', 'report_bad_links']
 
 import re
-import logging
+from twill import logconfig
 from twill import commands
 from twill.errors import TwillAssertionError
 
@@ -128,7 +128,7 @@ def check_links(pattern = '', visited={}):
         if commands._options['check_links.only_collect_bad_links']:
             for l in failed:
                 refering_pages = bad_links_dict.get(l, [])
-                print '***', browser.get_url()
+                print('***', browser.get_url())
                 refering_pages.append(browser.get_url())
                 bad_links_dict[l] = refering_pages
         else:

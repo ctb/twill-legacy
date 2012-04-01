@@ -98,7 +98,7 @@ def print_form(n, f):
             print(s)
         print()
 
-    print ()
+    print()
 
 def make_boolean(value):
     """

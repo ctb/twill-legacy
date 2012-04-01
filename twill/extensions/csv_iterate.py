@@ -9,7 +9,7 @@ executes the given twill script.
 __all__ = ['csv_iterate']
 
 import csv
-import logging
+from twill import logconfig
 
 logger = loggin.getLogger(__name__)
 

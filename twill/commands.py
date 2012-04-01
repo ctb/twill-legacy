@@ -4,12 +4,12 @@ twill-sh.
 """
 
 import sys
-import logging
+from twill import logconfig
 import mechanize
 from mechanize._headersutil import is_html
 from lxml.html.soupparser import fromstring
 
-logger = logging.getLogger(__name__)
+logger = logconfig.logger
 
 # export:
 __all__ = ['get_browser',
@@ -307,7 +307,7 @@ def save_html(filename=None):
     """
     html = browser.get_html()
     if html is None:
-        logger.warn("No page to save.")
+        logger.warning("No page to save.")
         return
 
     if filename is None:
@@ -791,14 +791,14 @@ def show_extra_headers():
     l = browser._browser.addheaders
 
     if l:
-        print 'The following HTTP headers are added to each request:'
+        print('The following HTTP headers are added to each request:')
     
         for k, v in l:
-            print '  "%s" = "%s"' % (k, v,)
+            print('  "%s" = "%s"' % (k, v,))
             
-        print ''
+        print()
     else:
-        print '** no extra HTTP headers **'
+        print('** no extra HTTP headers **')
 
 def clear_extra_headers():
     """
@@ -877,7 +877,7 @@ def info():
     """
     current_url = browser.get_url()
     if current_url is None:
-        print "We're not on a page!"
+        logger.warning("We're not on a page!")
         return
     
     content_type = browser._browser._response.info().getheaders("content-type")

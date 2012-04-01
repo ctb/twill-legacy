@@ -1,15 +1,19 @@
 #!/usr/bin/env python
 
+from twill import logconfig
+
+logger = logconfig.logger
+
 try:
     from setuptools import setup
 except ImportError:
-    print '(WARNING: importing distutils, not setuptools!)'
+    logger.warning('importing distutils, not setuptools')
     from distutils.core import setup
 
 #### retwill info.
 
 setup(name = 'retwill',
-      version = '0.1dev',
+      version = '1.0dev',
       #download_url = 'http://darcs.idyll.org/~t/projects/twill-0.9.tar.gz',
       description = "retwill - fork of C. Titus Brown's twill Web browsing language",
       author = 'C. Titus Brown',

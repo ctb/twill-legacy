@@ -20,6 +20,9 @@ Commands:
 
 import twill, twill.utils
 import re
+from twill import logconfig
+
+logger = logconfig.logger
 
 __all__ = [ 'fv_match', 'fv_multi_match', 'fv_multi', 'fv_multi_sub' ]
 
@@ -37,7 +40,7 @@ def fv_match(formname, regexp, value):
     
     form = state.get_form(formname)
     if not form:
-        print 'no such form', formname
+        logger.error('no such form %s', formname)
         return
 
     regexp = re.compile(regexp)
@@ -45,7 +48,7 @@ def fv_match(formname, regexp, value):
     matches = [ ctl for ctl in form.controls if regexp.search(str(ctl.name)) ]
 
     if matches:
-        print '-- matches %d' % (len(matches),)
+        logger.info('-- matches %d', len(matches))
 
         n = 0
         for control in matches:
@@ -56,7 +59,7 @@ def fv_match(formname, regexp, value):
             n += 1
             twill.utils.set_form_control_value(control, value)
 
-        print 'set %d values total' % (n,)
+        logger.info('set %d values total', n)
 
 def fv_multi_match(formname, regexp, *values):
     """
@@ -70,7 +73,7 @@ def fv_multi_match(formname, regexp, *values):
     
     form = state.get_form(formname)
     if not form:
-        print 'no such form', formname
+        logger.error('no such form', formname)
         return
 
     regexp = re.compile(regexp)
@@ -78,7 +81,7 @@ def fv_multi_match(formname, regexp, *values):
     matches = [ ctl for ctl in form.controls if regexp.search(str(ctl.name)) ]
 
     if matches:
-        print '-- matches %d, values %d' % (len(matches), len(values))
+        logger.info('-- matches %d, values %d %s', len(matches), len(values))
 
         n = 0
         for control in matches:
@@ -91,7 +94,7 @@ def fv_multi_match(formname, regexp, *values):
                 twill.utils.set_form_control_value(control, values[-1])
             n += 1
 
-        print 'set %d values total' % (n,)
+        logger.info('set %d values total', n)
 
 
 def fv_multi(formname, *pairs):

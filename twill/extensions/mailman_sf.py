@@ -8,6 +8,9 @@ for each and every message.)
 
 import twill, twill.utils
 import re
+from twill import logconfig
+
+logger = logconfig.logger
 
 # export:
 __all__ = ['discard_all_messages',
@@ -24,7 +27,7 @@ def exit_if_empty():
     state = twill.get_browser()
     form = state.get_form("1")
     if not form:
-        print "No messages; exiting."
+        logger.error("No messages; exiting.")
         raise SystemExit
     
 def discard_all_messages():
@@ -42,7 +45,7 @@ def _formvalue_by_regexp_setall(formname, fieldname, value):
     
     form = state.get_form(formname)
     if not form:
-        print 'no such form', formname
+        logger.error('no such form %s', formname)
         return
 
     regexp = re.compile(fieldname)
@@ -50,7 +53,7 @@ def _formvalue_by_regexp_setall(formname, fieldname, value):
     matches = [ ctl for ctl in form.controls if regexp.search(str(ctl.name)) ]
 
     if matches:
-        print '-- matches %d' % (len(matches),)
+        logger.error('-- matches %d', len(matches))
 
         n = 0
         for control in matches:
@@ -61,4 +64,4 @@ def _formvalue_by_regexp_setall(formname, fieldname, value):
             n += 1
             twill.utils.set_form_control_value(control, value)
 
-        print 'set %d values total' % (n,)
+        logger.error('set %d values total', n)
