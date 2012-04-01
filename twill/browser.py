@@ -3,11 +3,9 @@ Implements TwillBrowser, a simple stateful wrapper for mechanize.Browser.
 
 See _browser.py for mechanize code.
 """
-
-OUT=None
-
 # Python imports
 import re
+from twill import logconfig
 
 # wwwsearch imports
 import mechanize
@@ -18,7 +16,8 @@ from wsgi_intercept import mechanize_intercept
 from utils import print_form, ConfigurableParsingFactory, \
      ResultWrapper, unique_match, HistoryStack
 from errors import TwillException
-     
+
+logger = logconfig.logger
 
 #
 # TwillBrowser
@@ -120,7 +119,7 @@ class TwillBrowser(object):
                 pass
 
         if success:
-            print>>OUT, '==> at', self.get_url()
+            logger.info('==> at %s', self.get_url())
         else:
             raise BrowserStateError("cannot go to '%s'" % (url,))
 
@@ -129,7 +128,7 @@ class TwillBrowser(object):
         Tell the browser to reload the current page.
         """
         self._journey('reload')
-        print>>OUT, '==> reloaded'
+        logger.info('==> reloaded')
 
     def back(self):
         """
@@ -137,9 +136,9 @@ class TwillBrowser(object):
         """
         try:
             self._journey('back')
-            print>>OUT, '==> back to', self.get_url()
+            logger.info('==> back to %s', self.get_url())
         except BrowserStateError:
-            print>>OUT, '==> back at empty page.'
+            logger.warning('==> back at empty page.')
 
     def get_code(self):
         """
@@ -208,7 +207,7 @@ class TwillBrowser(object):
         Follow the given link.
         """
         self._journey('follow_link', link)
-        print>>OUT, '==> at', self.get_url()
+        logger.info('==> at %s', self.get_url())
 
     def set_agent_string(self, agent):
         """
@@ -228,31 +227,31 @@ class TwillBrowser(object):
         forms = self.get_all_forms()
         
         for n, f in enumerate(forms):
-            print_form(n, f, OUT)
+            print_form(n, f)
 
     def showlinks(self):
         """
         Pretty-print all of the links.
         """
-        print>>OUT, 'Links:\n'
+        logger.info('Links:\n')
         for n, link in enumerate(self._browser.links()):
-            print>>OUT, "%d. %s ==> %s" % (n, link.text, link.url,)
-        print>>OUT, ''
+            logger.info("%d. %s ==> %s", n, link.text, link.url)
+        logger.info('')
 
     def showhistory(self):
         """
         Pretty-print the history of links visited.
         """
-        print>>OUT, ''
-        print>>OUT, 'History: (%d pages total) ' % (len(self._browser._history))
+        logger.info('')
+        logger.info('History: (%d pages total) ', len(self._browser._history))
 
         n = 1
         for (req, resp) in self._browser._history:
             if req and resp:            # only print those that back() will go
-                print>>OUT, "\t%d. %s" % (n, resp.geturl())
+                logger.info("\t%d. %s", n, resp.geturl())
                 n += 1
             
-        print>>OUT, ''
+        logger.info('')
 
     def get_all_forms(self):
         """
@@ -439,9 +438,9 @@ more than one form; you must select one (use 'fv') before submitting\
         
         if ctl:
             # submit w/button
-            print>>OUT, """\
+            logger.info("""\
 Note: submit is using submit button: name="%s", value="%s"
-""" % (ctl.name, ctl.value)
+""", ctl.name, ctl.value)
             
             if isinstance(ctl, mechanize.ImageControl):
                 request = ctl._click(form, (1,1), "", mechanize.Request)
@@ -486,15 +485,15 @@ Note: submit is using submit button: name="%s", value="%s"
         """
         Pretty-print all of the cookies.
         """
-        print>>OUT, '''
+        logger.info('''
 There are %d cookie(s) in the cookiejar.
-''' % (len(self.cj,))
+''', len(self.cj))
         
         if len(self.cj):
             for cookie in self.cj:
-                print>>OUT, '\t', cookie
+                logger.info('\t%s', cookie)
 
-            print>>OUT, ''
+            logger.info('')
 
     #### private functions.
 

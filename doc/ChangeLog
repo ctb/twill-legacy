@@ -1,3 +1,20 @@
+2012-03-31  Adam Victor Nazareth Brandizzi <brandizzi@gmail.com>
+
+	* Updated version to 1.0.
+
+    * Forking: this code now is retwill, the fork of twill.
+
+	* Accepts non string values in dollar expressions.
+
+	* find/notfind command can search by elements with XPath.
+
+	* Fixed problem which makes twill behaves bad with unicode objects.
+
+	* Using Python's logging module.
+
+	* New command line arguments --loglevel, --logfile and --output for 
+	  managing info output.
+
 2011-10-21  Jonathan Rogers <jrogers@socialserve.com>
 
 	* Updated version to 0.9.1.

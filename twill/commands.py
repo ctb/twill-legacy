@@ -4,12 +4,12 @@ twill-sh.
 """
 
 import sys
+from twill import logconfig
 import mechanize
 from mechanize._headersutil import is_html
 from lxml.html.soupparser import fromstring
 
-OUT=None
-ERR=sys.stderr
+logger = logconfig.logger
 
 # export:
 __all__ = ['get_browser',
@@ -285,7 +285,7 @@ def show():
     Show the HTML for the current page.
     """
     html = browser.get_html()
-    print>>OUT, html
+    print(html)
     return html
 
 def echo(*strs):
@@ -296,7 +296,7 @@ def echo(*strs):
     """
     strs = map(str, strs)
     s = " ".join(strs)
-    print>>OUT, s
+    print(s)
 
 def save_html(filename=None):
     """
@@ -307,7 +307,7 @@ def save_html(filename=None):
     """
     html = browser.get_html()
     if html is None:
-        print>>OUT, "No page to save."
+        logger.warning("No page to save.")
         return
 
     if filename is None:
@@ -317,7 +317,7 @@ def save_html(filename=None):
         if filename is "":
             filename = 'index.html'
 
-        print>>OUT, "(Using filename '%s')" % (filename,)
+        logger.info("(Using filename '%s')", filename)
 
     f = open(filename, 'w')
     f.write(html)
@@ -448,11 +448,11 @@ def formvalue(formname, fieldname, value):
     browser.clicked(form, control)
 
     if control.readonly and _options['readonly_controls_writeable']:
-        print>>OUT, 'forcing read-only form field to writeable'
+        logger.info('forcing read-only form field to writeable')
         control.readonly = False
         
     if control.readonly or isinstance(control, mechanize.IgnoreControl):
-        print>>OUT, 'form field is read-only or ignorable; nothing done.'
+        logger.info('form field is read-only or ignorable; nothing done.')
         return
 
     if isinstance(control, mechanize.FileControl):
@@ -492,8 +492,8 @@ def formfile(formname, fieldname, filename, content_type=None):
     fp = open(filename, 'rb')
     control.add_file(fp, content_type, filename)
 
-    print>>OUT, '\nAdded file "%s" to file upload field "%s"\n' % (filename,
-                                                             control.name,)
+    logger.info('\nAdded file "%s" to file upload field "%s"\n',
+            filename, control.name)
 
 def extend_with(module_name):
     """
@@ -526,19 +526,19 @@ def extend_with(module_name):
 
     ###
     
-    print>>OUT, "Imported extension module '%s'." % (module_name,)
-    print>>OUT, "(at %s)\n" % (mod.__file__,)
+    logger.info("Imported extension module '%s'.", module_name)
+    logger.info("(at %s)\n", mod.__file__)
 
     if twill.shell.interactive:
         if mod.__doc__:
-            print>>OUT, "Description:\n\n%s\n" % (mod.__doc__.strip(),)
+            logger.info("Description:\n\n%s\n", mod.__doc__.strip())
         else:
             if fnlist:
-                print>>OUT, 'New commands:\n'
+                logger.info('New commands:\n')
                 for name in fnlist:
-                    print>>OUT, '\t', name
+                    logger.info('\t %s', name)
 
-                print>>OUT, ''
+                logger.info('')
 
 def getinput(prompt):
     """
@@ -613,19 +613,18 @@ def add_auth(realm, uri, user, passwd):
             passwds = browser.creds.passwd
             browser.creds = mechanize.HTTPPasswordMgrWithDefaultRealm()
             browser.creds.passwd = passwds
-            print>>OUT, 'Changed to using HTTPPasswordMgrWithDefaultRealm'
+            logger.info('Changed to using HTTPPasswordMgrWithDefaultRealm')
     else:
         if browser.creds.__class__ == mechanize.HTTPPasswordMgrWithDefaultRealm:
             passwds = browser.creds.passwd
             browser.creds = mechanize.HTTPPasswordMgr()
             browser.creds.passwd = passwds
-            print>>OUT, 'Changed to using HTTPPasswordMgr'
+            logger.info('Changed to using HTTPPasswordMgr')
 
     browser.creds.add_password(realm, uri, user, passwd)
 
-    print>>OUT, "Added auth info: realm '%s' / URI '%s' / user '%s'" % (realm,
-                                                                  uri,
-                                                                  user,)
+    logger.info("Added auth info: realm '%s' / URI '%s' / user '%s'",
+            realm, uri, user)
 
 def debug(what, level):
     """
@@ -647,7 +646,7 @@ def debug(what, level):
         else:
             level = 0
 
-    print>>OUT, 'DEBUG: setting %s debugging to level %d' % (what, level)
+    logger.debug('DEBUG: setting %s debugging to level %d', what, level)
     
     if what == "http":
         browser._browser.set_debug_http(level)
@@ -721,7 +720,7 @@ def title(what):
     regexp = re.compile(what)
     title = browser.get_title()
 
-    print>>OUT, "title is '%s'." % (title,)
+    logger.info("title is '%s'.", title)
 
     m = regexp.search(title)
     if not m:
@@ -792,14 +791,14 @@ def show_extra_headers():
     l = browser._browser.addheaders
 
     if l:
-        print 'The following HTTP headers are added to each request:'
+        print('The following HTTP headers are added to each request:')
     
         for k, v in l:
-            print '  "%s" = "%s"' % (k, v,)
+            print('  "%s" = "%s"' % (k, v,))
             
-        print ''
+        print()
     else:
-        print '** no extra HTTP headers **'
+        print('** no extra HTTP headers **')
 
 def clear_extra_headers():
     """
@@ -850,20 +849,20 @@ def config(key=None, value=None):
         keys = _options.keys()
         keys.sort()
 
-        print>>OUT, 'current configuration:'
+        logger.info('current configuration:')
         for k in keys:
-            print>>OUT, '\t%s : %s' % (k, _options[k])
-        print>>OUT, ''
+            logger.info('\t%s : %s', k, _options[k])
+        logger.info('')
     else:
         v = _options.get(key)
         if v is None:
-            print>>OUT, '*** no such configuration key', key
-            print>>OUT, 'valid keys are:', ";".join(_options.keys())
+            logger.error('*** no such configuration key %s', key)
+            logger.error('valid keys are:', ";".join(_options.keys()))
             raise TwillException('no such configuration key: %s' % (key,))
         elif value is None:
-            print>>OUT, ''
-            print>>OUT, 'key %s: value %s' % (key, v)
-            print>>OUT, ''
+            logger.info('')
+            logger.info('key %s: value %s', key, v)
+            logger.info('')
         else:
             value = utils.make_boolean(value)
             _options[key] = value
@@ -878,7 +877,7 @@ def info():
     """
     current_url = browser.get_url()
     if current_url is None:
-        print "We're not on a page!"
+        logger.warning("We're not on a page!")
         return
     
     content_type = browser._browser._response.info().getheaders("content-type")
@@ -887,20 +886,19 @@ def info():
     code = browser.get_code()
 
 
-    print >>OUT, '\nPage information:'
-    print >>OUT, '\tURL:', current_url
-    print >>OUT, '\tHTTP code:', code
-    print >>OUT, '\tContent type:', content_type[0],
+    logger.info('\nPage information:')
+    logger.info('\tURL: %s', current_url)
+    logger.info('\tHTTP code: %s', code)
+    m = ['\tContent type: ', content_type[0]]
     if check_html:
-        print >>OUT, '(HTML)'
-    else:
-        print ''
+        m.append('(HTML)')
+    logger.info("".join(m))
     if check_html:
         title = browser.get_title()
-        print >>OUT, '\tPage title:', title
+        logger.info('\tPage title: %s', title)
 
         forms = browser.get_all_forms()
         if len(forms):
-            print >>OUT, '\tThis page contains %d form(s)' % (len(forms),)
+            logger.info('\tThis page contains %d form(s)', len(forms))
             
-    print >>OUT, ''
+    logger.info('')

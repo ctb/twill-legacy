@@ -53,17 +53,17 @@ def trunc(s, length):
     
     return s
 
-def print_form(n, f, OUT):
+def print_form(n, f):
     """
     Pretty-print the given form, assigned # n.
     """
     if f.name:
-        print>>OUT, '\nForm name=%s (#%d)' % (f.name, n + 1)
+        print('\nForm name=%s (#%d)' % (f.name, n + 1))
     else:
-        print>>OUT, '\nForm #%d' % (n + 1,)
+        print('\nForm #%d' % (n + 1,))
 
     if f.controls:
-        print>>OUT, "## ## __Name__________________ __Type___ __ID________ __Value__________________"
+        print("## ## __Name__________________ __Type___ __ID________ __Value__________________")
 
 
     submit_indices = {}
@@ -95,10 +95,10 @@ def print_form(n, f, OUT):
                    trunc(value_displayed, 40),
                    )
         for s in strings:
-            print>>OUT, s,
-        print>>OUT, ''
+            print(s)
+        print()
 
-    print ''
+    print()
 
 def make_boolean(value):
     """
@@ -401,26 +401,24 @@ class FunctioningHTTPRefreshProcessor(HTTPRefreshProcessor):
     tag may not contain 'url='.  CTB hack.
     """
     def http_response(self, request, response):
-        from twill.commands import OUT, _options
+        from twill.commands import logger, _options
         do_refresh = _options.get('acknowledge_equiv_refresh')
         
         code, msg, hdrs = response.code, response.msg, response.info()
 
         if code == 200 and hdrs.has_key("refresh") and do_refresh:
             refresh = hdrs.getheaders("refresh")[0]
-            
-            if _debug_print_refresh:
-                print>>OUT, "equiv-refresh DEBUG: code 200, hdrs has 'refresh'"
-                print>>OUT, "equiv-refresh DEBUG: refresh header is", refresh
+
+            logger.debug("equiv-refresh DEBUG: code 200, hdrs has 'refresh'")
+            logger.debug("equiv-refresh DEBUG: refresh header is %s", refresh)
                 
             i = refresh.find(";")
             if i != -1:
                 pause, newurl_spec = refresh[:i], refresh[i+1:]
                 pause = int(pause)
 
-                if _debug_print_refresh:
-                    print>>OUT, "equiv-refresh DEBUG: pause:", pause
-                    print>>OUT, "equiv-refresh DEBUG: new url:", newurl_spec
+                logger.debug("equiv-refresh DEBUG: pause: %s", pause)
+                logger.debug("equiv-refresh DEBUG: new url: %s", newurl_spec)
                 
                 j = newurl_spec.find("=")
                 if j != -1:
@@ -428,10 +426,8 @@ class FunctioningHTTPRefreshProcessor(HTTPRefreshProcessor):
                 else:
                     newurl = newurl_spec
 
-                if _debug_print_refresh:
-                    print>>OUT, "equiv-refresh DEBUG: final url:", newurl
-
-                print>>OUT, "Following HTTP-EQUIV=REFRESH to %s" % (newurl,)
+                logger.debug("equiv-refresh DEBUG: final url: %s", newurl)
+                logger.debug("Following HTTP-EQUIV=REFRESH to %s", newurl)
                     
                 if (self.max_time is None) or (pause <= self.max_time):
                     if pause != 0 and 0:  # CTB hack! ==#  and self.honor_time:
