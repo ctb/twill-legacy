@@ -1,20 +1,15 @@
 #!/usr/bin/env python
-
-from twill import logconfig
-
-logger = logconfig.logger
-
 try:
     from setuptools import setup
 except ImportError:
-    logger.warning('importing distutils, not setuptools')
+    print('importing distutils, not setuptools')
     from distutils.core import setup
 
 #### retwill info.
 
 setup(name = 'retwill',
-      version = '1.0.0b1',
-      download_url = 'https://bitbucket.org/brandizzi/retwill/downloads/retwill-1.0.0b1-py2.7.egg',
+      version = '1.0.0',
+      download_url = 'https://bitbucket.org/brandizzi/retwill/downloads/retwill-1.0.0.tar.gz',
       description = "retwill - fork of C. Titus Brown's twill Web browsing language",
       author = 'C. Titus Brown',
       author_email = 'titus@idyll.org',
@@ -49,7 +44,8 @@ Web pages or grabbing data from password-protected sites automatically.
 
       obsoletes = 'twill',
       test_suite = 'nose.collector',
-      requires = [
-                'lxml', 'nose', 'quixote', 'pyparsing', 
+      install_requires = [
+                'lxml', 'nose', 'pyparsing',
                 'beautifulsoup', 'wsgi_intercept'],
+      tests_require =  ['quixote'],
       )
