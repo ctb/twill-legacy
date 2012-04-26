@@ -1,4 +1,6 @@
 *.pyc
 twill.egg-info
-tests/.twill-history
-/.noseids
+.twill-history
+build
+dist
+*~

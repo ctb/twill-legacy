@@ -203,7 +203,7 @@ find "testa testb"
 
 # file upload
 go ./upload_file
-formfile 1 upload ../README.txt
+formfile 1 upload ../README.md
 submit
 code 200
 find "retwill: a fork from twill"
