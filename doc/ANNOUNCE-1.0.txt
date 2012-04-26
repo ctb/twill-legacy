@@ -86,3 +86,8 @@ Significant changes with 1.0
             the output if the passed name is 'none'. (If you want to send the
             output to a file named 'none', just precede it by the representaton
             of the current directory: --logfile=./none)
+
+    * Now you can choose the tidy command to be ran through the --tidy / -t
+      command line option. E.g.:
+      
+          $ twill-sh --tidy="$HOME/bin/tidy-html5 -config my.conf" test.twill

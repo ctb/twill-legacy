@@ -1,8 +1,8 @@
 2012-03-31  Adam Victor Nazareth Brandizzi <brandizzi@gmail.com>
 
-	* Updated version to 1.0.0b1.
-
     * Forking: this code now is retwill, the fork of twill.
+
+	* Updated version to 1.0.0b1.
 
 	* Accepts non string values in dollar expressions.
 
@@ -14,6 +14,9 @@
 
 	* New command line arguments --loglevel, --logfile and --output for 
 	  managing info output.
+
+	* New command line argument --tidy, for specifying the tidy command
+	  to be ran.
 
 2011-10-21  Jonathan Rogers <jrogers@socialserve.com>
 

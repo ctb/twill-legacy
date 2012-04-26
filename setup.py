@@ -14,7 +14,7 @@ except ImportError:
 
 setup(name = 'retwill',
       version = '1.0.0b1',
-      #download_url = 'http://darcs.idyll.org/~t/projects/twill-0.9.tar.gz',
+      download_url = 'https://bitbucket.org/brandizzi/retwill/downloads/retwill-1.0.0b1-py2.7.egg',
       description = "retwill - fork of C. Titus Brown's twill Web browsing language",
       author = 'C. Titus Brown',
       author_email = 'titus@idyll.org',
