@@ -3,3 +3,4 @@ twill\.egg-info
 \.twill-history
 build
 dist
+.*~

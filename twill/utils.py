@@ -16,6 +16,7 @@ from mechanize._util import time
 from mechanize._http import HTTPRefreshProcessor
 from mechanize import BrowserStateError
 from twill.errors import TwillException
+from twill import config
 
 
 class ResultWrapper:
@@ -245,8 +246,7 @@ def unique_match(matches):
 #
 # stuff to run 'tidy'...
 #
-
-_tidy_cmd = ["tidy", "-q", "-ashtml"]
+_tidy_cmd = None
 _tidy_exists = True
 
 def run_tidy(html):
@@ -273,6 +273,8 @@ def run_tidy(html):
     clean_html = None
     if _tidy_exists:
         try:
+            if not _tidy_cmd:
+                _tidy_cmd = config.tidy_cmd.split()
             process = subprocess.Popen(_tidy_cmd, stdin=subprocess.PIPE,
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE, bufsize=0,
