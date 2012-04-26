@@ -1,4 +1,4 @@
-== retwill: a fork from twill ==
+# retwill: a fork from twill
 
 
 retwill is a fork of the acclaimed but apparently abandoned language twill.
