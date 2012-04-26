@@ -2,7 +2,7 @@
 
 	* Forking: this code now is retwill, the fork of twill.
 
-	* Updated version to 1.0.0b1.
+	* Updated version to 1.0.0.
 
 	* Accepts non string values in dollar expressions.
 
