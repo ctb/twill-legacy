@@ -8,7 +8,7 @@ This is an implementation of a command-line interpreter based on the
 import cmd
 import os
 import traceback
-from twill import commands, parse, __version__, logconfig
+from twill import commands, parse, __version__, logconfig, config
 import namespaces
 
 logger = logconfig.logger
@@ -317,6 +317,9 @@ def main():
 
     parser.add_option('-o', '--output', nargs=1, action="store", dest="outfile",
                       help="print output to outfile, or discards output if value is 'none'")
+
+    parser.add_option('-t', '--tidy', nargs=1, action="store", dest="tidycmd",
+                      help="uses tidycmd as the tidy command")
     ####
 
     # parse arguments.
@@ -373,6 +376,8 @@ def main():
         sys.stdout = open(os.devnull, 'w')
         logconfig.set_handler_for_stream(sys.stdout)
         
+    if options.tidycmd:
+        config.tidy_cmd = options.tidycmd
 
     # If run from the command line, find & run any scripts put on the command
     # line.  If none, drop into an interactive AutoShell.
