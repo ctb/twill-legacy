@@ -1,0 +1,93 @@
+ANNOUNCING retwill v1.0.
+
+twill is a simple language for browsing the Web.  It's designed for
+automated testing of Web sites, but it can be used to interact with
+Web sites in a variety of ways.  In particular, twill supports form
+submission, cookies, redirects, and HTTP authentication. retwill, for
+its turn, is a fork of twill. This documents describes the fist version
+of retwill.
+
+
+A retwill script to use the "I'm feeling lucky" button on Google looks
+like this:
+
+    setlocal query "twill Python"
+
+    go http://www.google.com/
+
+    fv 1 q $query
+    submit btnI     # use the "I'm feeling lucky" button
+
+    show
+
+(Note that using this script abuses Google's Terms of Service.  So don't.)
+
+You can install the latest release of retwill with easy_install,
+
+    easy_install retwill
+
+pip,
+
+    pip install retwill
+
+or download this release at
+
+    http://bitbucket.org/brandizzi/retwill
+
+Documentation for twill is included in the package and is also online at
+
+    http://twill.idyll.org/
+
+Documentation specific to retwill is going to be prepared.
+
+Miscellaneous details:
+
+twill/retwill is implemented in Python and uses pyparsing and mechanize.  In
+addition to the existing simple command language, retwill can easily be
+extended with Python.  retwill also provides a fairly simple and
+well-documented wrapper around mechanize.
+
+As well as twill, retwill does not understand JavaScript, I'm sorry to say.
+
+---
+
+Significant changes with 1.0
+
+  * Non string values can be used in dollar expressions. Thus, the previously
+    invalid code below will execute and output "6":
+
+        run 'i = 3'
+        echo ${i+3}
+
+    (Before that you would need to write "${str(i+3)}.)
+
+    * find/notfind supports XPath. For using this feature, just pass the "x"
+      flag to find/notfind:
+
+        go http://www.pudim.com.br
+        find "//div[@id='SiteBuilder_Conteudo']" x
+
+    * Using Python's logging module. It allowed us to add new useful command
+      line arguments:
+
+        --loglevel / -l
+            allows the user to set the log level to one of the default Python
+            logging module levels: CRITICAL, ERROR, WARNING, INFO, DEBUG, 
+            or NOTSET
+
+        --logfile / -L
+            allows the user to redirect the log output to a file, or discard
+            the output if the passed name is 'none'. (If you want to send the
+            output to a file named 'none', just precede it by the representaton
+            of the current directory: --logfile=./none)
+
+        --output / -o
+            allows the user to redirect the script output to a file, or discard
+            the output if the passed name is 'none'. (If you want to send the
+            output to a file named 'none', just precede it by the representaton
+            of the current directory: --logfile=./none)
+
+    * Now you can choose the tidy command to be ran through the --tidy / -t
+      command line option. E.g.:
+      
+          $ twill-sh --tidy="$HOME/bin/tidy-html5 -config my.conf" test.twill

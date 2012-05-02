@@ -27,11 +27,16 @@ Assertions
 **code** *<code>* -- assert that the last page loaded had this HTTP status,
 e.g. ``code 200`` asserts that the page loaded fine.
 
-**find** *<regexp>* -- assert that the page contains this regular expression. The variable ``__match__`` is set to the first matching subgroup (or the entire matching string, if no subgroups are specified).  When called from Python,
-the matching string is returned.
+**find** *<regexp>* [*<flags>*] -- assert that the page contains this regular expression. The variable ``__match__`` is set to the first matching subgroup (or the entire matching string, if no subgroups are specified).  When called from Python,
+the matching string is returned. It also accepts some flags: **i**, for case-insensitive matching, **m** for multiline mode and **s** for dotall matching.
 
-**notfind** *<regexp>* -- assert that the page *does not* contain this
-regular expression.
+**find** *<xpath>* **x** -- assert that the page contains the element matched by the XPath expression. The variable ``__match__`` is set to the first matching element's string representation.
+
+**notfind** *<regexp>* [*<flags>*] -- assert that the page *does not* contain this
+regular expression. It accepts the same flags of **find**.
+
+**notfind** *<xpath>* **x** -- assert that the page *does not* contain this
+element pointed by the XPath expression.
 
 **url** *<regexp>* -- assert that the current URL matches the given regexp.  The variable ``__match__`` is set to the first matching subgroup (or the entire matching string, if no subgroups are specified).  When called from Python, the matching string is returned.
 

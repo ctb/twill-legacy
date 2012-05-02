@@ -1,3 +1,5 @@
+import os
+
 import twilltestlib
 import twilltestserver
 
@@ -8,6 +10,8 @@ def setup(package):
     url = twilltestlib.get_url()
 
     from twill.commands import go, find
+    from twill import logconfig
+    logconfig.set_handler_for_stream(open(os.devnull, 'w'))
     try:
         go(url)
         find("These are the twill tests")

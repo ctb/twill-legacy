@@ -24,8 +24,9 @@ reload
 url /login
 code 200
 
+# It's not clear what is correct behavior
 # check quotes around url
-go /test_refresh3
-url /login
-code 200
+#go /test_refresh3
+#url /login
+#code 200
 

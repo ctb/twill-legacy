@@ -4,6 +4,7 @@ Code parsing and evaluation for the twill mini-language.
 
 import sys
 from cStringIO import StringIO
+from twill import logconfig
 
 from errors import TwillAssertionError, TwillNameError
 from pyparsing import OneOrMore, Word, printables, quotedString, Optional, \
@@ -13,6 +14,8 @@ from pyparsing import OneOrMore, Word, printables, quotedString, Optional, \
 import twill.commands as commands
 import namespaces
 import re
+
+logger = logconfig.logger
 
 ### pyparsing stuff
 
@@ -79,9 +82,9 @@ def process_args(args, globals_dict, locals_dict):
                 val = arg
 
 
-            print '*** VAL IS', val, 'FOR', arg
+            logger.info('*** VAL IS %s FOR %s', val, arg)
             
-            if isinstance(val, str):
+            if isinstance(val, basestring):
                 newargs.append(val)
             else:
                 newargs.extend(val)
@@ -89,7 +92,7 @@ def process_args(args, globals_dict, locals_dict):
         # $variable substitution
         elif arg.startswith('$') and not arg.startswith('${'):
             try:
-                val = eval(arg[1:], globals_dict, locals_dict)
+                val = str(eval(arg[1:], globals_dict, locals_dict))
             except NameError:           # not in dictionary; don't interpret.
                 val = arg
             newargs.append(val)
@@ -142,7 +145,7 @@ def parse_command(line, globals_dict, locals_dict):
     res = full_command.parseString(line)
     if res:
         if _print_commands:
-            print>>commands.OUT, "twill: executing cmd '%s'" % (line.strip(),)
+            logger.debug("twill: executing cmd '%s'", line.strip())
             
         args = process_args(res.arguments.asList(), globals_dict, locals_dict)
         return (res.command, args)
@@ -212,7 +215,7 @@ def _execute_script(inp, **kw):
                 continue
 
             cmdinfo = "%s:%d" % (sourceinfo, n,)
-            print 'AT LINE:', cmdinfo
+            logger.info('AT LINE: %s', cmdinfo)
 
             cmd, args = parse_command(line, globals_dict, locals_dict)
             if cmd is None:
@@ -224,24 +227,24 @@ def _execute_script(inp, **kw):
                 # abort script execution, if a SystemExit is raised.
                 return
             except TwillAssertionError, e:
-                print>>commands.ERR, '''\
+                logger.error('''\
 Oops!  Twill assertion error on line %d of '%s' while executing
 
   >> %s
 
 %s
-''' % (n, sourceinfo, line.strip(), e)
+''' , n, sourceinfo, line.strip(), e)
                 if not catch_errors:
                     raise
             except Exception, e:
-                print>>commands.ERR, '''\
+                logger.error('''\
 EXCEPTION raised at line %d of '%s'
 
       %s
 
 Error message: '%s'
 
-''' % (n, sourceinfo, line.strip(),str(e).strip(),)
+''', n, sourceinfo, line.strip(),str(e).strip())
 
                 if not catch_errors:
                     raise
@@ -262,17 +265,17 @@ def debug_print_commands(flag):
 variable_expression = re.compile("\${(.*?)}")
 
 def variable_substitution(raw_str, globals_dict, locals_dict):
-    str=''
+    buffer=''
     pos = 0
     for m in variable_expression.finditer(raw_str):
-        str = str+raw_str[pos:m.start()]
+        buffer = buffer+raw_str[pos:m.start()]
         try:
-            str = str + eval(m.group(1), globals_dict, locals_dict)
+            buffer = buffer + str(eval(m.group(1), globals_dict, locals_dict))
         except NameError:
-            str = str + m.group()
+            buffer = buffer + m.group()
         pos = m.end()
 
-    str = str+raw_str[pos:]
+    buffer = buffer+raw_str[pos:]
 
-    return str
+    return buffer
 

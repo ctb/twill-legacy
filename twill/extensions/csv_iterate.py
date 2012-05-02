@@ -8,9 +8,10 @@ executes the given twill script.
 
 __all__ = ['csv_iterate']
 
-DEBUG=True
-
 import csv
+from twill import logconfig
+
+logger = loggin.getLogger(__name__)
 
 def csv_iterate(filename, scriptname):
     """
@@ -19,14 +20,13 @@ def csv_iterate(filename, scriptname):
     For each line in <csv_file>, read in a list of comma-separated values,
     put them in $col1...$colN, and execute <script>.
     """
-    from twill import namespaces, execute_file, commands
+    from twill import namespaces, execute_file
 
     global_dict, local_dict = namespaces.get_twill_glocals()
 
     reader = csv.reader(open(filename, "rb"))
     for i, row in enumerate(reader):
-        if DEBUG:
-            print>>commands.OUT,'csv_iterate: on row %d of %s' % (i, filename,)
+        logger.debug('csv_iterate: on row %d of %s', i, filename)
         for i, col in enumerate(row):
             global_dict["col%d" % (i + 1,)] = col
 

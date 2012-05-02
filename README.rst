@@ -1,5 +1,7 @@
-twill: a simple scripting language for Web browsing
+retwill: a fork from twill
 ===================================================
+
+retwill is a fork of the acclaimed but apparently abandoned language twill.
 
 twill is a simple scripting language intended for programmatic or
 automated browsing of Web sites.
@@ -15,4 +17,7 @@ twill is Copyright (C) 2005, 2006, 2007 by C. Titus Brown, and is
 available for use, modification, and distribution under the MIT
 license.
 
-Contact titus@caltech.edu with questions or comments.
+retwill, for its turn, includes some new functionalities, such as 
+XPath-supporting "find" command and use of non-string values in dollar
+expressions (e.g. "${1}"), along with some improvements, such as the
+use of most recent versions of mechanize.

@@ -16,7 +16,9 @@ Commands:
 
 __all__ = ['require', 'skip_require', 'flush_visited', 'no_require']
 
-DEBUG=False
+from twill import logconfig
+
+logger = logconfig.logger
 
 ###
 
@@ -37,7 +39,6 @@ def _require_post_load_hook(action, *args, **kwargs):
         return
     
     from twill import commands
-    OUT=commands.OUT
 
     global ignore_once
     global ignore_always
@@ -53,8 +54,7 @@ def _require_post_load_hook(action, *args, **kwargs):
         ####
         
         if what == 'success':
-            if DEBUG:
-                print>>OUT, 'REQUIRING success'
+            logger.debug('REQUIRING success')
             commands.code(200)
             
         ####
@@ -65,10 +65,9 @@ def _require_post_load_hook(action, *args, **kwargs):
             from check_links import check_links
             
             ignore_always = True
-            if DEBUG:
-                print>>OUT, 'REQUIRING functioning links'
-                print>>OUT, '(already visited:)'
-                print "\n\t".join(links_visited.keys())
+            logger.debug('REQUIRING functioning links')
+            logger.debug('(already visited:)')
+            logger.debug("\n\t".join(links_visited.keys()))
                 
             try:
                 check_links(visited=links_visited)
@@ -108,8 +107,7 @@ def require(what):
     #
 
     if _require_post_load_hook not in commands.browser._post_load_hooks:
-        if DEBUG:
-            print>>commands.OUT, 'INSTALLING POST-LOAD HOOK'
+        logger.debug('INSTALLING POST-LOAD HOOK')
         commands.browser._post_load_hooks.append(_require_post_load_hook)
 
     #
@@ -117,8 +115,7 @@ def require(what):
     #
 
     if what not in _requirements:
-        if DEBUG:
-            print>>commands.OUT, 'Adding requirement', what
+        logger.debug('Adding requirement %s', what)
         _requirements.append(what)
 
 def no_require():

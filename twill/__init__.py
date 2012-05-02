@@ -14,7 +14,7 @@
 twill Web testing language & associated utilities.
 """
 
-__version__ = "0.9"
+__version__ = "1.0.0b1"
 
 #import warnings
 #warnings.defaultaction = "error"
@@ -70,19 +70,12 @@ from wsgi_intercept import add_wsgi_intercept, remove_wsgi_intercept
 
 def set_output(fp):
     """
-    Have standard output from twill go to the given fp instead of
-    stdout.  fp=None will reset to stdout.
+    Changes stdout.
     """
-    import commands, browser
-    commands.OUT = browser.OUT = fp
+    sys.stdout = fp if fp else sys.stdout
 
 def set_errout(fp):
     """
-    Have error output from twill go to the given fp instead of stderr.
-    fp=None will reset to stderr.
+    Changes stderr
     """
-    import commands
-    if fp:
-        commands.ERR = fp
-    else:
-        commands.ERR = sys.stderr
+    sys.stderr = fp if fp else sys.stderr

@@ -1,3 +1,30 @@
+2012-03-31  Adam Victor Nazareth Brandizzi <brandizzi@gmail.com>
+
+	* Forking: this code now is retwill, the fork of twill.
+
+	* Updated version to 1.0.0.
+
+	* Accepts non string values in dollar expressions.
+
+	* find/notfind command can search by elements with XPath.
+
+	* Fixed problem which makes twill behaves bad with unicode objects.
+
+	* Using Python's logging module.
+
+	* New command line arguments --loglevel, --logfile and --output for 
+	  managing info output.
+
+	* New command line argument --tidy, for specifying the tidy command
+	  to be ran.
+
+2011-10-21  Jonathan Rogers <jrogers@socialserve.com>
+
+	* Updated version to 0.9.1.
+
+	* Removed internal copies of Mechanize and wsgi_intercept and made Twill
+	  work with current, upstream versions
+
 2009-02-02  Titus Brown  <t@lyorn.idyll.org>
 
 	* Fixed problem with quoted refresh URLs (Sergey Kishchenko).
