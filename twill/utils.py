@@ -390,61 +390,8 @@ class FixedHTTPBasicAuthHandler(mechanize.HTTPBasicAuthHandler):
             return self.parent.open(req)
         else:
             return None
-    
 
 ###
-
-_debug_print_refresh = False
-class FunctioningHTTPRefreshProcessor(HTTPRefreshProcessor):
-    """
-    Fix an issue where the 'content' component of the http-equiv=refresh
-    tag may not contain 'url='.  CTB hack.
-    """
-    def http_response(self, request, response):
-        from twill.commands import OUT, _options
-        do_refresh = _options.get('acknowledge_equiv_refresh')
-        
-        code, msg, hdrs = response.code, response.msg, response.info()
-
-        if code == 200 and hdrs.has_key("refresh") and do_refresh:
-            refresh = hdrs.getheaders("refresh")[0]
-            
-            if _debug_print_refresh:
-                print>>OUT, "equiv-refresh DEBUG: code 200, hdrs has 'refresh'"
-                print>>OUT, "equiv-refresh DEBUG: refresh header is", refresh
-                
-            i = refresh.find(";")
-            if i != -1:
-                pause, newurl_spec = refresh[:i], refresh[i+1:]
-                pause = int(pause)
-
-                if _debug_print_refresh:
-                    print>>OUT, "equiv-refresh DEBUG: pause:", pause
-                    print>>OUT, "equiv-refresh DEBUG: new url:", newurl_spec
-                
-                j = newurl_spec.find("=")
-                if j != -1:
-                    newurl = newurl_spec[j+1:]
-                else:
-                    newurl = newurl_spec
-
-                if _debug_print_refresh:
-                    print>>OUT, "equiv-refresh DEBUG: final url:", newurl
-
-                print>>OUT, "Following HTTP-EQUIV=REFRESH to %s" % (newurl,)
-                    
-                if (self.max_time is None) or (pause <= self.max_time):
-                    if pause != 0 and 0:  # CTB hack! ==#  and self.honor_time:
-                        time.sleep(pause)
-                    hdrs["location"] = newurl
-                    # hardcoded http is NOT a bug
-                    response = self.parent.error(
-                        "http", request, response,
-                        "refresh", msg, hdrs)
-
-        return response
-
-    https_response = http_response
 
 ####
 
@@ -453,7 +400,7 @@ class HistoryStack(mechanize.History):
         return len(self._history)
     def __getitem__(self, i):
         return self._history[i]
-    
+
 ####
 
 def _is_valid_filename(f):
