@@ -10,11 +10,11 @@ OUT=None
 import re
 
 # wwwsearch imports
-import _mechanize_dist as mechanize
-from _mechanize_dist import BrowserStateError, LinkNotFoundError, ClientForm
+import mechanize
+from mechanize import BrowserStateError, LinkNotFoundError
+from wsgi_intercept import mechanize_intercept
 
 # twill package imports
-from _browser import PatchedMechanizeBrowser
 from utils import print_form, ConfigurableParsingFactory, \
      ResultWrapper, unique_match, HistoryStack
 from errors import TwillException
@@ -43,7 +43,7 @@ class TwillBrowser(object):
         # Create the mechanize browser.
         #
         
-        b = PatchedMechanizeBrowser(history=HistoryStack(), factory=factory)
+        b = mechanize_intercept.Browser(history=HistoryStack(), factory=factory)
 
         self._browser = b
         
@@ -73,6 +73,12 @@ class TwillBrowser(object):
 
         # callables to be called after each page load.
         self._post_load_hooks = []
+
+    def set_handle_equiv(self, *args, **kwargs):
+        self._browser.set_handle_equiv(*args, **kwargs)
+
+    def set_handle_refresh(self, *args, **kwargs):
+        self._browser.set_handle_refresh(*args, **kwargs)
 
     ### get/set HTTP authentication stuff.
 
@@ -388,7 +394,7 @@ class TwillBrowser(object):
             self.last_submit_button = None
 
         # record the last submit button clicked.
-        if isinstance(control, ClientForm.SubmitControl):
+        if isinstance(control, mechanize.SubmitControl):
             self.last_submit_button = control
 
     def submit(self, fieldname=None):
@@ -420,7 +426,7 @@ more than one form; you must select one (use 'fv') before submitting\
             else:
                 # get first submit button in form.
                 submits = [ c for c in form.controls \
-                            if isinstance(c, ClientForm.SubmitControl) ]
+                            if isinstance(c, mechanize.SubmitControl) ]
 
                 if len(submits):
                     ctl = submits[0]
@@ -440,7 +446,7 @@ more than one form; you must select one (use 'fv') before submitting\
 Note: submit is using submit button: name="%s", value="%s"
 """ % (ctl.name, ctl.value)
             
-            if isinstance(ctl, ClientForm.ImageControl):
+            if isinstance(ctl, mechanize.ImageControl):
                 request = ctl._click(form, (1,1), "", mechanize.Request)
             else:
                 request = ctl._click(form, True, "", mechanize.Request)
@@ -451,14 +457,9 @@ Note: submit is using submit button: name="%s", value="%s"
                                   "", mechanize.Request)
 
         #
-        # add referer information.  this may require upgrading the
-        # request object to have an 'add_unredirected_header' function.
+        # add referer information.
         #
-
-        upgrade = self._browser._ua_handlers.get('_http_request_upgrade')
-        if upgrade:
-            request = upgrade.http_request(request)
-            request = self._browser._add_referer_header(request)
+        request = self._browser._add_referer_header(request)
 
         #
         # now actually GO.

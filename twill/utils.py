@@ -5,17 +5,18 @@ Apart from various simple utility functions, twill's robust parsing
 code is implemented in the ConfigurableParsingFactory class.
 """
 
+from cStringIO import StringIO
 import os
 import base64
 
 import subprocess
 
-import _mechanize_dist as mechanize
-from _mechanize_dist import ClientForm
-from _mechanize_dist._util import time
-from _mechanize_dist._http import HTTPRefreshProcessor
+import mechanize
+from mechanize._util import time
+from mechanize._http import HTTPRefreshProcessor
+from mechanize import BrowserStateError
+from twill.errors import TwillException
 
-from errors import TwillException
 
 class ResultWrapper:
     """
@@ -150,17 +151,17 @@ def set_form_control_value(control, val):
     """
     Helper function to deal with setting form values on checkboxes, lists etc.
     """
-    if isinstance(control, ClientForm.CheckboxControl):
+    if isinstance(control, mechanize.CheckboxControl):
         try:
             checkbox = control.get()
             checkbox.selected = make_boolean(val)
             return
-        except ClientForm.AmbiguityError:
+        except mechanize.AmbiguityError:
             # if there's more than one checkbox, use the behaviour for
-            # ClientForm.ListControl, below.
+            # mechanize.ListControl, below.
             pass
             
-    if isinstance(control, ClientForm.ListControl):
+    if isinstance(control, mechanize.ListControl):
         #
         # for ListControls (checkboxes, multiselect, etc.) we first need
         # to find the right *value*.  Then we need to set it +/-.
@@ -181,13 +182,13 @@ def set_form_control_value(control, val):
 
         try:
             item = control.get(name=val)
-        except ClientForm.ItemNotFoundError:
+        except mechanize.ItemNotFoundError:
             try:
                 item = control.get(label=val)
-            except ClientForm.AmbiguityError:
-                raise ClientForm.ItemNotFoundError('multiple matches to value/label "%s" in list control' % (val,))
-            except ClientForm.ItemNotFoundError:
-                raise ClientForm.ItemNotFoundError('cannot find value/label "%s" in list control' % (val,))
+            except mechanize.AmbiguityError:
+                raise mechanize.ItemNotFoundError('multiple matches to value/label "%s" in list control' % (val,))
+            except mechanize.ItemNotFoundError:
+                raise mechanize.ItemNotFoundError('cannot find value/label "%s" in list control' % (val,))
 
         if flag:
             item.selected = 1
@@ -389,70 +390,17 @@ class FixedHTTPBasicAuthHandler(mechanize.HTTPBasicAuthHandler):
             return self.parent.open(req)
         else:
             return None
-    
 
 ###
 
-_debug_print_refresh = False
-class FunctioningHTTPRefreshProcessor(HTTPRefreshProcessor):
-    """
-    Fix an issue where the 'content' component of the http-equiv=refresh
-    tag may not contain 'url='.  CTB hack.
-    """
-    def http_response(self, request, response):
-        from twill.commands import OUT, _options
-        do_refresh = _options.get('acknowledge_equiv_refresh')
-        
-        code, msg, hdrs = response.code, response.msg, response.info()
-
-        if code == 200 and hdrs.has_key("refresh") and do_refresh:
-            refresh = hdrs.getheaders("refresh")[0]
-            
-            if _debug_print_refresh:
-                print>>OUT, "equiv-refresh DEBUG: code 200, hdrs has 'refresh'"
-                print>>OUT, "equiv-refresh DEBUG: refresh header is", refresh
-                
-            i = refresh.find(";")
-            if i != -1:
-                pause, newurl_spec = refresh[:i], refresh[i+1:]
-                pause = int(pause)
-
-                if _debug_print_refresh:
-                    print>>OUT, "equiv-refresh DEBUG: pause:", pause
-                    print>>OUT, "equiv-refresh DEBUG: new url:", newurl_spec
-                
-                j = newurl_spec.find("=")
-                if j != -1:
-                    newurl = newurl_spec[j+1:]
-                else:
-                    newurl = newurl_spec
-
-                if _debug_print_refresh:
-                    print>>OUT, "equiv-refresh DEBUG: final url:", newurl
-
-                print>>OUT, "Following HTTP-EQUIV=REFRESH to %s" % (newurl,)
-                    
-                if (self.max_time is None) or (pause <= self.max_time):
-                    if pause != 0 and 0:  # CTB hack! ==#  and self.honor_time:
-                        time.sleep(pause)
-                    hdrs["location"] = newurl
-                    # hardcoded http is NOT a bug
-                    response = self.parent.error(
-                        "http", request, response,
-                        "refresh", msg, hdrs)
-
-        return response
-
-    https_response = http_response
-
 ####
 
-class HistoryStack(mechanize._mechanize.History):
+class HistoryStack(mechanize.History):
     def __len__(self):
         return len(self._history)
     def __getitem__(self, i):
         return self._history[i]
-    
+
 ####
 
 def _is_valid_filename(f):

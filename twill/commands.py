@@ -4,9 +4,8 @@ twill-sh.
 """
 
 import sys
-import _mechanize_dist as mechanize
-from _mechanize_dist import ClientForm
-from _mechanize_dist._headersutil import is_html
+import mechanize
+from mechanize._headersutil import is_html
 
 OUT=None
 ERR=sys.stderr
@@ -440,11 +439,11 @@ def formvalue(formname, fieldname, value):
         print>>OUT, 'forcing read-only form field to writeable'
         control.readonly = False
         
-    if control.readonly or isinstance(control, ClientForm.IgnoreControl):
+    if control.readonly or isinstance(control, mechanize.IgnoreControl):
         print>>OUT, 'form field is read-only or ignorable; nothing done.'
         return
 
-    if isinstance(control, ClientForm.FileControl):
+    if isinstance(control, mechanize.FileControl):
         raise TwillException('form field is for file upload; use "formfile" instead')
 
     set_form_control_value(control, value)
@@ -856,6 +855,9 @@ def config(key=None, value=None):
         else:
             value = utils.make_boolean(value)
             _options[key] = value
+            if key == 'acknowledge_equiv_refresh':
+                browser.set_handle_refresh(value)
+                browser.set_handle_equiv(value)
 
 def info():
     """

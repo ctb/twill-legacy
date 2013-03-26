@@ -1,5 +1,5 @@
 import twilltestlib
-from _mechanize_dist import ClientForm
+import mechanize
 from cStringIO import StringIO
 
 def test_form_parse():
@@ -7,5 +7,5 @@ def test_form_parse():
     fp = StringIO(content)
 
     # latin-1...
-    ClientForm.ParseFile(fp, "<test-encoding.py fp>", encoding='latin-1',
-                         backwards_compat=False)
+    mechanize.ParseFile(fp, "<test-encoding.py fp>", encoding='latin-1',
+						backwards_compat=False)
