@@ -77,6 +77,9 @@ class TwillBrowser(object):
     def set_handle_equiv(self, *args, **kwargs):
         self._browser.set_handle_equiv(*args, **kwargs)
 
+    def set_handle_refresh(self, *args, **kwargs):
+        self._browser.set_handle_refresh(*args, **kwargs)
+
     ### get/set HTTP authentication stuff.
 
     def _set_creds(self, creds):

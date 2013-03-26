@@ -856,7 +856,8 @@ def config(key=None, value=None):
             value = utils.make_boolean(value)
             _options[key] = value
             if key == 'acknowledge_equiv_refresh':
-	            browser.set_handle_equiv(value)
+                browser.set_handle_refresh(value)
+                browser.set_handle_equiv(value)
 
 def info():
     """
