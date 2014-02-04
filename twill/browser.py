@@ -10,8 +10,8 @@ OUT=None
 import re
 
 # wwwsearch imports
-import _mechanize_dist as mechanize
-from _mechanize_dist import BrowserStateError, LinkNotFoundError, ClientForm
+import other_packages._mechanize_dist as mechanize
+from other_packages._mechanize_dist import BrowserStateError, LinkNotFoundError, ClientForm
 
 # twill package imports
 from _browser import PatchedMechanizeBrowser

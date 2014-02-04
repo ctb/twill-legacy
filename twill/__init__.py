@@ -31,7 +31,7 @@ __all__ = [ "TwillCommandLoop",
             "set_errout"]
 
 #
-# add extensions (twill/extensions) and the the wwwsearch & pyparsing
+# add extensions (twill/extensions)
 # stuff from twill/included-packages/.  NOTE: this works with eggs! hooray!
 #
 
@@ -42,11 +42,6 @@ thisdir = os.path.dirname(__file__)
 # user extensions will take priority over twill extensions.
 extensions = os.path.join(thisdir, 'extensions')
 sys.path.append(extensions)
-
-# add other_packages in at the *beginning*, so that the correct
-# (patched) versions of pyparsing and mechanize get imported.
-wwwsearchlib = os.path.join(thisdir, 'other_packages')
-sys.path.insert(0, wwwsearchlib)
 
 # the two core components of twill:
 from shell import TwillCommandLoop

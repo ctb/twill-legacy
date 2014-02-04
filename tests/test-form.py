@@ -2,7 +2,7 @@ import twilltestlib
 import twill
 from twill import namespaces, commands
 from twill.errors import TwillAssertionError
-from _mechanize_dist import BrowserStateError, ClientForm
+from twill.other_packages._mechanize_dist import BrowserStateError, ClientForm
 
 def test():
     url = twilltestlib.get_url()

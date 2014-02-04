@@ -4,9 +4,9 @@ twill-sh.
 """
 
 import sys
-import _mechanize_dist as mechanize
-from _mechanize_dist import ClientForm
-from _mechanize_dist._headersutil import is_html
+import other_packages._mechanize_dist as mechanize
+from other_packages._mechanize_dist import ClientForm
+from other_packages._mechanize_dist._headersutil import is_html
 
 OUT=None
 ERR=sys.stderr

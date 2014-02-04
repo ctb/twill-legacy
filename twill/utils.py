@@ -8,12 +8,12 @@ code is implemented in the ConfigurableParsingFactory class.
 import os
 import base64
 
-import subprocess
+from other_packages import subprocess
 
-import _mechanize_dist as mechanize
-from _mechanize_dist import ClientForm
-from _mechanize_dist._util import time
-from _mechanize_dist._http import HTTPRefreshProcessor
+import other_packages._mechanize_dist as mechanize
+from other_packages._mechanize_dist import ClientForm
+from other_packages._mechanize_dist._util import time
+from other_packages._mechanize_dist._http import HTTPRefreshProcessor
 
 from errors import TwillException
 

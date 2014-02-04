@@ -3,13 +3,13 @@ A subclass of the mechanize browser patched to fix various bits.
 """
 
 # wwwsearch imports
-from _mechanize_dist import Browser as MechanizeBrowser
+from other_packages._mechanize_dist import Browser as MechanizeBrowser
 
 import wsgi_intercept
 from utils import FixedHTTPBasicAuthHandler, FunctioningHTTPRefreshProcessor
 
 def build_http_handler():
-    from _mechanize_dist._urllib2 import HTTPHandler
+    from other_packages._mechanize_dist._urllib2 import HTTPHandler
 
     class MyHTTPHandler(HTTPHandler):
         def http_open(self, req):
