@@ -390,8 +390,9 @@ def showhistory():
 
     Show the browser history (what URLs were visited).
     """
+    # --BRT-- Probably broken
     browser.showhistory()
-    return browser._browser._history
+    # return browser._browser._history
     
 def formclear(formname):
     """
@@ -643,7 +644,9 @@ def debug(what, level):
     print>>OUT, 'DEBUG: setting %s debugging to level %d' % (what, level)
     
     if what == "http":
-        browser._browser.set_debug_http(level)
+        # --BRT-- Tries to use mechanize directly, need to rewrite this
+        # browser._browser.set_debug_http(level)
+        pass
     elif what == 'equiv-refresh':
         if level:
             utils._debug_print_refresh = True
@@ -774,7 +777,8 @@ def add_extra_header(header_key, header_value):
     Add an HTTP header to each HTTP request.  See 'show_extra_headers' and
     'clear_extra_headers'.
     """
-    browser._browser.addheaders += [(header_key, header_value)]
+    # --BRT-- Tries to use mechanize directly, need to rewrite this
+    # browser._browser.addheaders += [(header_key, header_value)]
 
 def show_extra_headers():
     """
@@ -782,7 +786,8 @@ def show_extra_headers():
 
     Show any extra headers being added to each HTTP request.
     """
-    l = browser._browser.addheaders
+    # --BRT-- Tries to use mechanize directly, need to rewrite this
+    l = None # browser._browser.addheaders
 
     if l:
         print 'The following HTTP headers are added to each request:'
@@ -801,7 +806,8 @@ def clear_extra_headers():
     Remove all user-defined HTTP headers.  See 'add_extra_header' and
     'show_extra_headers'.
     """
-    browser._browser.addheaders = []
+    # --BRT-- Tries to use mechanize directly, need to rewrite this
+    # browser._browser.addheaders = []
 
 ### options
 
@@ -872,7 +878,8 @@ def info():
         print "We're not on a page!"
         return
     
-    content_type = browser._browser._response.info().getheaders("content-type")
+    # --BRT-- Tries to use mechanize directly, need to rewrite this
+    content_type = None # browser._browser._response.info().getheaders("content-type")
     check_html = is_html(content_type, current_url)
 
     code = browser.get_code()
@@ -881,7 +888,8 @@ def info():
     print >>OUT, '\nPage information:'
     print >>OUT, '\tURL:', current_url
     print >>OUT, '\tHTTP code:', code
-    print >>OUT, '\tContent type:', content_type[0],
+    # --BRT-- Tries to use mechanize directly, need to rewrite this
+    print >>OUT, '\tContent type:'#, content_type[0],
     if check_html:
         print >>OUT, '(HTML)'
     else:

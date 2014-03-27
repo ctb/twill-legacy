@@ -81,9 +81,10 @@ class TwillBrowser(object):
 
         if success:
             print>>OUT, '==> at', self.get_url()
-        else:
+        # --BRT-- Probably broken
+        #else:
             # Modified to use TwillException in place of BrowserStateError
-            raise TwillException("cannot go to '%s'" % (url,))
+            #raise TwillException("cannot go to '%s'" % (url,))
 
     def reload(self):
         """
@@ -122,7 +123,7 @@ class TwillBrowser(object):
 
     def get_title(self):
         # --BRT-- Incomplete
-        return
+        return ''
 
     def get_url(self):
         """
