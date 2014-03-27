@@ -267,7 +267,7 @@ class TwillBrowser(object):
             # url = r.get_url()
             url = args[0]
             self.result = ResultWrapper(r.status_code, url, r.text)
-            self.history.append(self.result.get_url())
+            self.history.append(url)
 
         elif func_name == 'reload':
             r = requests.get(self.history[-1])
