@@ -86,7 +86,7 @@ def reset_browser():
     Reset the browser completely.
     """
     global browser
-    browser._browser.close()
+    # browser._browser.close()
     browser = TwillBrowser()
 
     global _options
@@ -368,8 +368,10 @@ def showforms():
     
     Show all of the forms on the current page.
     """
+    # --BRT-- Probably broken
     browser.showforms()
-    return browser._browser.forms()
+    # return browser._browser.forms()
+    return
 
 def showlinks():
     """
@@ -377,8 +379,10 @@ def showlinks():
     
     Show all of the links on the current page.
     """
+    # --BRT-- Probably broken
     browser.showlinks()
-    return browser._browser.links()
+    # return browser._browser.links()
+    return
 
 def showhistory():
     """

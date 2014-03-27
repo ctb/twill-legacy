@@ -35,6 +35,8 @@ class TwillBrowser(object):
 
         ## Placeholder
         self._browser = None
+        ## Quick fix
+        self.history = []
 
     def _set_creds(self, creds):
         # --BRT-- Incomplete
@@ -165,7 +167,7 @@ class TwillBrowser(object):
         Pretty-print all of the links.
         """
         # --BRT-- Incomplete
-        return
+        return ''
 
     def showhistory(self):
         """
@@ -250,20 +252,34 @@ class TwillBrowser(object):
         
         (Idea stolen straight from PBP.)
         """
-
         # --BRT-- Incomplete
-
-        # reset
         self.last_submit_button = None
-        self.result = None
 
-        if(func_name == 'open'):
+        if func_name == 'open':
             r = requests.get(*args)
-            self.result = ResultWrapper(r.status_code, args[0], r.text);
+            url = args[0] # r.get_url()
+            self.result = ResultWrapper(r.status_code, url, r.text)
+            self.history.append(url)
 
-        elif(func_name == 'follow_link'):
+        elif func_name == 'follow_link':
             r = requests.get(*args)
-            self.result = ResultWrapper(r.status_code, args[0], r.text)
+            # url = r.get_url()
+            url = args[0]
+            self.result = ResultWrapper(r.status_code, url, r.text)
+            self.history.append(self.result.get_url())
+
+        elif func_name == 'reload':
+            r = requests.get(self.history[-1])
+            url = self.result.get_url()
+            self.result = ResultWrapper(r.status_code, url, r.text)
+
+        elif func_name == 'back':
+            try:
+                url = self.history.pop()
+                r = requests.get(self.history.pop())
+                self.result = ResultWrapper(r.status_code, url, r.text)
+            except IndexError:
+                pass
 
         else:
             self.result = None
