@@ -9,7 +9,7 @@ import re
 
 # Dependencies
 import requests
-import lxml
+from lxml import etree, html, cssselect
 
 # Will need at least some of these
 from utils import print_form, ConfigurableParsingFactory, \
@@ -33,8 +33,6 @@ class TwillBrowser(object):
         # callables to be called after each page load.
         self._post_load_hooks = []
 
-        ## Placeholder
-        self._browser = None
         ## Quick fix
         self.history = []
 
@@ -123,7 +121,12 @@ class TwillBrowser(object):
 
     def get_title(self):
         # --BRT-- Incomplete
-        return ''
+        if self.result:
+            doc = html.fromstring(self.result.get_page())
+            selector = cssselect.CSSSelector("title")
+            return selector(doc)[0].text
+        else:
+            return ''
 
     def get_url(self):
         """
@@ -167,8 +170,13 @@ class TwillBrowser(object):
         """
         Pretty-print all of the links.
         """
-        # --BRT-- Incomplete
-        return ''
+        doc = html.fromstring(self.result.get_page())
+        selector = cssselect.CSSSelector("a")
+        links = iter([(l.text, l.get("href")) for l in selector(doc)])
+        for n,link in enumerate(links):
+            # print (n,link,)
+            print>>OUT, "%d. %s ==> %s" % (n, link[0], link[1],)
+        print>>OUT, ''
 
     def showhistory(self):
         """
@@ -255,6 +263,8 @@ class TwillBrowser(object):
         """
         # --BRT-- Incomplete
         self.last_submit_button = None
+
+        print func_name
 
         if func_name == 'open':
             r = requests.get(*args)
