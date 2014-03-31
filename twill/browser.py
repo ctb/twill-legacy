@@ -154,7 +154,8 @@ class TwillBrowser(object):
         """
         Follow the given link.
         """
-        self._journey('follow_link', link)
+        # --BRT-- Try to find the link first, this isn't in the old version?
+        self._journey('follow_link', self.find_link(link))
         print>>OUT, '==> at', self.get_url()
 
     def set_agent_string(self, agent):
