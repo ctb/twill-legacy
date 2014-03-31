@@ -4,9 +4,6 @@ twill-sh.
 """
 
 import sys
-import _mechanize_dist as mechanize
-from _mechanize_dist import ClientForm
-from _mechanize_dist._headersutil import is_html
 
 OUT=None
 ERR=sys.stderr
@@ -368,7 +365,7 @@ def showforms():
     
     Show all of the forms on the current page.
     """
-    # --BRT-- Probably broken
+    # @BRT Probably broken
     browser.showforms()
     # return browser._browser.forms()
     return
@@ -379,7 +376,7 @@ def showlinks():
     
     Show all of the links on the current page.
     """
-    # --BRT-- Probably broken
+    # @BRT Probably broken
     browser.showlinks()
     # return browser._browser.links()
     return
@@ -390,7 +387,7 @@ def showhistory():
 
     Show the browser history (what URLs were visited).
     """
-    # --BRT-- Probably broken
+    # @BRT Probably broken
     browser.showhistory()
     # return browser._browser._history
     
@@ -603,17 +600,20 @@ def add_auth(realm, uri, user, passwd):
     if _options['with_default_realm']:
         realm = None
 
-        if browser.creds.__class__ == mechanize.HTTPPasswordMgr:
+        # @BRT This will need to be rewritten off of mechanize
+        '''if browser.creds.__class__ == mechanize.HTTPPasswordMgr:
             passwds = browser.creds.passwd
             browser.creds = mechanize.HTTPPasswordMgrWithDefaultRealm()
             browser.creds.passwd = passwds
-            print>>OUT, 'Changed to using HTTPPasswordMgrWithDefaultRealm'
+            print>>OUT, 'Changed to using HTTPPasswordMgrWithDefaultRealm'''
     else:
-        if browser.creds.__class__ == mechanize.HTTPPasswordMgrWithDefaultRealm:
+        # @BRT This will need to be rewritten off of mechanize
+        '''if browser.creds.__class__ == mechanize.HTTPPasswordMgrWithDefaultRealm:
             passwds = browser.creds.passwd
             browser.creds = mechanize.HTTPPasswordMgr()
             browser.creds.passwd = passwds
-            print>>OUT, 'Changed to using HTTPPasswordMgr'
+            print>>OUT, 'Changed to using HTTPPasswordMgr'''
+        pass
 
     browser.creds.add_password(realm, uri, user, passwd)
 
@@ -644,7 +644,7 @@ def debug(what, level):
     print>>OUT, 'DEBUG: setting %s debugging to level %d' % (what, level)
     
     if what == "http":
-        # --BRT-- Tries to use mechanize directly, need to rewrite this
+        # @BRT Tries to use mechanize directly, need to rewrite this
         # browser._browser.set_debug_http(level)
         pass
     elif what == 'equiv-refresh':
@@ -777,7 +777,7 @@ def add_extra_header(header_key, header_value):
     Add an HTTP header to each HTTP request.  See 'show_extra_headers' and
     'clear_extra_headers'.
     """
-    # --BRT-- Tries to use mechanize directly, need to rewrite this
+    # @BRT Tries to use mechanize directly, need to rewrite this
     # browser._browser.addheaders += [(header_key, header_value)]
 
 def show_extra_headers():
@@ -786,7 +786,7 @@ def show_extra_headers():
 
     Show any extra headers being added to each HTTP request.
     """
-    # --BRT-- Tries to use mechanize directly, need to rewrite this
+    # @BRT Tries to use mechanize directly, need to rewrite this
     l = None # browser._browser.addheaders
 
     if l:
@@ -806,7 +806,7 @@ def clear_extra_headers():
     Remove all user-defined HTTP headers.  See 'add_extra_header' and
     'show_extra_headers'.
     """
-    # --BRT-- Tries to use mechanize directly, need to rewrite this
+    # @BRT Tries to use mechanize directly, need to rewrite this
     # browser._browser.addheaders = []
 
 ### options
@@ -878,7 +878,7 @@ def info():
         print "We're not on a page!"
         return
     
-    # --BRT-- Tries to use mechanize directly, need to rewrite this
+    # @BRT Tries to use mechanize directly, need to rewrite this
     content_type = None # browser._browser._response.info().getheaders("content-type")
     check_html = is_html(content_type, current_url)
 
@@ -888,7 +888,7 @@ def info():
     print >>OUT, '\nPage information:'
     print >>OUT, '\tURL:', current_url
     print >>OUT, '\tHTTP code:', code
-    # --BRT-- Tries to use mechanize directly, need to rewrite this
+    # @BRT Tries to use mechanize directly, need to rewrite this
     print >>OUT, '\tContent type:'#, content_type[0],
     if check_html:
         print >>OUT, '(HTML)'
