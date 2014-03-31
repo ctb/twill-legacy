@@ -67,6 +67,7 @@ class TwillBrowser(object):
         # the end of the current URL.
 
         # @BRT urls beginning with / need to be special-cased now
+        # @BRT This seems to be causing a hang in the tests
         if(url.startswith('/')):
             u = self.get_url()
             prefix = u[:u.find('://')+3]
