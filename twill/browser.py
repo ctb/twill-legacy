@@ -5,6 +5,7 @@ Implements TwillBrowser
 OUT=None
 
 # Python imports
+import pickle
 import re
 import urlparse
 
@@ -456,7 +457,7 @@ Note: submit is using submit button: name="%s", value="%s"
         Load cookies from the given file.
         """
         # @BRT: Adds to rather than overwriting cookies - correct?
-        with open('somefile') as f:
+        with open(filename) as f:
             c = requests.utils.add_dict_to_cookiejar(
                 self._session.cookies, 
                 pickle.load(f)
@@ -510,14 +511,16 @@ Note: submit is using submit button: name="%s", value="%s"
             url = self.find_link(args[0])
             if url.find('://') == -1:
                 url = urlparse.urljoin(self.get_url(), url)
+            print "Following url: ", url
             r = self._session.get(url, headers=self._headers)
             # url = r.get_url()
-            url = args[0]
+            # url = args[0]
             if self.result is not None:
                 self._history.append(self.result)
             self.result = ResultWrapper(r.status_code, url, r.text)
 
         elif func_name == 'reload':
+            print "Reloading url: ", self.get_url()
             r = self._session.get(
                     self.get_url(), 
                     headers=self._headers,
