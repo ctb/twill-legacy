@@ -226,7 +226,7 @@ class TwillBrowser(object):
         if self.result:
             doc = html.fromstring(self.result.get_page())
             for form in doc.forms:
-                if form.name == formname:
+                if re.search(form.name, formname):
                     return form
         return None
 
