@@ -180,8 +180,9 @@ class TwillBrowser(object):
         
         for n, f in enumerate(forms):
             print "attrib: ", f.attrib
-            print "tag: ", f.tag
-            print "_name: ", f._name()
+            print "get(id): ", f.get('id')
+            print "get(name): ", f.get('name')
+            print "get(class): ", f.get('class')
             print_form(n, f, OUT)
         return
 
@@ -231,13 +232,32 @@ class TwillBrowser(object):
         Return the first form that matches 'formname'.
         """
         # @BRT Incomplete, returns an lxml form where code expects mechanize
-        if self.result:
-            doc = html.fromstring(self.result.get_page())
-            return 
-            # @BRT lxml doesn't seem to expose the id of the form directly
-            # for form in doc.forms:
-                # if re.search(form.name, formname):
-                    # return form
+        forms = self.get_all_forms()
+
+        # first try ID
+        for f in forms:
+            id = f.get("id")
+            if id and str(id) == formname:
+                return f
+        
+        # next try regexps
+        regexp = re.compile(formname)
+        for f in forms:
+            if f.get("name") and regexp.search(f.name):
+                return f
+
+        # ok, try number
+        try:
+            formnum = int(formname)
+            # @BRT form 0 may be valid, not sure about global form
+            if formnum >= 1 and formnum <= len(forms):
+                return forms[formnum - 1]
+        except ValueError:              # int() failed
+            pass
+        except IndexError:              # formnum was incorrect
+            pass
+        return None
+
 
     def get_form_field(self, form, fieldname):
         """
@@ -245,7 +265,6 @@ class TwillBrowser(object):
         a *unique* regexp/exact string match.
         """
         # @BRT Incomplete; outside code will need to use lxml forms
-        # @BRT Can't test until get_form works as intended
         for field in form.field_values():
             if re.search(fieldname, field[1].name):
                 return field

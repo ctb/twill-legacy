@@ -51,11 +51,11 @@ def print_form(n, f, OUT):
     """
     Pretty-print the given form, assigned # n.
     """
-    # @BRT lxml continues not to give forms names
-    # if f.name:
-    #     print>>OUT, '\nForm name=%s (#%d)' % (f.name, n + 1)
-    # else:
-    print>>OUT, '\nForm #%d' % (n + 1,)
+    # @BRT lxml continues not to give forms names directly
+    if f.get('name'):
+         print>>OUT, '\nForm name=%s (#%d)' % (f.get('name'), n + 1)
+    else:
+        print>>OUT, '\nForm #%d' % (n + 1,)
 
     # @BRT Controls are another thing lxml forms do not have
     # @BRT The equivalent looks like inputs?
