@@ -499,15 +499,14 @@ Note: submit is using submit button: name="%s", value="%s"
         self.last_submit_button = None
 
         if func_name == 'open':
-            if self.result:
-                self._history.append(self.result)
             r = self._session.get(*args, headers=self._headers, auth=self._auth)
             url = args[0] # r.get_url()
+            if r.status_code == 200:
+                if self.result:
+                    self._history.append(self.result)
             self.result = ResultWrapper(r.status_code, url, r.text)
 
         elif func_name == 'follow_link':
-            if self.result:
-                self._history.append(self.result)
             # @BRT: Try to find the link first, same as mechanize behavior?
             url = self.find_link(args[0])
             if url.find('://') == -1:
@@ -518,6 +517,9 @@ Note: submit is using submit button: name="%s", value="%s"
             r = self._session.get(url, headers=self._headers)
             # url = r.get_url()
             url = args[0]
+            if r.status_code == 200:
+                if self.result:
+                    self._history.append(self.result)
             self.result = ResultWrapper(r.status_code, url, r.text)
 
         elif func_name == 'reload':
@@ -539,6 +541,7 @@ Note: submit is using submit button: name="%s", value="%s"
                 )
                 self.result = ResultWrapper(r.status_code, url, r.text)
             except IndexError:
+                # self.result = None
                 pass
 
         else:
