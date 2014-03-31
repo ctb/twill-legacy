@@ -12,8 +12,9 @@ import requests
 from lxml import etree, html, cssselect
 
 # Will need at least some of these
-from utils import print_form, ConfigurableParsingFactory, \
-     ResultWrapper, unique_match, HistoryStack
+# from utils import print_form, ConfigurableParsingFactory, \
+#     ResultWrapper, unique_match
+from utils import print_form, ResultWrapper, unique_match
 from errors import TwillException
 
 class TwillBrowser(object):
@@ -25,7 +26,8 @@ class TwillBrowser(object):
         
         # --BRT-- Incomplete
 
-        factory = ConfigurableParsingFactory()
+        # --BRT-- This is mechanize. Remove it? Or rewrite it?
+        #factory = ConfigurableParsingFactory()
 
         self.result = None
         self.last_submit_button = None
@@ -120,7 +122,6 @@ class TwillBrowser(object):
         return None
 
     def get_title(self):
-        # --BRT-- Incomplete
         if self.result:
             doc = html.fromstring(self.result.get_page())
             selector = cssselect.CSSSelector("title")
@@ -141,7 +142,12 @@ class TwillBrowser(object):
         Find the first link with a URL, link text, or name matching the
         given pattern.
         """
-        # --BRT-- Incomplete
+        doc = html.fromstring(self.result.get_page())
+        selector = cssselect.CSSSelector("a")
+        links = [(l.text or '', l.get("href")) for l in selector(doc)]
+        for link in links:
+            if re.search(pattern, link[0]) or re.search(pattern, link[1]):
+                return link[1]
         return None
 
     def follow_link(self, link):
@@ -174,7 +180,6 @@ class TwillBrowser(object):
         selector = cssselect.CSSSelector("a")
         links = iter([(l.text, l.get("href")) for l in selector(doc)])
         for n,link in enumerate(links):
-            # print (n,link,)
             print>>OUT, "%d. %s ==> %s" % (n, link[0], link[1],)
         print>>OUT, ''
 
@@ -264,30 +269,30 @@ class TwillBrowser(object):
         # --BRT-- Incomplete
         self.last_submit_button = None
 
-        print func_name
-
         if func_name == 'open':
+            if self.result:
+                self.history.append(self.result)
             r = requests.get(*args)
             url = args[0] # r.get_url()
             self.result = ResultWrapper(r.status_code, url, r.text)
-            self.history.append(url)
 
         elif func_name == 'follow_link':
+            if self.result:
+                self.history.append(self.result)
             r = requests.get(*args)
             # url = r.get_url()
             url = args[0]
             self.result = ResultWrapper(r.status_code, url, r.text)
-            self.history.append(url)
 
         elif func_name == 'reload':
-            r = requests.get(self.history[-1])
+            r = requests.get(self.result.get_url())
             url = self.result.get_url()
             self.result = ResultWrapper(r.status_code, url, r.text)
 
         elif func_name == 'back':
             try:
-                url = self.history.pop()
-                r = requests.get(self.history.pop())
+                url = self.history.pop().get_url()
+                r = requests.get(url)
                 self.result = ResultWrapper(r.status_code, url, r.text)
             except IndexError:
                 pass
