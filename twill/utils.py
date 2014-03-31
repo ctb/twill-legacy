@@ -10,6 +10,9 @@ import base64
 
 import subprocess
 
+# @BRT: lxml in utils - worrying?
+from lxml import html
+
 from errors import TwillException
 
 class ResultWrapper:
@@ -152,17 +155,19 @@ def set_form_control_value(control, val):
     Helper function to deal with setting form values on checkboxes, lists etc.
     """
     # @BRT: This whole function needs a re-write to use lxml forms instead of mech
-    if isinstance(control, ClientForm.CheckboxControl):
+    # if isinstance(control, ClientForm.CheckboxControl):
+    if hasattr(control, 'checkable') and control.checkable:
         try:
-            checkbox = control.get()
-            checkbox.selected = make_boolean(val)
+            # checkbox = control.get()
+            control.checked(make_boolean(val))
             return
-        except ClientForm.AmbiguityError:
+        # @BRT: Need to add a specific exception here
+        except: #ClientForm.AmbiguityError:
             # if there's more than one checkbox, use the behaviour for
             # ClientForm.ListControl, below.
             pass
             
-    if isinstance(control, ClientForm.ListControl):
+    if isinstance(control, html.CheckboxGroup):
         #
         # for ListControls (checkboxes, multiselect, etc.) we first need
         # to find the right *value*.  Then we need to set it +/-.

@@ -509,10 +509,7 @@ Note: submit is using submit button: name="%s", value="%s"
             # @BRT: Try to find the link first, same as mechanize behavior?
             url = self.find_link(args[0])
             if url.find('://') == -1:
-                if url[-1] != '/':
-                    url = self.result.get_url() + '/' + url
-                else:
-                    url = self.result.get_url() + url
+                url = urlparse.urljoin(self.get_url(), url)
             r = self._session.get(url, headers=self._headers)
             # url = r.get_url()
             url = args[0]
