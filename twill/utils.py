@@ -51,22 +51,18 @@ def print_form(n, f, OUT):
     """
     Pretty-print the given form, assigned # n.
     """
-    # @BRT lxml continues not to give forms names directly
     if f.get('name'):
          print>>OUT, '\nForm name=%s (#%d)' % (f.get('name'), n + 1)
     else:
         print>>OUT, '\nForm #%d' % (n + 1,)
 
-    # @BRT Controls are another thing lxml forms do not have
-    # @BRT The equivalent looks like inputs?
+    # @BRT: lxml inputs same as mechanize controls?
     if f.inputs:
-    # if f.controls:
         print>>OUT, "## ## __Name__________________ __Type___ __ID________ __Value__________________"
-
 
     submit_indices = {}
     n = 1
-    # @BRT Fields don't know if they're clickable or not in lxml
+    # @BRT: Fields don't seem to know if they're clickable or not in lxml
     # for c in f.controls:
     #     if c.is_of_kind('clickable'):
     #         submit_indices[c] = n
@@ -75,20 +71,16 @@ def print_form(n, f, OUT):
     # clickies = [c for c in f.controls if c.is_of_kind('clickable')]
     # nonclickies = [c for c in f.controls if c not in clickies]
 
-    # @BRT Inputs vs controls again
     for n, field in enumerate(f.inputs):
-    # for n, field in enumerate(f.controls):
-        # @BRT Here we want 'value_options?'
-        # if hasattr(field, 'items'):
+        # @BRT: lxml 'value_options' same as mechanize 'items'?
         if hasattr(field, 'value_options'):
-            # @BRT This appears to be broken for non-checkboxes; i is str
             items = [ i.name if hasattr(i, 'name') else i 
                         for i in field.value_options ]
             value_displayed = "%s of %s" % (field.value, items)
         else:
             value_displayed = "%s" % (field.value,)
 
-        # @BRT No clickable attritubte, nor is_of_kind method
+        # @BRT: No clickable attritubte, nor is_of_kind method on fields
         # if field.is_of_kind('clickable'):
         #    submit_index = "%-2s" % (submit_indices[field],)
         # else:
@@ -96,12 +88,10 @@ def print_form(n, f, OUT):
         strings = ("%-2s" % (n + 1,),
                    submit_index,
                    "%-24s %-9s" % (trunc(str(field.name), 24),
-                                    # @BRT Another hack around lxml
+                                    # @BRT: select has no type attribute
                                    trunc(field.type 
                                     if hasattr(field, 'type') else 'select', 9)),
                     "%-12s" % (trunc(field.get("id") or "(None)", 12),),
-                    # @BRT Replace field id with field name?
-                    # "%-12s" % (trunc(field.name or "(None)", 12),),
                    trunc(value_displayed, 40),
                    )
         for s in strings:
@@ -301,7 +291,7 @@ def run_tidy(html):
 
     return (clean_html, errors)
 
-# @BRT Removing this until it gets rewritten
+# @BRT: Removing this until it gets rewritten
 '''class ConfigurableParsingFactory(mechanize.Factory):
     """
     A factory that listens to twill config options regarding parsing.

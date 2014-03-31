@@ -24,20 +24,18 @@ class TwillBrowser(object):
         # create special link/forms parsing code to run tidy on HTML first.
         #
 
-        # @BRT This is mechanize. Remove it? Or rewrite it?
+        # @BRT: This is mechanize. Remove it? Or rewrite it?
         #factory = ConfigurableParsingFactory()
 
         self.result = None
         self.last_submit_button = None
 
-        # @BRT I think this will handle cookies
+        # Session stores cookies
         self._session = requests.Session()
 
-        # @BRT Headers, this will handle user-agent
         self._headers = dict([("Accept", "text/html; */*")])
 
-        # @BRT Creds... just an HTTPBasicAuth from requests, 
-        # @BRT None until creds added
+        # An HTTPBasicAuth from requests, None until creds added
         self._auth = None
 
         # callables to be called after each page load.
@@ -85,8 +83,8 @@ class TwillBrowser(object):
 
         if success:
             print>>OUT, '==> at', self.get_url()
-        # @BRT Possibly broken? Seems to work better when else is commented
-        # @BRT May be related to other not-yet-implemented functions
+        # @BRT: Possibly broken? Seems to work better when else is commented
+        #      May be related to other not-yet-implemented functions
         else:
             # Modified to use TwillException in place of BrowserStateError
             raise TwillException("cannot go to '%s'" % (url,))
@@ -102,7 +100,7 @@ class TwillBrowser(object):
         """
         Return to previous page, if possible.
         """
-        # @BRT Modified to use TwillException in place of BrowserStateError
+        # @BRT: Modified to use TwillException in place of BrowserStateError
         try:
             self._journey('back')
             print>>OUT, '==> back to', self.get_url()
@@ -173,8 +171,7 @@ class TwillBrowser(object):
         Pretty-print all of the forms.  Include the global form (form
         elements outside of <form> pairs) as forms[0] iff present.
         """
-        # @BRT Incomplete; wouldn't it be nice if the old code worked?
-        # @BRT Probably keep this and rewrite print_form if needed
+        # @BRT: Does lxml follow golbal_form @ index 0 behavior from docstring?
         forms = self.get_all_forms()
         for n, f in enumerate(forms):
             print_form(n, f, OUT)
@@ -183,9 +180,7 @@ class TwillBrowser(object):
         """
         Pretty-print all of the links.
         """
-        doc = html.fromstring(self.result.get_page())
-        selector = cssselect.CSSSelector("a")
-        links = iter([(l.text, l.get("href")) for l in selector(doc)])
+        links = self.get_all_links()
         for n,link in enumerate(links):
             print>>OUT, "%d. %s ==> %s" % (n, link[0], link[1],)
         print>>OUT, ''
@@ -198,23 +193,28 @@ class TwillBrowser(object):
         print>>OUT, 'History: (%d pages total) ' % (len(self._history))
         n = 1
         for page in self._history:
+            # @BRT: confirm that this is the intended logic of below comment
             if page.get_http_code() == 200:
-            # @BRT Not sure how to implement the below comment 
-            # @BRT as back doesn't do that yet
-            # @BRT this might be what it's after?
-
             # only print those that back() will go
                 print>>OUT, "\t%d. %s" % (n, page.get_url())
                 n += 1
-            
         print>>OUT, ''
+
+    def get_all_links(self):
+        """
+        Return a list of all of the links on the page
+        """
+        # @BRT: New function for use in commands, showlinks function
+        doc = html.fromstring(self.result.get_page())
+        selector = cssselect.CSSSelector("a")
+        return iter([(l.text, l.get("href")) for l in selector(doc)])
 
     def get_all_forms(self):
         """
         Return a list of all of the forms, with global_form at index 0
         iff present.
         """
-        # @BRT Does lxml follow this behavior?
+        # @BRT: Does lxml follow golbal_form @ index 0 behavior from docstring?
         if self.result:
             doc = html.fromstring(self.result.get_page())
             return doc.forms
@@ -224,7 +224,7 @@ class TwillBrowser(object):
         """
         Return the first form that matches 'formname'.
         """
-        # @BRT Incomplete, returns an lxml form where code expects mechanize
+        # @BRT: Returns an lxml FormElement where old code may expect mechanize
         forms = self.get_all_forms()
 
         # first try ID
@@ -242,7 +242,8 @@ class TwillBrowser(object):
         # ok, try number
         try:
             formnum = int(formname)
-            # @BRT form 0 may be valid, not sure about global form
+            # @BRT: Does lxml follow golbal_form @ index 0 behavior?
+            #      Otherwise, change conditional to >= 0
             if formnum >= 1 and formnum <= len(forms):
                 return forms[formnum - 1]
         except ValueError:              # int() failed
@@ -257,7 +258,6 @@ class TwillBrowser(object):
         Return the control that matches 'fieldname'.  Must be
         a *unique* regexp/exact string match.
         """
-        # @BRT Incomplete; outside code will need to use lxml forms
         fieldname = str(fieldname)
         
         found = None
@@ -307,7 +307,7 @@ class TwillBrowser(object):
                     found_multiple = True # record for error
 
         if found is None:
-            # @BRT better way to check for readonly?
+            # @BRT: better way to check for readonly?
             # try value, for readonly controls like submit keys
             clickies = [ c for c in form.inputs if c.value == fieldname
                          and 'readonly' in c.attrib.keys()]
@@ -330,14 +330,14 @@ class TwillBrowser(object):
         """
         Record a 'click' in a specific form.
         """
-        # @BRT Incomplete
+        # @BRT: Incomplete: clicked()
         return
 
     def submit(self, fieldname=None):
         """
         Submit the currently clicked form using the given field.
         """
-        # @BRT Incomplete
+        # @BRT: Incomplete: submit()
         return
 
     def save_cookies(self, filename):
@@ -354,7 +354,7 @@ class TwillBrowser(object):
         """
         Load cookies from the given file.
         """
-        # @BRT Adds to rather than overwriting cookies - correct?
+        # @BRT: Adds to rather than overwriting cookies - correct?
         with open('somefile') as f:
             c = requests.utils.add_dict_to_cookiejar(
                 self._session.cookies, 
@@ -372,14 +372,14 @@ class TwillBrowser(object):
         """
         Pretty-print all of the cookies.
         """
-        # @BRT show_cookies is the only show w/ underscore syntax - why?
-        # @BRT Format is different, site names not associated w/ cookies
+        # @BRT: show_cookies is the only show w/ underscore syntax - why?
         c = requests.utils.dict_from_cookiejar(self._session.cookies)
-        print>>OUT, 'There are %d cookie(s) in the cookiejar.' % (len(c))
+        print>>OUT, 'There are %d cookie(s) in the cookiejar.\n' % (len(c))
         
-        if len(c):
-            for k,v in c.iteritems():
-                print>>OUT, k, '\t', v
+        if len(self._session.cookies):
+            for cookie in self._session.cookies:
+                print>>OUT, '\t', cookie
+
             print>>OUT, ''
 
     def _journey(self, func_name, *args, **kwargs):
@@ -406,7 +406,7 @@ class TwillBrowser(object):
         elif func_name == 'follow_link':
             if self.result:
                 self._history.append(self.result)
-            # @BRT Try to find the link first, appropriate method?
+            # @BRT: Try to find the link first, same as mechanize behavior?
             url = self.find_link(args[0])
             if url.find('://') == -1:
                 url = self.result.get_url() + url
