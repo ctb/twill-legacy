@@ -24,7 +24,7 @@ class TwillBrowser(object):
         # create special link/forms parsing code to run tidy on HTML first.
         #
         
-        # --BRT-- Incomplete
+        # --BRT-- Incomplete?
 
         # --BRT-- This is mechanize. Remove it? Or rewrite it?
         #factory = ConfigurableParsingFactory()
@@ -39,19 +39,17 @@ class TwillBrowser(object):
         self._history = []
 
     def _set_creds(self, creds):
-        # --BRT-- Incomplete
+        # --BRT-- Incomplete, need a replacement for mechanize's password store
         return
 
     def _get_creds(self):
-        # --BRT-- Incomplete
+        # --BRT-- Incomplete, need a replacement for mechanize's password store
         return
 
     def go(self, url):
         """
         Visit given URL.
         """
-        # --BRT-- Incomplete
-
         try_urls = [url, ]
 
         # if this is an absolute URL that is just missing the 'http://' at
@@ -81,10 +79,11 @@ class TwillBrowser(object):
 
         if success:
             print>>OUT, '==> at', self.get_url()
-        # --BRT-- Probably broken
+        # --BRT-- Possibly broken? Seems to work better when else is commented
+        # --BRT-- May be related to other not-yet-implemented functions
         #else:
-            # Modified to use TwillException in place of BrowserStateError
-            #raise TwillException("cannot go to '%s'" % (url,))
+        #    # Modified to use TwillException in place of BrowserStateError
+        #    raise TwillException("cannot go to '%s'" % (url,))
 
     def reload(self):
         """
@@ -148,14 +147,13 @@ class TwillBrowser(object):
         for link in links:
             if re.search(pattern, link[0]) or re.search(pattern, link[1]):
                 return link[1]
-        return None
+        return ''
 
     def follow_link(self, link):
         """
         Follow the given link.
         """
-        # --BRT-- Try to find the link first, this isn't in the old version?
-        self._journey('follow_link', self.find_link(link))
+        self._journey('follow_link', link)
         print>>OUT, '==> at', self.get_url()
 
     def set_agent_string(self, agent):
@@ -292,7 +290,11 @@ class TwillBrowser(object):
         elif func_name == 'follow_link':
             if self.result:
                 self._history.append(self.result)
-            r = requests.get(*args)
+            # --BRT-- Try to find the link first, appropriate method?
+            url = self.find_link(args[0])
+            if url.find('://') == -1:
+                url = self.result.get_url() + url
+            r = requests.get(url)
             # url = r.get_url()
             url = args[0]
             self.result = ResultWrapper(r.status_code, url, r.text)
