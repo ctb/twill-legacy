@@ -35,6 +35,10 @@ class TwillBrowser(object):
 
         self._headers = dict([("Accept", "text/html; */*")])
 
+        # @BRT It appears this will replace ._browser.form
+        # An lxml FormElement, none until a form is selected
+        self._form = None
+
         # An HTTPBasicAuth from requests, None until creds added
         self._auth = None
 
@@ -339,8 +343,18 @@ class TwillBrowser(object):
         """
         Record a 'click' in a specific form.
         """
-        # @BRT: Incomplete: clicked()
-        return
+        if self._form != form:
+            # construct a function to choose a particular form; select_form
+            # can use this to pick out a precise form.
+
+            # @BRT: Removed an assert from this function along with mechanize
+            #       Verify that this is safe
+            self._form = form
+            self.last_submit_button = None
+
+        # record the last submit button clicked.
+        if hasattr(control, 'type') and control.type == 'submit':
+            self.last_submit_button = control
 
     def submit(self, fieldname=None):
         """
