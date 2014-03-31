@@ -495,10 +495,13 @@ hello, world.
         return "hello, world"
 
     def echo(self):
+        # @BRT: This used to return an empty string if no query was submitted
+        #       Is this useful behavior? Should it be maintained?
+        #       Seemed to cause problems both for requests and google chrome
         request = get_request()
         if request.form and request.form.has_key('q'):
             return request.form['q']
-        return ""
+        return "<html><body>No Content</body></html>"
 
     def upload_file(self):
         request = get_request()
