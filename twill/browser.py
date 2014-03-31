@@ -10,6 +10,7 @@ import urlparse
 
 # Dependencies
 import requests
+from requests.exceptions import InvalidSchema, ConnectionError
 from lxml import etree, html, cssselect
 
 # Will need at least some of these
@@ -87,8 +88,6 @@ class TwillBrowser(object):
             try_urls = [ current_url + url, ]"""
         # @BRT: Try to do both cases (? and /) with urljoin
         try_urls.append(urlparse.urljoin(self.get_url(), url))
-
-        print>>OUT, try_urls
         
         success = False
         for u in try_urls:
@@ -96,7 +95,8 @@ class TwillBrowser(object):
                 self._journey('open', u)
                 success = True
                 break
-            except IOError:             # @CTB test this!
+            # @BRT: requests seems to use ConnectionError and InvalidSchema here
+            except (IOError, ConnectionError, InvalidSchema):  # @CTB test this!
                 pass
 
         if success:
@@ -212,10 +212,10 @@ class TwillBrowser(object):
         n = 1
         for page in self._history:
             # @BRT: confirm that this is the intended logic of below comment
-            if page.get_http_code() == 200:
+            # if page.get_http_code() == 200:
             # only print those that back() will go
-                print>>OUT, "\t%d. %s" % (n, page.get_url())
-                n += 1
+            print>>OUT, "\t%d. %s" % (n, page.get_url())
+            n += 1
         print>>OUT, ''
 
     def get_all_links(self):
@@ -501,9 +501,8 @@ Note: submit is using submit button: name="%s", value="%s"
         if func_name == 'open':
             r = self._session.get(*args, headers=self._headers, auth=self._auth)
             url = args[0] # r.get_url()
-            if r.status_code == 200:
-                if self.result:
-                    self._history.append(self.result)
+            if self.result is not None:
+                self._history.append(self.result)
             self.result = ResultWrapper(r.status_code, url, r.text)
 
         elif func_name == 'follow_link':
@@ -517,9 +516,8 @@ Note: submit is using submit button: name="%s", value="%s"
             r = self._session.get(url, headers=self._headers)
             # url = r.get_url()
             url = args[0]
-            if r.status_code == 200:
-                if self.result:
-                    self._history.append(self.result)
+            if self.result is not None:
+                self._history.append(self.result)
             self.result = ResultWrapper(r.status_code, url, r.text)
 
         elif func_name == 'reload':

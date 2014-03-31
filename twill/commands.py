@@ -191,8 +191,8 @@ def follow(what):
     """
     regexp = re.compile(what)
     link = browser.find_link(regexp)
-
-    if link:
+    print "Link is: ", link
+    if link != '':
         browser.follow_link(link)
         return browser.get_url()
 
