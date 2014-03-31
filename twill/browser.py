@@ -77,8 +77,6 @@ class TwillBrowser(object):
             current_url = self.get_url()
             current_url = current_url.split('?')[0]
             try_urls = [ current_url + url, ]
-
-        print>>OUT, try_urls
         
         success = False
         for u in try_urls:
