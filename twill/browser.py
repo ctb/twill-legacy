@@ -102,8 +102,7 @@ class TwillBrowser(object):
         """
         Return to previous page, if possible.
         """
-        # @BRT Incomplete
-        # Modified to use TwillException in place of BrowserStateError
+        # @BRT Modified to use TwillException in place of BrowserStateError
         try:
             self._journey('back')
             print>>OUT, '==> back to', self.get_url()
@@ -177,14 +176,8 @@ class TwillBrowser(object):
         # @BRT Incomplete; wouldn't it be nice if the old code worked?
         # @BRT Probably keep this and rewrite print_form if needed
         forms = self.get_all_forms()
-        
         for n, f in enumerate(forms):
-            print "attrib: ", f.attrib
-            print "get(id): ", f.get('id')
-            print "get(name): ", f.get('name')
-            print "get(class): ", f.get('class')
             print_form(n, f, OUT)
-        return
 
     def showlinks(self):
         """
@@ -265,9 +258,73 @@ class TwillBrowser(object):
         a *unique* regexp/exact string match.
         """
         # @BRT Incomplete; outside code will need to use lxml forms
-        for field in form.field_values():
-            if re.search(fieldname, field[1].name):
-                return field
+        fieldname = str(fieldname)
+        
+        found = None
+        found_multiple = False
+
+        matches = [ c for c in form.inputs if c.get("id") == fieldname ]
+
+        # test exact match.
+        if matches:
+            if unique_match(matches):
+                found = matches[0]
+            else:
+                found_multiple = True   # record for error reporting.
+        
+        matches = [ c for c in form.controls if str(c.name) == fieldname ]
+
+        # test exact match.
+        if matches:
+            if unique_match(matches):
+                found = matches[0]
+            else:
+                found_multiple = True   # record for error reporting.
+
+        # test index.
+        if found is None:
+            # try num
+            clickies = [c for c in form.inputs]
+            try:
+                fieldnum = int(fieldname) - 1
+                found = clickies[fieldnum]
+            except ValueError:          # int() failed
+                pass
+            except IndexError:          # fieldnum was incorrect
+                pass
+
+        # test regexp match
+        if found is None:
+            regexp = re.compile(fieldname)
+
+            matches = [ ctl for ctl in form.inputs \
+                        if regexp.search(ctl.get("name")) ]
+
+            if matches:
+                if unique_match(matches):
+                    found = matches[0]
+                else:
+                    found_multiple = True # record for error
+
+        if found is None:
+            # @BRT better way to check for readonly?
+            # try value, for readonly controls like submit keys
+            clickies = [ c for c in form.inputs if c.value == fieldname
+                         and 'readonly' in c.attrib.keys()]
+            if clickies:
+                if len(clickies) == 1:
+                    found = clickies[0]
+                else:
+                    found_multiple = True   # record for error
+
+        # error out?
+        if found is None:
+            if not found_multiple:
+                raise TwillException('no field matches "%s"' % (fieldname,))
+            else:
+                raise TwillException('multiple matches to "%s"' % (fieldname,))
+
+        return found
 
     def clicked(self, form, control):
         """

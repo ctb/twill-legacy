@@ -95,12 +95,13 @@ def print_form(n, f, OUT):
         submit_index = "  "
         strings = ("%-2s" % (n + 1,),
                    submit_index,
-                   "%-24s %-9s" % (trunc(str(field.name), 24), \
+                   "%-24s %-9s" % (trunc(str(field.name), 24),
                                     # @BRT Another hack around lxml
                                    trunc(field.type 
-                                    if hasattr(field, 'type') else '', 9)),
-                   # @BRT Replace field id with field name - ids not exposed in lxml
-                   "%-12s" % (trunc(field.name or "(None)", 12),),
+                                    if hasattr(field, 'type') else 'select', 9)),
+                    "%-12s" % (trunc(field.get("id") or "(None)", 12),),
+                    # @BRT Replace field id with field name?
+                    # "%-12s" % (trunc(field.name or "(None)", 12),),
                    trunc(value_displayed, 40),
                    )
         for s in strings:
