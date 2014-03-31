@@ -201,7 +201,9 @@ def set_form_control_value(control, val):
         else:
             item.selected = 0
     else:
-        control.value = val
+        # @BRT: Currently crashes, lxml needs a sequence for val
+        # control.value = val
+        pass
 
 def _all_the_same_submit(matches):
     """

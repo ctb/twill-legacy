@@ -392,10 +392,9 @@ def formclear(formname):
     Run 'clear' on all of the controls in this form.
     """
     form = browser.get_form(formname)
-    for control in form.controls:
-        if control.readonly:
+    for control in form.inputs:
+        if "readonly" in control.attrib.keys():
             continue
-
         control.clear()
 
 def formvalue(formname, fieldname, value):
@@ -612,7 +611,8 @@ def add_auth(realm, uri, user, passwd):
             print>>OUT, 'Changed to using HTTPPasswordMgr'''
         pass
 
-    browser.creds.add_password(realm, uri, user, passwd)
+    # @BRT: Browser does not currently support per-realm creds; add?
+    # browser.creds.add_password(realm, uri, user, passwd)
 
     print>>OUT, "Added auth info: realm '%s' / URI '%s' / user '%s'" % (realm,
                                                                   uri,
@@ -786,7 +786,7 @@ def show_extra_headers():
     if l:
         print 'The following HTTP headers are added to each request:'
     
-        for k, v in l:
+        for k, v in l.iteritems():
             print '  "%s" = "%s"' % (k, v,)
             
         print ''
@@ -873,7 +873,8 @@ def info():
     
     # @BRT: Tries to use mechanize for content type, need to find an alternate
     content_type = None # browser._browser._response.info().getheaders("content-type")
-    check_html = is_html(content_type, current_url)
+    # @BRT: is_html uses the mechanize based factoris in utils; rewrite
+    check_html = None # is_html(content_type, current_url)
 
     code = browser.get_code()
 

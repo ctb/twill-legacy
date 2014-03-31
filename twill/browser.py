@@ -254,7 +254,7 @@ class TwillBrowser(object):
         # next try regexps
         regexp = re.compile(formname)
         for f in forms:
-            if f.get("name") and regexp.search(f.name):
+            if f.get("name") and regexp.search(f.get("name")):
                 return f
 
         # ok, try number
@@ -316,7 +316,7 @@ class TwillBrowser(object):
             regexp = re.compile(fieldname)
 
             matches = [ ctl for ctl in form.inputs \
-                        if regexp.search(ctl.get("name")) ]
+                        if regexp.search(str(ctl.get("name"))) ]
 
             if matches:
                 if unique_match(matches):
