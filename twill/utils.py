@@ -151,6 +151,7 @@ def set_form_control_value(control, val):
     """
     Helper function to deal with setting form values on checkboxes, lists etc.
     """
+    # @BRT: This whole function needs a re-write to use lxml forms instead of mech
     if isinstance(control, ClientForm.CheckboxControl):
         try:
             checkbox = control.get()

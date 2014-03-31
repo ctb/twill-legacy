@@ -6,6 +6,7 @@ OUT=None
 
 # Python imports
 import re
+import urlparse
 
 # Dependencies
 import requests
@@ -71,19 +72,23 @@ class TwillBrowser(object):
         # the end of the current URL.
 
         # @BRT: urls beginning with / need to be special-cased now
-        if(url.startswith('/')):
+        """if(url.startswith('/')):
             u = self.get_url()
             prefix = u[:u.find('://')+3]
             base_url = u.split('/')[2]
-            # print>>OUT, "New url: ", prefix+base_url+url
+            print>>OUT, "New url: ", prefix+base_url+url
             # @BRT: This seems to be causing a hang in the tests
             # Above debug print produces sane results, not sure what's up here?
-            # try_urls.append(prefix+base_url+url)
+            try_urls.append(prefix+base_url+url)
         
         if url.startswith('?'):
             current_url = self.get_url()
             current_url = current_url.split('?')[0]
-            try_urls = [ current_url + url, ]
+            try_urls = [ current_url + url, ]"""
+        # @BRT: Try to do both cases (? and /) with urljoin
+        try_urls.append(urlparse.urljoin(self.get_url(), url))
+
+        print>>OUT, try_urls
         
         success = False
         for u in try_urls:

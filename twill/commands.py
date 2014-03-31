@@ -433,16 +433,20 @@ def formvalue(formname, fieldname, value):
 
     browser.clicked(form, control)
 
-    if control.readonly and _options['readonly_controls_writeable']:
+    if 'readonly' in control.attrib.keys() and \
+        _options['readonly_controls_writeable']:
         print>>OUT, 'forcing read-only form field to writeable'
-        control.readonly = False
+        del control.attrib['readonly']
         
-    if control.readonly or isinstance(control, ClientForm.IgnoreControl):
+    # @BRT: Find lxml replacement for IgnoreControl
+    elif 'readonly' in control.attrib.keys(): # or \
+        # isinstance(control, ClientForm.IgnoreControl):
         print>>OUT, 'form field is read-only or ignorable; nothing done.'
         return
 
-    if isinstance(control, ClientForm.FileControl):
-        raise TwillException('form field is for file upload; use "formfile" instead')
+    # @BRT: Find a way to do FileControl in lxml
+    # if isinstance(control, ClientForm.FileControl):
+    #    raise TwillException('form field is for file upload; use "formfile" instead')
 
     set_form_control_value(control, value)
 
