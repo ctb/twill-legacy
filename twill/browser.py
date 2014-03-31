@@ -36,7 +36,7 @@ class TwillBrowser(object):
         self._post_load_hooks = []
 
         ## Quick fix
-        self.history = []
+        self._history = []
 
     def _set_creds(self, creds):
         # --BRT-- Incomplete
@@ -187,8 +187,20 @@ class TwillBrowser(object):
         """
         Pretty-print the history of links visited.
         """
-        # --BRT-- Incomplete
-        return
+        print>>OUT, ''
+        print>>OUT, 'History: (%d pages total) ' % (len(self._history))
+        n = 1
+        for page in self._history:
+            if page.get_http_code() == 200:
+            # --BRT-- Not sure how to implement the below comment 
+            # --BRT-- as back doesn't do that yet
+            # --BRT-- this might be what it's after?
+
+            # only print those that back() will go
+                print>>OUT, "\t%d. %s" % (n, page.get_url())
+                n += 1
+            
+        print>>OUT, ''
 
     def get_all_forms(self):
         """
@@ -271,14 +283,14 @@ class TwillBrowser(object):
 
         if func_name == 'open':
             if self.result:
-                self.history.append(self.result)
+                self._history.append(self.result)
             r = requests.get(*args)
             url = args[0] # r.get_url()
             self.result = ResultWrapper(r.status_code, url, r.text)
 
         elif func_name == 'follow_link':
             if self.result:
-                self.history.append(self.result)
+                self._history.append(self.result)
             r = requests.get(*args)
             # url = r.get_url()
             url = args[0]
@@ -291,7 +303,7 @@ class TwillBrowser(object):
 
         elif func_name == 'back':
             try:
-                url = self.history.pop().get_url()
+                url = self._history.pop().get_url()
                 r = requests.get(url)
                 self.result = ResultWrapper(r.status_code, url, r.text)
             except IndexError:
