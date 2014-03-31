@@ -426,7 +426,7 @@ def formvalue(formname, fieldname, value):
     'formvalue' is available as 'fv' as well.
     """
     form = browser.get_form(formname)
-    if not form:
+    if form is None:
         raise TwillAssertionError("no matching forms!")
 
     control = browser.get_form_field(form, fieldname)

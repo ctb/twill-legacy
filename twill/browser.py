@@ -66,13 +66,21 @@ class TwillBrowser(object):
         # if this is a '?' URL, then assume that we want to tack it onto
         # the end of the current URL.
 
+        # @BRT urls beginning with / need to be special-cased now
+        if(url.startswith('/')):
+            u = self.get_url()
+            prefix = u[:u.find('://')+3]
+            base_url = u.split('/')[2]
+            try_urls.append(prefix+base_url+url)
+        
         if url.startswith('?'):
             current_url = self.get_url()
             current_url = current_url.split('?')[0]
             try_urls = [ current_url + url, ]
 
+        print>>OUT, try_urls
+        
         success = False
-
         for u in try_urls:
             try:
                 self._journey('open', u)
@@ -409,7 +417,10 @@ class TwillBrowser(object):
             # @BRT: Try to find the link first, same as mechanize behavior?
             url = self.find_link(args[0])
             if url.find('://') == -1:
-                url = self.result.get_url() + url
+                if url[-1] != '/':
+                    url = self.result.get_url() + '/' + url
+                else:
+                    url = self.result.get_url() + url
             r = self._session.get(url, headers=self._headers)
             # url = r.get_url()
             url = args[0]
