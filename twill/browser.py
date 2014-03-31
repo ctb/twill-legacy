@@ -212,15 +212,23 @@ class TwillBrowser(object):
         Return a list of all of the forms, with global_form at index 0
         iff present.
         """
-        # --BRT-- Incomplete
-        return
+        # --BRT-- Does lxml follow this behavior?
+        if self.result:
+            doc = html.fromstring(self.result.get_page())
+            return doc.forms
+        return []
 
     def get_form(self, formname):
         """
         Return the first form that matches 'formname'.
         """
         # --BRT-- Incomplete
-        return
+        if self.result:
+            doc = html.fromstring(self.result.get_page())
+            for form in doc.forms:
+                if form.name == formname:
+                    return form
+        return None
 
     def get_form_field(self, form, fieldname):
         """
