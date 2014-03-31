@@ -519,7 +519,7 @@ Note: submit is using submit button: name="%s", value="%s"
 
         elif func_name == 'reload':
             r = self._session.get(
-                self.result.get_url(), 
+                self.get_url(), 
                 headers=self._headers,
                 auth = self._auth
             )
