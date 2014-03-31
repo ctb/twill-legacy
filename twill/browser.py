@@ -386,7 +386,7 @@ more than one form; you must select one (use 'fv') before submitting\
 
         # no fieldname?  see if we can use the last submit button clicked...
         if not fieldname:
-            if self.last_submit_button:
+            if self.last_submit_button is not None:
                 ctl = self.last_submit_button
             else:
                 # get first submit button in form.
@@ -519,10 +519,10 @@ Note: submit is using submit button: name="%s", value="%s"
 
         elif func_name == 'reload':
             r = self._session.get(
-                self.get_url(), 
-                headers=self._headers,
-                auth = self._auth
-            )
+                    self.get_url(), 
+                    headers=self._headers,
+                    auth = self._auth
+                )
             url = self.result.get_url()
             self.result = ResultWrapper(r.status_code, url, r.text)
 
