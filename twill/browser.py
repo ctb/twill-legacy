@@ -66,13 +66,13 @@ class TwillBrowser(object):
         # if this is a '?' URL, then assume that we want to tack it onto
         # the end of the current URL.
 
-        # @BRT urls beginning with / need to be special-cased now
+        # @BRT: urls beginning with / need to be special-cased now
         if(url.startswith('/')):
             u = self.get_url()
             prefix = u[:u.find('://')+3]
             base_url = u.split('/')[2]
             # print>>OUT, "New url: ", prefix+base_url+url
-            # @BRT This seems to be causing a hang in the tests
+            # @BRT: This seems to be causing a hang in the tests
             # Above debug print produces sane results, not sure what's up here?
             # try_urls.append(prefix+base_url+url)
         
@@ -281,7 +281,7 @@ class TwillBrowser(object):
             else:
                 found_multiple = True   # record for error reporting.
         
-        matches = [ c for c in form.controls if str(c.name) == fieldname ]
+        matches = [ c for c in form.inputs if str(c.name) == fieldname ]
 
         # test exact match.
         if matches:
@@ -346,8 +346,81 @@ class TwillBrowser(object):
         """
         Submit the currently clicked form using the given field.
         """
-        # @BRT: Incomplete: submit()
-        return
+        if fieldname is not None:
+            fieldname = str(fieldname)
+        
+        if len(self.get_all_forms()) == 0:
+            raise TwillException("no forms on this page!")
+        
+        ctl = None
+        
+        # @BRT: Until I figure out what else form could be, it is None
+        form = None
+        if form is None:
+            forms = self.get_all_forms()
+            if len(forms) == 1:
+                form = forms[0]
+            else:
+                raise TwillException("""\
+more than one form; you must select one (use 'fv') before submitting\
+""")
+
+        # no fieldname?  see if we can use the last submit button clicked...
+        if not fieldname:
+            if self.last_submit_button:
+                ctl = self.last_submit_button
+            else:
+                # get first submit button in form.
+                submits = [ c for c in form.inputs
+                            if  hasattr(c, 'type') and c.type == 'submit' ]
+
+                if len(submits):
+                    ctl = submits[0]
+                
+        else:
+            # fieldname given; find it.
+            ctl = self.get_form_field(form, fieldname)
+
+        #
+        # now set up the submission by building the request object that
+        # will be sent in the form submission.
+        #
+        
+        if ctl is not None:
+            # submit w/button
+            print>>OUT, """\
+Note: submit is using submit button: name="%s", value="%s"
+""" % (ctl.name, ctl.value)
+            
+            # @BRT Client form image control is what in lxml?
+            # if isinstance(ctl, ClientForm.ImageControl):
+            #     request = ctl._click(form, (1,1), "", mechanize.Request)
+            # else:
+            #    request = ctl._click(form, True, "", mechanize.Request)
+                
+        else:
+            # @BRT: Figure out how to submit with lxml w/o button
+            # submit w/o submit button.
+            # request = form._click(None, None, None, None, 0, None,
+            #                      "", mechanize.Request)
+            pass
+        #
+        # add referer information.  this may require upgrading the
+        # request object to have an 'add_unredirected_header' function.
+        #
+
+        # @BRT: requests equivalent of a mechanize browser request upgrade?
+        # upgrade = self._browser._ua_handlers.get('_http_request_upgrade')
+        # if upgrade:
+        #     request = upgrade.http_request(request)
+        #     request = self._browser._add_referer_header(request)
+
+        #
+        # now actually GO.
+        #
+        
+        # @BRT Refactor above, can't go anywhere until submit btn is found
+        # self._journey('open', request)
 
     def save_cookies(self, filename):
         """
