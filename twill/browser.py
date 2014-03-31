@@ -495,6 +495,7 @@ Note: submit is using submit button: name="%s", value="%s"
         
         (Idea stolen straight from PBP.)
         """
+        # @BRT: Way too many pages ending up in history. Figure out why.
         self.last_submit_button = None
 
         if func_name == 'open':
