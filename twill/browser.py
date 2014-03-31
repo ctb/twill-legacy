@@ -35,6 +35,9 @@ class TwillBrowser(object):
         # --BRT-- I think this will handle cookies, auth, and user agent
         self._session = requests.Session()
 
+        # --BRT-- Headers, this will handle user-agent
+        self._headers = dict([("Accept", "text/html; */*")])
+
         # callables to be called after each page load.
         self._post_load_hooks = []
 
@@ -166,7 +169,7 @@ class TwillBrowser(object):
         """
         Set the agent string to the given value.
         """
-        # --BRT-- Incomplete
+        self._headers['User-agent'] = agent
         return
 
     def showforms(self):
@@ -276,6 +279,7 @@ class TwillBrowser(object):
         """
         Pretty-print all of the cookies.
         """
+        # --BRT-- show_cookies is the only show w/ underscore syntax - why?
         # --BRT-- Format is different, site names not associated w/ cookies
         c = requests.utils.dict_from_cookiejar(self._session.cookies)
         print>>OUT, 'There are %d cookie(s) in the cookiejar.' % (len(c))
@@ -297,13 +301,12 @@ class TwillBrowser(object):
         
         (Idea stolen straight from PBP.)
         """
-        # --BRT-- Incomplete
         self.last_submit_button = None
 
         if func_name == 'open':
             if self.result:
                 self._history.append(self.result)
-            r = self._session.get(*args)
+            r = self._session.get(*args, headers=self._headers)
             url = args[0] # r.get_url()
             self.result = ResultWrapper(r.status_code, url, r.text)
 
@@ -314,20 +317,20 @@ class TwillBrowser(object):
             url = self.find_link(args[0])
             if url.find('://') == -1:
                 url = self.result.get_url() + url
-            r = self._session.get(url)
+            r = self._session.get(url, headers=self._headers)
             # url = r.get_url()
             url = args[0]
             self.result = ResultWrapper(r.status_code, url, r.text)
 
         elif func_name == 'reload':
-            r = self._session.get(self.result.get_url())
+            r = self._session.get(self.result.get_url(), headers=self._headers)
             url = self.result.get_url()
             self.result = ResultWrapper(r.status_code, url, r.text)
 
         elif func_name == 'back':
             try:
                 url = self._history.pop().get_url()
-                r = self._session.get(url)
+                r = self._session.get(url, headers=self._headers)
                 self.result = ResultWrapper(r.status_code, url, r.text)
             except IndexError:
                 pass
