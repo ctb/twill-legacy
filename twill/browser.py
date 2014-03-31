@@ -23,8 +23,6 @@ class TwillBrowser(object):
         #
         # create special link/forms parsing code to run tidy on HTML first.
         #
-        
-        # --BRT-- Incomplete?
 
         # --BRT-- This is mechanize. Remove it? Or rewrite it?
         #factory = ConfigurableParsingFactory()
@@ -32,11 +30,15 @@ class TwillBrowser(object):
         self.result = None
         self.last_submit_button = None
 
-        # --BRT-- I think this will handle cookies, auth, and user agent
+        # --BRT-- I think this will handle cookies
         self._session = requests.Session()
 
         # --BRT-- Headers, this will handle user-agent
         self._headers = dict([("Accept", "text/html; */*")])
+
+        # --BRT-- Creds... just an HTTPBasicAuth from requests, 
+        # --BRT-- None until creds added
+        self._auth = None
 
         # callables to be called after each page load.
         self._post_load_hooks = []
@@ -45,15 +47,10 @@ class TwillBrowser(object):
         self._history = []
 
     def _set_creds(self, creds):
-        # --BRT-- Incomplete, need a replacement for mechanize's password store
-        # --BRT-- requests.Session?
-        print "Creds are: ", creds
-        return
+        self._auth = requests.auth.HTTPBasicAuth(creds)
 
     def _get_creds(self):
-        # --BRT-- Incomplete, need a replacement for mechanize's password store
-        # --BRT-- requests.Session?
-        return
+        return self._auth
 
     def go(self, url):
         """
@@ -306,7 +303,7 @@ class TwillBrowser(object):
         if func_name == 'open':
             if self.result:
                 self._history.append(self.result)
-            r = self._session.get(*args, headers=self._headers)
+            r = self._session.get(*args, headers=self._headers, auth=self._auth)
             url = args[0] # r.get_url()
             self.result = ResultWrapper(r.status_code, url, r.text)
 
@@ -323,14 +320,22 @@ class TwillBrowser(object):
             self.result = ResultWrapper(r.status_code, url, r.text)
 
         elif func_name == 'reload':
-            r = self._session.get(self.result.get_url(), headers=self._headers)
+            r = self._session.get(
+                self.result.get_url(), 
+                headers=self._headers,
+                auth = self._auth
+            )
             url = self.result.get_url()
             self.result = ResultWrapper(r.status_code, url, r.text)
 
         elif func_name == 'back':
             try:
                 url = self._history.pop().get_url()
-                r = self._session.get(url, headers=self._headers)
+                r = self._session.get(
+                    url, 
+                    headers=self._headers, 
+                    auth=self._auth
+                )
                 self.result = ResultWrapper(r.status_code, url, r.text)
             except IndexError:
                 pass
