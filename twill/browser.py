@@ -87,9 +87,9 @@ class TwillBrowser(object):
             print>>OUT, '==> at', self.get_url()
         # --BRT-- Possibly broken? Seems to work better when else is commented
         # --BRT-- May be related to other not-yet-implemented functions
-        #else:
-        #    # Modified to use TwillException in place of BrowserStateError
-        #    raise TwillException("cannot go to '%s'" % (url,))
+        else:
+            # Modified to use TwillException in place of BrowserStateError
+            raise TwillException("cannot go to '%s'" % (url,))
 
     def reload(self):
         """
@@ -248,7 +248,6 @@ class TwillBrowser(object):
         """
         Save cookies into the given file.
         """
-        # --BRT-- Incomplete
         with open(filename, 'w') as f:
             pickle.dump(
                 requests.utils.dict_from_cookiejar(self._session.cookies),
@@ -259,22 +258,32 @@ class TwillBrowser(object):
         """
         Load cookies from the given file.
         """
+        # --BRT-- Adds to rather than overwriting cookies - correct?
         with open('somefile') as f:
-            c = requests.utils.cookiejar_from_dict(pickle.load(f))
+            c = requests.utils.add_dict_to_cookiejar(
+                self._session.cookies, 
+                pickle.load(f)
+            )
         self._session.cookies = c
 
     def clear_cookies(self):
         """
         Delete all of the cookies.
         """
-        # --BRT-- Incomplete
+        self._session.cookies.clear()
 
     def show_cookies(self):
         """
         Pretty-print all of the cookies.
         """
-        # --BRT-- Incomplete
-        return
+        # --BRT-- Format is different, site names not associated w/ cookies
+        c = requests.utils.dict_from_cookiejar(self._session.cookies)
+        print>>OUT, 'There are %d cookie(s) in the cookiejar.' % (len(c))
+        
+        if len(c):
+            for k,v in c.iteritems():
+                print>>OUT, k, '\t', v
+            print>>OUT, ''
 
     def _journey(self, func_name, *args, **kwargs):
         """
