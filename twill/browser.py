@@ -158,6 +158,19 @@ class TwillBrowser(object):
             return self.result.get_url()
         return None
 
+    # @BRT: For the broken link with a span in it, this appears to work
+    # @BRT: This significantly alters the showlinks() behavior for e.g. wiki
+    # Stolen shamelessly from 
+    # http://stackoverflow.com/questions/4624062/get-all-text-inside-a-tag-in-lxml
+    def _stringify_children(self, node):
+        from lxml.etree import tostring
+        from itertools import chain
+        parts = ([node.text] +
+                list(chain(*([c.text, tostring(c), c.tail] for c in node.getchildren()))) +
+                [node.tail])
+        # filter removes possible Nones in texts and tails
+        return ''.join(filter(None, parts))
+
     def find_link(self, pattern):
         """
         Find the first link with a URL, link text, or name matching the
@@ -165,7 +178,14 @@ class TwillBrowser(object):
         """
         doc = html.fromstring(self.result.get_page())
         selector = cssselect.CSSSelector("a")
-        links = [(l.text or '', l.get("href")) for l in selector(doc)]
+        #for l in selector(doc):
+        #    for c in l.getchildren():
+        #        print "Child text: ", (c.text,)
+            # print "Link children: ", (l.getnext(),)
+        links = [
+                 (self._stringify_children(l) or '', l.get("href")) 
+                 for l in selector(doc)
+                ]
         for link in links:
             if re.search(pattern, link[0]) or re.search(pattern, link[1]):
                 return link[1]
@@ -226,7 +246,10 @@ class TwillBrowser(object):
         # @BRT: New function for use in commands, showlinks function
         doc = html.fromstring(self.result.get_page())
         selector = cssselect.CSSSelector("a")
-        return iter([(l.text, l.get("href")) for l in selector(doc)])
+        return [
+                 (self._stringify_children(l) or '', l.get("href")) 
+                 for l in selector(doc)
+               ]
 
     def get_all_forms(self):
         """

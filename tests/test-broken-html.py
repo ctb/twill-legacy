@@ -3,8 +3,6 @@
 parser) can parse.
 """
 
-from _mechanize_dist import ClientForm
-
 import twilltestlib
 from twill import commands
 
@@ -105,6 +103,7 @@ def test_BeautifulSoup():
     commands.go('/tidy_fixable_html')
 
     forms = b.get_all_forms()
+    b.showforms()
     assert len(forms) == 0, \
            "there should be no correct forms on this page"
 
@@ -170,7 +169,8 @@ def test_effed_up_forms2():
     b = commands.get_browser()
     forms = b.get_all_forms()
     form = forms[0]
-    assert len(form.inputs) == 3, \
+    inputs = [i for i in form.inputs]
+    assert len(inputs) == 3, \
     "you must have 'tidy' installed for this test to pass"
 
     # with a more correct form parser this would work like the above.
@@ -178,4 +178,5 @@ def test_effed_up_forms2():
     commands.reload()
     forms = b.get_all_forms()
     form = forms[0]
-    assert len(form.inputs) == 1
+    inputs = [i for i in form.inputs]
+    assert len(inputs) == 1
