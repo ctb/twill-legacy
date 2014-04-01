@@ -73,7 +73,7 @@ back
 go ./
 code 200
 notfind "Your session ID is None"
-find "this is visit #2"
+find "this is visit #2" # @BRT: Currently gives visit #3
 
 # ok, cookies check out. now check login/access restricted.
 

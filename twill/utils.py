@@ -10,7 +10,6 @@ import base64
 
 import subprocess
 
-# @BRT: lxml in utils - worrying?
 from lxml import html
 
 from errors import TwillException

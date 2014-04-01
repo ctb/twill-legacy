@@ -456,12 +456,9 @@ Note: submit is using submit button: name="%s", value="%s"
         """
         Load cookies from the given file.
         """
-        # @BRT: Adds to rather than overwriting cookies - correct?
+        # @BRT: Overwrites cookies - correct?
         with open(filename) as f:
-            c = requests.utils.add_dict_to_cookiejar(
-                self._session.cookies, 
-                pickle.load(f)
-            )
+            c = requests.utils.cookiejar_from_dict(pickle.load(f))
         self._session.cookies = c
 
     def clear_cookies(self):

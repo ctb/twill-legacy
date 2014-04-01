@@ -641,7 +641,7 @@ def debug(what, level):
     print>>OUT, 'DEBUG: setting %s debugging to level %d' % (what, level)
     
     if what == "http":
-        # @BRT: Tries to set mechanize browser debug level directly, alternative?
+        # @BRT: Tries to set mechanize browser debug level directly
         # browser._browser.set_debug_http(level)
         pass
     elif what == 'equiv-refresh':
