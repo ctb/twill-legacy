@@ -543,7 +543,7 @@ Note: submit is using submit button: name="%s", value="%s"
             url = args[0]
             if self.result is not None:
                 self._history.append(self.result)
-            self.result = ResultWrapper(r.status_code, r.url, r.text)
+            self.result = ResultWrapper(r.status_code, r.url, r.text, r.headers)
 
         elif func_name == 'follow_link':
             # Try to find the link first
@@ -556,7 +556,7 @@ Note: submit is using submit button: name="%s", value="%s"
                 r = self._follow_redirections(r, self._session)
             if self.result is not None:
                 self._history.append(self.result)
-            self.result = ResultWrapper(r.status_code, r.url, r.text)
+            self.result = ResultWrapper(r.status_code, r.url, r.text, r.headers)
 
         elif func_name == 'reload':
             print "Reloading url: ", self.get_url()
@@ -567,7 +567,7 @@ Note: submit is using submit button: name="%s", value="%s"
                 )
             if _follow_equiv_refresh():
                 r = self._follow_redirections(r, self._session)
-            self.result = ResultWrapper(r.status_code, r.url, r.text)
+            self.result = ResultWrapper(r.status_code, r.url, r.text, r.headers)
 
         elif func_name == 'back':
             try:
@@ -577,7 +577,12 @@ Note: submit is using submit button: name="%s", value="%s"
                     headers=self._headers, 
                     auth=self._auth
                 )
-                self.result = ResultWrapper(r.status_code, r.url, r.text)
+                self.result = ResultWrapper(
+                                            r.status_code, 
+                                            r.url, 
+                                            r.text, 
+                                            r.headers
+                                           )
             except IndexError:
                 # self.result = None
                 pass
