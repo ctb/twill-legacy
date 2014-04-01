@@ -484,6 +484,8 @@ Note: submit is using submit button: name="%s", value="%s"
     # @BRT: Added to test for meta redirection
     # @BRT: Shamelessly stolen from http://stackoverflow.com/questions/2318446/how-to-follow-meta-refreshes-in-python
     #       Took some modification to get it working, though
+    #       Original post notes that this doesn't check circular redirect
+    #       Is this something we're concerned with?
     def _test_for_meta_redirections(self, r):
         """
         Checks a document for meta redirection
