@@ -481,27 +481,31 @@ Note: submit is using submit button: name="%s", value="%s"
 
             print>>OUT, ''
 
-    # @BRT: Added to test for meta redirection, currently broken
+    # @BRT: Added to test for meta redirection
     # @BRT: Shamelessly stolen from http://stackoverflow.com/questions/2318446/how-to-follow-meta-refreshes-in-python
-    def _test_for_meta_redirections(r):
+    #       Took some modification to get it working, though
+    def _test_for_meta_redirections(self, r):
         """
         Checks a document for meta redirection
         """
         html_tree = html.fromstring(r.text)
-        attr = html_tree.xpath("//meta[translate(@http-equiv, 'REFSH', 'refsh') = 'refresh']/@content")[0]
-        wait, text = attr.split(";")
-        if text.lower().startswith("url="):
-            url = text[4:]
-            if not url.startswith('http'):
-                # Relative URL, adapt
-                url = urljoin(r.url, url)
-                return True, url
-        else:
-            return False, None
+        attr = html_tree.xpath(
+        "//meta[translate(@http-equiv, 'REFSH', 'refsh') = 'refresh']/@content"
+                )
+        if len(attr) > 0:
+            wait, text = attr[0].split(";")
+            text = text.lstrip()
+            if text.lower().startswith("url="):
+                url = text[4:]
+                if not url.startswith('http'):
+                    # Relative URL, adapt
+                    url = urlparse.urljoin(r.url, url)
+                    return True, url
+        return False, None
 
-    # @BRT: Added to test for meta redirection, currently broken
+    # @BRT: Added to test for meta redirection
     # @BRT: Shamelessly stolen from http://stackoverflow.com/questions/2318446/how-to-follow-meta-refreshes-in-python
-    def _follow_redirections(r, s):
+    def _follow_redirections(self, r, s):
         """
         Recursive function that follows meta refresh redirections if they exist.
         """
@@ -522,16 +526,15 @@ Note: submit is using submit button: name="%s", value="%s"
         
         (Idea stolen straight from PBP.)
         """
-        # @BRT: Way too many pages ending up in history. Figure out why.
         self.last_submit_button = None
 
         if func_name == 'open':
             r = self._session.get(*args, headers=self._headers, auth=self._auth)
-            # r = self._follow_redirections(self._session, r)
+            r = self._follow_redirections(r, self._session)
             url = args[0]
             if self.result is not None:
                 self._history.append(self.result)
-            self.result = ResultWrapper(r.status_code, url, r.text)
+            self.result = ResultWrapper(r.status_code, r.url, r.text)
 
         elif func_name == 'follow_link':
             # @BRT: Try to find the link first, same as mechanize behavior?
@@ -540,10 +543,10 @@ Note: submit is using submit button: name="%s", value="%s"
                 url = urlparse.urljoin(self.get_url(), url)
             print "Following url: ", url
             r = self._session.get(url, headers=self._headers)
-            # r = self._follow_redirections(self._session, r)
+            r = self._follow_redirections(r, self._session)
             if self.result is not None:
                 self._history.append(self.result)
-            self.result = ResultWrapper(r.status_code, url, r.text)
+            self.result = ResultWrapper(r.status_code, r.url, r.text)
 
         elif func_name == 'reload':
             print "Reloading url: ", self.get_url()
