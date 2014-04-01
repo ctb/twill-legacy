@@ -430,7 +430,7 @@ def formvalue(formname, fieldname, value):
     control = browser.get_form_field(form, fieldname)
 
     browser.clicked(form, control)
-    if 'readonly' in control.attrib.keys() and \
+    if 'readonly' in control.attrib.keys() and
         _options['readonly_controls_writeable']:
         print>>OUT, 'forcing read-only form field to writeable'
         del control.attrib['readonly']

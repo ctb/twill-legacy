@@ -359,8 +359,9 @@ hello, world.
             
         if request.form and request.form.has_key('selecttest'):
             vals = request.form['selecttest']
-
-            if isinstance(vals, str):
+            print "Vals is type: ", (type(vals), vals)
+            # @BRT: Used to be just str. Convert unicode to str?
+            if isinstance(vals, str) or isinstance(vals,unicode):
                 vals = [vals,]
 
             s += "SELECTTEST: ==%s==<p>" % " AND ".join(vals,)
