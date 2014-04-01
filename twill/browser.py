@@ -27,9 +27,6 @@ class TwillBrowser(object):
         # create special link/forms parsing code to run tidy on HTML first.
         #
 
-        # @BRT: This is mechanize. Remove it? Or rewrite it?
-        #factory = ConfigurableParsingFactory()
-
         self.result = None
         self.last_submit_button = None
 
@@ -70,10 +67,8 @@ class TwillBrowser(object):
             full_url = 'http://%s' % (url,)  # mimic browser behavior
             try_urls.append(full_url)
 
-        # if this is a '?' URL, then assume that we want to tack it onto
+        # if this is a '?' or '/' URL, then assume that we want to tack it onto
         # the end of the current URL.
-
-        # @BRT: urls beginning with / need to be special-cased now
         try_urls.append(urlparse.urljoin(self.get_url(), url))
         
         success = False
@@ -142,8 +137,8 @@ class TwillBrowser(object):
             return self.result.get_url()
         return None
 
-    # @BRT: For the broken link with a span in it, this appears to work
-    # @BRT: This significantly alters the showlinks() behavior for e.g. wiki
+    # @BRT: For the test with a broken link with a span in it, this works
+    # @BRT: This significantly alters the showlinks() behavior - e.g. wikipedia
     # Stolen shamelessly from 
     # http://stackoverflow.com/questions/4624062/get-all-text-inside-a-tag-in-lxml
     def _stringify_children(self, node):
@@ -354,6 +349,7 @@ class TwillBrowser(object):
         """
         Record a 'click' in a specific form.
         """
+        # @BRT: This function needs a major rewrite
         if self._form != form:
             # construct a function to choose a particular form; select_form
             # can use this to pick out a precise form.
@@ -379,7 +375,7 @@ class TwillBrowser(object):
         
         ctl = None
         
-        # @BRT: Until I figure out what else form could be, it is None
+        # @BRT: Until I figure out what form is supposed to be
         form = None
         if form is None:
             forms = self.get_all_forms()
@@ -444,7 +440,6 @@ Note: submit is using submit button: name="%s", value="%s"
         # now actually GO.
         #
         
-        # @BRT Refactor above, can't go anywhere until submit btn is found
         # self._journey('open', request)
 
     def save_cookies(self, filename):
@@ -461,9 +456,10 @@ Note: submit is using submit button: name="%s", value="%s"
         """
         Load cookies from the given file.
         """
-        # @BRT: Overwrites cookies - correct? Or add to existing cookies?
+        # Mechanize seems to add, not overwrite, so that's what is done here
         with open(filename) as f:
-            c = requests.utils.cookiejar_from_dict(pickle.load(f))
+            c = requests.utils.add_dict_to_cookiejar(self._session.cookies,
+                                                     pickle.load(f))
         self._session.cookies = c
 
     def clear_cookies(self):
@@ -476,7 +472,6 @@ Note: submit is using submit button: name="%s", value="%s"
         """
         Pretty-print all of the cookies.
         """
-        # @BRT: show_cookies is the only show w/ underscore syntax - why?
         c = requests.utils.dict_from_cookiejar(self._session.cookies)
         print>>OUT, 'There are %d cookie(s) in the cookiejar.\n' % (len(c))
         
@@ -487,7 +482,8 @@ Note: submit is using submit button: name="%s", value="%s"
             print>>OUT, ''
 
     # @BRT: Added to test for meta redirection
-    # @BRT: Shamelessly stolen from http://stackoverflow.com/questions/2318446/how-to-follow-meta-refreshes-in-python
+    #       Shamelessly stolen from 
+    #       http://stackoverflow.com/questions/2318446/how-to-follow-meta-refreshes-in-python
     #       Took some modification to get it working, though
     #       Original post notes that this doesn't check circular redirect
     #       Is this something we're concerned with?
@@ -502,6 +498,7 @@ Note: submit is using submit button: name="%s", value="%s"
         if len(attr) > 0:
             wait, text = attr[0].split(";")
             # @BRT: Strip surrounding quotes and ws; less brute force method?
+            #       Other chars that need to be dealt with?
             text = text.strip()
             text = text.strip('\'"')
             print "Checking url: ", text.lower()
@@ -515,7 +512,7 @@ Note: submit is using submit button: name="%s", value="%s"
         return False, None
 
     # @BRT: Added to test for meta redirection
-    # @BRT: Shamelessly stolen from http://stackoverflow.com/questions/2318446/how-to-follow-meta-refreshes-in-python
+    # Shamelessly stolen from the same link as _test_for_meta_redirections
     def _follow_redirections(self, r, s):
         """
         Recursive function that follows meta refresh redirections if they exist.
@@ -549,7 +546,7 @@ Note: submit is using submit button: name="%s", value="%s"
             self.result = ResultWrapper(r.status_code, r.url, r.text)
 
         elif func_name == 'follow_link':
-            # @BRT: Try to find the link first, same as mechanize behavior?
+            # Try to find the link first
             url = self.find_link(args[0])
             if url.find('://') == -1:
                 url = urlparse.urljoin(self.get_url(), url)

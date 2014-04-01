@@ -138,7 +138,6 @@ def test_allow_parse_errors():
 
     commands.go('/unfixable_html')
     # @BRT: Why do we just call this function? any reason?
-    # b._browser.forms()
     b.get_all_forms()
 
 def test_global_form():
@@ -152,7 +151,7 @@ def test_global_form():
     commands.go('/effed_up_forms')
     forms = b.get_all_forms()
     assert len(forms) == 1
-    # @BRT: Tries to use mechanize golbal_form, lxml equivalent?
+    # @BRT: Tries to use mechanize global_form, lxml equivalent?
     # assert b._browser.global_form()
 
 def test_effed_up_forms2():

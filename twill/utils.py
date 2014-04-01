@@ -58,8 +58,7 @@ def print_form(n, f, OUT):
     else:
         print>>OUT, '\nForm #%d' % (n + 1,)
 
-    # @BRT: lxml inputs same as mechanize controls?
-    if f.inputs:
+    if f.inputs is not None:
         print>>OUT, "## ## __Name__________________ __Type___ __ID________ __Value__________________"
 
     submit_indices = {}
@@ -74,7 +73,6 @@ def print_form(n, f, OUT):
     # nonclickies = [c for c in f.controls if c not in clickies]
 
     for n, field in enumerate(f.inputs):
-        # @BRT: lxml 'value_options' same as mechanize 'items'?
         if hasattr(field, 'value_options'):
             items = [ i.name if hasattr(i, 'name') else i 
                         for i in field.value_options ]
@@ -154,7 +152,6 @@ def set_form_control_value(control, val):
     Helper function to deal with setting form values on checkboxes, lists etc.
     """
     # @BRT: This whole function needs a re-write to use lxml forms instead of mech
-    # if isinstance(control, ClientForm.CheckboxControl):
     if hasattr(control, 'checkable') and control.checkable:
         try:
             # checkbox = control.get()
@@ -468,7 +465,7 @@ class HistoryStack(mechanize._mechanize.History):
 def _is_valid_filename(f):
     return not (f.endswith('~') or f.endswith('.bak') or f.endswith('.old'))
 
-# @BRT Added to know whether to follow equiv refreshes in browser
+# @BRT Added so browser can ask whether to follow meta redirects
 def _follow_equiv_refresh():
     from twill.commands import _options
     return _options.get('acknowledge_equiv_refresh')

@@ -435,15 +435,12 @@ def formvalue(formname, fieldname, value):
         print>>OUT, 'forcing read-only form field to writeable'
         del control.attrib['readonly']
         
-    # @BRT: Find lxml replacement for IgnoreControl
-    elif 'readonly' in control.attrib.keys(): # or \
-        # isinstance(control, ClientForm.IgnoreControl):
+    elif 'readonly' in control.attrib.keys() or control.type == 'file':
         print>>OUT, 'form field is read-only or ignorable; nothing done.'
         return
 
-    # @BRT: Find a way to do FileControl in lxml
-    # if isinstance(control, ClientForm.FileControl):
-    #    raise TwillException('form field is for file upload; use "formfile" instead')
+    if control.type == 'file':
+        raise TwillException('form field is for file upload; use "formfile" instead')
 
     set_form_control_value(control, value)
 
@@ -871,9 +868,8 @@ def info():
         print "We're not on a page!"
         return
     
-    # @BRT: Tries to use mechanize for content type, need to find an alternate
-    content_type = None # browser._browser._response.info().getheaders("content-type")
-    # @BRT: is_html uses the mechanize based factoris in utils; rewrite
+    content_type = r.headers['content-type']
+    # @BRT: is_html uses the mechanize based factories in utils; rewrite
     check_html = None # is_html(content_type, current_url)
 
     code = browser.get_code()
@@ -882,8 +878,7 @@ def info():
     print >>OUT, '\nPage information:'
     print >>OUT, '\tURL:', current_url
     print >>OUT, '\tHTTP code:', code
-    # @BRT: Commented until content type is available
-    print >>OUT, '\tContent type:'#, content_type[0],
+    print >>OUT, '\tContent type:', content_type,
     if check_html:
         print >>OUT, '(HTML)'
     else:

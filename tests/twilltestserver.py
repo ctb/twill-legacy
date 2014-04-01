@@ -497,7 +497,7 @@ hello, world.
         return "hello, world"
 
     def echo(self):
-        # @BRT: This used to return an empty string
+        # @BRT: This used to return empty string, seems to hang requests
         #       Is this useful behavior? Should it be maintained?
         #       Seemed to cause problems both for requests and google chrome
         request = get_request()
