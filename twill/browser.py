@@ -17,7 +17,7 @@ from lxml import etree, html, cssselect
 # Will need at least some of these
 # from utils import print_form, ConfigurableParsingFactory, \
 #     ResultWrapper, unique_match
-from utils import print_form, ResultWrapper, unique_match
+from utils import print_form, ResultWrapper, unique_match, _follow_equiv_refresh
 from errors import TwillException
 
 class TwillBrowser(object):
@@ -494,9 +494,13 @@ Note: submit is using submit button: name="%s", value="%s"
                 )
         if len(attr) > 0:
             wait, text = attr[0].split(";")
-            text = text.lstrip()
+            # @BRT: Strip surrounding quotes and ws; less brute force method?
+            text = text.strip()
+            text = text.strip('\'"')
+            print "Checking url: ", text.lower()
             if text.lower().startswith("url="):
                 url = text[4:]
+                print "URL is: ", url
                 if not url.startswith('http'):
                     # Relative URL, adapt
                     url = urlparse.urljoin(r.url, url)
@@ -530,7 +534,8 @@ Note: submit is using submit button: name="%s", value="%s"
 
         if func_name == 'open':
             r = self._session.get(*args, headers=self._headers, auth=self._auth)
-            r = self._follow_redirections(r, self._session)
+            if _follow_equiv_refresh():
+                r = self._follow_redirections(r, self._session)
             url = args[0]
             if self.result is not None:
                 self._history.append(self.result)
@@ -543,7 +548,8 @@ Note: submit is using submit button: name="%s", value="%s"
                 url = urlparse.urljoin(self.get_url(), url)
             print "Following url: ", url
             r = self._session.get(url, headers=self._headers)
-            r = self._follow_redirections(r, self._session)
+            if _follow_equiv_refresh():
+                r = self._follow_redirections(r, self._session)
             if self.result is not None:
                 self._history.append(self.result)
             self.result = ResultWrapper(r.status_code, r.url, r.text)
@@ -555,8 +561,9 @@ Note: submit is using submit button: name="%s", value="%s"
                     headers=self._headers,
                     auth = self._auth
                 )
-            url = self.result.get_url()
-            self.result = ResultWrapper(r.status_code, url, r.text)
+            if _follow_equiv_refresh():
+                r = self._follow_redirections(r, self._session)
+            self.result = ResultWrapper(r.status_code, r.url, r.text)
 
         elif func_name == 'back':
             try:
@@ -566,7 +573,7 @@ Note: submit is using submit button: name="%s", value="%s"
                     headers=self._headers, 
                     auth=self._auth
                 )
-                self.result = ResultWrapper(r.status_code, url, r.text)
+                self.result = ResultWrapper(r.status_code, r.url, r.text)
             except IndexError:
                 # self.result = None
                 pass

@@ -468,6 +468,11 @@ class HistoryStack(mechanize._mechanize.History):
 def _is_valid_filename(f):
     return not (f.endswith('~') or f.endswith('.bak') or f.endswith('.old'))
 
+# @BRT Added to know whether to follow equiv refreshes in browser
+def _follow_equiv_refresh():
+    from twill.commands import _options
+    return _options.get('acknowledge_equiv_refresh')
+
 def gather_filenames(arglist):
     """
     Collect script files from within directories.
