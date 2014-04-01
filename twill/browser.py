@@ -38,8 +38,8 @@ class TwillBrowser(object):
 
         self._headers = dict([("Accept", "text/html; */*")])
 
-        # @BRT It appears this will replace ._browser.form
         # An lxml FormElement, none until a form is selected
+        # replaces self._browser.form from mechanize
         self._form = None
 
         # An HTTPBasicAuth from requests, None until creds added
@@ -74,20 +74,6 @@ class TwillBrowser(object):
         # the end of the current URL.
 
         # @BRT: urls beginning with / need to be special-cased now
-        """if(url.startswith('/')):
-            u = self.get_url()
-            prefix = u[:u.find('://')+3]
-            base_url = u.split('/')[2]
-            print>>OUT, "New url: ", prefix+base_url+url
-            # @BRT: This seems to be causing a hang in the tests
-            # Above debug print produces sane results, not sure what's up here?
-            try_urls.append(prefix+base_url+url)
-        
-        if url.startswith('?'):
-            current_url = self.get_url()
-            current_url = current_url.split('?')[0]
-            try_urls = [ current_url + url, ]"""
-        # @BRT: Try to do both cases (? and /) with urljoin
         try_urls.append(urlparse.urljoin(self.get_url(), url))
         
         success = False
@@ -102,8 +88,6 @@ class TwillBrowser(object):
 
         if success:
             print>>OUT, '==> at', self.get_url()
-        # @BRT: Possibly broken? Seems to work better when else is commented
-        #      May be related to other not-yet-implemented functions
         else:
             # Modified to use TwillException in place of BrowserStateError
             raise TwillException("cannot go to '%s'" % (url,))
@@ -232,8 +216,7 @@ class TwillBrowser(object):
         print>>OUT, 'History: (%d pages total) ' % (len(self._history))
         n = 1
         for page in self._history:
-            # @BRT: confirm that this is the intended logic of below comment
-            # if page.get_http_code() == 200:
+            # @BRT: Implement below comment?
             # only print those that back() will go
             print>>OUT, "\t%d. %s" % (n, page.get_url())
             n += 1
@@ -266,7 +249,6 @@ class TwillBrowser(object):
         """
         Return the first form that matches 'formname'.
         """
-        # @BRT: Returns an lxml FormElement where old code may expect mechanize
         forms = self.get_all_forms()
 
         # first try ID
@@ -479,7 +461,7 @@ Note: submit is using submit button: name="%s", value="%s"
         """
         Load cookies from the given file.
         """
-        # @BRT: Overwrites cookies - correct?
+        # @BRT: Overwrites cookies - correct? Or add to existing cookies?
         with open(filename) as f:
             c = requests.utils.cookiejar_from_dict(pickle.load(f))
         self._session.cookies = c
