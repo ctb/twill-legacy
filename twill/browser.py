@@ -481,6 +481,35 @@ Note: submit is using submit button: name="%s", value="%s"
 
             print>>OUT, ''
 
+    # @BRT: Added to test for meta redirection, currently broken
+    # @BRT: Shamelessly stolen from http://stackoverflow.com/questions/2318446/how-to-follow-meta-refreshes-in-python
+    def _test_for_meta_redirections(r):
+        """
+        Checks a document for meta redirection
+        """
+        html_tree = html.fromstring(r.text)
+        attr = html_tree.xpath("//meta[translate(@http-equiv, 'REFSH', 'refsh') = 'refresh']/@content")[0]
+        wait, text = attr.split(";")
+        if text.lower().startswith("url="):
+            url = text[4:]
+            if not url.startswith('http'):
+                # Relative URL, adapt
+                url = urljoin(r.url, url)
+                return True, url
+        else:
+            return False, None
+
+    # @BRT: Added to test for meta redirection, currently broken
+    # @BRT: Shamelessly stolen from http://stackoverflow.com/questions/2318446/how-to-follow-meta-refreshes-in-python
+    def _follow_redirections(r, s):
+        """
+        Recursive function that follows meta refresh redirections if they exist.
+        """
+        redirected, url = self._test_for_meta_redirections(r)
+        if redirected:
+            r = self._follow_redirections(s.get(url), s)
+        return r
+
     def _journey(self, func_name, *args, **kwargs):
         """
         'func_name' should be one of 'open', 'reload', 'back', or 'follow_link'.
@@ -498,7 +527,8 @@ Note: submit is using submit button: name="%s", value="%s"
 
         if func_name == 'open':
             r = self._session.get(*args, headers=self._headers, auth=self._auth)
-            url = args[0] # r.get_url()
+            # r = self._follow_redirections(self._session, r)
+            url = args[0]
             if self.result is not None:
                 self._history.append(self.result)
             self.result = ResultWrapper(r.status_code, url, r.text)
@@ -510,8 +540,7 @@ Note: submit is using submit button: name="%s", value="%s"
                 url = urlparse.urljoin(self.get_url(), url)
             print "Following url: ", url
             r = self._session.get(url, headers=self._headers)
-            # url = r.get_url()
-            # url = args[0]
+            # r = self._follow_redirections(self._session, r)
             if self.result is not None:
                 self._history.append(self.result)
             self.result = ResultWrapper(r.status_code, url, r.text)
