@@ -81,7 +81,8 @@ def process_args(args, globals_dict, locals_dict):
 
             print '*** VAL IS', val, 'FOR', arg
             
-            if isinstance(val, str):
+            # @BRT: Added unicode as a type to not split up; convert to str?
+            if isinstance(val, str) or isinstance(val, unicode):
                 newargs.append(val)
             else:
                 newargs.extend(val)
@@ -113,7 +114,6 @@ def execute_command(cmd, args, globals_dict, locals_dict, cmdinfo):
     # execute command.
     locals_dict['__cmd__'] = cmd
     locals_dict['__args__'] = args
-
     if cmd not in command_list:
         raise TwillNameError("unknown twill command: '%s'" % (cmd,))
 
