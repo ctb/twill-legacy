@@ -5,7 +5,9 @@ WSGI application.
 
 Use 'add_wsgi_intercept' and 'remove_wsgi_intercept' to control this behavior.
 """
-
+# @BRT: This currently uses an HTTPHandler
+#       which is great, except that there's no obvious way 
+#       to integrate one with requests
 import sys
 from httplib import HTTPConnection
 import urllib
