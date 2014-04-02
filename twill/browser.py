@@ -49,8 +49,8 @@ class TwillBrowser(object):
         # replaces self._browser.form from mechanize
         self._form = None
 
-        # An HTTPBasicAuth from requests, None until creds added
-        self._auth = None
+        # An HTTPBasicAuth from requests, empty until creds added
+        self._auth = {}
 
         # callables to be called after each page load.
         self._post_load_hooks = []
@@ -58,7 +58,8 @@ class TwillBrowser(object):
         self._history = []
 
     def _set_creds(self, creds):
-        self._auth = requests.auth.HTTPBasicAuth(creds)
+        print "Setting creds: ", creds
+        self._auth[creds[0]] = requests.auth.HTTPBasicAuth(*creds[1])
 
     def _get_creds(self):
         return self._auth
@@ -546,55 +547,42 @@ Note: submit is using submit button: name="%s", value="%s"
         self.last_submit_button = None
 
         if func_name == 'open':
-            r = self._session.get(*args, headers=self._headers, auth=self._auth)
-            if _follow_equiv_refresh():
-                r = self._follow_redirections(r, self._session)
             url = args[0]
-            if self.result is not None:
-                self._history.append(self.result)
-            self.result = ResultWrapper(r.status_code, r.url, r.text, r.headers)
 
         elif func_name == 'follow_link':
             # Try to find the link first
             url = self.find_link(args[0])
             if url.find('://') == -1:
                 url = urlparse.urljoin(self.get_url(), url)
-            print "Following url: ", url
-            r = self._session.get(url, headers=self._headers)
-            if _follow_equiv_refresh():
-                r = self._follow_redirections(r, self._session)
-            if self.result is not None:
-                self._history.append(self.result)
-            self.result = ResultWrapper(r.status_code, r.url, r.text, r.headers)
 
         elif func_name == 'reload':
-            print "Reloading url: ", self.get_url()
-            r = self._session.get(
-                    self.get_url(), 
-                    headers=self._headers,
-                    auth = self._auth
-                )
-            if _follow_equiv_refresh():
-                r = self._follow_redirections(r, self._session)
-            self.result = ResultWrapper(r.status_code, r.url, r.text, r.headers)
+            url = self.get_url()
 
         elif func_name == 'back':
             try:
                 url = self._history.pop().get_url()
-                r = self._session.get(
-                    url, 
-                    headers=self._headers, 
-                    auth=self._auth
-                )
-                self.result = ResultWrapper(
-                                            r.status_code, 
-                                            r.url, 
-                                            r.text, 
-                                            r.headers
-                                           )
             except IndexError:
-                # self.result = None
-                pass
+                return
 
+        # @BRT: This does basic auth, but ignores realm; based on URI only
+        if url in self._auth.keys():
+            print "Using auth!"
+            auth = self._auth[url]
         else:
-            self.result = None
+            print "url not in auth: ", (url,)
+            auth = None
+
+        r = self._session.get(
+                url, 
+                headers=self._headers,
+                auth = auth
+            )
+
+        if _follow_equiv_refresh():
+            r = self._follow_redirections(r, self._session)
+
+        if func_name in ['follow_link', 'open']:
+            if self.result is not None:
+                self._history.append(self.result)
+
+        self.result = ResultWrapper(r.status_code, r.url, r.text, r.headers)

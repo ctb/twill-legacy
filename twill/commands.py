@@ -594,6 +594,7 @@ def add_auth(realm, uri, user, passwd):
         realm = None
 
         # @BRT: This will need to be rewritten not to use mechanize auth
+        browser._set_creds((uri,(user,passwd)))
         '''if browser.creds.__class__ == mechanize.HTTPPasswordMgr:
             passwds = browser.creds.passwd
             browser.creds = mechanize.HTTPPasswordMgrWithDefaultRealm()
@@ -608,7 +609,8 @@ def add_auth(realm, uri, user, passwd):
             print>>OUT, 'Changed to using HTTPPasswordMgr'''
         pass
 
-    # @BRT: Browser does not currently support per-realm creds; add?
+    # @BRT: Browser does not currently support realm; just add by URI for now
+    browser._set_creds((uri,(user,passwd)))
     # browser.creds.add_password(realm, uri, user, passwd)
 
     print>>OUT, "Added auth info: realm '%s' / URI '%s' / user '%s'" % (realm,

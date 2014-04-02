@@ -326,7 +326,6 @@ class WSGI_HTTPConnection(HTTPConnection):
         Override the connect() function to intercept calls to certain
         host/ports.
         """
-        print "Trying a connect with WSGI intercept"
         if debuglevel:
             sys.stderr.write('connect: %s, %s\n' % (self.host, self.port,))
                              
