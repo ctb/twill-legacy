@@ -57,6 +57,7 @@ class TwillBrowser(object):
 
         self._history = []
 
+    # @BRT: Removed the property() from old browser, auth realm not implemented
     def _set_creds(self, creds):
         self._auth[creds[0]] = requests.auth.HTTPBasicAuth(*creds[1])
 
