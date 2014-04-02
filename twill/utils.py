@@ -469,7 +469,7 @@ class HistoryStack(mechanize._mechanize.History):
 def _is_valid_filename(f):
     return not (f.endswith('~') or f.endswith('.bak') or f.endswith('.old'))
 
-# @BRT Added so browser can ask whether to follow meta redirects
+# Added so browser can ask whether to follow meta redirects
 def _follow_equiv_refresh():
     from twill.commands import _options
     return _options.get('acknowledge_equiv_refresh')

@@ -195,7 +195,7 @@ class TwillBrowser(object):
         Pretty-print all of the forms.  Include the global form (form
         elements outside of <form> pairs) as forms[0] iff present.
         """
-        # @BRT: Does lxml follow golbal_form @ index 0 behavior from docstring?
+        # @BRT: lxml does not follow golbal_form @ index 0 behavior (docstring)
         forms = self.get_all_forms()
         for n, f in enumerate(forms):
             print_form(n, f, OUT)
@@ -227,7 +227,6 @@ class TwillBrowser(object):
         """
         Return a list of all of the links on the page
         """
-        # @BRT: New function for use in commands, showlinks function
         doc = html.fromstring(self.result.get_page())
         selector = cssselect.CSSSelector("a")
         return [
@@ -240,8 +239,7 @@ class TwillBrowser(object):
         Return a list of all of the forms, with global_form at index 0
         iff present.
         """
-        # @BRT: Does lxml follow golbal_form @ index 0 behavior from docstring?
-        #       Does not appear to
+        # @BRT: lxml does not follow golbal_form @ index 0 behavior (docstring)
         if self.result is not None:
             doc = html.fromstring(self.result.get_page())
             return doc.forms
@@ -268,15 +266,11 @@ class TwillBrowser(object):
         # ok, try number
         try:
             formnum = int(formname)
-            # @BRT: Does lxml follow golbal_form @ index 0 behavior?
-            #      Otherwise, change conditional to >= 0
+            # @BRT: lxml does not follow golbal_form @ index 0 behavior
             if formnum >= 1 and formnum <= len(forms):
                 return forms[formnum - 1]
-        except ValueError:              # int() failed
-            pass
-        except IndexError:              # formnum was incorrect
-            pass
-        return None
+        except (ValueError, IndexError):              # int() failed
+            return None
 
 
     def get_form_field(self, form, fieldname):
@@ -333,7 +327,6 @@ class TwillBrowser(object):
                     found_multiple = True # record for error
 
         if found is None:
-            # @BRT: better way to check for readonly?
             # try value, for readonly controls like submit keys
             clickies = [ c for c in form.inputs if c.value == fieldname
                          and 'readonly' in c.attrib.keys()]
