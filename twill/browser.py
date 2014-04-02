@@ -58,7 +58,6 @@ class TwillBrowser(object):
         self._history = []
 
     def _set_creds(self, creds):
-        print "Setting creds: ", creds
         self._auth[creds[0]] = requests.auth.HTTPBasicAuth(*creds[1])
 
     def _get_creds(self):
@@ -167,10 +166,7 @@ class TwillBrowser(object):
         """
         doc = html.fromstring(self.result.get_page())
         selector = cssselect.CSSSelector("a")
-        #for l in selector(doc):
-        #    for c in l.getchildren():
-        #        print "Child text: ", (c.text,)
-            # print "Link children: ", (l.getnext(),)
+
         links = [
                  (self._stringify_children(l) or '', l.get("href")) 
                  for l in selector(doc)
@@ -511,10 +507,8 @@ Note: submit is using submit button: name="%s", value="%s"
             #       Other chars that need to be dealt with?
             text = text.strip()
             text = text.strip('\'"')
-            print "Checking url: ", text.lower()
             if text.lower().startswith("url="):
                 url = text[4:]
-                print "URL is: ", url
                 if not url.startswith('http'):
                     # Relative URL, adapt
                     url = urlparse.urljoin(r.url, url)
@@ -566,10 +560,8 @@ Note: submit is using submit button: name="%s", value="%s"
 
         # @BRT: This does basic auth, but ignores realm; based on URI only
         if url in self._auth.keys():
-            print "Using auth!"
             auth = self._auth[url]
         else:
-            print "url not in auth: ", (url,)
             auth = None
 
         r = self._session.get(

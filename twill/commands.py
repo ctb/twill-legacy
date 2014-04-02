@@ -440,7 +440,9 @@ def formvalue(formname, fieldname, value):
         return
 
     if control.type == 'file':
-        raise TwillException('form field is for file upload; use "formfile" instead')
+        raise TwillException(
+                    'form field is for file upload; use "formfile" instead'
+                )
 
     set_form_control_value(control, value)
 
@@ -592,25 +594,13 @@ def add_auth(realm, uri, user, passwd):
     # is on or not.
     if _options['with_default_realm']:
         realm = None
-
-        # @BRT: This will need to be rewritten not to use mechanize auth
         browser._set_creds((uri,(user,passwd)))
-        '''if browser.creds.__class__ == mechanize.HTTPPasswordMgr:
-            passwds = browser.creds.passwd
-            browser.creds = mechanize.HTTPPasswordMgrWithDefaultRealm()
-            browser.creds.passwd = passwds
-            print>>OUT, 'Changed to using HTTPPasswordMgrWithDefaultRealm'''
+    
     else:
-        # @BRT: This will need to be rewritten not to use mechanize auth
-        '''if browser.creds.__class__ == mechanize.HTTPPasswordMgrWithDefaultRealm:
-            passwds = browser.creds.passwd
-            browser.creds = mechanize.HTTPPasswordMgr()
-            browser.creds.passwd = passwds
-            print>>OUT, 'Changed to using HTTPPasswordMgr'''
         pass
 
     # @BRT: Browser does not currently support realm; just add by URI for now
-    browser._set_creds((uri,(user,passwd)))
+    browser._set_creds((uri, (user, passwd)))
     # browser.creds.add_password(realm, uri, user, passwd)
 
     print>>OUT, "Added auth info: realm '%s' / URI '%s' / user '%s'" % (realm,
