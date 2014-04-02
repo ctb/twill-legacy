@@ -65,6 +65,8 @@ notfind 'this is visit #2'
 # yep!  all right. load cookies, check that.
 load_cookies 'test-basic.cookies'
 
+showhistory # @BRT: for debug
+
 back
 back
 back
@@ -73,7 +75,8 @@ back
 go ./
 code 200
 notfind "Your session ID is None"
-find "this is visit #2" # @BRT: Currently gives visit #3
+show
+find "this is visit #2"
 
 # ok, cookies check out. now check login/access restricted.
 

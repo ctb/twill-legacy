@@ -13,10 +13,6 @@ import urlparse
 import requests
 from requests.exceptions import InvalidSchema, ConnectionError
 from lxml import etree, html, cssselect
-
-# Will need at least some of these
-# from utils import print_form, ConfigurableParsingFactory, \
-#     ResultWrapper, unique_match
 from utils import print_form, ResultWrapper, unique_match, _follow_equiv_refresh
 from errors import TwillException
 
@@ -49,7 +45,7 @@ class TwillBrowser(object):
         # replaces self._browser.form from mechanize
         self._form = None
 
-        # An HTTPBasicAuth from requests, empty until creds added
+        # A dict of HTTPBasicAuth from requests, keyed off URL
         self._auth = {}
 
         # callables to be called after each page load.
@@ -72,7 +68,6 @@ class TwillBrowser(object):
 
         # if this is an absolute URL that is just missing the 'http://' at
         # the beginning, try fixing that.
-        
         if url.find('://') == -1:
             full_url = 'http://%s' % (url,)  # mimic browser behavior
             try_urls.append(full_url)
@@ -87,14 +82,14 @@ class TwillBrowser(object):
                 self._journey('open', u)
                 success = True
                 break
-            # @BRT: requests seems to use ConnectionError and InvalidSchema here
+
             except (IOError, ConnectionError, InvalidSchema):  # @CTB test this!
                 pass
 
         if success:
             print>>OUT, '==> at', self.get_url()
         else:
-            # Modified to use TwillException in place of BrowserStateError
+            # @BRT: Modified to use TwillException in place of BrowserStateError
             raise TwillException("cannot go to '%s'" % (url,))
 
     def reload(self):
@@ -119,7 +114,7 @@ class TwillBrowser(object):
         """
         Get the HTTP status code received for the current page.
         """
-        if self.result:
+        if self.result is not None:
             return self.result.get_http_code()
         return None
 
@@ -127,12 +122,12 @@ class TwillBrowser(object):
         """
         Get the HTML for the current page.
         """
-        if self.result:
+        if self.result is not None:
             return self.result.get_page()
         return None
 
     def get_title(self):
-        if self.result:
+        if self.result is not None:
             doc = html.fromstring(self.result.get_page())
             selector = cssselect.CSSSelector("title")
             return selector(doc)[0].text
@@ -143,7 +138,7 @@ class TwillBrowser(object):
         """
         Get the URL of the current page.
         """
-        if self.result:
+        if self.result is not None:
             return self.result.get_url()
         return None
 
@@ -242,7 +237,8 @@ class TwillBrowser(object):
         iff present.
         """
         # @BRT: Does lxml follow golbal_form @ index 0 behavior from docstring?
-        if self.result:
+        #       Does not appear to
+        if self.result is not None:
             doc = html.fromstring(self.result.get_page())
             return doc.forms
         return []
@@ -449,25 +445,22 @@ Note: submit is using submit button: name="%s", value="%s"
         
         # self._journey('open', request)
 
+    # @BRT: Right now cookies are saved as binary; should be human-readable?
+    # http://stackoverflow.com/questions/13030095/how-to-save-requests-python-cookies-to-a-file
     def save_cookies(self, filename):
         """
         Save cookies into the given file.
         """
-        with open(filename, 'w') as f:
-            pickle.dump(
-                requests.utils.dict_from_cookiejar(self._session.cookies),
-                f
-            )
+        with open(filename, 'wb') as f:
+            pickle.dump(self._session.cookies, f)
 
     def load_cookies(self, filename):
         """
         Load cookies from the given file.
         """
-        # Mechanize seems to add, not overwrite, so that's what is done here
-        with open(filename) as f:
-            c = requests.utils.add_dict_to_cookiejar(self._session.cookies,
-                                                     pickle.load(f))
-        self._session.cookies = c
+        # @BRT: Mechanize seems to add, not overwrite, but this overwrites
+        with open(filename, 'rb') as f:
+            self._session.cookies = pickle.load(f)
 
     def clear_cookies(self):
         """
@@ -557,7 +550,7 @@ Note: submit is using submit button: name="%s", value="%s"
             try:
                 url = self._history.pop().get_url()
             except IndexError:
-                return
+                raise TwillException
 
         # @BRT: This does basic auth, but ignores realm; based on URI only
         if url in self._auth.keys():
@@ -575,7 +568,8 @@ Note: submit is using submit button: name="%s", value="%s"
             r = self._follow_redirections(r, self._session)
 
         if func_name in ['follow_link', 'open']:
-            if self.result is not None:
+            # If we're really reloading and just didn't say so, don't store
+            if self.result is not None and self.result.get_url() != r.url:
                 self._history.append(self.result)
 
         self.result = ResultWrapper(r.status_code, r.url, r.text, r.headers)
