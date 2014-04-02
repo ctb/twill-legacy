@@ -27,6 +27,16 @@ class TwillBrowser(object):
         # create special link/forms parsing code to run tidy on HTML first.
         #
 
+        # WSGI Intercept
+        # Taken from
+        # https://code.google.com/p/wsgi-intercept/issues/detail?id=23
+        # with slight modification
+        import wsgi_intercept
+        from requests.packages.urllib3 import connectionpool as cpl
+        cpl.HTTPConnectionPool.old_http = cpl.HTTPConnectionPool.ConnectionCls
+        cpl.HTTPConnectionPool.ConnectionCls = wsgi_intercept.WSGI_HTTPConnection
+        wsgi_intercept.wsgi_fake_socket.settimeout = lambda self, timeout: None
+
         self.result = None
         self.last_submit_button = None
 
@@ -45,7 +55,6 @@ class TwillBrowser(object):
         # callables to be called after each page load.
         self._post_load_hooks = []
 
-        ## Quick fix
         self._history = []
 
     def _set_creds(self, creds):
