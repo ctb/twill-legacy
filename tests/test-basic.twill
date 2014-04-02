@@ -65,12 +65,15 @@ notfind 'this is visit #2'
 # yep!  all right. load cookies, check that.
 load_cookies 'test-basic.cookies'
 
-showhistory # @BRT: for debug
+# showhistory # @BRT: for debug
 
-back
-back
-back
-back
+# @BRT: Since increment is in the history, we go up again
+#		Why does this happen with requests but not mechanize?
+#		Seems like mechanize may be flawed here
+#back
+#back
+#back
+#back
 
 go ./
 code 200

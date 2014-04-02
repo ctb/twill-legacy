@@ -51,6 +51,10 @@ class TwillBrowser(object):
         # callables to be called after each page load.
         self._post_load_hooks = []
 
+        # @BRT: Mechanize will put the empty page in history, I don't
+        #       Mechanize will, however, continue to follow links from the
+        #       last 'real' page visited, even when it claims to be on the
+        #       empty page. This seems like flawed behavior
         self._history = []
 
     # @BRT: Removed the property() from old browser, auth realm not implemented
