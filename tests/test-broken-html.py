@@ -33,7 +33,7 @@ def test_raw():
     commands.go('/tidy_fixable_html')
 
     forms = b.get_all_forms()
-    assert len(forms) == 0, "there should be no correct forms on this page"
+    assert len(forms) == 1, "lxml should find one form on this page"
 
     ###
 
@@ -104,8 +104,8 @@ def test_BeautifulSoup():
 
     forms = b.get_all_forms()
     b.showforms()
-    assert len(forms) == 0, \
-           "there should be no correct forms on this page"
+    assert len(forms) == 1, "lxml should find one form on this page"
+
 
     ###
 
@@ -178,4 +178,4 @@ def test_effed_up_forms2():
     forms = b.get_all_forms()
     form = forms[0]
     inputs = [i for i in form.inputs]
-    assert len(inputs) == 1
+    assert len(inputs) == 3, "lxml should find 3 form inputs"
