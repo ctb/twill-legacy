@@ -545,7 +545,8 @@ Note: submit is using submit button: name="%s", value="%s"
 
         elif func_name == 'back':
             try:
-                url = self._history.pop().url
+                self.result = self._history.pop()
+                return
             except IndexError:
                 raise TwillException
 
