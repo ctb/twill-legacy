@@ -359,7 +359,6 @@ hello, world.
             
         if request.form and request.form.has_key('selecttest'):
             vals = request.form['selecttest']
-            # @BRT: Used to be just str. Convert unicode to str?
             if isinstance(vals, str) or isinstance(vals,unicode):
                 vals = [vals,]
 
@@ -404,10 +403,6 @@ hello, world.
         s = ""
         if request.form and request.form.has_key('checkboxtest'):
             val = request.form['checkboxtest']
-
-
-            print "Val is: ", (val, type(val),)
-            # @BRT: Add unicode here as well - convert to str?
             if not isinstance(val, str) and not isinstance(val, unicode):
                 val = val[0]
 
@@ -430,8 +425,6 @@ hello, world.
         s = ""
         if request.form and request.form.has_key('checkboxtest'):
             val = request.form['checkboxtest']
-
-            # @BRT: Unicode - convert to str?
             if not isinstance(val, str) or isinstance(val, unicode):
                 val = ','.join(val)
 
