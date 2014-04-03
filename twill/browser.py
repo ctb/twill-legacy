@@ -119,7 +119,7 @@ class TwillBrowser(object):
         Get the HTTP status code received for the current page.
         """
         if self.result is not None:
-            return self.result.get_http_code()
+            return self.result.status_code
         return None
 
     def get_html(self):
@@ -127,12 +127,12 @@ class TwillBrowser(object):
         Get the HTML for the current page.
         """
         if self.result is not None:
-            return self.result.get_page()
+            return self.result.text
         return None
 
     def get_title(self):
         if self.result is not None:
-            doc = html.fromstring(self.result.get_page())
+            doc = html.fromstring(self.result.text)
             selector = cssselect.CSSSelector("title")
             return selector(doc)[0].text
         else:
@@ -143,7 +143,7 @@ class TwillBrowser(object):
         Get the URL of the current page.
         """
         if self.result is not None:
-            return self.result.get_url()
+            return self.result.url
         return None
 
     # @BRT: For the test with a broken link with a span in it, this works
@@ -164,7 +164,7 @@ class TwillBrowser(object):
         Find the first link with a URL, link text, or name matching the
         given pattern.
         """
-        doc = html.fromstring(self.result.get_page())
+        doc = html.fromstring(self.result.text)
         selector = cssselect.CSSSelector("a")
 
         links = [
@@ -219,7 +219,7 @@ class TwillBrowser(object):
         for page in self._history:
             # @BRT: Implement below comment?
             # only print those that back() will go
-            print>>OUT, "\t%d. %s" % (n, page.get_url())
+            print>>OUT, "\t%d. %s" % (n, page.url)
             n += 1
         print>>OUT, ''
 
@@ -227,7 +227,7 @@ class TwillBrowser(object):
         """
         Return a list of all of the links on the page
         """
-        doc = html.fromstring(self.result.get_page())
+        doc = html.fromstring(self.result.text)
         selector = cssselect.CSSSelector("a")
         return [
                  (self._stringify_children(l) or '', l.get("href")) 
@@ -241,7 +241,7 @@ class TwillBrowser(object):
         """
         # @BRT: lxml does not follow golbal_form @ index 0 behavior (docstring)
         if self.result is not None:
-            doc = html.fromstring(self.result.get_page())
+            doc = html.fromstring(self.result.text)
             return doc.forms
         return []
 
@@ -545,7 +545,7 @@ Note: submit is using submit button: name="%s", value="%s"
 
         elif func_name == 'back':
             try:
-                url = self._history.pop().get_url()
+                url = self._history.pop().url
             except IndexError:
                 raise TwillException
 
@@ -566,7 +566,7 @@ Note: submit is using submit button: name="%s", value="%s"
 
         if func_name in ['follow_link', 'open']:
             # If we're really reloading and just didn't say so, don't store
-            if self.result is not None and self.result.get_url() != r.url:
+            if self.result is not None and self.result.url != r.url:
                 self._history.append(self.result)
 
-        self.result = ResultWrapper(r.status_code, r.url, r.text, r.headers)
+        self.result = r

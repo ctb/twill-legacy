@@ -860,7 +860,7 @@ def info():
         print "We're not on a page!"
         return
     
-    content_type = browser.result.get_headers()['content-type']
+    content_type = browser.result.headers['content-type']
     # @BRT: is_html uses the mechanize based factories in utils; rewrite
     check_html = False # is_html(content_type, current_url)
 
