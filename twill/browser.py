@@ -13,7 +13,7 @@ import urlparse
 import requests
 from requests.exceptions import InvalidSchema, ConnectionError
 from lxml import etree, html, cssselect
-from utils import print_form, ResultWrapper, unique_match, _follow_equiv_refresh
+from utils import print_form, unique_match, _follow_equiv_refresh
 from errors import TwillException
 
 class TwillBrowser(object):

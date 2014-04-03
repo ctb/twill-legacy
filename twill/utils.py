@@ -14,7 +14,7 @@ from lxml import html
 
 from errors import TwillException
 
-class ResultWrapper:
+'''class ResultWrapper:
     """
     Deal with mechanize/urllib2/whatever results, and present them in a
     unified form.  Returned by 'journey'-wrapped functions.
@@ -38,7 +38,7 @@ class ResultWrapper:
         return self.page
 
     def get_headers(self):
-        return self.headers
+        return self.headers'''
 
 def trunc(s, length):
     """
