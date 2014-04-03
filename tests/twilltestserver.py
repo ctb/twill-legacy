@@ -359,8 +359,7 @@ hello, world.
             
         if request.form and request.form.has_key('selecttest'):
             vals = request.form['selecttest']
-
-            if isinstance(vals, str):
+            if isinstance(vals, str) or isinstance(vals,unicode):
                 vals = [vals,]
 
             s += "SELECTTEST: ==%s==<p>" % " AND ".join(vals,)
@@ -404,8 +403,7 @@ hello, world.
         s = ""
         if request.form and request.form.has_key('checkboxtest'):
             val = request.form['checkboxtest']
-
-            if not isinstance(val, str):
+            if not isinstance(val, str) and not isinstance(val, unicode):
                 val = val[0]
 
             s += "CHECKBOXTEST: ==%s==<p>" % val
@@ -427,8 +425,7 @@ hello, world.
         s = ""
         if request.form and request.form.has_key('checkboxtest'):
             val = request.form['checkboxtest']
-
-            if not isinstance(val, str):
+            if not isinstance(val, str) or isinstance(val, unicode):
                 val = ','.join(val)
 
             s += "CHECKBOXTEST: ==%s==<p>" % val
@@ -450,7 +447,7 @@ hello, world.
         if request.form and request.form.has_key('checkboxtest'):
             val = request.form['checkboxtest']
 
-            if not isinstance(val, str):
+            if not isinstance(val, str) or isinstance(val, unicode):
                 val = val[0]
 
             s += "CHECKBOXTEST: ==%s==<p>" % val
@@ -498,7 +495,7 @@ hello, world.
         request = get_request()
         if request.form and request.form.has_key('q'):
             return request.form['q']
-        return ""
+        return "<html><body>No Content</body></html>"
 
     def upload_file(self):
         request = get_request()
