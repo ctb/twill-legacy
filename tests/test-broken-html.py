@@ -137,7 +137,6 @@ def test_allow_parse_errors():
     commands.go(url)
 
     commands.go('/unfixable_html')
-    # @BRT: Why do we just call this function? any reason?
     b.get_all_forms()
 
 def test_global_form():

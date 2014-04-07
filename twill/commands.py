@@ -396,6 +396,9 @@ def formclear(formname):
         if "readonly" in control.attrib.keys():
             continue
         control.clear()
+    # @BRT: This is a workaround until forms work properly
+    browser._payload = {}
+    browser._files = {}
 
 def formvalue(formname, fieldname, value):
     """
@@ -435,16 +438,19 @@ def formvalue(formname, fieldname, value):
         print>>OUT, 'forcing read-only form field to writeable'
         del control.attrib['readonly']
         
-    elif 'readonly' in control.attrib.keys() or control.type == 'file':
+    elif 'readonly' in control.attrib.keys() or \
+        (hasattr(control, 'type') and control.type == 'file'):
         print>>OUT, 'form field is read-only or ignorable; nothing done.'
         return
 
-    if control.type == 'file':
+    if hasattr(control, 'type') and control.type == 'file':
         raise TwillException(
                     'form field is for file upload; use "formfile" instead'
                 )
 
     set_form_control_value(control, value)
+    # @BRT: Until set_form_control is fixed
+    browser._payload[control.name] = value
 
 fv = formvalue
 
@@ -471,12 +477,15 @@ def formfile(formname, fieldname, filename, content_type=None):
     form = browser.get_form(formname)
     control = browser.get_form_field(form, fieldname)
 
-    if not control.is_of_kind('file'):
+    if not (hasattr(control, 'type') and control.type == 'file'):
         raise TwillException('ERROR: field is not a file upload field!')
 
     browser.clicked(form, control)
     fp = open(filename, 'rb')
-    control.add_file(fp, content_type, filename)
+    #control.add_file(fp, content_type, filename)
+
+    # @BRT: Another workaround
+    browser._files[fieldname] = fp
 
     print>>OUT, '\nAdded file "%s" to file upload field "%s"\n' % (filename,
                                                              control.name,)

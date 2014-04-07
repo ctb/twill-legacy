@@ -44,6 +44,8 @@ class TwillBrowser(object):
         # An lxml FormElement, none until a form is selected
         # replaces self._browser.form from mechanize
         self._form = None
+        self._payload = {}
+        self._files = {}
 
         # A dict of HTTPBasicAuth from requests, keyed off URL
         self._auth = {}
@@ -327,9 +329,11 @@ class TwillBrowser(object):
                     found_multiple = True # record for error
 
         if found is None:
+            # @BRT: Readonly doesn't include submits, causes incorrect results
             # try value, for readonly controls like submit keys
-            clickies = [ c for c in form.inputs if c.value == fieldname
-                         and 'readonly' in c.attrib.keys()]
+            clickies = [ c for c in form.inputs if c.value == fieldname]
+                         
+                         # and 'readonly' in c.attrib.keys()]
             if clickies:
                 if len(clickies) == 1:
                     found = clickies[0]
@@ -358,7 +362,6 @@ class TwillBrowser(object):
             #       Verify that this is safe
             self._form = form
             self.last_submit_button = None
-
         # record the last submit button clicked.
         if hasattr(control, 'type') and control.type == 'submit':
             self.last_submit_button = control
@@ -375,8 +378,7 @@ class TwillBrowser(object):
         
         ctl = None
         
-        # @BRT: Until I figure out what form is supposed to be
-        form = None
+        form = self._form
         if form is None:
             forms = self.get_all_forms()
             if len(forms) == 1:
@@ -425,6 +427,7 @@ Note: submit is using submit button: name="%s", value="%s"
             # request = form._click(None, None, None, None, 0, None,
             #                      "", mechanize.Request)
             pass
+            
         #
         # add referer information.  this may require upgrading the
         # request object to have an 'add_unredirected_header' function.
@@ -439,11 +442,23 @@ Note: submit is using submit button: name="%s", value="%s"
         #
         # now actually GO.
         #
-        
+        if form.method == 'POST':
+            # DEBUG
+            print self._files
+            if len(self._files) > 0:
+                r = self._session.post(form.action or self.get_url(), \
+                        data=self._payload, files=self._files)
+            else:
+                r = self._session.post(form.action or self.get_url(), \
+                       data=self._payload)
+            self._history.append(self.result)
+            self.result = r
+        else:
+            r = self._session.get(form.action, data=self._payload)
+            self._history.append(self.result)
+            self.result = r
         # self._journey('open', request)
 
-    # @BRT: Right now cookies are saved as binary; should be human-readable?
-    # http://stackoverflow.com/questions/13030095/how-to-save-requests-python-cookies-to-a-file
     def save_cookies(self, filename):
         """
         Save cookies into the given file.

@@ -176,6 +176,8 @@ def set_form_control_value(control, val):
         # figure out if we want to *select* it, or if we want to *deselect*
         # it (flag T/F).  By default (no +/-) select...
         
+        # @BRT: control value only gets updated locally, lxml issue
+
         if val.startswith('-'):
             val = val[1:]
             flag = False
@@ -201,8 +203,7 @@ def set_form_control_value(control, val):
         else:
             item.selected = 0
     else:
-        # @BRT: Currently crashes, lxml needs a sequence for val
-        # control.value = val
+        control.value = val
         pass
 
 def _all_the_same_submit(matches):
