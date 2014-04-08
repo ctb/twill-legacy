@@ -391,11 +391,13 @@ def formclear(formname):
     
     Run 'clear' on all of the controls in this form.
     """
+    # @BRT: This appears to empty the form. Probably not desirable.
     form = browser.get_form(formname)
-    for control in form.inputs:
+    '''for control in form.inputs:
         if "readonly" in control.attrib.keys():
             continue
-        control.clear()
+        control.clear()'''
+    return
 
 def formvalue(formname, fieldname, value):
     """

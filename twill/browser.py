@@ -292,6 +292,8 @@ class TwillBrowser(object):
             matches = [ ctl for ctl in form.inputs \
                         if regexp.search(str(ctl.get("name"))) ]
 
+            print>>OUT, "Matches: ", matches
+
             if matches:
                 if unique_match(matches):
                     found = matches[0]
@@ -340,80 +342,8 @@ class TwillBrowser(object):
         """
         Submit the currently clicked form using the given field.
         """
-        if fieldname is not None:
-            fieldname = str(fieldname)
-        
-        if len(self.get_all_forms()) == 0:
-            raise TwillException("no forms on this page!")
-        
-        ctl = None
-        
-        form = self._form
-        if form is None:
-            forms = self.get_all_forms()
-            if len(forms) == 1:
-                form = forms[0]
-            else:
-                raise TwillException("""\
-more than one form; you must select one (use 'fv') before submitting\
-""")
-
-        # no fieldname?  see if we can use the last submit button clicked...
-        if not fieldname:
-            if self.last_submit_button is not None:
-                ctl = self.last_submit_button
-            else:
-                # get first submit button in form.
-                submits = [ c for c in form.inputs
-                            if  hasattr(c, 'type') and c.type == 'submit' ]
-
-                if len(submits):
-                    ctl = submits[0]
-                
-        else:
-            # fieldname given; find it.
-            ctl = self.get_form_field(form, fieldname)
-
-        #
-        # now set up the submission by building the request object that
-        # will be sent in the form submission.
-        #
-        
-        if ctl is not None:
-            # submit w/button
-            print>>OUT, """\
-Note: submit is using submit button: name="%s", value="%s"
-""" % (ctl.name, ctl.value)
-            
-            # @BRT Client form image control is what in lxml?
-            # if isinstance(ctl, ClientForm.ImageControl):
-            #     request = ctl._click(form, (1,1), "", mechanize.Request)
-            # else:
-            #    request = ctl._click(form, True, "", mechanize.Request)
-                
-        else:
-            # @BRT: Figure out how to submit with lxml w/o button
-            # submit w/o submit button.
-            # request = form._click(None, None, None, None, 0, None,
-            #                      "", mechanize.Request)
-            pass
-            
-        #
-        # add referer information.  this may require upgrading the
-        # request object to have an 'add_unredirected_header' function.
-        #
-
-        # @BRT: requests equivalent of a mechanize browser request upgrade?
-        # upgrade = self._browser._ua_handlers.get('_http_request_upgrade')
-        # if upgrade:
-        #     request = upgrade.http_request(request)
-        #     request = self._browser._add_referer_header(request)
-
-        #
-        # now actually GO.
-        #
-
-        # self._journey('open', request)
+        # @BRT: Implement submit
+        return
 
     def save_cookies(self, filename):
         """
