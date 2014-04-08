@@ -13,7 +13,7 @@ import urlparse
 import requests
 from requests.exceptions import InvalidSchema, ConnectionError
 from lxml import etree, html, cssselect
-from utils import print_form, unique_match, _follow_equiv_refresh
+from utils import print_form, unique_match, _follow_equiv_refresh, ResultWrapper
 from errors import TwillException
 
 class TwillBrowser(object):
@@ -44,8 +44,6 @@ class TwillBrowser(object):
         # An lxml FormElement, none until a form is selected
         # replaces self._browser.form from mechanize
         self._form = None
-        self._payload = {}
-        self._files = {}
 
         # A dict of HTTPBasicAuth from requests, keyed off URL
         self._auth = {}
@@ -121,7 +119,7 @@ class TwillBrowser(object):
         Get the HTTP status code received for the current page.
         """
         if self.result is not None:
-            return self.result.status_code
+            return self.result.get_http_code()
         return None
 
     def get_html(self):
@@ -129,12 +127,12 @@ class TwillBrowser(object):
         Get the HTML for the current page.
         """
         if self.result is not None:
-            return self.result.text
+            return self.result.get_page()
         return None
 
     def get_title(self):
         if self.result is not None:
-            doc = html.fromstring(self.result.text)
+            doc = html.fromstring(self.get_html())
             selector = cssselect.CSSSelector("title")
             return selector(doc)[0].text
         else:
@@ -145,7 +143,7 @@ class TwillBrowser(object):
         Get the URL of the current page.
         """
         if self.result is not None:
-            return self.result.url
+            return self.result.get_url()
         return None
 
     # @BRT: For the test with a broken link with a span in it, this works
@@ -166,7 +164,7 @@ class TwillBrowser(object):
         Find the first link with a URL, link text, or name matching the
         given pattern.
         """
-        doc = html.fromstring(self.result.text)
+        doc = html.fromstring(self.get_html())
         selector = cssselect.CSSSelector("a")
 
         links = [
@@ -229,7 +227,7 @@ class TwillBrowser(object):
         """
         Return a list of all of the links on the page
         """
-        doc = html.fromstring(self.result.text)
+        doc = html.fromstring(self.get_html())
         selector = cssselect.CSSSelector("a")
         return [
                  (self._stringify_children(l) or '', l.get("href")) 
@@ -243,8 +241,7 @@ class TwillBrowser(object):
         """
         # @BRT: lxml does not follow golbal_form @ index 0 behavior (docstring)
         if self.result is not None:
-            doc = html.fromstring(self.result.text)
-            return doc.forms
+            return self.result.get_forms()
         return []
 
     def get_form(self, formname):
@@ -446,17 +443,20 @@ Note: submit is using submit button: name="%s", value="%s"
             # DEBUG
             print self._files
             if len(self._files) > 0:
-                r = self._session.post(form.action or self.get_url(), \
-                        data=self._payload, files=self._files)
+                # r = self._session.post(form.action or self.get_url(), \
+                #        , files=self._files)
+                pass
             else:
-                r = self._session.post(form.action or self.get_url(), \
-                       data=self._payload)
-            self._history.append(self.result)
-            self.result = r
+                # r = self._session.post(form.action or self.get_url(), \
+                #       data=self._payload)
+                pass
+            # self._history.append(self.result)
+            # self.result = ResultWrapper(r)
         else:
-            r = self._session.get(form.action, data=self._payload)
-            self._history.append(self.result)
-            self.result = r
+            # r = self._session.get(form.action, data=self._payload)
+            # self._history.append(self.result)
+            # self.result = ResultWrapper(r)
+            pass
         # self._journey('open', request)
 
     def save_cookies(self, filename):
@@ -582,7 +582,7 @@ Note: submit is using submit button: name="%s", value="%s"
 
         if func_name in ['follow_link', 'open']:
             # If we're really reloading and just didn't say so, don't store
-            if self.result is not None and self.result.url != r.url:
+            if self.result is not None and self.result.get_url() != r.url:
                 self._history.append(self.result)
 
-        self.result = r
+        self.result = ResultWrapper(r)

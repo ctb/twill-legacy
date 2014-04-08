@@ -396,9 +396,6 @@ def formclear(formname):
         if "readonly" in control.attrib.keys():
             continue
         control.clear()
-    # @BRT: This is a workaround until forms work properly
-    browser._payload = {}
-    browser._files = {}
 
 def formvalue(formname, fieldname, value):
     """
@@ -449,8 +446,6 @@ def formvalue(formname, fieldname, value):
                 )
 
     set_form_control_value(control, value)
-    # @BRT: Until set_form_control is fixed
-    browser._payload[control.name] = value
 
 fv = formvalue
 

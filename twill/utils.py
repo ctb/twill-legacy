@@ -14,31 +14,29 @@ from lxml import html
 
 from errors import TwillException
 
-'''class ResultWrapper:
+class ResultWrapper:
     """
     Deal with mechanize/urllib2/whatever results, and present them in a
     unified form.  Returned by 'journey'-wrapped functions.
     """
-    def __init__(self, http_code, url, page, headers=None):
-        if http_code is not None:
-            self.http_code = int(http_code)
-        else:
-            self.http_code = 200
-        self.url = url
-        self.page = page
-        self.headers = headers
+    def __init__(self, req):
+        self.req = req
+        self.lxml = html.fromstring(self.req.text)
 
     def get_url(self):
-        return self.url
+        return self.req.url
 
     def get_http_code(self):
-        return self.http_code
+        return self.req.status_code
 
     def get_page(self):
-        return self.page
+        return self.req.text
 
     def get_headers(self):
-        return self.headers'''
+        return self.req.headers
+
+    def get_forms(self):
+        return self.lxml.forms
 
 def trunc(s, length):
     """
@@ -203,7 +201,8 @@ def set_form_control_value(control, val):
         else:
             item.selected = 0
     else:
-        control.value = val
+        # @BRT: Twill expects a sequence here in some cases, but this function doesn't work anyway
+        #control.value = val
         pass
 
 def _all_the_same_submit(matches):
