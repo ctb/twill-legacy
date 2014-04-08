@@ -74,6 +74,30 @@ class ResultWrapper:
                 return link[1]
         return ''
 
+    def get_form(self, formname):
+        forms = self.get_forms()
+
+        # first try ID
+        for f in forms:
+            id = f.get("id")
+            if id and str(id) == formname:
+                return f
+        
+        # next try regexps
+        regexp = re.compile(formname)
+        for f in forms:
+            if f.get("name") and regexp.search(f.get("name")):
+                return f
+
+        # ok, try number
+        try:
+            formnum = int(formname)
+            # @BRT: lxml does not follow golbal_form @ index 0 behavior
+            if formnum >= 1 and formnum <= len(forms):
+                return forms[formnum - 1]
+        except (ValueError, IndexError):              # int() failed
+            return None
+
 def trunc(s, length):
     """
     Truncate a string s to length length, by cutting off the last 
