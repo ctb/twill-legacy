@@ -273,8 +273,6 @@ class TwillBrowser(object):
             matches = [ ctl for ctl in form.inputs \
                         if regexp.search(str(ctl.get("name"))) ]
 
-            print>>OUT, "Matches: ", matches
-
             if matches:
                 if unique_match(matches):
                     found = matches[0]
@@ -323,8 +321,86 @@ class TwillBrowser(object):
         """
         Submit the currently clicked form using the given field.
         """
-        # @BRT: Implement submit
-        return
+        if fieldname is not None:
+            fieldname = str(fieldname)
+        
+        if len(self.get_all_forms()) == 0:
+            raise TwillException("no forms on this page!")
+        
+        ctl = None
+        
+        form = self._form
+        if form is None:
+            forms = [ i for i in self.get_all_forms() ]
+            if len(forms) == 1:
+                form = forms[0]
+            else:
+                raise TwillException("""\
+more than one form; you must select one (use 'fv') before submitting\
+""")
+
+        if form.action is None:
+            form.action = self.get_url()
+
+        # no fieldname?  see if we can use the last submit button clicked...
+        if fieldname is None:
+            if self.last_submit_button:
+                ctl = self.last_submit_button
+            else:
+                # get first submit button in form.
+                submits = [ c for c in form.inputs 
+                            if hasattr(c, 'type') and c.type == 'submit' ]
+                if len(submits) != 0:
+                    ctl = submits[0]             
+        else:
+            # fieldname given; find it.
+            ctl = self.get_form_field(form, fieldname)
+
+        #
+        # now set up the submission by building the request object that
+        # will be sent in the form submission.
+        #
+        
+        if ctl:
+            # submit w/button
+            print>>OUT, """\
+Note: submit is using submit button: name="%s", value="%s"
+""" % (ctl.get("name"), ctl.value)
+            
+            # @BRT: Figure out imagecontrol in lxml
+            #if isinstance(ctl, ClientForm.ImageControl):
+            #    request = ctl._click(form, (1,1), "", mechanize.Request)
+            #else:
+            #    request = ctl._click(form, True, "", mechanize.Request)
+                
+        else:
+            # submit w/o submit button.
+            # @BRT: Figure out submit w/o button in lxml
+            # request = form._click(None, None, None, None, 0, None,
+            #                      "", mechanize.Request)
+            pass
+
+        #
+        # add referer information.  this may require upgrading the
+        # request object to have an 'add_unredirected_header' function.
+        #
+
+        # @BRT: Figure out request upgrade in lxml
+        # upgrade = self._browser._ua_handlers.get('_http_request_upgrade')
+        # if upgrade:
+        #    request = upgrade.http_request(request)
+        #    request = self._browser._add_referer_header(request)
+
+        #
+        # now actually GO.
+        #
+        print>>OUT, "Form action: ", form.action
+        if form.method == 'POST':
+            # @BRT: The or takes care of empty actions, submits to current page
+            r = self._session.post(form.action, data=form.form_values())
+            self._history.append(self.result)
+            self.result = ResultWrapper(r)
+        #self._journey('open', request)
 
     def save_cookies(self, filename):
         """

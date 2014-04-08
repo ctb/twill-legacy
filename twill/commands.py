@@ -393,11 +393,12 @@ def formclear(formname):
     """
     # @BRT: This appears to empty the form. Probably not desirable.
     form = browser.get_form(formname)
-    '''for control in form.inputs:
-        if "readonly" in control.attrib.keys():
+    for control in form.inputs:
+        if "readonly" in control.attrib.keys() or \
+            (hasattr(control, 'type') and (control.type == 'submit' or \
+                control.type == 'image')):
             continue
-        control.clear()'''
-    return
+        control.value = ''
 
 def formvalue(formname, fieldname, value):
     """
