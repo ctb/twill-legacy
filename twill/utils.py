@@ -10,9 +10,23 @@ import base64
 
 import subprocess
 
-from lxml import html
+from lxml import etree, html, cssselect
+import re
 
 from errors import TwillException
+
+# @BRT: For the test with a broken link with a span in it, this works
+# @BRT: This significantly alters the showlinks() behavior - e.g. wikipedia
+# Stolen shamelessly from 
+# http://stackoverflow.com/questions/4624062/get-all-text-inside-a-tag-in-lxml
+def stringify_children(node):
+    from lxml.etree import tostring
+    from itertools import chain
+    parts = ([node.text] +
+            list(chain(*([c.text, tostring(c), c.tail] for c in node.getchildren()))) +
+            [node.tail])
+    # filter removes possible Nones in texts and tails
+    return ''.join(filter(None, parts))
 
 class ResultWrapper:
     """
@@ -37,6 +51,28 @@ class ResultWrapper:
 
     def get_forms(self):
         return self.lxml.forms
+
+    def get_title(self):
+        selector = cssselect.CSSSelector("title")
+        return selector(self.lxml)[0].text
+
+    def get_links(self):
+        selector = cssselect.CSSSelector("a")
+        return [
+                 (stringify_children(l) or '', l.get("href")) 
+                 for l in selector(self.lxml)
+               ]
+    def find_link(self, pattern):
+        selector = cssselect.CSSSelector("a")
+
+        links = [
+                 (stringify_children(l) or '', l.get("href")) 
+                 for l in selector(self.lxml)
+                ]
+        for link in links:
+            if re.search(pattern, link[0]) or re.search(pattern, link[1]):
+                return link[1]
+        return ''
 
 def trunc(s, length):
     """
@@ -202,7 +238,7 @@ def set_form_control_value(control, val):
             item.selected = 0
     else:
         # @BRT: Twill expects a sequence here in some cases, but this function doesn't work anyway
-        #control.value = val
+        control.value = val
         pass
 
 def _all_the_same_submit(matches):

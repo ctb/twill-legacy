@@ -11,9 +11,9 @@ import urlparse
 
 # Dependencies
 import requests
+from lxml import html
 from requests.exceptions import InvalidSchema, ConnectionError
-from lxml import etree, html, cssselect
-from utils import print_form, unique_match, _follow_equiv_refresh, ResultWrapper
+from utils import print_form, unique_match, _follow_equiv_refresh, ResultWrapper, stringify_children
 from errors import TwillException
 
 class TwillBrowser(object):
@@ -132,11 +132,8 @@ class TwillBrowser(object):
 
     def get_title(self):
         if self.result is not None:
-            doc = html.fromstring(self.get_html())
-            selector = cssselect.CSSSelector("title")
-            return selector(doc)[0].text
-        else:
-            return ''
+            return self.result.get_title()
+        return ''
 
     def get_url(self):
         """
@@ -146,34 +143,13 @@ class TwillBrowser(object):
             return self.result.get_url()
         return None
 
-    # @BRT: For the test with a broken link with a span in it, this works
-    # @BRT: This significantly alters the showlinks() behavior - e.g. wikipedia
-    # Stolen shamelessly from 
-    # http://stackoverflow.com/questions/4624062/get-all-text-inside-a-tag-in-lxml
-    def _stringify_children(self, node):
-        from lxml.etree import tostring
-        from itertools import chain
-        parts = ([node.text] +
-                list(chain(*([c.text, tostring(c), c.tail] for c in node.getchildren()))) +
-                [node.tail])
-        # filter removes possible Nones in texts and tails
-        return ''.join(filter(None, parts))
-
     def find_link(self, pattern):
         """
         Find the first link with a URL, link text, or name matching the
         given pattern.
         """
-        doc = html.fromstring(self.get_html())
-        selector = cssselect.CSSSelector("a")
-
-        links = [
-                 (self._stringify_children(l) or '', l.get("href")) 
-                 for l in selector(doc)
-                ]
-        for link in links:
-            if re.search(pattern, link[0]) or re.search(pattern, link[1]):
-                return link[1]
+        if self.result is not None:
+            return self.result.find_link(pattern)
         return ''
 
     def follow_link(self, link):
@@ -219,7 +195,7 @@ class TwillBrowser(object):
         for page in self._history:
             # @BRT: Implement below comment?
             # only print those that back() will go
-            print>>OUT, "\t%d. %s" % (n, page.url)
+            print>>OUT, "\t%d. %s" % (n, page.get_url())
             n += 1
         print>>OUT, ''
 
@@ -227,12 +203,9 @@ class TwillBrowser(object):
         """
         Return a list of all of the links on the page
         """
-        doc = html.fromstring(self.get_html())
-        selector = cssselect.CSSSelector("a")
-        return [
-                 (self._stringify_children(l) or '', l.get("href")) 
-                 for l in selector(doc)
-               ]
+        if self.result is not None:
+            return self.result.get_links()
+        return []
 
     def get_all_forms(self):
         """
@@ -439,24 +412,7 @@ Note: submit is using submit button: name="%s", value="%s"
         #
         # now actually GO.
         #
-        if form.method == 'POST':
-            # DEBUG
-            print self._files
-            if len(self._files) > 0:
-                # r = self._session.post(form.action or self.get_url(), \
-                #        , files=self._files)
-                pass
-            else:
-                # r = self._session.post(form.action or self.get_url(), \
-                #       data=self._payload)
-                pass
-            # self._history.append(self.result)
-            # self.result = ResultWrapper(r)
-        else:
-            # r = self._session.get(form.action, data=self._payload)
-            # self._history.append(self.result)
-            # self.result = ResultWrapper(r)
-            pass
+
         # self._journey('open', request)
 
     def save_cookies(self, filename):
