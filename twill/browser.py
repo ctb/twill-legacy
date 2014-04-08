@@ -44,6 +44,7 @@ class TwillBrowser(object):
         # An lxml FormElement, none until a form is selected
         # replaces self._browser.form from mechanize
         self._form = None
+        self._formFiles = {}
 
         # A dict of HTTPBasicAuth from requests, keyed off URL
         self._auth = {}
@@ -344,7 +345,7 @@ more than one form; you must select one (use 'fv') before submitting\
 
         # no fieldname?  see if we can use the last submit button clicked...
         if fieldname is None:
-            if self.last_submit_button:
+            if self.last_submit_button is not None:
                 ctl = self.last_submit_button
             else:
                 # get first submit button in form.
@@ -361,7 +362,7 @@ more than one form; you must select one (use 'fv') before submitting\
         # will be sent in the form submission.
         #
         
-        if ctl:
+        if ctl is not None:
             # submit w/button
             print>>OUT, """\
 Note: submit is using submit button: name="%s", value="%s"
@@ -396,10 +397,20 @@ Note: submit is using submit button: name="%s", value="%s"
         #
         print>>OUT, "Form action: ", form.action
         if form.method == 'POST':
+            payload = {}
             # @BRT: The or takes care of empty actions, submits to current page
-            r = self._session.post(form.action, data=form.form_values())
-            self._history.append(self.result)
-            self.result = ResultWrapper(r)
+            if len(self._formFiles) != 0:
+                print>>OUT, "Submitting with files: ", (self._formFiles,) # debug
+                r = self._session.post(form.action, data=form.form_values(), 
+                    files=self._formFiles)
+            else:
+                r = self._session.post(form.action, data=form.form_values())
+        else:
+            r = self._session.get(form.action, data=form.form_values())
+
+        self._formFiles.clear()
+        self._history.append(self.result)
+        self.result = ResultWrapper(r)
         #self._journey('open', request)
 
     def save_cookies(self, filename):

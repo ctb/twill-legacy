@@ -399,6 +399,8 @@ def formclear(formname):
                 control.type == 'image')):
             continue
         control.value = ''
+        if control.get('name') in browser._formFiles.keys():
+            del browser._formFiles[control.get('name')]
 
 def formvalue(formname, fieldname, value):
     """
@@ -483,6 +485,8 @@ def formfile(formname, fieldname, filename, content_type=None):
     # @BRT: Mechanize form file handling
     #control.add_file(fp, content_type, filename)
 
+    # control.value = filename
+    browser._formFiles[fieldname] = fp
 
     print>>OUT, '\nAdded file "%s" to file upload field "%s"\n' % (filename,
                                                              control.name,)

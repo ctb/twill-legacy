@@ -205,7 +205,9 @@ find "testa testb"
 # file upload
 go ./upload_file
 formfile 1 upload ../README.txt
+showforms # @BRT: Debug
 submit
+show # @BRT: Debug
 code 200
 find "twill: a simple scripting"
 
@@ -214,6 +216,7 @@ find "twill: a simple scripting"
 # (redirects after a POST retain content-type inappropriately)
 
 ## @@CTB
+# @BRT: This hangs
 go ./formpostredirect
 fv 1 test "hello"
 submit

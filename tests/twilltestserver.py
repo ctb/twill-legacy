@@ -476,7 +476,7 @@ hello, world.
 <input type=submit value=submit name=submit>
 </form>
 """
-        redirect(get_path(1) + '/')
+        return redirect(get_path(1) + '/')
 
     def logout(self):
         # expire session
