@@ -171,7 +171,6 @@ class TwillBrowser(object):
         Pretty-print all of the forms.  Include the global form (form
         elements outside of <form> pairs) as forms[0] iff present.
         """
-        # @BRT: lxml does not follow golbal_form @ index 0 behavior (docstring)
         forms = self.get_all_forms()
         for n, f in enumerate(forms):
             print_form(n, f, OUT)
@@ -212,7 +211,6 @@ class TwillBrowser(object):
         Return a list of all of the forms, with global_form at index 0
         iff present.
         """
-        # @BRT: lxml does not follow golbal_form @ index 0 behavior (docstring)
         if self.result is not None:
             return self.result.get_forms()
         return []
@@ -310,7 +308,6 @@ class TwillBrowser(object):
         """
         Record a 'click' in a specific form.
         """
-        # @BRT: This function needs a major rewrite
         if self._form != form:
             # construct a function to choose a particular form; select_form
             # can use this to pick out a precise form.
@@ -367,14 +364,12 @@ more than one form; you must select one (use 'fv') before submitting\
         # now set up the submission by building the request object that
         # will be sent in the form submission.
         #
-        print "Ctl is: "
         if ctl is not None:
             # submit w/button
             print>>OUT, """\
 Note: submit is using submit button: name="%s", value="%s"
 """ % (ctl.get("name"), ctl.value)
             
-            # @BRT: Figure out imagecontrol in lxml
             if hasattr(ctl, 'type') and ctl.type == 'image':
                 pass
             #    request = ctl._click(form, (1,1), "", mechanize.Request)
@@ -383,7 +378,6 @@ Note: submit is using submit button: name="%s", value="%s"
                 
         else:
             # submit w/o submit button.
-            # @BRT: Figure out submit w/o button in lxml
             # request = form._click(None, None, None, None, 0, None,
             #                      "", mechanize.Request)
             pass
@@ -395,7 +389,6 @@ Note: submit is using submit button: name="%s", value="%s"
         # add referer information.  this may require upgrading the
         # request object to have an 'add_unredirected_header' function.
         #
-        # @BRT: Figure out request upgrade in lxml
         # upgrade = self._browser._ua_handlers.get('_http_request_upgrade')
         # if upgrade:
         #    request = upgrade.http_request(request)
@@ -407,7 +400,6 @@ Note: submit is using submit button: name="%s", value="%s"
         payload = list(form.form_values())
         if ctl is not None and ctl.get("name") is not None:
             payload.append( (ctl.get("name"), ctl.value) )
-        print "Payload is: ", (payload,)
         if form.method == 'POST':
             if len(self._formFiles) != 0:
                 r = self._session.post(

@@ -489,10 +489,6 @@ def formfile(formname, fieldname, filename, content_type=None):
 
     browser.clicked(form, control)
     fp = open(filename, 'rb')
-    # @BRT: Mechanize form file handling
-    #control.add_file(fp, content_type, filename)
-
-    # control.value = filename
     browser._formFiles[fieldname] = fp
 
     print>>OUT, '\nAdded file "%s" to file upload field "%s"\n' % (filename,

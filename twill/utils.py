@@ -23,7 +23,8 @@ def stringify_children(node):
     from lxml.etree import tostring
     from itertools import chain
     parts = ([node.text] +
-            list(chain(*([c.text, tostring(c), c.tail] for c in node.getchildren()))) +
+            list(chain(*([c.text, tostring(c), c.tail] \
+                for c in node.getchildren()))) +
             [node.tail])
     # filter removes possible Nones in texts and tails
     return ''.join(filter(None, parts))
@@ -37,14 +38,12 @@ class ResultWrapper:
         self.req = req
         self.lxml = html.fromstring(self.req.text)
         gfEntry = html.FormElement
-        orphans = []# self.lxml.xpath('//*[not(self::form)]//*/input')
+        orphans = self.lxml.xpath('//input[not(ancestor::form)]')
         if len(orphans) > 0:
-            print "Extending with global form: ", (orphans,)
             gloFo = "<form>"
             for o in orphans:
                 gloFo += etree.tostring(o)
             gloFo += "</form>"
-
             self.forms = html.fromstring(gloFo).forms
             self.forms.extend(self.lxml.forms)
         else:
@@ -105,8 +104,7 @@ class ResultWrapper:
         # ok, try number
         try:
             formnum = int(formname)
-            # @BRT: lxml does not follow golbal_form @ index 0 behavior
-            if formnum >= 1 and formnum <= len(forms):
+            if formnum >= 0 and formnum <= len(forms):
                 return forms[formnum - 1]
         except (ValueError, IndexError):              # int() failed
             return None
@@ -155,7 +153,7 @@ def print_form(n, f, OUT):
         else:
             value_displayed = "%s" % (field.value,)
 
-        # @BRT: No clickable attritubte, nor is_of_kind method on fields
+        # @BRT: No clickable attritubte
         # if field.is_of_kind('clickable'):
         #    submit_index = "%-2s" % (submit_indices[field],)
         # else:
@@ -163,9 +161,8 @@ def print_form(n, f, OUT):
         strings = ("%-2s" % (n + 1,),
                    submit_index,
                    "%-24s %-9s" % (trunc(str(field.name), 24),
-                                    # @BRT: select has no type attribute
                                    trunc(field.type 
-                                    if hasattr(field, 'type') else 'select', 9)),
+                                   if hasattr(field, 'type') else 'select', 9)),
                     "%-12s" % (trunc(field.get("id") or "(None)", 12),),
                    trunc(value_displayed, 40),
                    )
@@ -232,7 +229,6 @@ def set_form_control_value(control, val):
             val = make_boolean(val)
             control.checked = val
             return
-        # @BRT: Need to add a specific exception here
         except TwillException:
             # if there's more than one checkbox, use the behaviour for
             # ClientForm.ListControl, below.

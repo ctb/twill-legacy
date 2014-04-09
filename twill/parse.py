@@ -81,7 +81,6 @@ def process_args(args, globals_dict, locals_dict):
 
             print '*** VAL IS', val, 'FOR', arg
             
-            # @BRT: Convert unicode to str?
             if isinstance(val, str) or isinstance(val, unicode):
                 newargs.append(val)
             else:
