@@ -23,9 +23,7 @@ find "SELECTTEST: ==val=="
 
 formclear 1
 fv 1 submit_button click
-showforms # @BRT: Debug
 submit submit_button
-show # @BRT: Debug
 find "NO FORM"
 
 ###
@@ -98,7 +96,6 @@ formaction 1 "${init_url}testformaction"
 fv 1 selecttest value1
 fv 1 item test
 submit
-show # @BRT: DEBUG
 find "==item AND selecttest=="
 
 ###

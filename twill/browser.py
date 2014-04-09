@@ -345,7 +345,6 @@ class TwillBrowser(object):
                 raise TwillException("""\
 more than one form; you must select one (use 'fv') before submitting\
 """)
-        print "Form action is: ", (form.action,)
         if form.action is None:
             form.action = self.get_url()
 

@@ -370,12 +370,7 @@ hello, world.
                     val = request.form[name]
                     l.append('%s=%s' % (name, val))
             print "Adding an AND with l: ", (l,)
-            # @BRT: This seems to break the form test if we submit with a button
             s += "NAMETEST: ==%s==<p>" % " AND ".join(l)
-
-        if s == "NAMETEST: ====<p>":
-            s = "NO FORM"
-
 
         return """\
 %s
