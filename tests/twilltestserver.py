@@ -347,21 +347,20 @@ hello, world.
 
         keys = [ k for k in request.form.keys() if request.form[k] ]
         keys.sort()
-        
+        print ("==" + " AND ".join(keys) + "==",)
         return "==" + " AND ".join(keys) + "=="
 
     def testform(self):
         request = get_request()
 
         s = ""
-        # if request.form is None:
-        #    s = "NO FORM"
+        if not request.form:
+            s = "NO FORM"
             
         if request.form and request.form.has_key('selecttest'):
             vals = request.form['selecttest']
             if isinstance(vals, str) or isinstance(vals,unicode):
                 vals = [vals,]
-
             s += "SELECTTEST: ==%s==<p>" % " AND ".join(vals,)
 
         if request.form:
@@ -370,11 +369,11 @@ hello, world.
                 if request.form.get(name):
                     val = request.form[name]
                     l.append('%s=%s' % (name, val))
-
+            print "Adding an AND with l: ", (l,)
             # @BRT: This seems to break the form test if we submit with a button
-            if len(l) > 0:
-                s += "NAMETEST: ==%s==<p>" % " AND ".join(l)
-        if s == "":
+            s += "NAMETEST: ==%s==<p>" % " AND ".join(l)
+
+        if s == "NAMETEST: ====<p>":
             s = "NO FORM"
 
 

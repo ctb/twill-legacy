@@ -206,6 +206,7 @@ find "testa testb"
 go ./upload_file
 formfile 1 upload ../README.txt
 submit
+show # @BRT: Debug
 code 200
 find "twill: a simple scripting"
 

@@ -467,6 +467,7 @@ def formaction(formname, action):
     Sets action parameter on form to action_url
     """
     form = browser.get_form(formname)
+    print "Setting action for form ", (form,), "to ", (action,)
     form.action = action
 
 fa = formaction

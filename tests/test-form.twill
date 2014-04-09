@@ -98,6 +98,7 @@ formaction 1 "${init_url}testformaction"
 fv 1 selecttest value1
 fv 1 item test
 submit
+show # @BRT: DEBUG
 find "==item AND selecttest=="
 
 ###

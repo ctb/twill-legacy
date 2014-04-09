@@ -320,7 +320,8 @@ class TwillBrowser(object):
             self._form = form
             self.last_submit_button = None
         # record the last submit button clicked.
-        if hasattr(control, 'type') and control.type == 'submit':
+        if hasattr(control, 'type') and \
+            (control.type == 'submit' or control.type == 'image'):
             self.last_submit_button = control
 
     def submit(self, fieldname=None):
@@ -344,7 +345,7 @@ class TwillBrowser(object):
                 raise TwillException("""\
 more than one form; you must select one (use 'fv') before submitting\
 """)
-
+        print "Form action is: ", (form.action,)
         if form.action is None:
             form.action = self.get_url()
 
@@ -355,7 +356,8 @@ more than one form; you must select one (use 'fv') before submitting\
             else:
                 # get first submit button in form.
                 submits = [ c for c in form.inputs 
-                            if hasattr(c, 'type') and c.type == 'submit' ]
+                            if hasattr(c, 'type') and (c.type == 'submit' 
+                            or c.type == 'image')]
                 if len(submits) != 0:
                     ctl = submits[0]             
         else:
@@ -404,8 +406,9 @@ Note: submit is using submit button: name="%s", value="%s"
         # now actually GO.
         #
         payload = list(form.form_values())
-        if ctl is not None:
+        if ctl is not None and ctl.get("Name") is not None:
             payload.append( (ctl.get("name"), ctl.value) )
+        print "Payload is: ", (payload,)
         if form.method == 'POST':
             if len(self._formFiles) != 0:
                 r = self._session.post(
