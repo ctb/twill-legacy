@@ -29,9 +29,7 @@ def test_select_multiple():
     commands.fv('1', 'checkboxtest', '-two')
     commands.fv('1', 'checkboxtest', '-three')
 
-    browser.showforms() # @BRT: Debug
     commands.submit()
-    print browser.get_html() # @BRT: Debug
     assert not 'CHECKBOXTEST' in browser.get_html()
 
     commands.fv('1', 'checkboxtest', '+one')

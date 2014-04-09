@@ -233,8 +233,9 @@ class TwillBrowser(object):
         a *unique* regexp/exact string match.
         """
         if fieldname in form.fields.keys():
-            controls = [f for f in form.inputs if f.get("name") == fieldname]
-            if len(controls) != 0 and controls[0].type == 'checkbox':
+            controls = [f for f in form.inputs if f.get("name") == fieldname \
+                        and hasattr(f, 'type') and f.type == 'checkbox']
+            if len(controls) > 1:
                 return html.CheckboxGroup(controls)
 
         fieldname = str(fieldname)

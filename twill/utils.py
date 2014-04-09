@@ -213,6 +213,7 @@ def set_form_control_value(control, val):
     """
     Helper function to deal with setting form values on checkboxes, lists etc.
     """
+    print "Setting control of type ", type(control)
     if hasattr(control, 'type') and control.type == 'checkbox':
         try:
             # checkbox = control.get()
@@ -264,7 +265,7 @@ def set_form_control_value(control, val):
         fullOptions = dict(zip(optionNames, options))
         for k,v in fullOptions.iteritems():
             if (val == k or val == v) and flag:
-                if control.checkable:
+                if hasattr(control, 'checkable') and control.checkable:
                     control.checked = flag
                 else:
                     control.value.add(v)
