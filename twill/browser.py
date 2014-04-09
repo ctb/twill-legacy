@@ -374,7 +374,8 @@ Note: submit is using submit button: name="%s", value="%s"
 """ % (ctl.get("name"), ctl.value)
             
             # @BRT: Figure out imagecontrol in lxml
-            #if isinstance(ctl, ClientForm.ImageControl):
+            if hasattr(ctl, 'type') and ctl.type == 'image':
+                pass
             #    request = ctl._click(form, (1,1), "", mechanize.Request)
             #else:
             #    request = ctl._click(form, True, "", mechanize.Request)
@@ -385,6 +386,9 @@ Note: submit is using submit button: name="%s", value="%s"
             # request = form._click(None, None, None, None, 0, None,
             #                      "", mechanize.Request)
             pass
+
+        # @BRT: For now, the referrer is always the current page
+        headers = {'referer' : self.get_url()}
 
         #
         # add referer information.  this may require upgrading the
@@ -407,16 +411,22 @@ Note: submit is using submit button: name="%s", value="%s"
                     self.last_submit_button.value
                 )
             )
-        print "Form values: ", (form.form_values(),)
-        print "Payload: ", (payload,)
         if form.method == 'POST':
             if len(self._formFiles) != 0:
-                r = self._session.post(form.action, data=payload, 
-                    files=self._formFiles)
+                r = self._session.post(
+                                        form.action, 
+                                        data=payload, 
+                                        files=self._formFiles, 
+                                        headers=headers
+                                      )
             else:
-                r = self._session.post(form.action, data=payload)
+                r = self._session.post(
+                                        form.action, 
+                                        data=payload, 
+                                        headers=headers
+                                      )
         else:
-            r = self._session.get(form.action, data=payload)
+            r = self._session.get(form.action, data=payload, headers=headers)
 
         self._formFiles.clear()
         self._history.append(self.result)
