@@ -404,13 +404,8 @@ Note: submit is using submit button: name="%s", value="%s"
         # now actually GO.
         #
         payload = list(form.form_values())
-        if self.last_submit_button is not None:
-            payload.append(
-                (
-                    self.last_submit_button.get("name"),
-                    self.last_submit_button.value
-                )
-            )
+        if ctl is not None:
+            payload.append( (ctl.get("name"), ctl.value) )
         if form.method == 'POST':
             if len(self._formFiles) != 0:
                 r = self._session.post(
