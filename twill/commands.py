@@ -397,7 +397,7 @@ def formclear(formname):
     for control in form.inputs:
         if "readonly" in control.attrib.keys() or \
             (hasattr(control, 'type') and (control.type == 'submit' or \
-                control.type == 'image')):
+                control.type == 'image' or control.type == 'hidden')):
             continue
         elif isinstance(control, html.SelectElement):
             control.value = []

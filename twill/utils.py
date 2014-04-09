@@ -213,11 +213,12 @@ def set_form_control_value(control, val):
     """
     Helper function to deal with setting form values on checkboxes, lists etc.
     """
-    # @BRT: This whole function needs a re-write to use lxml forms instead of mech
-    if hasattr(control, 'checkable') and control.checkable:
+    if isinstance(control, html.CheckboxGroup) or \
+        (hasattr(control, 'type') and control.type == 'checkbox'):
         try:
             # checkbox = control.get()
-            control.checked(make_boolean(val))
+            val = make_boolean(val)
+            control.value.add(val)
             return
         # @BRT: Need to add a specific exception here
         except: #ClientForm.AmbiguityError:

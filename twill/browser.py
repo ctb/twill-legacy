@@ -134,7 +134,7 @@ class TwillBrowser(object):
     def get_title(self):
         if self.result is not None:
             return self.result.get_title()
-        return ''
+        raise TwillException("Error: Getting title with no page")
 
     def get_url(self):
         """

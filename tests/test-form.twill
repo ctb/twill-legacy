@@ -117,7 +117,6 @@ find "CHECKBOXTEST: ==False=="
 #
 # ...and checkbox can be set to True.
 #
-
 fv 1 checkboxtest True
 submit
 find "CHECKBOXTEST: ==True=="
@@ -148,7 +147,9 @@ find "CHECKBOXTEST: ==False=="
 
 fv 1 checkboxtest True
 formclear 1
+showforms # @BRT: Debug
 submit
+show # @BRT: Debug
 find "CHECKBOXTEST: ==False=="
 
 ###
