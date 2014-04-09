@@ -367,7 +367,7 @@ more than one form; you must select one (use 'fv') before submitting\
         # now set up the submission by building the request object that
         # will be sent in the form submission.
         #
-        
+        print "Ctl is: "
         if ctl is not None:
             # submit w/button
             print>>OUT, """\
@@ -405,7 +405,7 @@ Note: submit is using submit button: name="%s", value="%s"
         # now actually GO.
         #
         payload = list(form.form_values())
-        if ctl is not None and ctl.get("Name") is not None:
+        if ctl is not None and ctl.get("name") is not None:
             payload.append( (ctl.get("name"), ctl.value) )
         print "Payload is: ", (payload,)
         if form.method == 'POST':
