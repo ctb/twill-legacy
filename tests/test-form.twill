@@ -147,9 +147,7 @@ find "CHECKBOXTEST: ==False=="
 
 fv 1 checkboxtest True
 formclear 1
-showforms # @BRT: Debug
 submit
-show # @BRT: Debug
 find "CHECKBOXTEST: ==False=="
 
 ###
