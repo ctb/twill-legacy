@@ -1,4 +1,5 @@
 import sys, subprocess
+import getpass
 
 try:
     import pkg_resources
@@ -39,8 +40,12 @@ def execute_twill_script(filename, inp=None, initial_url=None):
     global testdir
 
     if inp:
+        def new_getpass(*args):
+            return ""
+        
         inp_fp = StringIO(inp)
         old, sys.stdin = sys.stdin, inp_fp
+        old_getpass, getpass.getpass = getpass.getpass, new_getpass
 
     scriptfile = os.path.join(testdir, filename)
     try:
@@ -48,6 +53,7 @@ def execute_twill_script(filename, inp=None, initial_url=None):
     finally:
         if inp:
             sys.stdin = old
+            getpass.getpass = old_getpass
 
 def execute_twill_shell(filename, inp=None, initial_url=None,
                         fail_on_unknown=False):
