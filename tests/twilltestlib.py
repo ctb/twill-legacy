@@ -54,10 +54,6 @@ def execute_twill_script(filename, inp=None, initial_url=None):
         if inp:
             sys.stdin = old
             getpass.getpass = old_getpass
-<<<<<<< HEAD
-
-=======
->>>>>>> 9c40fad5be1ba35ed2d3b9b3f82c734ea01661d8
 
 def execute_twill_shell(filename, inp=None, initial_url=None,
                         fail_on_unknown=False):
