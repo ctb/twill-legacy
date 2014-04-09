@@ -1,8 +1,7 @@
 import twilltestlib
 import twill
 from twill import namespaces, commands
-from twill.errors import TwillAssertionError
-from _mechanize_dist import BrowserStateError, ClientForm
+from twill.errors import TwillAssertionError, TwillException
 
 def setup_module():
     global url
@@ -15,7 +14,8 @@ def test_select_multiple():
     try:
         browser.get_title()
         assert 0, "should never get here"
-    except BrowserStateError:
+    # @BRT: Replaced BrowserStateError
+    except TwillException:
         pass
 
     commands.go(url)
@@ -29,7 +29,9 @@ def test_select_multiple():
     commands.fv('1', 'checkboxtest', '-two')
     commands.fv('1', 'checkboxtest', '-three')
 
+    browser.showforms() # @BRT: Debug
     commands.submit()
+    print browser.get_html() # @BRT: Debug
     assert not 'CHECKBOXTEST' in browser.get_html()
 
     commands.fv('1', 'checkboxtest', '+one')
@@ -53,7 +55,7 @@ def test_select_single():
     try:
         browser.get_title()
         assert 0, "should never get here"
-    except BrowserStateError:
+    except TwillException:
         pass
 
     commands.go(url)

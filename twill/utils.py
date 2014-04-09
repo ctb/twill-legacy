@@ -213,20 +213,35 @@ def set_form_control_value(control, val):
     """
     Helper function to deal with setting form values on checkboxes, lists etc.
     """
-    if isinstance(control, html.CheckboxGroup) or \
-        (hasattr(control, 'type') and control.type == 'checkbox'):
+    if hasattr(control, 'type') and control.type == 'checkbox':
         try:
             # checkbox = control.get()
             val = make_boolean(val)
-            control.value.add(val)
+            control.checked = val
             return
         # @BRT: Need to add a specific exception here
-        except: #ClientForm.AmbiguityError:
+        except TwillException:
             # if there's more than one checkbox, use the behaviour for
             # ClientForm.ListControl, below.
             pass
             
-    if isinstance(control, html.SelectElement):
+    elif isinstance(control, html.CheckboxGroup):
+        if val.startswith('-'):
+            val = val[1:]
+            flag = False
+        else:
+            flag = True
+            if val.startswith('+'):
+                val = val[1:]
+        if flag:
+            control.value.add(val)
+        else:
+            try:
+                control.value.remove(val)
+            except KeyError:
+                pass
+
+    elif isinstance(control, html.SelectElement):
         #
         # for ListControls (checkboxes, multiselect, etc.) we first need
         # to find the right *value*.  Then we need to set it +/-.
@@ -234,7 +249,6 @@ def set_form_control_value(control, val):
 
         # figure out if we want to *select* it, or if we want to *deselect*
         # it (flag T/F).  By default (no +/-) select...
-        
         if val.startswith('-'):
             val = val[1:]
             flag = False
@@ -250,7 +264,10 @@ def set_form_control_value(control, val):
         fullOptions = dict(zip(optionNames, options))
         for k,v in fullOptions.iteritems():
             if (val == k or val == v) and flag:
-                control.value.add(v)
+                if control.checkable:
+                    control.checked = flag
+                else:
+                    control.value.add(v)
             elif (val == k or val == v) and not flag:
                 try:
                     control.value.remove(v)

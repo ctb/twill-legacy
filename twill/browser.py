@@ -232,6 +232,11 @@ class TwillBrowser(object):
         Return the control that matches 'fieldname'.  Must be
         a *unique* regexp/exact string match.
         """
+        if fieldname in form.fields.keys():
+            controls = [f for f in form.inputs if f.get("name") == fieldname]
+            if len(controls) != 0 and controls[0].type == 'checkbox':
+                return html.CheckboxGroup(controls)
+
         fieldname = str(fieldname)
         
         found = None
