@@ -107,6 +107,7 @@ class TwillTest(Directory):
  <body>
   <div>
   <input name="global_form_entry" type="text">
+  <input name="global_entry_2" type="text">
   </div>
 
   <form name="login" method="post">

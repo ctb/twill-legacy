@@ -36,6 +36,19 @@ class ResultWrapper:
     def __init__(self, req):
         self.req = req
         self.lxml = html.fromstring(self.req.text)
+        gfEntry = html.FormElement
+        orphans = []# self.lxml.xpath('//*[not(self::form)]//*/input')
+        if len(orphans) > 0:
+            print "Extending with global form: ", (orphans,)
+            gloFo = "<form>"
+            for o in orphans:
+                gloFo += etree.tostring(o)
+            gloFo += "</form>"
+
+            self.forms = html.fromstring(gloFo).forms
+            self.forms.extend(self.lxml.forms)
+        else:
+            self.forms = self.lxml.forms
 
     def get_url(self):
         return self.req.url
@@ -50,7 +63,7 @@ class ResultWrapper:
         return self.req.headers
 
     def get_forms(self):
-        return self.lxml.forms
+        return self.forms
 
     def get_title(self):
         selector = cssselect.CSSSelector("title")

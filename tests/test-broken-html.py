@@ -33,12 +33,15 @@ def test_raw():
     commands.go('/tidy_fixable_html')
 
     forms = b.get_all_forms()
+    print len(forms) # @BRT: DEBUG
     assert len(forms) == 1, "lxml should find one form on this page"
 
     ###
 
     commands.go('/BS_fixable_html')
     forms = b.get_all_forms()
+    print len(forms) # @BRT: DEBUG
+    b.showforms()
     assert len(forms) == 1, "there should be one mangled form on this page"
 
     ###
@@ -67,6 +70,7 @@ def test_tidy():
     commands.go('/tidy_fixable_html')
 
     forms = b.get_all_forms()
+    print len(forms) # @BRT: DEBUG
     assert len(forms) == 1, \
 	"you must have 'tidy' installed for this test to pass"
 
@@ -74,6 +78,7 @@ def test_tidy():
 
     commands.go('/BS_fixable_html')
     forms = b.get_all_forms()
+    print len(forms) # @BRT: DEBUG
     assert len(forms) == 1, \
             "there should be one mangled form on this page"
 
@@ -104,6 +109,7 @@ def test_BeautifulSoup():
 
     forms = b.get_all_forms()
     b.showforms()
+    print len(forms) # @BRT: DEBUG
     assert len(forms) == 1, "lxml should find one form on this page"
 
 
@@ -111,6 +117,7 @@ def test_BeautifulSoup():
 
     commands.go('/BS_fixable_html')
     forms = b.get_all_forms()
+    print len(forms) # @BRT: DEBUG
     assert len(forms) == 1, \
            "there should be one mangled form on this page"
 
@@ -149,6 +156,7 @@ def test_global_form():
     commands.go(url)
     commands.go('/effed_up_forms')
     forms = b.get_all_forms()
+    print len(forms) # @BRT: DEBUG
     assert len(forms) == 1
     # @BRT: Tries to use mechanize global_form, lxml equivalent?
     # assert b._browser.global_form()
@@ -177,4 +185,5 @@ def test_effed_up_forms2():
     forms = b.get_all_forms()
     form = forms[0]
     inputs = [i for i in form.inputs]
+    print len(inputs) # @BRT: DEBUG
     assert len(inputs) == 3, "lxml should find 3 form inputs"
