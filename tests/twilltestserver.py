@@ -354,8 +354,8 @@ hello, world.
         request = get_request()
 
         s = ""
-        if not request.form:
-            s = "NO FORM"
+        # if request.form is None:
+        #    s = "NO FORM"
             
         if request.form and request.form.has_key('selecttest'):
             vals = request.form['selecttest']
@@ -371,7 +371,11 @@ hello, world.
                     val = request.form[name]
                     l.append('%s=%s' % (name, val))
 
-            s += "NAMETEST: ==%s==<p>" % " AND ".join(l)
+            # @BRT: This seems to break the form test if we submit with a button
+            if len(l) > 0:
+                s += "NAMETEST: ==%s==<p>" % " AND ".join(l)
+        if s == "":
+            s = "NO FORM"
 
 
         return """\

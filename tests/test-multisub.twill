@@ -2,6 +2,7 @@ go /multisubmitform
 code 200
 
 fv 1 sub_a click
+showforms # @BRT: Debug
 submit
 find "used_sub_a"
 find "referer"

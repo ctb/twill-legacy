@@ -403,6 +403,7 @@ def formclear(formname):
         else:
             if control.value is not None:
                 control._value__del()
+    browser.last_submit_button = None
 
 def formvalue(formname, fieldname, value):
     """
@@ -778,7 +779,7 @@ def add_extra_header(header_key, header_value):
     Add an HTTP header to each HTTP request.  See 'show_extra_headers' and
     'clear_extra_headers'.
     """
-    browser._headers[header_key] = header_value
+    browser._session.headers.update({header_key : header_value})
 
 def show_extra_headers():
     """
@@ -786,7 +787,7 @@ def show_extra_headers():
 
     Show any extra headers being added to each HTTP request.
     """
-    l = browser._headers
+    l = browser._session.headers
     if l:
         print 'The following HTTP headers are added to each request:'
     
@@ -804,7 +805,7 @@ def clear_extra_headers():
     Remove all user-defined HTTP headers.  See 'add_extra_header' and
     'show_extra_headers'.
     """
-    browser._headers = dict([("Accept", "text/html; */*")])
+    browser._session.headers = dict([("Accept", "text/html; */*")])
 
 ### options
 

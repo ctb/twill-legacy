@@ -213,7 +213,6 @@ def set_form_control_value(control, val):
     """
     Helper function to deal with setting form values on checkboxes, lists etc.
     """
-    print "Setting control of type ", type(control)
     if hasattr(control, 'type') and control.type == 'checkbox':
         try:
             # checkbox = control.get()
@@ -275,7 +274,8 @@ def set_form_control_value(control, val):
                 except ValueError:
                     pass
     else:
-        control.value = val
+        if(hasattr(control, 'type') and control.type != 'submit'):
+            control.value = val
 
 def _all_the_same_submit(matches):
     """

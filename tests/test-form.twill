@@ -23,7 +23,9 @@ find "SELECTTEST: ==val=="
 
 formclear 1
 fv 1 submit_button click
+showforms # @BRT: Debug
 submit submit_button
+show # @BRT: Debug
 find "NO FORM"
 
 ###

@@ -38,8 +38,7 @@ class TwillBrowser(object):
 
         # Session stores cookies
         self._session = requests.Session()
-
-        self._headers = dict([("Accept", "text/html; */*")])
+        self._session.headers.update({"Accept" : "text/html; */*"})
 
         # An lxml FormElement, none until a form is selected
         # replaces self._browser.form from mechanize
@@ -164,7 +163,7 @@ class TwillBrowser(object):
         """
         Set the agent string to the given value.
         """
-        self._headers['User-agent'] = agent
+        self._session.headers.update({'User-agent' : agent})
         return
 
     def showforms(self):
@@ -391,7 +390,6 @@ Note: submit is using submit button: name="%s", value="%s"
         # add referer information.  this may require upgrading the
         # request object to have an 'add_unredirected_header' function.
         #
-
         # @BRT: Figure out request upgrade in lxml
         # upgrade = self._browser._ua_handlers.get('_http_request_upgrade')
         # if upgrade:
@@ -401,14 +399,24 @@ Note: submit is using submit button: name="%s", value="%s"
         #
         # now actually GO.
         #
+        payload = list(form.form_values())
+        if self.last_submit_button is not None:
+            payload.append(
+                (
+                    self.last_submit_button.get("name"),
+                    self.last_submit_button.value
+                )
+            )
+        print "Form values: ", (form.form_values(),)
+        print "Payload: ", (payload,)
         if form.method == 'POST':
             if len(self._formFiles) != 0:
-                r = self._session.post(form.action, data=form.form_values(), 
+                r = self._session.post(form.action, data=payload, 
                     files=self._formFiles)
             else:
-                r = self._session.post(form.action, data=form.form_values())
+                r = self._session.post(form.action, data=payload)
         else:
-            r = self._session.get(form.action, data=form.form_values())
+            r = self._session.get(form.action, data=payload)
 
         self._formFiles.clear()
         self._history.append(self.result)
@@ -527,11 +535,7 @@ Note: submit is using submit button: name="%s", value="%s"
         else:
             auth = None
 
-        r = self._session.get(
-                url, 
-                headers=self._headers,
-                auth = auth
-            )
+        r = self._session.get(url, auth = auth)
 
         if _follow_equiv_refresh():
             r = self._follow_redirections(r, self._session)
