@@ -49,6 +49,7 @@ show
 
 # test fv_match and fv_multi_match
 
+showforms # @BRT: Debug
 fv_match the_form item_ X
 submit
 find "item_a=X AND item_b=X AND item_c=X"

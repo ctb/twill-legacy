@@ -395,12 +395,8 @@ Note: submit is using submit button: name="%s", value="%s"
         #
         # now actually GO.
         #
-        print>>OUT, "Form action: ", form.action
         if form.method == 'POST':
-            payload = {}
-            # @BRT: The or takes care of empty actions, submits to current page
             if len(self._formFiles) != 0:
-                print>>OUT, "Submitting with files: ", (self._formFiles,) # debug
                 r = self._session.post(form.action, data=form.form_values(), 
                     files=self._formFiles)
             else:

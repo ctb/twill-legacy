@@ -138,7 +138,7 @@ def print_form(n, f, OUT):
         if hasattr(field, 'value_options'):
             items = [ i.name if hasattr(i, 'name') else i 
                         for i in field.value_options ]
-            value_displayed = "%s of %s" % (field.value, items)
+            value_displayed = "%s of %s" % ([i for i in field.value], items)
         else:
             value_displayed = "%s" % (field.value,)
 
@@ -225,7 +225,7 @@ def set_form_control_value(control, val):
             # ClientForm.ListControl, below.
             pass
             
-    if isinstance(control, html.CheckboxGroup):
+    if isinstance(control, html.SelectElement):
         #
         # for ListControls (checkboxes, multiselect, etc.) we first need
         # to find the right *value*.  Then we need to set it +/-.
@@ -234,8 +234,6 @@ def set_form_control_value(control, val):
         # figure out if we want to *select* it, or if we want to *deselect*
         # it (flag T/F).  By default (no +/-) select...
         
-        # @BRT: control value only gets updated locally, lxml issue
-
         if val.startswith('-'):
             val = val[1:]
             flag = False
@@ -246,24 +244,19 @@ def set_form_control_value(control, val):
 
         # now, select the value.
 
-        try:
-            item = control.get(name=val)
-        except ClientForm.ItemNotFoundError:
-            try:
-                item = control.get(label=val)
-            except ClientForm.AmbiguityError:
-                raise ClientForm.ItemNotFoundError('multiple matches to value/label "%s" in list control' % (val,))
-            except ClientForm.ItemNotFoundError:
-                raise ClientForm.ItemNotFoundError('cannot find value/label "%s" in list control' % (val,))
-
-        if flag:
-            item.selected = 1
-        else:
-            item.selected = 0
+        options = [i.strip() for i in control.value_options]
+        optionNames = [i.text.strip() for i in control.getchildren()]
+        fullOptions = dict(zip(optionNames, options))
+        for k,v in fullOptions.iteritems():
+            if (val == k or val == v) and flag:
+                control.value.add(v)
+            elif (val == k or val == v) and not flag:
+                try:
+                    control.value.remove(v)
+                except ValueError:
+                    pass
     else:
-        # @BRT: Twill expects a sequence here in some cases, but this function doesn't work anyway
         control.value = val
-        pass
 
 def _all_the_same_submit(matches):
     """

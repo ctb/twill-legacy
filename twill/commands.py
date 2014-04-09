@@ -4,6 +4,7 @@ twill-sh.
 """
 
 import sys
+from lxml import html
 
 OUT=None
 ERR=sys.stderr
@@ -398,9 +399,11 @@ def formclear(formname):
             (hasattr(control, 'type') and (control.type == 'submit' or \
                 control.type == 'image')):
             continue
-        control.value = ''
-        if control.get('name') in browser._formFiles.keys():
-            del browser._formFiles[control.get('name')]
+        elif isinstance(control, html.SelectElement):
+            control.value = []
+        else:
+            if control.value is not None:
+                control._value__del()
 
 def formvalue(formname, fieldname, value):
     """
