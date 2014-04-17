@@ -93,7 +93,6 @@ class TwillBrowser(object):
         if success:
             print>>OUT, '==> at', self.get_url()
         else:
-            # @BRT: Modified to use TwillException in place of BrowserStateError
             raise TwillException("cannot go to '%s'" % (url,))
 
     def reload(self):
@@ -107,7 +106,6 @@ class TwillBrowser(object):
         """
         Return to previous page, if possible.
         """
-        # @BRT: Modified to use TwillException in place of BrowserStateError
         try:
             self._journey('back')
             print>>OUT, '==> back to', self.get_url()

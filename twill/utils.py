@@ -130,10 +130,6 @@ def print_form(n, f, OUT):
         else:
             value_displayed = "%s" % (field.value,)
 
-        # @BRT: No clickable attritubte
-        # if field.is_of_kind('clickable'):
-        #    submit_index = "%-2s" % (submit_indices[field],)
-        # else:
         submit_index = "  "
         strings = ("%-2s" % (n + 1,),
                    submit_index,
