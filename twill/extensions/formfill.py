@@ -36,13 +36,13 @@ def fv_match(formname, regexp, value):
     state = twill.get_browser()
     
     form = state.get_form(formname)
-    if not form:
+    if form is None:
         print 'no such form', formname
         return
 
     regexp = re.compile(regexp)
 
-    matches = [ ctl for ctl in form.controls if regexp.search(str(ctl.name)) ]
+    matches = [ ctl for ctl in form.inputs if regexp.search(str(ctl.get("name"))) ]
 
     if matches:
         print '-- matches %d' % (len(matches),)
@@ -50,7 +50,7 @@ def fv_match(formname, regexp, value):
         n = 0
         for control in matches:
             state.clicked(form, control)
-            if control.readonly:
+            if 'readonly' in control.attrib.keys():
                 continue
 
             n += 1
@@ -69,13 +69,13 @@ def fv_multi_match(formname, regexp, *values):
     state = twill.get_browser()
     
     form = state.get_form(formname)
-    if not form:
+    if form is None:
         print 'no such form', formname
         return
 
     regexp = re.compile(regexp)
 
-    matches = [ ctl for ctl in form.controls if regexp.search(str(ctl.name)) ]
+    matches = [ ctl for ctl in form.inputs if regexp.search(str(ctl.get("name"))) ]
 
     if matches:
         print '-- matches %d, values %d' % (len(matches), len(values))
@@ -83,7 +83,7 @@ def fv_multi_match(formname, regexp, *values):
         n = 0
         for control in matches:
             state.clicked(form, control)
-            if control.readonly:
+            if 'readonly' in control.attrib.keys():
                 continue
             try:
                 twill.utils.set_form_control_value(control, values[n])
