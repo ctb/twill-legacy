@@ -84,7 +84,6 @@ def reset_browser():
     Reset the browser completely.
     """
     global browser
-    # browser._browser.close()
     browser = TwillBrowser()
 
     global _options
@@ -384,7 +383,7 @@ def showhistory():
     Show the browser history (what URLs were visited).
     """
     browser.showhistory()
-    # return browser._history
+    return browser._history
     
 def formclear(formname):
     """

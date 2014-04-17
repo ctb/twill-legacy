@@ -348,7 +348,6 @@ hello, world.
 
         keys = [ k for k in request.form.keys() if request.form[k] ]
         keys.sort()
-        print ("==" + " AND ".join(keys) + "==",)
         return "==" + " AND ".join(keys) + "=="
 
     def testform(self):
@@ -370,7 +369,6 @@ hello, world.
                 if request.form.get(name):
                     val = request.form[name]
                     l.append('%s=%s' % (name, val))
-            print "Adding an AND with l: ", (l,)
             s += "NAMETEST: ==%s==<p>" % " AND ".join(l)
 
         return """\

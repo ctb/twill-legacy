@@ -44,7 +44,7 @@ def test():
     try:
         commands.fv('1', 'selecttest', 'value')
         assert 0
-    except:
+    except TwillException:
         pass
 
     # test ambiguous match to name

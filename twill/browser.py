@@ -372,14 +372,10 @@ Note: submit is using submit button: name="%s", value="%s"
             
             if hasattr(ctl, 'type') and ctl.type == 'image':
                 pass
-            #    request = ctl._click(form, (1,1), "", mechanize.Request)
-            #else:
-            #    request = ctl._click(form, True, "", mechanize.Request)
+            
                 
         else:
             # submit w/o submit button.
-            # request = form._click(None, None, None, None, 0, None,
-            #                      "", mechanize.Request)
             pass
 
         # @BRT: For now, the referrer is always the current page
@@ -389,10 +385,6 @@ Note: submit is using submit button: name="%s", value="%s"
         # add referer information.  this may require upgrading the
         # request object to have an 'add_unredirected_header' function.
         #
-        # upgrade = self._browser._ua_handlers.get('_http_request_upgrade')
-        # if upgrade:
-        #    request = upgrade.http_request(request)
-        #    request = self._browser._add_referer_header(request)
 
         #
         # now actually GO.
@@ -420,7 +412,6 @@ Note: submit is using submit button: name="%s", value="%s"
         self._formFiles.clear()
         self._history.append(self.result)
         self.result = ResultWrapper(r)
-        #self._journey('open', request)
 
     def save_cookies(self, filename):
         """
@@ -433,7 +424,6 @@ Note: submit is using submit button: name="%s", value="%s"
         """
         Load cookies from the given file.
         """
-        # @BRT: Mechanize seems to add, not overwrite, but this overwrites
         with open(filename, 'rb') as f:
             self._session.cookies = pickle.load(f)
 

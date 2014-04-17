@@ -5,7 +5,6 @@ Test the WSGI intercept code.
 try:
     from paste.lint import middleware as wsgi_lint
 except ImportError:
-    print "Failed to imort wsgi_lint"
     wsgi_lint = lambda x: x             # ignore lack of paste.lint ;)
     
 import twill

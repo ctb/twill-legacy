@@ -147,10 +147,7 @@ def test_global_form():
     commands.go(url)
     commands.go('/effed_up_forms')
     forms = b.get_all_forms()
-    # @BRT: Assert changed to 2, picks up one mangled input in global form
     assert len(forms) == 2
-    # @BRT: Tries to use mechanize global_form, lxml equivalent?
-    # assert b._browser.global_form()
 
 def test_effed_up_forms2():
     """

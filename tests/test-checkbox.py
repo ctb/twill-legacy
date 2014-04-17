@@ -14,7 +14,6 @@ def test_select_multiple():
     try:
         browser.get_title()
         assert 0, "should never get here"
-    # @BRT: Replaced BrowserStateError
     except TwillException:
         pass
 
