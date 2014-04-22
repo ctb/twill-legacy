@@ -250,14 +250,20 @@ def set_form_control_value(control, val):
                     control.checked = flag
                 else:
                     control.value.add(v)
+                return
             elif (val == k or val == v) and not flag:
                 try:
                     control.value.remove(v)
                 except ValueError:
                     pass
+                return
+        raise(TwillException("Attempt to set invalid value"))
+        
     else:
         if(hasattr(control, 'type') and control.type != 'submit'):
             control.value = val
+        #else:
+            #raise(TwillException("Attempt to set value on invalid control"))
 
 def _all_the_same_submit(matches):
     """

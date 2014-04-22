@@ -13,7 +13,6 @@ def test():
     try:
         browser.get_title()
         assert 0, "should never get here"
-    # @BRT: Changed from browser state error
     except TwillException:
         pass
 
@@ -21,7 +20,6 @@ def test():
     
     commands.go(url)
     commands.go('/login')
-    commands.showforms()
 
     # test no matching forms
     try:
@@ -40,7 +38,7 @@ def test():
     commands.fv('1', 'selecttest', 'value1')
     commands.fv('1', 'selecttest', 'selvalue1')
     commands.formclear('1')
-    # @BRT: Removed a mechanize exception, assert 0 seems to pass, incorrectly?
+    commands.showforms()
     try:
         commands.fv('1', 'selecttest', 'value')
         assert 0
