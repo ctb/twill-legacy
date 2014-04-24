@@ -107,6 +107,7 @@ class TwillTest(Directory):
  <body>
   <div>
   <input name="global_form_entry" type="text">
+  <input name="global_entry_2" type="text">
   </div>
 
   <form name="login" method="post">
@@ -347,7 +348,6 @@ hello, world.
 
         keys = [ k for k in request.form.keys() if request.form[k] ]
         keys.sort()
-        
         return "==" + " AND ".join(keys) + "=="
 
     def testform(self):
@@ -361,7 +361,6 @@ hello, world.
             vals = request.form['selecttest']
             if isinstance(vals, str) or isinstance(vals,unicode):
                 vals = [vals,]
-
             s += "SELECTTEST: ==%s==<p>" % " AND ".join(vals,)
 
         if request.form:
@@ -370,9 +369,7 @@ hello, world.
                 if request.form.get(name):
                     val = request.form[name]
                     l.append('%s=%s' % (name, val))
-
             s += "NAMETEST: ==%s==<p>" % " AND ".join(l)
-
 
         return """\
 %s
@@ -476,7 +473,7 @@ hello, world.
 <input type=submit value=submit name=submit>
 </form>
 """
-        redirect(get_path(1) + '/')
+        return redirect(get_path(1) + '/')
 
     def logout(self):
         # expire session

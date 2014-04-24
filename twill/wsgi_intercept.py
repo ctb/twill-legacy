@@ -5,7 +5,6 @@ WSGI application.
 
 Use 'add_wsgi_intercept' and 'remove_wsgi_intercept' to control this behavior.
 """
-
 import sys
 from httplib import HTTPConnection
 import urllib
