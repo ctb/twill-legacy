@@ -51,13 +51,8 @@ class TwillBrowser(object):
         # callables to be called after each page load.
         self._post_load_hooks = []
 
-        # @BRT: Mechanize will put the empty page in history, I don't
-        #       Mechanize will, however, continue to follow links from the
-        #       last 'real' page visited, even when it claims to be on the
-        #       empty page. This seems like flawed behavior
         self._history = []
 
-    # @BRT: Removed the property() from old browser, auth realm not implemented
     def _set_creds(self, creds):
         self._auth[creds[0]] = requests.auth.HTTPBasicAuth(*creds[1])
 
@@ -190,8 +185,6 @@ class TwillBrowser(object):
         print>>OUT, 'History: (%d pages total) ' % (len(self._history))
         n = 1
         for page in self._history:
-            # @BRT: Implement below comment?
-            # only print those that back() will go
             print>>OUT, "\t%d. %s" % (n, page.get_url())
             n += 1
         print>>OUT, ''
@@ -282,11 +275,7 @@ class TwillBrowser(object):
                     found_multiple = True # record for error
 
         if found is None:
-            # @BRT: Readonly doesn't include submits, causes incorrect results
-            # try value, for readonly controls like submit keys
             clickies = [ c for c in form.inputs if c.value == fieldname]
-                         
-                         # and 'readonly' in c.attrib.keys()]
             if clickies:
                 if len(clickies) == 1:
                     found = clickies[0]
@@ -310,8 +299,6 @@ class TwillBrowser(object):
             # construct a function to choose a particular form; select_form
             # can use this to pick out a precise form.
 
-            # @BRT: Removed an assert from this function along with mechanize
-            #       Verify that this is safe
             self._form = form
             self.last_submit_button = None
         # record the last submit button clicked.
@@ -377,6 +364,7 @@ Note: submit is using submit button: name="%s", value="%s"
             pass
 
         # @BRT: For now, the referrer is always the current page
+        # @CTB this seems like an issue for further work.
         headers = {'referer' : self.get_url()}
 
         #
@@ -444,7 +432,7 @@ Note: submit is using submit button: name="%s", value="%s"
 
             print>>OUT, ''
 
-    # @BRT: Added to test for meta redirection
+    # BRT: Added to test for meta redirection
     #       Shamelessly stolen from 
     #       http://stackoverflow.com/questions/2318446/how-to-follow-meta-refreshes-in-python
     #       Took some modification to get it working, though
@@ -472,7 +460,7 @@ Note: submit is using submit button: name="%s", value="%s"
                     return True, url
         return False, None
 
-    # @BRT: Added to test for meta redirection
+    # BRT: Added to test for meta redirection
     # Shamelessly stolen from the same link as _test_for_meta_redirections
     def _follow_redirections(self, r, s):
         """
@@ -516,7 +504,6 @@ Note: submit is using submit button: name="%s", value="%s"
             except IndexError:
                 raise TwillException
 
-        # @BRT: This does basic auth, but ignores realm; based on URI only
         if url in self._auth.keys():
             auth = self._auth[url]
         else:

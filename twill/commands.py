@@ -600,6 +600,8 @@ def add_auth(realm, uri, user, passwd):
     >> add_auth <realm> <uri> <user> <passwd>
 
     Add HTTP Basic Authentication information for the given realm/uri.
+
+    Note: realms are not currently supported; <realm> is ignored.
     """
     # swap around the type of HTTPPasswordMgr and
     # HTTPPasswordMgrWithDefaultRealm depending on if with_default_realm 
@@ -613,7 +615,6 @@ def add_auth(realm, uri, user, passwd):
 
     # @BRT: Browser does not currently support realm; just add by URI for now
     browser._set_creds((uri, (user, passwd)))
-    # browser.creds.add_password(realm, uri, user, passwd)
 
     print>>OUT, "Added auth info: realm '%s' / URI '%s' / user '%s'" % (realm,
                                                                   uri,
@@ -642,7 +643,8 @@ def debug(what, level):
     print>>OUT, 'DEBUG: setting %s debugging to level %d' % (what, level)
     
     if what == "http":
-        # @BRT: Tries to set mechanize browser debug level directly
+        # @BRT: Tries to set mechanize browser debug level directly;
+        # @CTB not something supported by requests?
         # browser._browser.set_debug_http(level)
         pass
     elif what == 'equiv-refresh':
@@ -873,11 +875,12 @@ def info():
         return
     
     content_type = browser.result.get_headers()['content-type']
-    # @BRT: is_html uses the mechanize based factories in utils; rewrite
-    check_html = False # is_html(content_type, current_url)
+
+    check_html = False
+    if content_type == 'text/html':
+        check_html = True
 
     code = browser.get_code()
-
 
     print >>OUT, '\nPage information:'
     print >>OUT, '\tURL:', current_url
