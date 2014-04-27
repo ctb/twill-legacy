@@ -49,4 +49,9 @@ Web pages or grabbing data from password-protected sites automatically.
                      ],
 
       test_suite = 'nose.collector'
+
+      install_requires = ['cssselect',
+                          'lxml',
+                          'requests',
+                          ],
       )
