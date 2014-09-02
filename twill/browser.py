@@ -38,7 +38,7 @@ class TwillBrowser(object):
 
         # Session stores cookies
         self._session = requests.Session()
-        self._session.headers.update({"Accept" : "text/html; */*"})
+        self._session.headers.update({"Accept" : "text/html, */*"})
 
         # An lxml FormElement, none until a form is selected
         # replaces self._browser.form from mechanize
