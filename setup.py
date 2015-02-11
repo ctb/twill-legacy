@@ -10,7 +10,7 @@ except ImportError:
 
 setup(name = 'twill',
       
-      version = '1.8.0',
+      version = '1.9.0',
 #      download_url = 'http://darcs.idyll.org/~t/projects/twill-0.9.tar.gz',
       
       description = 'twill Web browsing language',
@@ -22,6 +22,8 @@ setup(name = 'twill',
                   'twill.other_packages._mechanize_dist',
                   'twill.extensions',
                   'twill.extensions.match_parse'],
+
+      install_requires = [ 'lxml', 'requests', 'cssselect' ],
 
       # allow both 
       entry_points = dict(console_scripts=['twill-sh = twill.shell:main'],),
