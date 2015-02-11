@@ -15,3 +15,9 @@ class TwillNameError(TwillException):
     Error to raise when an unknown command is called.
     """
     pass
+
+class TwillTimeoutError(TwillException):
+    """
+    Error to raise when a command times out.
+    """
+    pass
