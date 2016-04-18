@@ -386,14 +386,8 @@ def formclear(formname):
                 hasattr(control, 'type') and
                 control.type in ('submit', 'image', 'hidden')):
             continue
-        elif isinstance(control, html.SelectElement):
-            if control.multiple:
-                control.value.clear()
-            else:
-                control.value = None
         else:
-            if control.value is not None:
-                del control.value
+            del control.value
     browser.last_submit_button = None
 
 
