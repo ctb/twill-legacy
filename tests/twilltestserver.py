@@ -107,6 +107,7 @@ class TwillTest(Directory):
  <body>
   <div>
   <input name="global_form_entry" type="text">
+  <input name="global_entry_2" type="text">
   </div>
 
   <form name="login" method="post">
@@ -347,7 +348,6 @@ hello, world.
 
         keys = [ k for k in request.form.keys() if request.form[k] ]
         keys.sort()
-        
         return "==" + " AND ".join(keys) + "=="
 
     def testform(self):
@@ -359,10 +359,8 @@ hello, world.
             
         if request.form and request.form.has_key('selecttest'):
             vals = request.form['selecttest']
-
-            if isinstance(vals, str):
+            if isinstance(vals, str) or isinstance(vals,unicode):
                 vals = [vals,]
-
             s += "SELECTTEST: ==%s==<p>" % " AND ".join(vals,)
 
         if request.form:
@@ -371,9 +369,7 @@ hello, world.
                 if request.form.get(name):
                     val = request.form[name]
                     l.append('%s=%s' % (name, val))
-
             s += "NAMETEST: ==%s==<p>" % " AND ".join(l)
-
 
         return """\
 %s
@@ -404,8 +400,7 @@ hello, world.
         s = ""
         if request.form and request.form.has_key('checkboxtest'):
             val = request.form['checkboxtest']
-
-            if not isinstance(val, str):
+            if not isinstance(val, str) and not isinstance(val, unicode):
                 val = val[0]
 
             s += "CHECKBOXTEST: ==%s==<p>" % val
@@ -427,8 +422,7 @@ hello, world.
         s = ""
         if request.form and request.form.has_key('checkboxtest'):
             val = request.form['checkboxtest']
-
-            if not isinstance(val, str):
+            if not isinstance(val, str) or isinstance(val, unicode):
                 val = ','.join(val)
 
             s += "CHECKBOXTEST: ==%s==<p>" % val
@@ -450,7 +444,7 @@ hello, world.
         if request.form and request.form.has_key('checkboxtest'):
             val = request.form['checkboxtest']
 
-            if not isinstance(val, str):
+            if not isinstance(val, str) or isinstance(val, unicode):
                 val = val[0]
 
             s += "CHECKBOXTEST: ==%s==<p>" % val
@@ -479,7 +473,7 @@ hello, world.
 <input type=submit value=submit name=submit>
 </form>
 """
-        redirect(get_path(1) + '/')
+        return redirect(get_path(1) + '/')
 
     def logout(self):
         # expire session
@@ -498,7 +492,7 @@ hello, world.
         request = get_request()
         if request.form and request.form.has_key('q'):
             return request.form['q']
-        return ""
+        return "<html><body>No Content</body></html>"
 
     def upload_file(self):
         request = get_request()

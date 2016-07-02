@@ -1,8 +1,7 @@
 import twilltestlib
 import twill
 from twill import namespaces, commands
-from twill.errors import TwillAssertionError
-from _mechanize_dist import BrowserStateError, ClientForm
+from twill.errors import TwillAssertionError, TwillException
 
 def test():
     url = twilltestlib.get_url()
@@ -14,14 +13,13 @@ def test():
     try:
         browser.get_title()
         assert 0, "should never get here"
-    except BrowserStateError:
+    except TwillException:
         pass
 
     ### now test a few special cases
     
     commands.go(url)
     commands.go('/login')
-    commands.showforms()
 
     # test no matching forms
     try:
@@ -40,10 +38,11 @@ def test():
     commands.fv('1', 'selecttest', 'value1')
     commands.fv('1', 'selecttest', 'selvalue1')
     commands.formclear('1')
+    commands.showforms()
     try:
         commands.fv('1', 'selecttest', 'value')
         assert 0
-    except ClientForm.ItemNotFoundError:
+    except TwillException:
         pass
 
     # test ambiguous match to name

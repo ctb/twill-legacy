@@ -1,3 +1,10 @@
+2014-04-02  Titus Brown  <t@Titus-MacBook-Air-2.local>
+
+	* Monkeypatched getpass.getpass for purposes of evil.
+
+	* Merged brtaylor92 patch to twill test server to deal with 2.7 unicode
+	issue. (Ben Taylor)
+
 2009-02-02  Titus Brown  <t@lyorn.idyll.org>
 
 	* Fixed problem with quoted refresh URLs (Sergey Kishchenko).

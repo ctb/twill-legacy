@@ -10,11 +10,11 @@ except ImportError:
 
 setup(name = 'twill',
       
-      version = '0.9',
-      download_url = 'http://darcs.idyll.org/~t/projects/twill-0.9.tar.gz',
+      version = '1.8.0',
+#      download_url = 'http://darcs.idyll.org/~t/projects/twill-0.9.tar.gz',
       
       description = 'twill Web browsing language',
-      author = 'C. Titus Brown',
+      author = 'C. Titus Brown and Ben R. Taylor',
       author_email = 'titus@idyll.org',
       license='MIT',
 
@@ -28,7 +28,7 @@ setup(name = 'twill',
       scripts = ['twill-fork'],
       
       maintainer = 'C. Titus Brown',
-      maintainer_email = 'titus@caltech.edu',
+      maintainer_email = 'titus@idyll.org',
 
       url = 'http://twill.idyll.org/',
       long_description = """\

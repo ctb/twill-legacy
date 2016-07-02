@@ -10,34 +10,92 @@ import base64
 
 import subprocess
 
-import _mechanize_dist as mechanize
-from _mechanize_dist import ClientForm
-from _mechanize_dist._util import time
-from _mechanize_dist._http import HTTPRefreshProcessor
+from lxml import etree, html, cssselect
+import re
 
 from errors import TwillException
 
-class ResultWrapper:
+class ResultWrapper(object):
     """
     Deal with mechanize/urllib2/whatever results, and present them in a
     unified form.  Returned by 'journey'-wrapped functions.
     """
-    def __init__(self, http_code, url, page):
-        if http_code is not None:
-            self.http_code = int(http_code)
+    def __init__(self, req):
+        self.req = req
+        self.lxml = html.fromstring(self.req.text)
+        gfEntry = html.FormElement
+        orphans = self.lxml.xpath('//input[not(ancestor::form)]')
+        if len(orphans) > 0:
+            gloFo = "<form>"
+            for o in orphans:
+                gloFo += etree.tostring(o)
+            gloFo += "</form>"
+            self.forms = html.fromstring(gloFo).forms
+            self.forms.extend(self.lxml.forms)
         else:
-            self.http_code = 200
-        self.url = url
-        self.page = page
+            self.forms = self.lxml.forms
 
     def get_url(self):
-        return self.url
+        return self.req.url
 
     def get_http_code(self):
-        return self.http_code
+        return self.req.status_code
 
     def get_page(self):
-        return self.page
+        return self.req.text
+
+    def get_headers(self):
+        return self.req.headers
+
+    def get_forms(self):
+        return self.forms
+
+    def get_title(self):
+        selector = cssselect.CSSSelector("title")
+        return selector(self.lxml)[0].text
+
+    def get_links(self):
+        selector = cssselect.CSSSelector("a")
+        return [
+                 # (stringify_children(l) or '', l.get("href")) 
+                 (l.text or '', l.get("href"))
+                 for l in selector(self.lxml)
+               ]
+    def find_link(self, pattern):
+        selector = cssselect.CSSSelector("a")
+
+        links = [
+                 # (stringify_children(l) or '', l.get("href")) 
+                 (l.text or '', l.get("href"))
+                 for l in selector(self.lxml)
+                ]
+        for link in links:
+            if re.search(pattern, link[0]) or re.search(pattern, link[1]):
+                return link[1]
+        return ''
+
+    def get_form(self, formname):
+        forms = self.get_forms()
+
+        # first try ID
+        for f in forms:
+            id = f.get("id")
+            if id and str(id) == formname:
+                return f
+        
+        # next try regexps
+        regexp = re.compile(formname)
+        for f in forms:
+            if f.get("name") and regexp.search(f.get("name")):
+                return f
+
+        # ok, try number
+        try:
+            formnum = int(formname)
+            if formnum >= 0 and formnum <= len(forms):
+                return forms[formnum - 1]
+        except (ValueError, IndexError):              # int() failed
+            return None
 
 def trunc(s, length):
     """
@@ -56,41 +114,29 @@ def print_form(n, f, OUT):
     """
     Pretty-print the given form, assigned # n.
     """
-    if f.name:
-        print>>OUT, '\nForm name=%s (#%d)' % (f.name, n + 1)
+    if f.get('name'):
+         print>>OUT, '\nForm name=%s (#%d)' % (f.get('name'), n + 1)
     else:
         print>>OUT, '\nForm #%d' % (n + 1,)
 
-    if f.controls:
+    if f.inputs is not None:
         print>>OUT, "## ## __Name__________________ __Type___ __ID________ __Value__________________"
 
-
-    submit_indices = {}
-    n = 1
-    for c in f.controls:
-        if c.is_of_kind('clickable'):
-            submit_indices[c] = n
-            n += 1
-            
-    clickies = [c for c in f.controls if c.is_of_kind('clickable')]
-    nonclickies = [c for c in f.controls if c not in clickies]
-
-    for n, field in enumerate(f.controls):
-        if hasattr(field, 'items'):
-            items = [ i.name for i in field.items ]
-            value_displayed = "%s of %s" % (field.value, items)
+    for n, field in enumerate(f.inputs):
+        if hasattr(field, 'value_options'):
+            items = [ i.name if hasattr(i, 'name') else i 
+                        for i in field.value_options ]
+            value_displayed = "%s of %s" % ([i for i in field.value], items)
         else:
             value_displayed = "%s" % (field.value,)
 
-        if field.is_of_kind('clickable'):
-            submit_index = "%-2s" % (submit_indices[field],)
-        else:
-            submit_index = "  "
+        submit_index = "  "
         strings = ("%-2s" % (n + 1,),
                    submit_index,
                    "%-24s %-9s" % (trunc(str(field.name), 24),
-                                   trunc(field.type, 9)),
-                   "%-12s" % (trunc(field.id or "(None)", 12),),
+                                   trunc(field.type 
+                                   if hasattr(field, 'type') else 'select', 9)),
+                    "%-12s" % (trunc(field.get("id") or "(None)", 12),),
                    trunc(value_displayed, 40),
                    )
         for s in strings:
@@ -150,17 +196,34 @@ def set_form_control_value(control, val):
     """
     Helper function to deal with setting form values on checkboxes, lists etc.
     """
-    if isinstance(control, ClientForm.CheckboxControl):
+    if hasattr(control, 'type') and control.type == 'checkbox':
         try:
-            checkbox = control.get()
-            checkbox.selected = make_boolean(val)
+            # checkbox = control.get()
+            val = make_boolean(val)
+            control.checked = val
             return
-        except ClientForm.AmbiguityError:
+        except TwillException:
             # if there's more than one checkbox, use the behaviour for
             # ClientForm.ListControl, below.
             pass
             
-    if isinstance(control, ClientForm.ListControl):
+    elif isinstance(control, html.CheckboxGroup):
+        if val.startswith('-'):
+            val = val[1:]
+            flag = False
+        else:
+            flag = True
+            if val.startswith('+'):
+                val = val[1:]
+        if flag:
+            control.value.add(val)
+        else:
+            try:
+                control.value.remove(val)
+            except KeyError:
+                pass
+
+    elif isinstance(control, html.SelectElement):
         #
         # for ListControls (checkboxes, multiselect, etc.) we first need
         # to find the right *value*.  Then we need to set it +/-.
@@ -168,7 +231,6 @@ def set_form_control_value(control, val):
 
         # figure out if we want to *select* it, or if we want to *deselect*
         # it (flag T/F).  By default (no +/-) select...
-        
         if val.startswith('-'):
             val = val[1:]
             flag = False
@@ -179,22 +241,29 @@ def set_form_control_value(control, val):
 
         # now, select the value.
 
-        try:
-            item = control.get(name=val)
-        except ClientForm.ItemNotFoundError:
-            try:
-                item = control.get(label=val)
-            except ClientForm.AmbiguityError:
-                raise ClientForm.ItemNotFoundError('multiple matches to value/label "%s" in list control' % (val,))
-            except ClientForm.ItemNotFoundError:
-                raise ClientForm.ItemNotFoundError('cannot find value/label "%s" in list control' % (val,))
-
-        if flag:
-            item.selected = 1
-        else:
-            item.selected = 0
+        options = [i.strip() for i in control.value_options]
+        optionNames = [i.text.strip() for i in control.getchildren()]
+        fullOptions = dict(zip(optionNames, options))
+        for k,v in fullOptions.iteritems():
+            if (val == k or val == v) and flag:
+                if hasattr(control, 'checkable') and control.checkable:
+                    control.checked = flag
+                else:
+                    control.value.add(v)
+                return
+            elif (val == k or val == v) and not flag:
+                try:
+                    control.value.remove(v)
+                except ValueError:
+                    pass
+                return
+        raise(TwillException("Attempt to set invalid value"))
+        
     else:
-        control.value = val
+        if(hasattr(control, 'type') and control.type != 'submit'):
+            control.value = val
+        #else:
+            #raise(TwillException("Attempt to set value on invalid control"))
 
 def _all_the_same_submit(matches):
     """
@@ -290,173 +359,14 @@ def run_tidy(html):
 
     return (clean_html, errors)
 
-class ConfigurableParsingFactory(mechanize.Factory):
-    """
-    A factory that listens to twill config options regarding parsing.
-
-    First: clean up passed-in HTML using tidy?
-    Second: parse using the regular parser, or BeautifulSoup?
-    Third: should we fail on, or ignore, parse errors?
-    """
-    
-    def __init__(self):
-        self.basic_factory = mechanize.DefaultFactory()
-        self.soup_factory = mechanize.RobustFactory()
-
-        self.set_response(None)
-
-    def set_request_class(self, request_class):
-        self.basic_factory.set_request_class(request_class)
-        self.soup_factory.set_request_class(request_class)
-
-    def set_response(self, response):
-        if not response:
-            self.factory = None
-            self._orig_html = self._html = self._url = None
-            return
-
-        ###
-
-        if self.use_BS():
-            self.factory = self.soup_factory
-        else:
-            self.factory = self.basic_factory
-        cleaned_response = self._cleanup_html(response)
-        self.factory.set_response(cleaned_response)
-
-    def links(self):
-        return self.factory.links()
-    
-    def forms(self):
-        return self.factory.forms()
-
-    def get_global_form(self):
-        return self.factory.global_form
-    global_form = property(get_global_form)
-
-    def _get_title(self):
-        return self.factory.title
-    title = property(_get_title)
-
-    def _get_encoding(self):
-        return self.factory.encoding
-    encoding = property(_get_encoding)
-
-    def _get_is_html(self):
-        return self.factory.is_html
-    is_html = property(_get_is_html)
-
-    def _cleanup_html(self, response):
-        response.seek(0)
-        self._orig_html = response.read()
-        self._url = response.geturl()
-        response.seek(0)
-
-        self._html = self._orig_html
-
-        from twill.commands import _options
-        use_tidy = _options.get('use_tidy')
-        if use_tidy:
-            (new_html, errors) = run_tidy(self._html)
-            if new_html:
-                self._html = new_html
-
-        return mechanize.make_response(self._html, response._headers.items(),
-                                       response._url, response.code,
-                                       response.msg)
-                                       
-    def use_BS(self):
-        from twill.commands import _options
-        flag = _options.get('use_BeautifulSoup')
-
-        return flag
-
-###
-
-class FixedHTTPBasicAuthHandler(mechanize.HTTPBasicAuthHandler):
-    """
-    Fix a bug that exists through Python 2.4 (but NOT in 2.5!)
-    """
-    def retry_http_basic_auth(self, host, req, realm):
-        user,pw = self.passwd.find_user_password(realm, req.get_full_url())
-        # ----------------------------------------------^^^^^^^^^^^^^^^^^^ CTB
-        if pw is not None:
-            raw = "%s:%s" % (user, pw)
-            auth = 'Basic %s' % base64.encodestring(raw).strip()
-            if req.headers.get(self.auth_header, None) == auth:
-                return None
-            req.add_header(self.auth_header, auth)
-            return self.parent.open(req)
-        else:
-            return None
-    
-
-###
-
-_debug_print_refresh = False
-class FunctioningHTTPRefreshProcessor(HTTPRefreshProcessor):
-    """
-    Fix an issue where the 'content' component of the http-equiv=refresh
-    tag may not contain 'url='.  CTB hack.
-    """
-    def http_response(self, request, response):
-        from twill.commands import OUT, _options
-        do_refresh = _options.get('acknowledge_equiv_refresh')
-        
-        code, msg, hdrs = response.code, response.msg, response.info()
-
-        if code == 200 and hdrs.has_key("refresh") and do_refresh:
-            refresh = hdrs.getheaders("refresh")[0]
-            
-            if _debug_print_refresh:
-                print>>OUT, "equiv-refresh DEBUG: code 200, hdrs has 'refresh'"
-                print>>OUT, "equiv-refresh DEBUG: refresh header is", refresh
-                
-            i = refresh.find(";")
-            if i != -1:
-                pause, newurl_spec = refresh[:i], refresh[i+1:]
-                pause = int(pause)
-
-                if _debug_print_refresh:
-                    print>>OUT, "equiv-refresh DEBUG: pause:", pause
-                    print>>OUT, "equiv-refresh DEBUG: new url:", newurl_spec
-                
-                j = newurl_spec.find("=")
-                if j != -1:
-                    newurl = newurl_spec[j+1:]
-                else:
-                    newurl = newurl_spec
-
-                if _debug_print_refresh:
-                    print>>OUT, "equiv-refresh DEBUG: final url:", newurl
-
-                print>>OUT, "Following HTTP-EQUIV=REFRESH to %s" % (newurl,)
-                    
-                if (self.max_time is None) or (pause <= self.max_time):
-                    if pause != 0 and 0:  # CTB hack! ==#  and self.honor_time:
-                        time.sleep(pause)
-                    hdrs["location"] = newurl
-                    # hardcoded http is NOT a bug
-                    response = self.parent.error(
-                        "http", request, response,
-                        "refresh", msg, hdrs)
-
-        return response
-
-    https_response = http_response
-
-####
-
-class HistoryStack(mechanize._mechanize.History):
-    def __len__(self):
-        return len(self._history)
-    def __getitem__(self, i):
-        return self._history[i]
-    
-####
 
 def _is_valid_filename(f):
     return not (f.endswith('~') or f.endswith('.bak') or f.endswith('.old'))
+
+# Added so browser can ask whether to follow meta redirects
+def _follow_equiv_refresh():
+    from twill.commands import _options
+    return _options.get('acknowledge_equiv_refresh')
 
 def gather_filenames(arglist):
     """

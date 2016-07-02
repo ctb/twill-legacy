@@ -4,9 +4,7 @@ twill-sh.
 """
 
 import sys
-import _mechanize_dist as mechanize
-from _mechanize_dist import ClientForm
-from _mechanize_dist._headersutil import is_html
+from lxml import html
 
 OUT=None
 ERR=sys.stderr
@@ -86,7 +84,6 @@ def reset_browser():
     Reset the browser completely.
     """
     global browser
-    browser._browser.close()
     browser = TwillBrowser()
 
     global _options
@@ -194,8 +191,7 @@ def follow(what):
     """
     regexp = re.compile(what)
     link = browser.find_link(regexp)
-
-    if link:
+    if link != '':
         browser.follow_link(link)
         return browser.get_url()
 
@@ -369,7 +365,7 @@ def showforms():
     Show all of the forms on the current page.
     """
     browser.showforms()
-    return browser._browser.forms()
+    return browser.get_all_forms()
 
 def showlinks():
     """
@@ -378,7 +374,7 @@ def showlinks():
     Show all of the links on the current page.
     """
     browser.showlinks()
-    return browser._browser.links()
+    return browser.get_all_links()
 
 def showhistory():
     """
@@ -387,7 +383,7 @@ def showhistory():
     Show the browser history (what URLs were visited).
     """
     browser.showhistory()
-    return browser._browser._history
+    return browser._history
     
 def formclear(formname):
     """
@@ -396,11 +392,17 @@ def formclear(formname):
     Run 'clear' on all of the controls in this form.
     """
     form = browser.get_form(formname)
-    for control in form.controls:
-        if control.readonly:
+    for control in form.inputs:
+        if "readonly" in control.attrib.keys() or \
+            (hasattr(control, 'type') and (control.type == 'submit' or \
+                control.type == 'image' or control.type == 'hidden')):
             continue
-
-        control.clear()
+        elif isinstance(control, html.SelectElement):
+            control.value = []
+        else:
+            if control.value is not None:
+                control._value__del()
+    browser.last_submit_button = None
 
 def formvalue(formname, fieldname, value):
     """
@@ -429,23 +431,29 @@ def formvalue(formname, fieldname, value):
     'formvalue' is available as 'fv' as well.
     """
     form = browser.get_form(formname)
-    if not form:
+    if form is None:
         raise TwillAssertionError("no matching forms!")
 
     control = browser.get_form_field(form, fieldname)
 
     browser.clicked(form, control)
+    if isinstance(control, html.CheckboxGroup):
+        pass
 
-    if control.readonly and _options['readonly_controls_writeable']:
+    elif 'readonly' in control.attrib.keys() and \
+        _options['readonly_controls_writeable']:
         print>>OUT, 'forcing read-only form field to writeable'
-        control.readonly = False
+        del control.attrib['readonly']
         
-    if control.readonly or isinstance(control, ClientForm.IgnoreControl):
+    elif 'readonly' in control.attrib.keys() or \
+        (hasattr(control, 'type') and control.type == 'file'):
         print>>OUT, 'form field is read-only or ignorable; nothing done.'
         return
 
-    if isinstance(control, ClientForm.FileControl):
-        raise TwillException('form field is for file upload; use "formfile" instead')
+    if hasattr(control, 'type') and control.type == 'file':
+        raise TwillException(
+                    'form field is for file upload; use "formfile" instead'
+                )
 
     set_form_control_value(control, value)
 
@@ -458,6 +466,7 @@ def formaction(formname, action):
     Sets action parameter on form to action_url
     """
     form = browser.get_form(formname)
+    print "Setting action for form ", (form,), "to ", (action,)
     form.action = action
 
 fa = formaction
@@ -474,12 +483,12 @@ def formfile(formname, fieldname, filename, content_type=None):
     form = browser.get_form(formname)
     control = browser.get_form_field(form, fieldname)
 
-    if not control.is_of_kind('file'):
+    if not (hasattr(control, 'type') and control.type == 'file'):
         raise TwillException('ERROR: field is not a file upload field!')
 
     browser.clicked(form, control)
     fp = open(filename, 'rb')
-    control.add_file(fp, content_type, filename)
+    browser._formFiles[fieldname] = fp
 
     print>>OUT, '\nAdded file "%s" to file upload field "%s"\n' % (filename,
                                                              control.name,)
@@ -591,26 +600,21 @@ def add_auth(realm, uri, user, passwd):
     >> add_auth <realm> <uri> <user> <passwd>
 
     Add HTTP Basic Authentication information for the given realm/uri.
+
+    Note: realms are not currently supported; <realm> is ignored.
     """
     # swap around the type of HTTPPasswordMgr and
     # HTTPPasswordMgrWithDefaultRealm depending on if with_default_realm 
     # is on or not.
     if _options['with_default_realm']:
         realm = None
-
-        if browser.creds.__class__ == mechanize.HTTPPasswordMgr:
-            passwds = browser.creds.passwd
-            browser.creds = mechanize.HTTPPasswordMgrWithDefaultRealm()
-            browser.creds.passwd = passwds
-            print>>OUT, 'Changed to using HTTPPasswordMgrWithDefaultRealm'
+        browser._set_creds((uri,(user,passwd)))
+    
     else:
-        if browser.creds.__class__ == mechanize.HTTPPasswordMgrWithDefaultRealm:
-            passwds = browser.creds.passwd
-            browser.creds = mechanize.HTTPPasswordMgr()
-            browser.creds.passwd = passwds
-            print>>OUT, 'Changed to using HTTPPasswordMgr'
+        pass
 
-    browser.creds.add_password(realm, uri, user, passwd)
+    # @BRT: Browser does not currently support realm; just add by URI for now
+    browser._set_creds((uri, (user, passwd)))
 
     print>>OUT, "Added auth info: realm '%s' / URI '%s' / user '%s'" % (realm,
                                                                   uri,
@@ -639,7 +643,10 @@ def debug(what, level):
     print>>OUT, 'DEBUG: setting %s debugging to level %d' % (what, level)
     
     if what == "http":
-        browser._browser.set_debug_http(level)
+        # @BRT: Tries to set mechanize browser debug level directly;
+        # @CTB not something supported by requests?
+        # browser._browser.set_debug_http(level)
+        pass
     elif what == 'equiv-refresh':
         if level:
             utils._debug_print_refresh = True
@@ -770,7 +777,7 @@ def add_extra_header(header_key, header_value):
     Add an HTTP header to each HTTP request.  See 'show_extra_headers' and
     'clear_extra_headers'.
     """
-    browser._browser.addheaders += [(header_key, header_value)]
+    browser._session.headers.update({header_key : header_value})
 
 def show_extra_headers():
     """
@@ -778,12 +785,11 @@ def show_extra_headers():
 
     Show any extra headers being added to each HTTP request.
     """
-    l = browser._browser.addheaders
-
+    l = browser._session.headers
     if l:
         print 'The following HTTP headers are added to each request:'
     
-        for k, v in l:
+        for k, v in l.iteritems():
             print '  "%s" = "%s"' % (k, v,)
             
         print ''
@@ -797,7 +803,7 @@ def clear_extra_headers():
     Remove all user-defined HTTP headers.  See 'add_extra_header' and
     'show_extra_headers'.
     """
-    browser._browser.addheaders = []
+    browser._session.headers = dict([("Accept", "text/html; */*")])
 
 ### options
 
@@ -868,16 +874,18 @@ def info():
         print "We're not on a page!"
         return
     
-    content_type = browser._browser._response.info().getheaders("content-type")
-    check_html = is_html(content_type, current_url)
+    content_type = browser.result.get_headers()['content-type']
+
+    check_html = False
+    if content_type == 'text/html':
+        check_html = True
 
     code = browser.get_code()
-
 
     print >>OUT, '\nPage information:'
     print >>OUT, '\tURL:', current_url
     print >>OUT, '\tHTTP code:', code
-    print >>OUT, '\tContent type:', content_type[0],
+    print >>OUT, '\tContent type:', content_type,
     if check_html:
         print >>OUT, '(HTML)'
     else:
