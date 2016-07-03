@@ -122,12 +122,10 @@ A few things to note:
 Testing WSGI applications "in-process"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-twill has some built-in support for testing `WSGI
-applications`_.
+You can use `wsgi_intercept`_ for testing `WSGI applications`_.
 
-twill contains two functions,
-`add_wsgi_intercept` and `remove_wsgi_intercept`, that allow Python
-applications to redirect HTTP calls into a WSGI application
+It provides two functions, `add_wsgi_intercept` and `remove_wsgi_intercept`,
+that allow Python applications to redirect HTTP calls into a WSGI application
 "in-process", without going via an external Internet call.  This is
 particularly useful for unit tests, where setting up an externally
 available Web server can be inconvenient.
@@ -138,8 +136,9 @@ the given WSGI app: ::
     def create_app():
         return wsgi_app
 
-    twill.add_wsgi_intercept('localhost', 80, create_app)
+    wsgi_intercept.add_wsgi_intercept('localhost', 80, create_app)
 
 See the ``tests/test-wsgi-intercept.py`` unit test for more information.
 
+.. _wsgi_intercept: https://pypi.python.org/pypi/wsgi_intercept
 .. _WSGI applications: http://www.python.org/peps/pep-0333.html

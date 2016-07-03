@@ -10,7 +10,7 @@ from twill import namespaces
 from twill.errors import TwillAssertionError, TwillNameError
 import twill.parse
 
-from util import execute_script, test_dir
+from .util import execute_script, test_dir
 
 
 def setup_module():

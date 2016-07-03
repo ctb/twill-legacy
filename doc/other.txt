@@ -35,7 +35,7 @@ interception stuff for in-process testing of WSGI apps by twill.  This
 is for people who want to talk directly to their Web
 apps without going through a network connection.
 
-.. _wsgi_intercept: http://darcs.idyll.org/~t/projects/wsgi_intercept/README.html
+.. _wsgi_intercept: https://pypi.python.org/pypi/wsgi_intercept
 
 Other Python-based Web testing and browsing tools
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
