@@ -1,22 +1,21 @@
 import pytest
 
-import twilltestlib
-import twilltestserver
+import util
 
 
-@pytest.fixture
-def url(request, scope='session'):
-    twilltestlib.cd_testdir()
-    twilltestlib.run_server(twilltestserver.create_publisher)
+@pytest.fixture(scope='session')
+def url(request):
+    util.cd_test_dir()
+    util.start_server()
 
-    url = twilltestlib.get_url()
+    url = util.get_url()
 
     from twill.commands import go, find
     try:
         go(url)
         find("These are the twill tests")
-    except:
-        raise Exception("""
+    except Exception:
+        raise RuntimeError("""
 ***
 Hello! The twill test server is not running or cannot be reached;
 please free port 8080 (or set TWILL_TEST_PORT to something else),
@@ -25,8 +24,8 @@ and clear your proxy settings too!
 """)
 
     def stop():
-        twilltestlib.kill_server()
-        twilltestlib.pop_testdir()
+        util.stop_server()
+        util.pop_test_dir()
 
     request.addfinalizer(stop)
 

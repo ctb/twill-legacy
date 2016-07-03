@@ -5,7 +5,7 @@ import os
 from pytest import raises
 
 from twill.errors import TwillNameError
-from twilltestlib import execute_shell, testdir
+from util import execute_shell, test_dir
 
 
 def test_shell_specific(url):
@@ -23,6 +23,6 @@ def test_most_commands(url):
 def teardown_module():
     for filename in 'test_basic.cookies', 'test_basic.out', 'test_shell.out':
         try:
-            os.unlink(os.path.join(testdir, filename))
+            os.unlink(os.path.join(test_dir, filename))
         except OSError:
             pass

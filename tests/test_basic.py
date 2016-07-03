@@ -6,7 +6,7 @@ This should really be broken out into multiple sub scripts...
 
 import os
 
-from twilltestlib import execute_script, testdir
+from util import execute_script, test_dir
 
 
 def test(url):
@@ -18,7 +18,7 @@ def test(url):
 def teardown_module():
     for filename in 'test_basic.cookies', 'test_basic.out':
         try:
-            os.unlink(os.path.join(testdir, filename))
+            os.unlink(os.path.join(test_dir, filename))
         except OSError:
             pass
 

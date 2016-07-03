@@ -10,7 +10,7 @@ from twill import namespaces
 from twill.errors import TwillAssertionError, TwillNameError
 import twill.parse
 
-from twilltestlib import execute_script, testdir
+from util import execute_script, test_dir
 
 
 def setup_module():
@@ -39,7 +39,7 @@ def test(url):
     ###
 
     # from stdin
-    filename = os.path.join(testdir, 'test_go.twill')
+    filename = os.path.join(test_dir, 'test_go.twill')
     old_in, sys.stdin = sys.stdin, open(filename)
     try:
         execute_script('-', initial_url=url)

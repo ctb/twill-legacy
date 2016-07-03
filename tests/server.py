@@ -1,41 +1,45 @@
-#! /usr/local/bin/python2.3
-"""
-Quixote test app for twill.
-"""
+#!/usr/bin/env python
 
+"""Quixote test app for twill."""
+
+
+import base64
 import os
 
 from quixote.publish import Publisher
 from quixote.errors import AccessError
 from quixote.session import Session, SessionManager
 from quixote.directory import Directory, AccessControlled
-from quixote import (get_session, get_session_manager, get_path,
-     redirect, get_request, get_response)
 from quixote.form import widget
-import base64
+from quixote import (
+    get_session, get_session_manager, get_path,
+    redirect, get_request, get_response)
+
+PORT = 8080
+
 
 class AlwaysSession(Session):
+
     def __init__(self, session_id):
         Session.__init__(self, session_id)
         self.n = 0
         
     def has_info(self):
-        """
-        Always save.
-        """
+        """Always save."""
         return True
 
     is_dirty = has_info
 
 
 class UnauthorizedError(AccessError):
-    """
-    The request requires user authentication.
+    """The request requires user authentication.
+
     This subclass of AccessError sends a 401 instead of a 403,
     hinting that the client should try again with authentication.
 
-    (from http://www.quixote.ca/qx/HttpBasicAuthentication)
+    (from http://quixote.ca/qx/HttpBasicAuthentication)
     """
+
     status_code = 401
     title = "Unauthorized"
     description = "You are not authorized to access this resource."
@@ -46,17 +50,16 @@ class UnauthorizedError(AccessError):
         
     def format(self):
         request = get_request()
-        request.response.set_header('WWW-Authenticate',
-                                    'Basic realm="%s"' % self.realm)
+        request.response.set_header(
+            'WWW-Authenticate', 'Basic realm="%s"' % self.realm)
         return AccessError.format(self)
 
+
 def create_publisher():
-    """
-    Create a publisher for TwillTest, with session management added on.
-    """
+    """Create a publisher for TwillTest, with session management added on."""
     session_manager = SessionManager(session_class=AlwaysSession)
-    return Publisher(TwillTest(),
-                     session_manager=session_manager)
+    return Publisher(TwillTest(), session_manager=session_manager)
+
 
 def message(session):
         return """\
@@ -82,18 +85,22 @@ You are logged in as "%s".
 </html>
 """ % (session.id, session.n, session.user)
 
+
 class TwillTest(Directory):
-    _q_exports = ['logout', 'increment', 'incrementfail', "", 'restricted',
-                  'login', ('test spaces', 'test_spaces'), 'test_spaces',
-                  'simpleform', 'upload_file', 'http_auth', 'formpostredirect',
-                  'exit', 'multisubmitform', "exception", "plaintext",
-                  "testform", "testformaction",
-                  "test_refresh", "test_refresh2", "test_refresh3",
-                  "test_checkbox", "test_simple_checkbox","echo",
-                  "test_checkboxes", 'test_global_form',
-                  'tidy_fixable_html', 'BS_fixable_html', 'unfixable_html',
-                  'effed_up_forms', 'effed_up_forms2', 'broken_linktext',
-		  'exit', 'display_post', 'display_environ']
+    """The actual test app."""
+
+    _q_exports = [
+        'logout', 'increment', 'incrementfail', "", 'restricted',
+        'login', ('test spaces', 'test_spaces'), 'test_spaces',
+        'simpleform', 'upload_file', 'http_auth', 'formpostredirect',
+        'exit', 'multisubmitform', "exception", "plaintext",
+        "testform", "testformaction",
+        "test_refresh", "test_refresh2", "test_refresh3",
+        "test_checkbox", "test_simple_checkbox","echo",
+        "test_checkboxes", 'test_global_form',
+        'tidy_fixable_html', 'BS_fixable_html', 'unfixable_html',
+        'effed_up_forms', 'effed_up_forms2', 'broken_linktext',
+        'exit', 'display_post', 'display_environ']
 
     def test_global_form(self):
         return """
@@ -123,20 +130,16 @@ class TwillTest(Directory):
 
     def display_post(self):
         s = ""
-
         request = get_request()
         for k, v in request.form.items():
             s += "k: '''%s''' : '''%s'''<p>\n" % (k, v,)
-
         return s
 
     def display_environ(self):
         s = ""
-
         request = get_request()
         for k, v in request.environ.items():
             s += "k: '''%s''' : '''%s'''<p>\n" % (k, v,)
-
         return s
 
     def exit(self):
@@ -263,27 +266,20 @@ hello, world.
 
     def increment(self):
         session = get_session()
-
         session.n += 1
-
         return message(session)
 
     def incrementfail(self):
         session = get_session()
-
         session.n += 1
-
         raise Exception(message(session))
 
     def login(self):
         request = get_request()
-
-        username_widget = widget.StringWidget(name='username',
-                                              value='')
-        submit_widget = widget.SubmitWidget(name='submit',
-                                            value='submit me')
-        submit_widget2 = widget.SubmitWidget(name='nosubmit2',
-                                             value="don't submit")
+        username_widget = widget.StringWidget(name='username', value='')
+        submit_widget = widget.SubmitWidget(name='submit', value='submit me')
+        submit_widget2 = widget.SubmitWidget(
+            name='nosubmit2', value="don't submit")
         
         if request.form:
             assert not submit_widget2.parse(request)
@@ -295,22 +291,20 @@ hello, world.
 
         image_submit = '''<input type=image name='submit you' src=DNE.gif>'''
                 
-        return "<form method=POST>Log in: %s<p>%s<p>%s<p>%s</form>" % \
-               (username_widget.render(),
-                submit_widget2.render(),
-                submit_widget.render(),
-                image_submit)
+        return "<form method=POST>Log in: %s<p>%s<p>%s<p>%s</form>" % (
+            username_widget.render(), submit_widget2.render(),
+            submit_widget.render(), image_submit)
 
     def simpleform(self):
-        """
-        no submit button...
-        """
+        """No submit button..."""
         request = get_request()
         
         w1 = widget.StringWidget(name='n', value='')
         w2 = widget.StringWidget(name='n2', value='')
         
-        return "%s %s <form method=POST><input type=text name=n><input type=text name=n2></form>" % (w1.parse(request), w2.parse(request),)
+        return ("%s %s <form method=POST>'"
+            "<input type=text name=n><input type=text name=n2></form>") % (
+            w1.parse(request), w2.parse(request))
 
     def multisubmitform(self):
         request = get_request()
@@ -329,21 +323,19 @@ hello, world.
                 s += "used_sub_b"
 
             if not used:
-                assert 0
+                assert False
 
             # print out the referer, too.
             referer = request.environ.get('HTTP_REFERER')
             if referer:
                 s += "<p>referer: %s" % (referer,)
 
-        return "<form method=POST>%s %s %s</form>" % (s,
-                                                      submit1.render(),
-                                                      submit2.render())
+        return "<form method=POST>%s %s %s</form>" % (
+            s, submit1.render(), submit2.render())
 
     def testformaction(self):
         request = get_request()
-
-        keys = [ k for k in request.form.keys() if request.form[k] ]
+        keys = [k for k in request.form.keys() if request.form[k]]
         keys.sort()
         return "==" + " AND ".join(keys) + "=="
 
@@ -354,18 +346,18 @@ hello, world.
         if not request.form:
             s = "NO FORM"
             
-        if request.form and request.form.has_key('selecttest'):
-            vals = request.form['selecttest']
-            if isinstance(vals, str) or isinstance(vals,unicode):
-                vals = [vals,]
-            s += "SELECTTEST: ==%s==<p>" % " AND ".join(vals,)
+        if request.form and 'selecttest' in request.form:
+            values = request.form['selecttest']
+            if isinstance(values, basestring):
+                values = [values]
+            s += "SELECTTEST: ==%s==<p>" % " AND ".join(values)
 
         if request.form:
             l = []
             for name in ('item', 'item_a', 'item_b', 'item_c'):
                 if request.form.get(name):
-                    val = request.form[name]
-                    l.append('%s=%s' % (name, val))
+                    value = request.form[name]
+                    l.append('%s=%s' % (name, value))
             s += "NAMETEST: ==%s==<p>" % " AND ".join(l)
 
         return """\
@@ -395,12 +387,12 @@ hello, world.
         request = get_request()
 
         s = ""
-        if request.form and request.form.has_key('checkboxtest'):
-            val = request.form['checkboxtest']
-            if not isinstance(val, str) and not isinstance(val, unicode):
-                val = val[0]
+        if request.form and 'checkboxtest' in request.form:
+            value = request.form['checkboxtest']
+            if not isinstance(value, basestring):
+                value = value[0]
 
-            s += "CHECKBOXTEST: ==%s==<p>" % val
+            s += "CHECKBOXTEST: ==%s==<p>" % value
 
         return """\
 %s
@@ -418,11 +410,11 @@ hello, world.
 
         s = ""
         if request.form and request.form.has_key('checkboxtest'):
-            val = request.form['checkboxtest']
-            if not isinstance(val, str) or isinstance(val, unicode):
-                val = ','.join(val)
+            value = request.form['checkboxtest']
+            if not isinstance(value, basestring):
+                value = ','.join(value)
 
-            s += "CHECKBOXTEST: ==%s==<p>" % val
+            s += "CHECKBOXTEST: ==%s==<p>" % value
 
         return """\
 %s
@@ -439,12 +431,12 @@ hello, world.
 
         s = ""
         if request.form and request.form.has_key('checkboxtest'):
-            val = request.form['checkboxtest']
+            value = request.form['checkboxtest']
 
-            if not isinstance(val, str) or isinstance(val, unicode):
-                val = val[0]
+            if not isinstance(value, basestring):
+                value = value[0]
 
-            s += "CHECKBOXTEST: ==%s==<p>" % val
+            s += "CHECKBOXTEST: ==%s==<p>" % value
 
         return """\
 %s
@@ -497,12 +489,18 @@ hello, world.
             contents = request.form['upload'].fp.read()
             return contents
         else:
-            return "<form enctype=multipart/form-data method=POST> <input type=file name=upload> <input type=submit value=submit> </form>"
+            return """"\
+<form enctype=multipart/form-data method=POST>
+<input type=file name=upload>
+<input type=submit value=submit>
+</form>"""
 
     def exit(self):
         os._exit(0)
 
+
 class Restricted(AccessControlled, Directory):
+
     _q_exports = [""]
 
     def _q_access(self):
@@ -513,7 +511,9 @@ class Restricted(AccessControlled, Directory):
     def _q_index(self):
         return "you made it!"
 
+
 class HttpAuthRestricted(AccessControlled, Directory):
+
     _q_exports = [""]
 
     def _q_access(self):
@@ -536,12 +536,11 @@ class HttpAuthRestricted(AccessControlled, Directory):
     def _q_index(self):
         return "you made it!"
 
-####
 
 if __name__ == '__main__':
     from quixote.server.simple_server import run
-    port = int(os.environ.get('TWILL_TEST_PORT', '8080'))
-    print 'starting twilltestserver on port %d.' % (port,)
+    port = int(os.environ.get('TWILL_TEST_PORT', PORT))
+    print 'starting twill test server on port %d.' % (port,)
     try:
         run(create_publisher, port=port)
     except KeyboardInterrupt:

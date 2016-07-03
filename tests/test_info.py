@@ -1,4 +1,4 @@
-from twilltestlib import execute_script
+from util import execute_script
 
 
 def test(url):
