@@ -1,52 +1,76 @@
 #!/usr/bin/env python
 
-try:
-    from setuptools import setup
-except ImportError:
-    print '(WARNING: importing distutils, not setuptools!)'
-    from distutils.core import setup
+import sys
 
-#### twill info.
+from setuptools import setup
+from setuptools.command.test import test as TestCommand
 
-setup(name = 'twill',
+python_version = sys.version_info[:2]
+if not (2, 6) <= python_version <= (2, 7):
+    sys.exit("Python %s.%s is not supported by twill." % python_version)
+
+
+class PyTest(TestCommand):
+
+    user_options = [('pytest-args=', 'a', "Arguments to pass to py.test")]
+
+    def initialize_options(self):
+        TestCommand.initialize_options(self)
+        self.pytest_args = []
+
+    def run_tests(self):
+        import pytest
+        errno = pytest.main(self.pytest_args)
+        sys.exit(errno)
+
+
+setup(
+    name='twill',
+    version='2.0',
+    download_url='https://pypi.python.org/pypi/twill',
       
-      version = '1.8.0',
-#      download_url = 'http://darcs.idyll.org/~t/projects/twill-0.9.tar.gz',
-      
-      description = 'twill Web browsing language',
-      author = 'C. Titus Brown and Ben R. Taylor',
-      author_email = 'titus@idyll.org',
-      license='MIT',
+    description='twill Web browsing language',
+    author='C. Titus Brown and Ben R. Taylor',
+    author_email='titus@idyll.org',
+    license='MIT',
 
-      packages = ['twill', 'twill.other_packages',
-                  'twill.other_packages._mechanize_dist',
-                  'twill.extensions',
-                  'twill.extensions.match_parse'],
+    packages=[
+        'twill', 'twill.other_packages',
+        'twill.other_packages._mechanize_dist',
+        'twill.extensions',
+        'twill.extensions.match_parse'
+    ],
 
-      # allow both 
-      entry_points = dict(console_scripts=['twill-sh = twill.shell:main'],),
-      scripts = ['twill-fork'],
-      
-      maintainer = 'C. Titus Brown',
-      maintainer_email = 'titus@idyll.org',
+    # allow both
+    entry_points=dict(console_scripts=['twill-sh = twill.shell:main'],),
+    scripts=['twill-fork'],
 
-      url = 'http://twill.idyll.org/',
-      long_description = """\
+    maintainer='C. Titus Brown',
+    maintainer_email='titus@idyll.org',
+
+    url='http://twill.idyll.org/',
+    long_description="""\
 A scripting system for automating Web browsing.  Useful for testing
-Web pages or grabbing data from password-protected sites automatically.
-""",
-      classifiers = ['Development Status :: 4 - Beta',
-                     'Environment :: Console',
-                     'Intended Audience :: Developers',
-                     'Intended Audience :: System Administrators',
-                     'License :: OSI Approved :: MIT License',
-                     'Natural Language :: English',
-                     'Operating System :: OS Independent',
-                     'Programming Language :: Python',
-                     'Programming Language :: Other Scripting Engines',
-                     'Topic :: Internet :: WWW/HTTP',
-                     'Topic :: Software Development :: Testing',
-                     ],
+Web pages or grabbing data from password-protected sites automatically.""",
+    classifiers = [
+        'Development Status :: 4 - Beta',
+        'Environment :: Console',
+        'Intended Audience :: Developers',
+        'Intended Audience :: System Administrators',
+        'License :: OSI Approved :: MIT License',
+        'Natural Language :: English',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Other Scripting Engines',
+        'Topic :: Internet :: WWW/HTTP',
+        'Topic :: Software Development :: Testing'
+    ],
 
-      test_suite = 'nose.collector'
-      )
+    install_requires=['lxml', 'cssselect', 'requests', 'pyparsing'],
+    extras_require={'tidy': ["pytidylib"]},
+    tests_require=['pytest', 'quixote', 'pytidylib'],
+    cmdclass={'test': PyTest}
+)

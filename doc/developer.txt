@@ -2,18 +2,18 @@
 Developing twill
 ================
 
-twill is entirely written in Python.  You will need Python 2.3 or later
-to develop it.
+twill is entirely written in Python.  You will need Python 2.6 or 2.7
+to develop it.  Python 3 is not yet supported.
 
 Package tests
 ~~~~~~~~~~~~~
 
-twill comes with several unit tests.  They depend on nose_ and
-`Quixote 2.3`_.  To run them, type 'python setup.py test'
+twill comes with several unit tests.  They depend on `py.test`_ and
+`Quixote`_.  To run them, type 'python setup.py test'
 in the top package directory.
 
-.. _nose: http://somethingaboutorange.com/mrl/projects/nose/
-.. _Quixote 2.3: http://www.mems-exchange.org/software/quixote/
+.. pytest.org: http://pytest.org/
+.. _Quixote: http://quixote.ca/
 
 Licensing
 ~~~~~~~~~

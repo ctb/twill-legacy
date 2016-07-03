@@ -1,18 +1,11 @@
-import sys, subprocess
-import getpass
-
-try:
-    import pkg_resources
-except ImportError:
-    raise Exception("you must have setuptools installed to run the tests")
-
-pkg_resources.require('quixote>=2.3')
-
-from quixote.server.simple_server import run
-from cStringIO import StringIO
 import os
-import socket
+import sys
+import getpass
+import subprocess
 import urllib
+
+from cStringIO import StringIO
+
 
 _server_url = None
 
@@ -36,7 +29,7 @@ def pop_testdir():
     global cwd
     os.chdir(cwd)
 
-def execute_twill_script(filename, inp=None, initial_url=None):
+def execute_script(filename, inp=None, initial_url=None):
     global testdir
 
     if inp:
@@ -47,7 +40,8 @@ def execute_twill_script(filename, inp=None, initial_url=None):
         old, sys.stdin = sys.stdin, inp_fp
         old_getpass, getpass.getpass = getpass.getpass, new_getpass
 
-    scriptfile = os.path.join(testdir, filename)
+    if filename != '-':
+        filename = os.path.join(testdir, filename)
     try:
         twill.execute_file(filename, initial_url=initial_url)
     finally:
@@ -55,29 +49,29 @@ def execute_twill_script(filename, inp=None, initial_url=None):
             sys.stdin = old
             getpass.getpass = old_getpass
 
-def execute_twill_shell(filename, inp=None, initial_url=None,
+def execute_shell(filename, inp=None, initial_url=None,
                         fail_on_unknown=False):
     # use filename as the stdin *for the shell object only*
     scriptfile = os.path.join(testdir, filename)
-    
+
     cmd_inp = open(scriptfile).read()
     cmd_inp += '\nquit\n'
     cmd_inp = StringIO(cmd_inp)
+
+    command_loop = twill.shell.TwillCommandLoop
 
     # use inp as the std input for the actual script commands.
     if inp:
         inp_fp = StringIO(inp)
         old, sys.stdin = sys.stdin, inp_fp
-
     try:
-        try:
-            s = twill.shell.TwillCommandLoop(initial_url=initial_url,
-                                             stdin=cmd_inp,
-                                             fail_on_unknown=fail_on_unknown)
-            s.cmdloop()
-        except SystemExit:
-            pass
+        s = command_loop(initial_url=initial_url, stdin=cmd_inp,
+                         fail_on_unknown=fail_on_unknown)
+        s.cmdloop()
+    except SystemExit:
+        pass
     finally:
+        command_loop.reset()  # do not keep as singleton
         if inp:
             sys.stdin = old
     

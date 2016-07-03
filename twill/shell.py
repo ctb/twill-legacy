@@ -61,6 +61,7 @@ def make_help_cmd(cmd, docstring):
 ###
 
 class Singleton(object):
+
     def __new__(cls, *args, **kwds):
         it = cls.__dict__.get("__it__")
         if it is not None:
@@ -71,6 +72,11 @@ class Singleton(object):
     
     def init(self, *args, **kwds):
         pass
+
+    @classmethod
+    def reset(cls):
+        cls.__it__ = None
+
 
 #
 # TwillCommandLoop

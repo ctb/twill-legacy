@@ -6,14 +6,20 @@ code is implemented in the ConfigurableParsingFactory class.
 """
 
 import os
-import base64
-
+import re
 import subprocess
 
 from lxml import etree, html, cssselect
-import re
+
+try:
+    import tidylib
+except (ImportError, OSError):
+    # ImportError can be raised when PyTidyLib package is not installed
+    # OSError can be raised when the HTML Tidy shared library is not installed
+    tidylib = None
 
 from errors import TwillException
+
 
 class ResultWrapper(object):
     """
@@ -314,50 +320,24 @@ def unique_match(matches):
 # stuff to run 'tidy'...
 #
 
-_tidy_cmd = ["tidy", "-q", "-ashtml"]
-_tidy_exists = True
-
 def run_tidy(html):
-    """
-    Run the 'tidy' command-line program on the given HTML string.
+    """Run HTML Tidy on the given HTML string.
 
     Return a 2-tuple (output, errors).  (None, None) will be returned if
-    'tidy' doesn't exist or otherwise fails.
+    PyTidyLib (or the required shared library for tidy) isn't installed.
     """
-    global _tidy_cmd, _tidy_exists
-
     from commands import _options
     require_tidy = _options.get('require_tidy')
 
-    if not _tidy_exists:
+    if not tidylib:
         if require_tidy:
-            raise TwillException("tidy does not exist and require_tidy is set")
-        return (None, None)
+            raise TwillException(
+                "require_tidy is set but PyTidyLib is not installed")
+        return None, None
     
-    #
-    # run the command, if we think it exists
-    #
+    clean_html, errors = tidylib.tidy_document(html)
     
-    clean_html = None
-    if _tidy_exists:
-        try:
-            process = subprocess.Popen(_tidy_cmd, stdin=subprocess.PIPE,
-                                       stdout=subprocess.PIPE,
-                                       stderr=subprocess.PIPE, bufsize=0,
-                                       shell=False)
-        
-            (stdout, stderr) = process.communicate(html)
-
-            clean_html = stdout
-            errors = stderr
-        except OSError:
-            _tidy_exists = False
-
-    errors = None
-    if require_tidy and clean_html is None:
-        raise TwillException("tidy does not exist and require_tidy is set")
-
-    return (clean_html, errors)
+    return clean_html, errors
 
 
 def _is_valid_filename(f):

@@ -1,15 +1,17 @@
-"""
-Support functionality for using twill in unit tests.
-"""
+"""Support functionality for using twill in unit tests."""
 
-import sys, os, time
+import sys
+import time
+
 from cStringIO import StringIO
+from multiprocessing import Process
 
-# package import
 from parse import execute_file
 
+
 class TestInfo:
-    """
+    """Test info container.
+
     Object containing info for a test: script to run, server function to
     run, and port to run it on.  Note that information about server port
     *must* be decided by the end of the __init__ function.
@@ -41,49 +43,24 @@ class TestInfo:
             sys.stdout, sys.stderr = old_out, old_err
 
     def run_script(self):
-        """
-        Run the given twill script on the given server.
-        """
+        """Run the given twill script on the given server."""
         time.sleep(self.sleep)
         url = self.get_url()
         execute_file(self.script, initial_url=url)
 
     def get_url(self):
-        "Calculate the test server URL."
+        """"Get the test server URL."""
         return "http://localhost:%d/" % (self.port,)
 
-#
-# run_test
-#
 
 def run_test(test_info):
-    """
-    Run a test on a Web site where the Web site is running in a child
-    process.
-    """
-    pid = os.fork()
-
-    if pid is 0:
-        run_child_process(test_info)
-        # never returns...
-
-    #
-    # run twill test script.
-    #
-    
-    child_pid = pid
+    """Run test on a web site where the site is running in a sub process."""
+    # run server
+    server_process = Process(target=test_info.start_server)
+    server_process.start()
+    # run twill test script
     try:
         test_info.run_script()
     finally:
-        os.kill(child_pid, 9)
+        server_process.terminate()
 
-#
-# run_child_process
-#
-        
-def run_child_process(test_info):
-    """
-    Run a Web server in a child process.
-    """
-    test_info.start_server()
-    sys.exit(0)

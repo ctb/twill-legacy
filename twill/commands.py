@@ -401,7 +401,7 @@ def formclear(formname):
             control.value = []
         else:
             if control.value is not None:
-                control._value__del()
+                del control.value
     browser.last_submit_button = None
 
 def formvalue(formname, fieldname, value):
@@ -558,7 +558,9 @@ def getpassword(prompt):
     """
     _, local_dict = get_twill_glocals()
 
-    inp = getpass.getpass(prompt)
+    # we use sys.stdin here in order to get the same behaviour on Unix
+    # as on other platforms and for better testability of this function
+    inp = getpass.getpass(prompt, sys.stdin)
 
     local_dict['__password__'] = inp
     return inp

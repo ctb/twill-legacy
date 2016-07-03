@@ -2,18 +2,15 @@
 """
 Quixote test app for twill.
 """
-import sys
-import os
 
-import pkg_resources
-pkg_resources.require('Quixote>=2.4')
+import os
 
 from quixote.publish import Publisher
 from quixote.errors import AccessError
 from quixote.session import Session, SessionManager
 from quixote.directory import Directory, AccessControlled
-from quixote import get_user, get_session, get_session_manager, get_path, \
-     redirect, get_request, get_response
+from quixote import (get_session, get_session_manager, get_path,
+     redirect, get_request, get_response)
 from quixote.form import widget
 import base64
 
@@ -30,7 +27,7 @@ class AlwaysSession(Session):
 
     is_dirty = has_info
 
-from quixote.errors import AccessError
+
 class UnauthorizedError(AccessError):
     """
     The request requires user authentication.

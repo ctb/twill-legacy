@@ -14,7 +14,9 @@ import socket
 from twill.errors import TwillAssertionError
 
 try:
-    import dns.resolver
+    from dns.ipv4 import inet_aton
+    from dns.name import from_text
+    from dns.resolver import Resolver
 except ImportError:
     raise Exception("ERROR: must have dnspython installed to use the DNS extension module")
 
@@ -44,7 +46,7 @@ def dns_cname(host, cname, server=None):
     if is_ip_addr(cname):
         raise Exception("<alias_for> parameter must be a hostname, not an IP address")
     
-    cname = dns.name.from_text(cname)
+    cname = from_text(cname)
     
     for answer in _query(host, 'CNAME', server):
         if cname == answer.target:
@@ -75,7 +77,7 @@ def dns_mx(host, mailserver, server=None):
 
     Assert that <mailserver> is a mailserver for <name>.
     """
-    mailserver = dns.name.from_text(mailserver)
+    mailserver = from_text(mailserver)
     
     for rdata in _query(host, 'MX', server):
         if mailserver == rdata.exchange:
@@ -89,7 +91,7 @@ def dns_ns(host, query_ns, server=None):
 
     Assert that <nameserver> is a mailserver for <domain>.
     """
-    query_ns = dns.name.from_text(query_ns)
+    query_ns = from_text(query_ns)
     
     for answer in _query(host, 'NS', server):
         if query_ns == answer.target:
@@ -105,7 +107,7 @@ def is_ip_addr(text):
     """
     
     try:
-        v = dns.ipv4.inet_aton(text)
+        inet_aton(text)
         return True
     except socket.error:
         return False
@@ -117,24 +119,19 @@ def _resolve_name(name, server):
     if is_ip_addr(name):
         return name
     
-    r = dns.resolver.Resolver()
+    r = Resolver()
     if server:
         r.nameservers = [_resolve_name(server, None)]
 
     answers = r.query(name)
 
-    answer = None
-    for answer in answers:              # @CTB !?
-        break
-
-    assert answer
-    return str(answer)
+    return str(answers[0])
 
 def _query(query, query_type, server):
     """
     Query, perhaps via the given name server.  (server=None to use default).
     """
-    r = dns.resolver.Resolver()
+    r = Resolver()
     if server:
         r.nameservers = [_resolve_name(server, None)]
 
