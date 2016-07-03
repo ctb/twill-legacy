@@ -22,23 +22,12 @@ class TwillBrowser(object):
         #
         # create special link/forms parsing code to run tidy on HTML first.
         #
-
-        # WSGI Intercept
-        # Taken from
-        # https://code.google.com/p/wsgi-intercept/issues/detail?id=23
-        # with slight modification
-        import wsgi_intercept
-        from requests.packages.urllib3 import connectionpool as cpl
-        cpl.HTTPConnectionPool.old_http = cpl.HTTPConnectionPool.ConnectionCls
-        cpl.HTTPConnectionPool.ConnectionCls = wsgi_intercept.WSGI_HTTPConnection
-        wsgi_intercept.wsgi_fake_socket.settimeout = lambda self, timeout: None
-
         self.result = None
         self.last_submit_button = None
 
         # Session stores cookies
         self._session = requests.Session()
-        self._session.headers.update({"Accept" : "text/html; */*"})
+        self._session.headers.update({"Accept": "text/html; */*"})
 
         # An lxml FormElement, none until a form is selected
         # replaces self._browser.form from mechanize

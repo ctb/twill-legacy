@@ -25,8 +25,6 @@ __all__ = [ "TwillCommandLoop",
             "execute_file",
             "execute_string",
             "get_browser",
-            "add_wsgi_intercept",
-            "remove_wsgi_intercept",
             "set_output",
             "set_errout"]
 
@@ -65,8 +63,6 @@ get_browser_state is deprecated; use 'twill.get_browser() instead.
 # initialize global dict
 import namespaces
 namespaces.init_global_dict()
-
-from wsgi_intercept import add_wsgi_intercept, remove_wsgi_intercept
 
 def set_output(fp):
     """

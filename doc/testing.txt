@@ -136,9 +136,15 @@ the given WSGI app: ::
     def create_app():
         return wsgi_app
 
-    wsgi_intercept.add_wsgi_intercept('localhost', 80, create_app)
+    import wsgi_intercept
 
-See the ``tests/test-wsgi-intercept.py`` unit test for more information.
+    wsgi_intercept.requests_intercept.install()
+    wsgi_intercept.add_wsgi_intercept('localhost', 80, create_app)
+    # your twill tests go here...
+    wsgi_intercept.remove_wsgi_intercept('localhost', 80)
+    wsgi_intercept.requests_intercept.uninstall()
+
+See the ``tests/test_wsgi_intercept.py`` unit test for more examples.
 
 .. _wsgi_intercept: https://pypi.python.org/pypi/wsgi_intercept
 .. _WSGI applications: http://www.python.org/peps/pep-0333.html
