@@ -5,6 +5,10 @@ twill-sh.
 
 import sys
 from lxml import html
+try:
+    from lxml.html import soupparser
+except ImportError:
+    soupparser = None
 
 OUT=None
 ERR=sys.stderr
@@ -220,26 +224,31 @@ def find(what, flags=''):
 
     Flags is a string consisting of the following characters:
 
-    * i: ignorecase
-    * m: multiline
-    * s: dotall
+    * i: ignore case
+    * m: multi-line
+    * s: dot matches all
+    * x: use XPath expressions instead of regular expression
 
     For explanations of these, please see the Python re module
     documentation.
     """
-    regexp = re.compile(what, _parseFindFlags(flags))
     page = browser.get_html()
-
-    m = regexp.search(page)
-    if not m:
-        raise TwillAssertionError("no match to '%s'" % (what,))
-
-    if m.groups():
-        match_str = m.group(1)
+    local_dict = get_twill_glocals()[1]
+    if 'x' in flags:
+        if not soupparser:
+            raise TwillException(
+                "beautfulsoup4 must be installed to use XPath expressions")
+        tree = soupparser.fromstring(page)
+        elements = tree.xpath(what)
+        if not elements:
+            raise TwillAssertionError("no element to path '%s'" % (what,))
+        match_str = unicode(elements[0])
     else:
-        match_str = m.group(0)
-
-    _, local_dict = get_twill_glocals()
+        regexp = re.compile(what, _parseFindFlags(flags))
+        match = regexp.search(page)
+        if not match:
+            raise TwillAssertionError("no match to '%s'" % (what,))
+        match_str = match.group(1 if match.groups() else 0)
     local_dict['__match__'] = match_str
 
 def notfind(what, flags=''):
@@ -248,10 +257,11 @@ def notfind(what, flags=''):
     
     Fail if the regular expression is on the page.
     """
-    regexp = re.compile(what, _parseFindFlags(flags))
-    page = browser.get_html()
-
-    if regexp.search(page):
+    try:
+        find(what, flags)
+    except TwillAssertionError:
+        pass
+    else:
         raise TwillAssertionError("match to '%s'" % (what,))
 
 def back():
