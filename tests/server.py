@@ -15,6 +15,7 @@ from quixote import (
     get_session, get_session_manager, get_path,
     redirect, get_request, get_response)
 
+HOST = '127.0.0.1'
 PORT = 8080
 
 
@@ -542,6 +543,6 @@ if __name__ == '__main__':
     port = int(os.environ.get('TWILL_TEST_PORT', PORT))
     print 'starting twill test server on port %d.' % (port,)
     try:
-        run(create_publisher, port=port)
+        run(create_publisher, host=HOST, port=port)
     except KeyboardInterrupt:
         pass

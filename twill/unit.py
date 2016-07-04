@@ -8,6 +8,10 @@ from multiprocessing import Process
 
 from parse import execute_file
 
+HOST = '127.0.0.1'  # interface to run the server on
+PORT = 8080  # default port to run the server on
+SLEEP = 0  # time to wait for the server to start
+
 
 class TestInfo:
     """Test info container.
@@ -20,7 +24,7 @@ class TestInfo:
     server to set itself up.  Default is 0.
     """
     
-    def __init__(self, script, server_fn, port, sleep=0):
+    def __init__(self, script, server_fn, port=PORT, sleep=SLEEP):
         self.script = script
         self.server_fn = server_fn
         self.port = port
@@ -50,7 +54,7 @@ class TestInfo:
 
     def get_url(self):
         """"Get the test server URL."""
-        return "http://localhost:%d/" % (self.port,)
+        return "http://%s:%d/" % (HOST, self.port)
 
 
 def run_test(test_info):

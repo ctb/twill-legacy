@@ -17,6 +17,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(test_dir, '..')))
 import twill  # import twill from the right directory
 
 
+HOST = '127.0.0.1'  # interface to run the server on
 PORT = 8080  # default port to run the server on
 SLEEP = 0.5  # time to wait for the server to start
 
@@ -99,7 +100,7 @@ def execute_shell(filename, inp=None, initial_url=None,
 def start_server(port=None):
     """Start a simple test web server.
 
-    Run a Quixote simple_server on localhost:PORT with subprocess.
+    Run a Quixote simple_server on HOST:PORT with subprocess.
     All output is captured and thrown away.
 
     The parent process returns the URL on which the server is running.
@@ -119,7 +120,7 @@ def start_server(port=None):
    
     time.sleep(SLEEP)  # wait until the server is up and running
 
-    _url = 'http://localhost:%d/' % (port,)
+    _url = 'http://%s:%d/' % (HOST, port)
 
 
 def stop_server():
