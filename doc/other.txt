@@ -77,7 +77,7 @@ of `twill in Javascript`_.
 Tools in Other Languages
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-As twill is based upon mechanize, so is Perl's `WWW::Mechanize::Shell`_
+As twill was based upon mechanize, so is Perl's `WWW::Mechanize::Shell`_
 based upon `WWW::Mechanize`_.  There's even an `HTTP::Recorder`_.
 WebTst_ also looks interesting.
 

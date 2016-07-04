@@ -76,18 +76,3 @@ on Windows, try turning 'tidy' processing off:
 
 (and report it to the list if this does or does not solve the problem!)
 
-6. sys.path mangling
-~~~~~~~~~~~~~~~~~~~~
-
-twill, on import, alters the Python ``sys.path`` by appending
-``twill/extensions`` to sys.path and inserting
-``twill/other_packages`` in the front of the module path.  This may
-cause problems with packages with conflicting names.
-
-In particular, other modules whose names "shadow" twill's included
-extensions will be imported instead of the included extensions.  Also,
-only twill's versions of pyparsing, mechanize, ClientForm, and
-ClientCookie will be import-able.
-
-There is no good, simple way to get around this; setuptools may be our
-only hope.

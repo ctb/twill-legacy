@@ -86,9 +86,6 @@ release; they are acknowledged below.
 The twill source code is Copyright (C) 2005, 2006, 2007 C. Titus
 Brown.  twill is available under the `MIT license`_.
 
-pyparsing_, mechanize_, and BeautifulSoup_ are included with twill for
-convenience, but are under their own licenses.
-
 Acknowledgements
 ----------------
 
@@ -133,9 +130,5 @@ Thanks, all!
 
 .. _MIT license: http://www.opensource.org/licenses/mit-license.php
 .. _easy_install: http://peak.telecommunity.com/DevCenter/EasyInstall
-
-.. _mechanize: http://wwwsearch.sf.net/
-.. _pyparsing: http://pyparsing.sourceforge.net/
-.. _BeautifulSoup: http://www.crummy.com/software/BeautifulSoup/
 
 .. _examples: examples.html

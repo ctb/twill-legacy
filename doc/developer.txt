@@ -26,9 +26,6 @@ In plain English: I own the code, but you're welcome to use it,
 subsume it into other projects, and distribute it freely.  However,
 you must retain copyright attribution.
 
-pyparsing_, BeautifulSoup_, and mechanize_ are all included with
-twill, but are under their own licenses.
-
 .. _MIT license: http://www.opensource.org/licenses/mit-license.php
 
 Developer releases
@@ -116,8 +113,6 @@ Random ideas:
 
 Contributions are welcome & will be duly acknowledged!
 
-.. _mechanize: http://wwwsearch.sf.net/
-.. _pyparsing: http://pyparsing.sourceforge.net/
 .. _darcs: http://abridgegame.org/darcs/
 
 .. _PAMIE: http://pamie.sourceforge.net/
