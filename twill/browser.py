@@ -1,25 +1,23 @@
-"""
-Implements TwillBrowser
-"""
+"""This module implements the TwillBrowser."""
 
-OUT=None
-
-# Python imports
+import logging
 import pickle
 import re
 
 from urlparse import urljoin
 
-# Dependencies
 import requests
 from lxml import html
 from requests.exceptions import InvalidSchema, ConnectionError
 
+from . import log
 from utils import print_form, unique_match, _follow_equiv_refresh, ResultWrapper
 from errors import TwillException
 
+
 class TwillBrowser(object):
     """A simple, stateful browser"""
+
     def __init__(self):
         #
         # create special link/forms parsing code to run tidy on HTML first.
@@ -64,23 +62,25 @@ class TwillBrowser(object):
             # at the beginning, try fixing that (mimic browser behavior)
             if not url.startswith(('.', '/', '?')):
                 try_urls.append('http://%s' % (url,))
+                try_urls.append('https://%s' % (url,))
         for u in try_urls:
             try:
                 self._journey('open', u)
             except (IOError, ConnectionError, InvalidSchema), error:
-                print>> OUT, "cannot go to '%s': %s" % (u, error)
+                log.info("cannot go to '%s': %s" % (u, error))
             else:
                 break
         else:
+            log.error("cannot go to '%s'" % (url,))
             raise TwillException("cannot go to '%s'" % (url,))
-        print>> OUT, '==> at', self.get_url()
+        log.info('==> at %s', self.get_url())
 
     def reload(self):
         """
         Tell the browser to reload the current page.
         """
         self._journey('reload')
-        print>>OUT, '==> reloaded'
+        log.info('==> reloaded')
 
     def back(self):
         """
@@ -88,9 +88,9 @@ class TwillBrowser(object):
         """
         try:
             self._journey('back')
-            print>>OUT, '==> back to', self.get_url()
+            log.info('==> back to %s', self.get_url())
         except TwillException:
-            print>>OUT, '==> back at empty page.'
+            log.warning('==> back at empty page')
 
     def get_code(self):
         """
@@ -135,7 +135,7 @@ class TwillBrowser(object):
         Follow the given link.
         """
         self._journey('follow_link', link)
-        print>>OUT, '==> at', self.get_url()
+        log.info('==> at %s', self.get_url())
 
     def set_agent_string(self, agent):
         """
@@ -151,54 +151,54 @@ class TwillBrowser(object):
         """
         forms = self.get_all_forms()
         for n, f in enumerate(forms):
-            print_form(n, f, OUT)
+            print_form(n, f)
 
     def showlinks(self):
         """
         Pretty-print all of the links.
         """
+        info = log.info
         links = self.get_all_links()
-        for n,link in enumerate(links):
-            print>>OUT, "%d. %s ==> %s" % (n, link[0], link[1],)
-        print>>OUT, ''
+        if links:
+            info('\nLinks (%d links total):\n', len(links))
+            for n, link in enumerate(links):
+                info('\t%d. %s ==> %s', n + 1, link[0], link[1])
+            info('')
+        else:
+            info('\n** no links **\n')
 
     def showhistory(self):
         """
         Pretty-print the history of links visited.
         """
-        print>>OUT, ''
-        print>>OUT, 'History: (%d pages total) ' % (len(self._history))
-        n = 1
-        for page in self._history:
-            print>>OUT, "\t%d. %s" % (n, page.get_url())
-            n += 1
-        print>>OUT, ''
+        info = log.info
+        history = self._history
+        if history:
+            info('\nHistory (%d pages total):\n', len(history))
+            for n, page in enumerate(history):
+                info('\t%d. %s', n + 1, page.get_url())
+            info('')
+        else:
+            info('\n** no history **\n')
 
     def get_all_links(self):
         """
         Return a list of all of the links on the page
         """
-        if self.result is not None:
-            return self.result.get_links()
-        return []
+        return [] if self.result is None else self.result.get_links()
 
     def get_all_forms(self):
         """
         Return a list of all of the forms, with global_form at index 0
         iff present.
         """
-        if self.result is not None:
-            return self.result.get_forms()
-        return []
+        return [] if self.result is None else self.result.get_forms()
 
     def get_form(self, formname):
         """
         Return the first form that matches 'formname'.
         """
-        if self.result is not None:
-            return self.result.get_form(formname)
-        return None
-
+        return None if self.result is None else self.result.get_form(formname)
 
     def get_form_field(self, form, fieldname):
         """
@@ -206,7 +206,7 @@ class TwillBrowser(object):
         a *unique* regexp/exact string match.
         """
         if fieldname in form.fields.keys():
-            controls = [f for f in form.inputs if f.get("name") == fieldname \
+            controls = [f for f in form.inputs if f.get("name") == fieldname
                         and hasattr(f, 'type') and f.type == 'checkbox']
             if len(controls) > 1:
                 return html.CheckboxGroup(controls)
@@ -216,7 +216,7 @@ class TwillBrowser(object):
         found = None
         found_multiple = False
 
-        matches = [ c for c in form.inputs if c.get("id") == fieldname ]
+        matches = [c for c in form.inputs if c.get("id") == fieldname]
 
         # test exact match.
         if matches:
@@ -225,7 +225,7 @@ class TwillBrowser(object):
             else:
                 found_multiple = True   # record for error reporting.
         
-        matches = [ c for c in form.inputs if str(c.name) == fieldname ]
+        matches = [c for c in form.inputs if str(c.name) == fieldname]
 
         # test exact match.
         if matches:
@@ -250,8 +250,8 @@ class TwillBrowser(object):
         if found is None:
             regexp = re.compile(fieldname)
 
-            matches = [ ctl for ctl in form.inputs \
-                        if regexp.search(str(ctl.get("name"))) ]
+            matches = [ctl for ctl in form.inputs
+                        if regexp.search(str(ctl.get("name")))]
 
             if matches:
                 if unique_match(matches):
@@ -335,22 +335,19 @@ more than one form; you must select one (use 'fv') before submitting\
         # will be sent in the form submission.
         #
         if ctl is not None:
-            # submit w/button
-            print>>OUT, """\
-Note: submit is using submit button: name="%s", value="%s"
-""" % (ctl.get("name"), ctl.value)
+            log.info(
+                "Note: submit is using submit button:"
+                " name='%s', value='%s'", ctl.get('name'), ctl.value)
             
             if hasattr(ctl, 'type') and ctl.type == 'image':
                 pass
-            
-                
+
         else:
-            # submit w/o submit button.
-            pass
+            log.debug('Note: submit without using a submit button')
 
         # @BRT: For now, the referrer is always the current page
         # @CTB this seems like an issue for further work.
-        headers = {'referer' : self.get_url()}
+        headers = {'referer': self.get_url()}
 
         #
         # add referer information.  this may require upgrading the
@@ -408,14 +405,16 @@ Note: submit is using submit button: name="%s", value="%s"
         """
         Pretty-print all of the cookies.
         """
-        c = requests.utils.dict_from_cookiejar(self._session.cookies)
-        print>>OUT, 'There are %d cookie(s) in the cookiejar.\n' % (len(c))
-        
-        if len(self._session.cookies):
-            for cookie in self._session.cookies:
-                print>>OUT, '\t', cookie
-
-            print>>OUT, ''
+        info = log.info
+        cookies = self._session.cookies
+        n = len(requests.utils.dict_from_cookiejar(cookies))
+        if n:
+            log.info('\nThere are %d cookie(s) in the cookie jar.\n', n)
+            for n, cookie in enumerate(cookies):
+                info('\t%d. %s', n + 1, cookie)
+            info('')
+        else:
+            log.info('\nThere are no cookies in the cookie jar.\n', n)
 
     # BRT: Added to test for meta redirection
     #       Shamelessly stolen from 

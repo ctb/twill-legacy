@@ -15,13 +15,12 @@ function 'report_bad_links' can then be used to report all of the links,
 together with their referring pages.
 """
 
-__all__ = ['check_links', 'report_bad_links']
-
-DEBUG=True
-
 import re
-from twill import commands
+
+from twill import commands, log
 from twill.errors import TwillAssertionError
+
+__all__ = ['check_links', 'report_bad_links']
 
 ### first, set up config options & persistent 'bad links' memory...
 
@@ -49,12 +48,8 @@ def check_links(pattern = '', visited={}):
     is used to visit the pages, the referrer URL is properly set on the
     visit.
     """
-    from twill import commands
-
-    if DEBUG:
-        print 'in check_links'
+    log.debug('in check_links')
     
-    OUT = commands.OUT
     browser = commands.browser
 
     #
@@ -76,8 +71,7 @@ def check_links(pattern = '', visited={}):
 
     links = list(browser._browser.links())
     if not links:
-        if DEBUG:
-            print>>OUT, "no links to check!?"
+        log.debug("no links to check!?")
         return
         
     for link in links:
@@ -85,21 +79,18 @@ def check_links(pattern = '', visited={}):
         url = url.split('#', 1)[0]      # get rid of subpage pointers
 
         if not (url.startswith('http://') or url.startswith('https://')):
-            if DEBUG:
-               print>>OUT, "url '%s' is not an HTTP link; ignoring" % (url,)
+            log.debug("url '%s' is not an HTTP link; ignoring", url)
             continue
 
         if regexp:
             if regexp.search(url):
                 collected_urls[url] = link
-                if DEBUG:
-                    print>>OUT, "Gathered URL %s -- matched regexp" % (url,)
-            elif DEBUG:
-                print>>OUT, "URL %s doesn't match regexp" % (url,)
+                log.debug("Gathered URL %s -- matched regexp", url)
+            else:
+                log.debug("URL %s doesn't match regexp", url)
         else:
             collected_urls[url] = link
-            if DEBUG:
-                print>>OUT, "Gathered URL %s." % (url,)
+            log.debug("Gathered URL %s.", url)
 
     #
     # now, for each unique URL, follow the link. Trap ALL exceptions
@@ -110,8 +101,7 @@ def check_links(pattern = '', visited={}):
     for link in collected_urls.values():
         went = False
         try:
-            if DEBUG:
-                print>>OUT, "Trying %s" % (link.absolute_url,),
+            log.debug("Trying %s", link.absolute_url)
                 
             if link.absolute_url not in visited:
                 went = True
@@ -122,30 +112,29 @@ def check_links(pattern = '', visited={}):
 
                 visited[link.absolute_url] = 1
                 
-                if DEBUG:
-                    print>>OUT, '...success!'
+                log.debug('...success!')
             else:
-                if DEBUG:
-                    print>>OUT, ' (already visited successfully)'
-        except:
+                log.debug('(already visited successfully)')
+        except Exception:
             failed.append(link.absolute_url)
-            if DEBUG:
-                print>>OUT, '...failure ;('
+            log.debug('...failure!')
 
         if went:
             browser.back()
 
+    info = log.info
     if failed:
         if commands._options['check_links.only_collect_bad_links']:
             for l in failed:
                 refering_pages = bad_links_dict.get(l, [])
-                print '***', browser.get_url()
+                info('*** %s', browser.get_url())
                 refering_pages.append(browser.get_url())
                 bad_links_dict[l] = refering_pages
         else:
-            print>>OUT, '\nCould not follow %d links' % (len(failed),)
-            print>>OUT, '\t%s\n' % '\n\t'.join(failed)
+            info('\nCould not follow %d links', len(failed))
+            info('\t%s\n', '\n\t'.join(failed))
             raise TwillAssertionError("broken links on page")
+
 
 def report_bad_links(fail_if_exist='+', flush_bad_links='+'):
     """
@@ -167,17 +156,13 @@ def report_bad_links(fail_if_exist='+', flush_bad_links='+'):
     fail_if_exist = utils.make_boolean(fail_if_exist)
     flush_bad_links = utils.make_boolean(flush_bad_links)
 
-    from twill import commands
-    OUT = commands.OUT
-
+    info = log.info
     if not bad_links_dict:
-        print>>OUT, '\nNo bad links to report.\n'
+        info('\nNo bad links to report.\n')
     else:
-        print>>OUT, '\nCould not follow %d links' % (len(bad_links_dict),)
+        info('\nCould not follow %d links', len(bad_links_dict))
         for page, referers in bad_links_dict.items():
-            err_msg = "\t link '%s' (occurs on: " % (page,)\
-                      + ",".join(referers) + ')' 
-            print>>OUT, err_msg
+            info("\tlink '%s' (occurs on: %s)", page, ','.join(referers))
 
         if flush_bad_links:
             bad_links_dict = {}

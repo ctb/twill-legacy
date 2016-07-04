@@ -18,10 +18,12 @@ Commands:
         
 """
 
-import twill, twill.utils
 import re
 
-__all__ = [ 'fv_match', 'fv_multi_match', 'fv_multi', 'fv_multi_sub' ]
+from twill import commands, get_browser, log, utils
+
+__all__ = ['fv_match', 'fv_multi_match', 'fv_multi', 'fv_multi_sub']
+
 
 def fv_match(formname, regexp, value):
     """
@@ -33,19 +35,20 @@ def fv_match(formname, regexp, value):
     (Unlike 'formvalue' or 'fv', this will not complain about multiple
     matches!)
     """
-    state = twill.get_browser()
+    state = get_browser()
     
     form = state.get_form(formname)
     if form is None:
-        print 'no such form', formname
+        log.error("no such form '%s'", formname)
         return
 
     regexp = re.compile(regexp)
 
-    matches = [ ctl for ctl in form.inputs if regexp.search(str(ctl.get("name"))) ]
+    matches = [
+        ctl for ctl in form.inputs if regexp.search(str(ctl.get('name')))]
 
     if matches:
-        print '-- matches %d' % (len(matches),)
+        log.info('-- matches %d', len(matches))
 
         n = 0
         for control in matches:
@@ -54,9 +57,10 @@ def fv_match(formname, regexp, value):
                 continue
 
             n += 1
-            twill.utils.set_form_control_value(control, value)
+            utils.set_form_control_value(control, value)
 
-        print 'set %d values total' % (n,)
+        log.info('set %d values total', n)
+
 
 def fv_multi_match(formname, regexp, *values):
     """
@@ -66,32 +70,31 @@ def fv_multi_match(formname, regexp, *values):
     value.  If there are no more values, use the last for all remaining form
     fields
     """
-    state = twill.get_browser()
-    
+    state = get_browser()
+
     form = state.get_form(formname)
     if form is None:
-        print 'no such form', formname
+        log.error("no such form '%s'", formname)
         return
 
     regexp = re.compile(regexp)
 
-    matches = [ ctl for ctl in form.inputs if regexp.search(str(ctl.get("name"))) ]
+    matches = [
+        ctl for ctl in form.inputs if regexp.search(str(ctl.get('name')))]
 
     if matches:
-        print '-- matches %d, values %d' % (len(matches), len(values))
+        log.info('-- matches %d, values %d', len(matches), len(values))
 
-        n = 0
-        for control in matches:
+        for n, control in enumerate(matches):
             state.clicked(form, control)
             if 'readonly' in control.attrib.keys():
                 continue
             try:
-                twill.utils.set_form_control_value(control, values[n])
-            except IndexError, e:
-                twill.utils.set_form_control_value(control, values[-1])
-            n += 1
+                utils.set_form_control_value(control, values[n])
+            except IndexError:
+                utils.set_form_control_value(control, values[-1])
 
-        print 'set %d values total' % (n,)
+        log.info('set %d values total', n)
 
 
 def fv_multi(formname, *pairs):
@@ -106,11 +109,10 @@ def fv_multi(formname, *pairs):
     'fv <formname> fieldname value' will be executed in the order the
     pairs are given.
     """
-    from twill import commands
-
     for p in pairs:
         fieldname, value = p.split('=', 1)
         commands.fv(formname, fieldname, value)
+
 
 def fv_multi_sub(formname, *pairs):
     """
@@ -118,8 +120,6 @@ def fv_multi_sub(formname, *pairs):
 
     Set multiple form fields (as with 'fv_multi') and then submit().
     """
-    from twill import commands
-
     for p in pairs:
         fieldname, value = p.split('=', 1)
         commands.fv(formname, fieldname, value)

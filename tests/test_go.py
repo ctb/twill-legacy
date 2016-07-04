@@ -14,13 +14,12 @@ from .util import execute_script, test_dir
 
 
 def setup_module():
-    global _save_print
-    _save_print = twill.parse._print_commands
-    twill.parse.debug_print_commands(True)
+    global _log_commands
+    _log_commands = twill.parse.log_commands(True)
 
 
 def teardown_module():
-    twill.parse.debug_print_commands(_save_print)
+    twill.parse.log_commands(_log_commands)
 
 
 def test(url):

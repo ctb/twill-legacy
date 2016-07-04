@@ -2,17 +2,18 @@
 Code parsing and evaluation for the twill mini-language.
 """
 
+import re
 import sys
+
 from cStringIO import StringIO
 
-from errors import TwillAssertionError, TwillNameError
-from pyparsing import OneOrMore, Word, printables, quotedString, Optional, \
-     alphas, alphanums, ParseException, ZeroOrMore, restOfLine, Combine, \
-     Literal, Group, removeQuotes, CharsNotIn
+from pyparsing import (
+    alphas, alphanums, CharsNotIn, Combine, Group, Literal,  Optional,
+    printables, removeQuotes, restOfLine,  Word, ZeroOrMore)
 
-import twill.commands as commands
-import namespaces
-import re
+from errors import TwillAssertionError, TwillNameError
+
+from . import commands, log, namespaces
 
 ### pyparsing stuff
 
@@ -31,9 +32,13 @@ _sglQuote = Literal("'")
 _dblQuote = Literal('"')
 _escapables = printables
 _escapedChar = Word(_bslash, _escapables, exact=2)
-dblQuotedString = Combine( _dblQuote + ZeroOrMore( CharsNotIn('\\"\n\r') | _escapedChar | '""' ) + _dblQuote ).streamline().setName("string enclosed in double quotes")
-sglQuotedString = Combine( _sglQuote + ZeroOrMore( CharsNotIn("\\'\n\r") | _escapedChar | "''" ) + _sglQuote ).streamline().setName("string enclosed in single quotes")
-quotedArg = ( dblQuotedString | sglQuotedString )
+dblQuotedString = Combine(
+    _dblQuote + ZeroOrMore(CharsNotIn('\\"\n\r') | _escapedChar | '""') +
+    _dblQuote).streamline().setName("string enclosed in double quotes")
+sglQuotedString = Combine(
+    _sglQuote + ZeroOrMore(CharsNotIn("\\'\n\r") | _escapedChar | "''") +
+    _sglQuote).streamline().setName('string enclosed in single quotes')
+quotedArg = (dblQuotedString | sglQuotedString)
 quotedArg.setParseAction(removeQuotes)
 quotedArg.setName("quotedArg")
 
@@ -50,15 +55,12 @@ comment = Literal('#') + restOfLine
 comment = comment.suppress()
 comment.setName('comment')
 
-full_command = (
-    comment
-    | (command + arguments + Optional(comment))
-    )
+full_command = (comment | (command + arguments + Optional(comment)))
 full_command.setName('full_command')
 
 ###
 
-command_list = []           # filled in by namespaces.init_global_dict().
+command_list = []  # filled in by namespaces.init_global_dict().
 
 ### command/argument handling.
 
@@ -78,7 +80,7 @@ def process_args(args, globals_dict, locals_dict):
             except NameError:  # not in dictionary; don't interpret.
                 val = arg
 
-            print '*** VAL IS', val, 'FOR', arg
+            log.info('VAL IS %s FOR %s', val, arg)
             
             if isinstance(val, basestring):
                 newargs.append(val)
@@ -130,7 +132,7 @@ def execute_command(cmd, args, globals_dict, locals_dict, cmdinfo):
 
 ###
 
-_print_commands = False
+_log_commands = log.debug
 
 def parse_command(line, globals_dict, locals_dict):
     """
@@ -138,13 +140,10 @@ def parse_command(line, globals_dict, locals_dict):
     """
     res = full_command.parseString(line)
     if res:
-        if _print_commands:
-            print>>commands.OUT, "twill: executing cmd '%s'" % (line.strip(),)
-            
+        _log_commands("twill: executing cmd '%s'", line.strip())
         args = process_args(res.arguments.asList(), globals_dict, locals_dict)
-        return (res.command, args)
-
-    return None, None                   # e.g. a comment
+        return res.command, args
+    return None, None  # e.g. a comment
 
 ###
 
@@ -209,7 +208,7 @@ def _execute_script(inp, **kw):
                 continue
 
             cmdinfo = "%s:%d" % (sourceinfo, n,)
-            print 'AT LINE:', cmdinfo
+            log.info('AT LINE: %s', cmdinfo)
 
             cmd, args = parse_command(line, globals_dict, locals_dict)
             if cmd is None:
@@ -220,26 +219,18 @@ def _execute_script(inp, **kw):
             except SystemExit:
                 # abort script execution, if a SystemExit is raised.
                 return
-            except TwillAssertionError, e:
-                print>>commands.ERR, '''\
-Oops!  Twill assertion error on line %d of '%s' while executing
-
-  >> %s
-
-%s
-''' % (n, sourceinfo, line.strip(), e)
+            except TwillAssertionError as e:
+                log.error(
+                    "\nOops! Twill assertion error on line %d of '%s'"
+                    " while executing\n>>> %s\n\nError message: %s\n",
+                    n, sourceinfo, line.strip(), str(e).strip())
                 if not catch_errors:
                     raise
-            except Exception, e:
-                print>>commands.ERR, '''\
-EXCEPTION raised at line %d of '%s'
-
-      %s
-
-Error message: '%s'
-
-''' % (n, sourceinfo, line.strip(),str(e).strip(),)
-
+            except Exception as e:
+                log.error(
+                    "\nOOPS! Exception raised on line %d of '%s'"
+                    " while executing\n>>> %s\n\nError message: %s\n",
+                    n, sourceinfo, line.strip(), str(e).strip())
                 if not catch_errors:
                     raise
 
@@ -248,20 +239,22 @@ Error message: '%s'
 
 ###
 
-def debug_print_commands(flag):
+def log_commands(flag):
     """
     Turn on/off printing of commands as they are executed.  'flag' is bool.
     """
-    global _print_commands
-    _print_commands = bool(flag)
+    global _log_commands
+    old_flag = _log_commands is log.info
+    _log_commands = log.info if flag else log.debug
+    return old_flag
         
 
-variable_expression = re.compile("\${(.*?)}")
+_re_variable = re.compile("\${(.*?)}")
 
 def variable_substitution(raw_str, globals_dict, locals_dict):
     s = []
     pos = 0
-    for m in variable_expression.finditer(raw_str):
+    for m in _re_variable.finditer(raw_str):
         s.append(raw_str[pos:m.start()])
         try:
             s.append(str(eval(m.group(1), globals_dict, locals_dict)))

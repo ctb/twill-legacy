@@ -1,6 +1,6 @@
 import pytest
 
-import util
+from . import util
 
 
 @pytest.fixture(scope='session')
@@ -10,7 +10,9 @@ def url(request):
 
     url = util.get_url()
 
+    from twill import set_output
     from twill.commands import go, find
+    set_output()
     try:
         go(url)
         find("These are the twill tests")

@@ -17,6 +17,7 @@ except (ImportError, OSError):
     # OSError can be raised when the HTML Tidy shared library is not installed
     tidylib = None
 
+from . import log
 from errors import TwillException
 
 
@@ -28,14 +29,14 @@ class ResultWrapper(object):
     def __init__(self, req):
         self.req = req
         self.lxml = html.fromstring(self.req.text)
-        gfEntry = html.FormElement
         orphans = self.lxml.xpath('//input[not(ancestor::form)]')
         if len(orphans) > 0:
-            gloFo = "<form>"
-            for o in orphans:
-                gloFo += etree.tostring(o)
-            gloFo += "</form>"
-            self.forms = html.fromstring(gloFo).forms
+            form = ['<form>']
+            for orphan in orphans:
+                form.append(etree.tostring(orphan))
+            form.append('</form>')
+            form = ''.join(form)
+            self.forms = html.fromstring(form).forms
             self.forms.extend(self.lxml.forms)
         else:
             self.forms = self.lxml.forms
@@ -115,40 +116,39 @@ def trunc(s, length):
     
     return s
 
-def print_form(n, f, OUT):
+def print_form(n, f):
     """
     Pretty-print the given form, assigned # n.
     """
+    info = log.info
     if f.get('name'):
-         print>>OUT, '\nForm name=%s (#%d)' % (f.get('name'), n + 1)
+        info('\nForm name=%s (#%d)', f.get('name'), n + 1)
     else:
-        print>>OUT, '\nForm #%d' % (n + 1,)
+        info('\nForm #%d', n + 1)
 
     if f.inputs is not None:
-        print>>OUT, "## ## __Name__________________ __Type___ __ID________ __Value__________________"
+        info("## ## __Name__________________"
+            " __Type___ __ID________ __Value__________________")
 
     for n, field in enumerate(f.inputs):
         if hasattr(field, 'value_options'):
-            items = [ i.name if hasattr(i, 'name') else i 
-                        for i in field.value_options ]
+            items = [i.name if hasattr(i, 'name') else i
+                     for i in field.value_options]
             value_displayed = "%s of %s" % ([i for i in field.value], items)
         else:
             value_displayed = "%s" % (field.value,)
 
-        submit_index = "  "
-        strings = ("%-2s" % (n + 1,),
-                   submit_index,
-                   "%-24s %-9s" % (trunc(str(field.name), 24),
-                                   trunc(field.type 
-                                   if hasattr(field, 'type') else 'select', 9)),
-                    "%-12s" % (trunc(field.get("id") or "(None)", 12),),
-                   trunc(value_displayed, 40),
-                   )
-        for s in strings:
-            print>>OUT, s,
-        print>>OUT, ''
-
-    print ''
+        submit_index = '  '
+        strings = (
+            "%-2s" % (n + 1,),
+            submit_index,
+            "%-24s %-9s" % (
+               trunc(str(field.name), 24),
+               trunc(field.type if hasattr(field, 'type') else 'select', 9)),
+            "%-12s" % (trunc(field.get("id") or "(None)", 12),),
+            trunc(value_displayed, 40))
+        info(' '.join(strings))
+    info('')
 
 def make_boolean(value):
     """Convert the input value into a boolean like so:"""
