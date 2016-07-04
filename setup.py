@@ -67,6 +67,6 @@ Web pages or grabbing data from password-protected sites automatically.""",
 
     install_requires=['lxml', 'cssselect', 'requests', 'pyparsing'],
     extras_require={'tidy': ['pytidylib'], 'xpath': ['beautifulsoup4']},
-    tests_require=['pytest', 'quixote', 'pytidylib'],
+    tests_require=['pytest', 'quixote', 'pytidylib', 'beautifulsoup4'],
     cmdclass={'test': PyTest}
 )
