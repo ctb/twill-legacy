@@ -75,13 +75,12 @@ def process_args(args, globals_dict, locals_dict):
         if arg.startswith('__'):
             try:
                 val = eval(arg, globals_dict, locals_dict)
-            except NameError:           # not in dictionary; don't interpret.
+            except NameError:  # not in dictionary; don't interpret.
                 val = arg
-
 
             print '*** VAL IS', val, 'FOR', arg
             
-            if isinstance(val, str) or isinstance(val, unicode):
+            if isinstance(val, basestring):
                 newargs.append(val)
             else:
                 newargs.extend(val)
@@ -89,15 +88,14 @@ def process_args(args, globals_dict, locals_dict):
         # $variable substitution
         elif arg.startswith('$') and not arg.startswith('${'):
             try:
-                val = eval(arg[1:], globals_dict, locals_dict)
-            except NameError:           # not in dictionary; don't interpret.
+                val = str(eval(arg[1:], globals_dict, locals_dict))
+            except NameError:  # not in dictionary; don't interpret.
                 val = arg
             newargs.append(val)
         else:
             newargs.append(variable_substitution(arg, globals_dict, locals_dict))
 
-    newargs = [ i.replace('\\n', '\n') for i in newargs ]
-
+    newargs = [i.replace('\\n', '\n') for i in newargs]
     return newargs
 
 ###
