@@ -7,7 +7,6 @@ code is implemented in the ConfigurableParsingFactory class.
 
 import os
 import re
-import subprocess
 
 from lxml import etree, html, cssselect
 
@@ -152,22 +151,7 @@ def print_form(n, f, OUT):
     print ''
 
 def make_boolean(value):
-    """
-    Convert the input value into a boolean like so:
-    
-    >> make_boolean('true')
-    True
-    >> make_boolean('false')
-    False
-    >> make_boolean('1')
-    True
-    >> make_boolean('0')
-    False
-    >> make_boolean('+')
-    True
-    >> make_boolean('-')
-    False
-    """
+    """Convert the input value into a boolean like so:"""
     value = str(value)
     value = value.lower().strip()
 
