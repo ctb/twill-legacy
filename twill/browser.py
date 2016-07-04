@@ -7,12 +7,14 @@ OUT=None
 # Python imports
 import pickle
 import re
-import urlparse
+
+from urlparse import urljoin
 
 # Dependencies
 import requests
 from lxml import html
 from requests.exceptions import InvalidSchema, ConnectionError
+
 from utils import print_form, unique_match, _follow_equiv_refresh, ResultWrapper
 from errors import TwillException
 
@@ -52,16 +54,16 @@ class TwillBrowser(object):
         """
         Visit given URL.
         """
-        try_urls = [url]
-        if '://' not in url:  # URL does not have a schema
+        if '://' in url:
+            try_urls = [url]
+        else:  # URL does not have a schema
             # if this is a relative URL, then assume that we want to tack it
-            # onto the end of the current URL.
-            try_urls.append(urlparse.urljoin(self.get_url(), url))
-            # if this is an absolute URL that is just missing the 'http://'
+            # onto the end of the current URL
+            try_urls = [urljoin(self.get_url(), url)]
+            # if this is an absolute URL, it may be just missing the 'http://'
             # at the beginning, try fixing that (mimic browser behavior)
             if not url.startswith(('.', '/', '?')):
                 try_urls.append('http://%s' % (url,))
-
         for u in try_urls:
             try:
                 self._journey('open', u)
@@ -71,9 +73,7 @@ class TwillBrowser(object):
                 break
         else:
             raise TwillException("cannot go to '%s'" % (url,))
-
         print>> OUT, '==> at', self.get_url()
-
 
     def reload(self):
         """
@@ -441,7 +441,7 @@ Note: submit is using submit button: name="%s", value="%s"
                 url = text[4:]
                 if not url.startswith('http'):
                     # Relative URL, adapt
-                    url = urlparse.urljoin(r.url, url)
+                    url = urljoin(r.url, url)
                     return True, url
         return False, None
 
@@ -476,8 +476,8 @@ Note: submit is using submit button: name="%s", value="%s"
         elif func_name == 'follow_link':
             # Try to find the link first
             url = self.find_link(args[0])
-            if url.find('://') == -1:
-                url = urlparse.urljoin(self.get_url(), url)
+            if '://' not in url:
+                url = urljoin(self.get_url(), url)
 
         elif func_name == 'reload':
             url = self.get_url()
