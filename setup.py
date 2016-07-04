@@ -35,11 +35,7 @@ setup(
     license='MIT',
 
     packages=[
-        'twill', 'twill.other_packages',
-        'twill.other_packages._mechanize_dist',
-        'twill.extensions',
-        'twill.extensions.match_parse'
-    ],
+        'twill', 'twill.extensions', 'twill.extensions.match_parse'],
 
     # allow both
     entry_points=dict(console_scripts=['twill-sh = twill.shell:main'],),
@@ -52,7 +48,7 @@ setup(
     long_description="""\
 A scripting system for automating Web browsing.  Useful for testing
 Web pages or grabbing data from password-protected sites automatically.""",
-    classifiers = [
+    classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Console',
         'Intended Audience :: Developers',

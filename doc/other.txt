@@ -44,9 +44,11 @@ For those who want to use Python-based toolkits to test their Web
 apps, there are many great options.  Here are the ones I know
 about:
 
-PBP_ is very similar to twill -- twill was initially based on it -- but the
-project seems to be more-or-less defunct.
-Both twill and PBP are based on mechanize_.
+PBP_ is very similar to twill -- twill was initially based on it --
+but the project seems to be more-or-less defunct.
+Like PBP, twill was based on mechanize_ in the past,
+unfortunately development of that project also stalled.
+The current version is based on requests_ and lxml_ instead.
 
 funkload_ is a nifty looking tool that does functional load testing.
 It is built on webunit_.
@@ -86,6 +88,8 @@ For PHP, web_tester_ looks useful.
 .. _PBP: http://pbp.berlios.de/
 .. _maxq: http://maxq.tigris.org/
 .. _mechanize: http://wwwsearch.sf.net/
+.. _requests: http://docs.python-requests.org/
+.. _lxml: http://lxml.de/
 .. _pyparsing: http://pyparsing.sourceforge.net/
 .. _funkload: http://funkload.nuxeo.org/
 .. _webunit: http://mechanicalcat.net/tech/webunit/

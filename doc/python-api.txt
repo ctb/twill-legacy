@@ -5,12 +5,12 @@ twill's Python API
 Using TwillBrowser
 Making extensions
 
-twill is essentially a thin shell around the mechanize_ package.  All
-twill commands are implemented in the ``commands.py`` file, and
-pyparsing_ does the work of parsing the input and converting it into
-Python commands (see ``parse.py``).  Interactive shell work and
-readline support is implemented via the `cmd`_ module (from the
-standard Python library).
+twill is essentially a testing tool based on the `requests`_ and `lxml`_
+packages.  All twill commands are implemented in the ``commands.py``
+file, and pyparsing_ does the work of parsing the input and converting
+it into Python commands (see ``parse.py``).  Interactive shell work and
+readline support is implemented via the `cmd`_ module (from the standard
+Python library).
 
 Using twill from Python
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -138,11 +138,12 @@ to twill.set_output, e.g. ::
 
 will send all non-error output into a StringIO() object.
 
-twill also provides a simple wrapper for mechanize_ functionality, in
-the `browser.py` module.  This may be useful for twill extensions as
+twill also provides a simple wrapper for requests_ and lxml_ functionality,
+in the `browser.py` module.  This may be useful for twill extensions as
 well as for other toolkits, but the API is still unstable.
 
-.. _mechanize: http://wwwsearch.sf.net/
+.. _requests: http://docs.python-requests.org/
+.. _lxml: http://lxml.de/
 .. _pyparsing: http://pyparsing.sourceforge.net/
 .. _darcs: http://abridgegame.org/darcs/
 

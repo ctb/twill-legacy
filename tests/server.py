@@ -451,8 +451,8 @@ hello, world.
 
     def formpostredirect(self):
         """
-        Test redirect after a form POST.  This tests a specific bug in
-        mechanize...
+        Test redirect after a form POST.  This tests a specific bug that
+        existed in the formerly used mechanize package.
         """
         request = get_request()
 

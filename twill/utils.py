@@ -22,9 +22,9 @@ from errors import TwillException
 
 
 class ResultWrapper(object):
-    """
-    Deal with mechanize/urllib2/whatever results, and present them in a
-    unified form.  Returned by 'journey'-wrapped functions.
+    """Deal with request results, and present them in a unified form.
+
+    These objects are returned by 'journey'-wrapped functions.
     """
     def __init__(self, req):
         self.req = req
