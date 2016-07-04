@@ -1,0 +1,13 @@
+code 200
+setglobal init __url__
+
+run "counter = '0'"
+find "this is visit #${counter}"
+
+run 'counter = 0'
+find "this is visit #${counter}"
+
+go /increment
+
+run 'counter += 1'
+find "this is visit #${counter}"

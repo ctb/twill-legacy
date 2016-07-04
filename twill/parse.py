@@ -261,17 +261,15 @@ def debug_print_commands(flag):
 variable_expression = re.compile("\${(.*?)}")
 
 def variable_substitution(raw_str, globals_dict, locals_dict):
-    str=''
+    s = []
     pos = 0
     for m in variable_expression.finditer(raw_str):
-        str = str+raw_str[pos:m.start()]
+        s.append(raw_str[pos:m.start()])
         try:
-            str = str + eval(m.group(1), globals_dict, locals_dict)
+            s.append(str(eval(m.group(1), globals_dict, locals_dict)))
         except NameError:
-            str = str + m.group()
+            s.append(m.group())
         pos = m.end()
-
-    str = str+raw_str[pos:]
-
-    return str
+    s.append(raw_str[pos:])
+    return ''.join(s)
 
