@@ -52,32 +52,28 @@ class TwillBrowser(object):
         """
         Visit given URL.
         """
-        try_urls = [url, ]
+        try_urls = [url]
+        if '://' not in url:  # URL does not have a schema
+            # if this is a relative URL, then assume that we want to tack it
+            # onto the end of the current URL.
+            try_urls.append(urlparse.urljoin(self.get_url(), url))
+            # if this is an absolute URL that is just missing the 'http://'
+            # at the beginning, try fixing that (mimic browser behavior)
+            if not url.startswith(('.', '/', '?')):
+                try_urls.append('http://%s' % (url,))
 
-        # if this is an absolute URL that is just missing the 'http://' at
-        # the beginning, try fixing that.
-        if url.find('://') == -1:
-            full_url = 'http://%s' % (url,)  # mimic browser behavior
-            try_urls.append(full_url)
-
-        # if this is a '?' or '/' URL, then assume that we want to tack it onto
-        # the end of the current URL.
-        try_urls.append(urlparse.urljoin(self.get_url(), url))
-        
-        success = False
         for u in try_urls:
             try:
                 self._journey('open', u)
-                success = True
+            except (IOError, ConnectionError, InvalidSchema), error:
+                print>> OUT, "cannot go to '%s': %s" % (u, error)
+            else:
                 break
-
-            except (IOError, ConnectionError, InvalidSchema):  # @CTB test this!
-                pass
-
-        if success:
-            print>>OUT, '==> at', self.get_url()
         else:
             raise TwillException("cannot go to '%s'" % (url,))
+
+        print>> OUT, '==> at', self.get_url()
+
 
     def reload(self):
         """

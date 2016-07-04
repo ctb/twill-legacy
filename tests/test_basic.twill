@@ -79,7 +79,7 @@ find "this is visit #2"
 
 showhistory
 
-go restricted/
+go ./restricted/
 code 403
 back
 
@@ -110,7 +110,6 @@ submit
 code 200
 find "Log in:"
 
-
 fv 1 username test
 setlocal name "submit you"
 setglobal name $name
@@ -136,12 +135,12 @@ go ./
 code 200
 find 'You are logged in as "test"'
 
-go restricted/
+go ./restricted/
 code 200
 
 # success!  log out, and try again.
 go ../logout
-go ./restricted
+go ./restricted/
 code 403
 
 ### test input/password
