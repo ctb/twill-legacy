@@ -113,7 +113,7 @@ def check_links(pattern = '', visited={}):
             if DEBUG:
                 print>>OUT, "Trying %s" % (link.absolute_url,),
                 
-            if not visited.has_key(link.absolute_url):
+            if link.absolute_url not in visited:
                 went = True
                 browser.follow_link(link)
                 

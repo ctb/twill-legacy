@@ -410,7 +410,7 @@ hello, world.
         request = get_request()
 
         s = ""
-        if request.form and request.form.has_key('checkboxtest'):
+        if request.form and 'checkboxtest' in request.form:
             value = request.form['checkboxtest']
             if not isinstance(value, basestring):
                 value = ','.join(value)
@@ -431,7 +431,7 @@ hello, world.
         request = get_request()
 
         s = ""
-        if request.form and request.form.has_key('checkboxtest'):
+        if request.form and 'checkboxtest' in request.form:
             value = request.form['checkboxtest']
 
             if not isinstance(value, basestring):
@@ -480,7 +480,7 @@ hello, world.
 
     def echo(self):
         request = get_request()
-        if request.form and request.form.has_key('q'):
+        if request.form and 'q' in request.form:
             return request.form['q']
         return "<html><body>No Content</body></html>"
 

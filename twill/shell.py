@@ -99,7 +99,7 @@ class TwillCommandLoop(Singleton, cmd.Cmd):
     by the metaclass.
     """
     def init(self, **kw):
-        if kw.has_key('stdin'):
+        if 'stdin' in kw:
             cmd.Cmd.__init__(self, None, stdin=kw['stdin'])
             self.use_rawinput = False
         else:
