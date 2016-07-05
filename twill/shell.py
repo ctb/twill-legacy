@@ -9,19 +9,25 @@ from __future__ import print_function
 
 import cmd
 import os
+import sys
 import traceback
+
+from optparse import OptionParser
 
 try:
     import readline
 except ImportError:
     readline = None
 
-from . import (commands, log, loglevels, set_loglevel, set_output,
-               namespaces, parse, __version__)
+from . import (
+    commands, execute_file, log, loglevels, set_loglevel, set_output,
+    namespaces, parse, __version__)
+from .utils import gather_filenames
 
 
 def make_cmd_fn(cmd):
-    """
+    """Make a command function.
+
     Dynamically define a twill shell command function based on an imported
     function name.  (This is where the twill.commands functions actually
     get executed.)
@@ -31,17 +37,17 @@ def make_cmd_fn(cmd):
         global_dict, local_dict = namespaces.get_twill_glocals()
 
         args = []
-        if rest_of_line.strip() != "":
+        if rest_of_line.strip():
             try:
                 args = parse.arguments.parseString(rest_of_line)[0]
-                args = parse.process_args(args, global_dict,local_dict)
+                args = parse.process_args(args, global_dict, local_dict)
             except Exception as e:
                 log.error('\nINPUT ERROR: %s\n', e)
                 return
 
         try:
-            parse.execute_command(cmd, args, global_dict, local_dict,
-                                  "<shell>")
+            parse.execute_command(
+                cmd, args, global_dict, local_dict, '<shell>')
         except SystemExit:
             raise
         except Exception as e:
@@ -51,25 +57,34 @@ def make_cmd_fn(cmd):
 
 
 def make_help_cmd(cmd, docstring):
-    """
+    """Make a help command function.
+
     Dynamically define a twill shell help function for the given
     command/docstring.
     """
     def help_cmd(message=docstring, cmd=cmd):
-        print('=' * 15)
-        print('\nHelp for command %s:\n' % (cmd,))
-        print(message.strip())
+        message = message.strip()
+        width = 7 + len(cmd)
+        for line in message.splitlines():
+            w = len(line.rstrip())
+            if w > width:
+                width = w
         print()
-        print('=' * 15)
+        print('=' * width)
+        print('\nHelp for command %s:\n' % (cmd,))
+        print(message)
+        print()
+        print('=' * width)
         print()
         
     return help_cmd
 
 
 class Singleton(object):
+    """A mixin class to create singleton objects."""
 
     def __new__(cls, *args, **kwds):
-        it = cls.__dict__.get("__it__")
+        it = cls.__dict__.get('__it__')
         if it is not None:
             return it
         cls.__it__ = it = object.__new__(cls)
@@ -84,24 +99,23 @@ class Singleton(object):
         cls.__it__ = None
 
 
-#
-# TwillCommandLoop
-#
-
 def add_command(cmd, docstring):
-    x = get_command_shell()
-    if x:
-        x.add_command(cmd, docstring)
+    """Add a command with given docstring to the shell."""
+    command_shell = get_command_shell()
+    if command_shell:
+        command_shell.add_command(cmd, docstring)
 
 
 def get_command_shell():
+    """Get the command shell."""
     return getattr(TwillCommandLoop, '__it__', None)
 
 
 class TwillCommandLoop(Singleton, cmd.Cmd):
-    """
-    Command-line interpreter for twill commands.  Singleton object: you
-    can't create more than one of these at a time.
+    """The command-line interpreter for twill commands.
+
+    This is a Singleton object: you can't create more than one
+    of shell at a time.
 
     Note: most of the do_ and help_ functions are dynamically created
     by the metaclass.
@@ -128,8 +142,9 @@ class TwillCommandLoop(Singleton, cmd.Cmd):
         self.fail_on_unknown = kw.get('fail_on_unknown', False)
 
         # handle initial URL argument
-        if kw.get('initial_url'):
-            commands.go(kw['initial_url'])
+        url = kw.get('initial_url')
+        if url:
+            commands.go(url)
             
         self._set_prompt()
 
@@ -137,15 +152,13 @@ class TwillCommandLoop(Singleton, cmd.Cmd):
         
         global_dict, local_dict = namespaces.get_twill_glocals()
 
-        ### add all of the commands from twill.
+        # add all of the commands from twill
         for command in parse.command_list:
             fn = global_dict.get(command)
             self.add_command(command, fn.__doc__)
 
     def add_command(self, command, docstring):
-        """
-        Add the given command into the lexicon of all commands.
-        """
+        """Add the given command into the lexicon of all commands."""
         do_name = 'do_%s' % (command,)
         do_cmd = make_cmd_fn(command)
         setattr(self, do_name, do_cmd)
@@ -158,13 +171,16 @@ class TwillCommandLoop(Singleton, cmd.Cmd):
         self.names.append(do_name)
 
     def get_names(self):
-        """
-        Return the list of commands.
-        """
+        """Return the list of commands."""
         return self.names
 
     def complete_formvalue(self, text, line, begin, end):
-        # formvalue <formname> <field> <value>
+        """Command arg completion for the formvalue command.
+
+        The twill command has the following syntax:
+
+        formvalue <formname> <field> <value>
+        """
         cmd, args = parse.parse_command(line + '.', {}, {})
         place = len(args)
         if place == 1:
@@ -173,34 +189,36 @@ class TwillCommandLoop(Singleton, cmd.Cmd):
             formname = args[0]
             return self.provide_field(formname, text)
         return []
-    complete_fv = complete_formvalue
+
+    complete_fv = complete_formvalue  # alias
 
     def provide_formname(self, prefix):
+        """Provide the list of form names on the given page."""
         names = []
-        forms = commands.browser._browser.forms()
-        for f in forms:
-            id = f.attrs.get('id')
+        forms = commands.browser.get_all_forms()
+        for form in forms:
+            id = form.attrib.get('id')
             if id and id.startswith(prefix):
                 names.append(id)
                 continue
-            name = f.name
+            name = form.attrib.get('name')
             if name and name.startswith(prefix):
                 names.append(name)
         return names
 
     def provide_field(self, formname, prefix):
+        """Provide the list of fields for the given formname or number."""
         names = []
         form = commands.browser.get_form(formname)
-        if not form:
-            return []
-        for c in form.controls:
-            id = c.id
-            if id and id.startswith(prefix):
-                names.append(id)
-                continue
-            name = c.name
-            if name and name.startswith(prefix):
-                names.append(name)
+        if form is not None:
+            for field in form.inputs:
+                id = field.attrib.get('id')
+                if id and id.startswith(prefix):
+                    names.append(id)
+                    continue
+                name = field.name
+                if name and name.startswith(prefix):
+                    names.append(name)
         return names
 
     def _set_prompt(self):
@@ -217,11 +235,10 @@ class TwillCommandLoop(Singleton, cmd.Cmd):
     def postcmd(self, stop, line):
         """"Run after each command; set prompt."""
         self._set_prompt()
-        
         return stop
 
     def default(self, line):
-        """"Called when unknown command is executed."""
+        """"Called when an unknown command is executed."""
 
         # empty lines ==> emptyline(); here we just want to remove
         # leading whitespace.
@@ -237,7 +254,7 @@ class TwillCommandLoop(Singleton, cmd.Cmd):
 
         try:
             parse.execute_command(
-                cmd, args, global_dict, local_dict, "<shell>")
+                cmd, args, global_dict, local_dict, '<shell>')
         except SystemExit:
             raise
         except Exception as e:
@@ -246,7 +263,7 @@ class TwillCommandLoop(Singleton, cmd.Cmd):
                 raise
 
     def emptyline(self):
-        """Ignore empty lines."""
+        """Handle empty lines (by ignoring them)."""
         pass
 
     def do_EOF(self, *args):
@@ -256,26 +273,30 @@ class TwillCommandLoop(Singleton, cmd.Cmd):
         raise SystemExit()
 
     def help_help(self):
+        """Show help for the help command."""
         print("\nWhat do YOU think the command 'help' does?!?\n")
 
     def do_version(self, *args):
+        """Show the version number of twill."""
         print("\ntwill version %s.\n" % (__version__,))
         print("See http://www.idyll.org/~t/www-tools/twill/ for more info.")
         print()
 
     def help_version(self):
+        """Show help for the version command."""
         print("\nPrint version information.\n")
 
     def do_exit(self, *args):
+        """Exit the twill shell."""
         raise SystemExit()
 
     def help_exit(self):
+        """Show help for the exit command."""
         print("\nExit twill.\n")
 
     do_quit = do_exit
     help_quit = help_exit
 
-####
 
 twillargs = []       # contains sys.argv *after* last '--'
 interactive = False  # 'True' if interacting with user
@@ -284,16 +305,9 @@ interactive = False  # 'True' if interacting with user
 def main():
     global twillargs, interactive
     
-    import sys
-    from twill import TwillCommandLoop, execute_file, __version__
-    from twill.utils import gather_filenames
-    from optparse import OptionParser
-
     # make sure that the current working directory is in the path.
     if '.' not in sys.path:
         sys.path.append('.')
-
-    #### OPTIONS
 
     parser = OptionParser()
     add = parser.add_option
@@ -315,20 +329,14 @@ def main():
     add('-o', '--output', nargs=1, action="store", dest="outfile",
         help="print log to outfile, or discards output if set to 'none'")
 
-    ####
-
-    # parse arguments.
+    # parse arguments
     sysargs = sys.argv[1:]
     if '--' in sysargs:
-        found = False
         for last in range(len(sysargs) - 1, -1, -1):
             if sysargs[last] == '--':
-                found = True
+                twillargs = sysargs[last + 1:]
+                sysargs = sysargs[:last]
                 break
-
-        if found:
-            twillargs = sysargs[last + 1:]
-            sysargs = sysargs[:last]
 
     options, args = parser.parse_args(sysargs)
 
@@ -346,7 +354,7 @@ def main():
 
     if options.outfile:
         try:
-            path = options.outfile if options.outfile != 'none' else os.devnull
+            path = os.devnull if options.outfile == 'none' else options.outfile
             outfile = open(path, 'w')
         except IOError as e:
             sys.exit("Invalid output file '%s': %s", options.outfile, e)
@@ -379,9 +387,6 @@ def main():
                 success.append(filename)
             except Exception as e:
                 if options.fail:
-                    # import pdb
-                    # _, _, tb = sys.exc_info()
-                    # pdb.post_mortem(tb)
                     raise
                 else:
                     log.error('** UNHANDLED EXCEPTION: %s', e)
@@ -396,9 +401,7 @@ def main():
             failed = True
 
     if not args or options.interact:
-        welcome_msg = ""
-        if not args:
-            welcome_msg = "\n -= Welcome to twill! =-\n"
+        welcome_msg = "" if args else "\n -= Welcome to twill! =-\n"
 
         interactive = True
         shell = TwillCommandLoop(initial_url=options.url)

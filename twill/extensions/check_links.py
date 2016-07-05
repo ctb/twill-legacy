@@ -22,20 +22,15 @@ from twill.errors import TwillAssertionError
 
 __all__ = ['check_links', 'report_bad_links']
 
-### first, set up config options & persistent 'bad links' memory...
-
+# first, set up config options & persistent 'bad links' memory...
 if commands._options.get('check_links.only_collection_bad_links') is None:
     commands._options['check_links.only_collect_bad_links'] = False
 
 bad_links_dict = {}
 
-#
-# main function: 'check_links'
-#
 
-def check_links(pattern = '', visited={}):
-    """
-    >> check_links [ <pattern> ]
+def check_links(pattern='', visited={}):
+    """>> check_links [ <pattern> ]
 
     Make sure that all of the HTTP links on the current page can be visited
     with an HTTP response 200 (success).  If 'pattern' is given, interpret
@@ -52,20 +47,15 @@ def check_links(pattern = '', visited={}):
     
     browser = commands.browser
 
-    #
     # compile the regexp
-    #
-    
     regexp = None
     if pattern:
         regexp = re.compile(pattern)
 
-    #
     # iterate over all links, collecting those that match.
     #
     # note that in the case of duplicate URLs, only one of the
     # links is actually followed!
-    #
 
     collected_urls = {}
 
@@ -92,10 +82,8 @@ def check_links(pattern = '', visited={}):
             collected_urls[url] = link
             log.debug("Gathered URL %s.", url)
 
-    #
     # now, for each unique URL, follow the link. Trap ALL exceptions
     # as failures.
-    #
 
     failed = []
     for link in collected_urls.values():
@@ -137,8 +125,7 @@ def check_links(pattern = '', visited={}):
 
 
 def report_bad_links(fail_if_exist='+', flush_bad_links='+'):
-    """
-    >> report_bad_links [<fail-if-exist> [<flush-bad-links>]]
+    """>> report_bad_links [<fail-if-exist> [<flush-bad-links>]]
 
     Report all of the links collected across check_links runs (collected
     if and only if the config option check_links.only_collect_bad_links

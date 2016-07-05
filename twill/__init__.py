@@ -84,7 +84,7 @@ set_loglevel()
 set_output()
 
 
-# convenience function or two...
+# a convenience function:
 from .commands import get_browser
 
 
@@ -97,8 +97,8 @@ def get_browser_state():
 
 
 # the two core components of twill:
-from .shell import TwillCommandLoop
 from .parse import execute_file, execute_string
+from .shell import TwillCommandLoop
 
 
 # initialize global dict

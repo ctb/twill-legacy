@@ -1,6 +1,4 @@
-"""
-Used in test_shell, to test default command execution & extensions.
-"""
+"""Used in test_shell, to test default command execution & extensions."""
 
 flag = False
 

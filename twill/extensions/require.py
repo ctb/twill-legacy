@@ -36,8 +36,7 @@ def skip_require():
 
 
 def require(what):
-    """
-    >> require <what>
+    """>> require <what>
 
     After each page is loaded, require that 'what' be satisfied.  'what'
     can be:
@@ -60,8 +59,7 @@ def require(what):
 
 
 def no_require():
-    """
-    >> no_require
+    """>> no_require
 
     Remove all post-load requirements.
     """
@@ -74,8 +72,7 @@ def no_require():
 
 
 def flush_visited():
-    """
-    >> flush_visited
+    """>> flush_visited
     
     Flush the list of pages successfully visited already.
     """
@@ -84,8 +81,7 @@ def flush_visited():
 
 
 def _require_post_load_hook(action, *args, **kwargs):
-    """
-    post-load hook function to be called after each page is loaded.
+    """Post load hook function to be called after each page is loaded.
 
     See TwillBrowser._journey() for more information.
     """

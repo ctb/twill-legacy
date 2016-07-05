@@ -1,57 +1,40 @@
-"""
-Global and local dictionaries, + initialization/utility functions.
-"""
+"""Global and local dictionaries, and initialization/utility functions."""
 
-global_dict = {}
+global_dict = {}  # the global dictionary
+
 
 def init_global_dict():
-    """
-    Initialize global dictionary with twill commands.
+    """Initialize the global dictionary with twill commands.
 
     This must be done after all the other modules are loaded, so that all
     of the commands are already defined.
     """
-    exec "from twill.commands import *" in global_dict
-    import twill.commands
-    command_list = twill.commands.__all__
-    
-    import twill.parse
-    twill.parse.command_list.extend(command_list)
+    from . import commands, parse
 
-# local dictionaries.
-_local_dict_stack = []
+    cmd_list = commands.__all__
+    global_dict.update((cmd, getattr(commands, cmd)) for cmd in cmd_list)
+    parse.command_list.extend(cmd_list)
 
-###
 
-# local dictionary management functions.
+_local_dict_stack = []  # local dictionaries
+
 
 def new_local_dict():
-    """
-    Initialize a new local dictionary & push it onto the stack.
-    """
+    """Initialize a new local dictionary & push it onto the stack."""
     d = {}
     _local_dict_stack.append(d)
-
     return d
 
-def pop_local_dict():
-    """
-    Get rid of the current local dictionary.
-    """
-    _local_dict_stack.pop()
 
-###
+def pop_local_dict():
+    """Get rid of the current local dictionary."""
+    return _local_dict_stack.pop()
+
 
 def get_twill_glocals():
-    """
-    Return global dict & current local dictionary.
-    """
+    """Return both global and current local dictionary."""
     global global_dict, _local_dict_stack
     assert global_dict is not None, "must initialize global namespace first!"
-
-    if len(_local_dict_stack) == 0:
+    if not _local_dict_stack:
         new_local_dict()
-
     return global_dict, _local_dict_stack[-1]
-
-###

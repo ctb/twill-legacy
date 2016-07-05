@@ -6,7 +6,7 @@ import time
 from cStringIO import StringIO
 from multiprocessing import Process
 
-from parse import execute_file
+from .parse import execute_file
 
 HOST = '127.0.0.1'  # interface to run the server on
 PORT = 8080  # default port to run the server on

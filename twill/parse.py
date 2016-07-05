@@ -11,23 +11,22 @@ from pyparsing import (
     alphas, alphanums, CharsNotIn, Combine, Group, Literal, Optional,
     ParseException, printables, removeQuotes, restOfLine, Word, ZeroOrMore)
 
-from errors import TwillAssertionError, TwillNameError
-
 from . import commands, log, namespaces
+from .errors import TwillAssertionError, TwillNameError
 
-### pyparsing stuff
+# pyparsing stuff
 
 # basically, a valid Python identifier:
-command = Word(alphas + "_", alphanums + "_")
+command = Word(alphas + '_', alphanums + '_')
 command = command.setResultsName('command')
-command.setName("command")
+command.setName('command')
 
 # arguments to it.
 
 # we need to reimplement all this junk from pyparsing because pcre's
 # idea of escapable characters contains a lot more than the C-like
 # thing pyparsing implements
-_bslash = "\\"
+_bslash = '\\'
 _sglQuote = Literal("'")
 _dblQuote = Literal('"')
 _escapables = printables
@@ -40,32 +39,31 @@ sglQuotedString = Combine(
     _sglQuote).streamline().setName('string enclosed in single quotes')
 quotedArg = (dblQuotedString | sglQuotedString)
 quotedArg.setParseAction(removeQuotes)
-quotedArg.setName("quotedArg")
+quotedArg.setName('quotedArg')
 
 plainArgChars = printables.replace('#', '').replace('"', '').replace("'", "")
 plainArg = Word(plainArgChars)
-plainArg.setName("plainArg")
+plainArg.setName('plainArg')
 
 arguments = Group(ZeroOrMore(quotedArg | plainArg))
 arguments = arguments.setResultsName('arguments')
-arguments.setName("arguments")
+arguments.setName('arguments')
 
 # comment line.
 comment = Literal('#') + restOfLine
 comment = comment.suppress()
 comment.setName('comment')
 
-full_command = (comment | (command + arguments + Optional(comment)))
+full_command = comment | (command + arguments + Optional(comment))
 full_command.setName('full_command')
 
-###
 
 command_list = []  # filled in by namespaces.init_global_dict().
 
-### command/argument handling.
 
 def process_args(args, globals_dict, locals_dict):
-    """
+    """Process string arguments.
+
     Take a list of string arguments parsed via pyparsing and evaluate
     the special variables ('__*').
 
@@ -73,11 +71,11 @@ def process_args(args, globals_dict, locals_dict):
     """
     newargs = []
     for arg in args:
-        # __variable substitution.
+        # __variable substitution
         if arg.startswith('__'):
             try:
                 val = eval(arg, globals_dict, locals_dict)
-            except NameError:  # not in dictionary; don't interpret.
+            except NameError:  # not in dictionary; don't interpret
                 val = arg
 
             log.info('VAL IS %s FOR %s', val, arg)
@@ -91,26 +89,24 @@ def process_args(args, globals_dict, locals_dict):
         elif arg.startswith('$') and not arg.startswith('${'):
             try:
                 val = str(eval(arg[1:], globals_dict, locals_dict))
-            except NameError:  # not in dictionary; don't interpret.
+            except NameError:  # not in dictionary; don't interpret
                 val = arg
             newargs.append(val)
         else:
             newargs.append(variable_substitution(arg, globals_dict, locals_dict))
 
-    newargs = [i.replace('\\n', '\n') for i in newargs]
+    newargs = [arg.replace('\\n', '\n') for arg in newargs]
     return newargs
 
-###
 
 def execute_command(cmd, args, globals_dict, locals_dict, cmdinfo):
-    """
-    Actually execute the command.
+    """Actually execute the command.
 
     Side effects: __args__ is set to the argument tuple, __cmd__ is set to
     the command.
     """
-    global command_list                 # all supported commands:
-    # execute command.
+    global command_list  # all supported commands
+    # execute command
     locals_dict['__cmd__'] = cmd
     locals_dict['__args__'] = args
     if cmd not in command_list:
@@ -119,10 +115,10 @@ def execute_command(cmd, args, globals_dict, locals_dict, cmdinfo):
     eval_str = "%s(*__args__)" % (cmd,)
 
     # compile the code object so that we can get 'cmdinfo' into the
-    # error tracebacks.
+    # error tracebacks
     codeobj = compile(eval_str, cmdinfo, 'eval')
 
-    # eval the codeobj in the appropriate dictionary.
+    # eval the codeobj in the appropriate dictionary
     result = eval(codeobj, globals_dict, locals_dict)
     
     # set __url__
@@ -130,17 +126,15 @@ def execute_command(cmd, args, globals_dict, locals_dict, cmdinfo):
 
     return result
 
-###
 
 _log_commands = log.debug
 
+
 def parse_command(line, globals_dict, locals_dict):
-    """
-    Parse command.
-    """
+    """Parse command."""
     try:
         res = full_command.parseString(line)
-    except ParseException, e:
+    except ParseException as e:
         log.error('PARSE ERROR: %s', e)
         res = None
     if res:
@@ -149,12 +143,9 @@ def parse_command(line, globals_dict, locals_dict):
         return res.command, args
     return None, None  # e.g. a comment
 
-###
 
 def execute_string(buf, **kw):
-    """
-    Execute commands from a string buffer.
-    """
+    """Execute commands from a string buffer."""
     fp = StringIO(buf)
     
     kw['source'] = ['<string buffer>']
@@ -163,25 +154,20 @@ def execute_string(buf, **kw):
     
     _execute_script(fp, **kw)
 
+
 def execute_file(filename, **kw):
-    """
-    Execute commands from a file.
-    """
+    """Execute commands from a file."""
     # read the input lines
-    if filename == "-":
-        inp = sys.stdin
-    else:
-        inp = open(filename)
+    inp = sys.stdin if filename == "-" else open(filename)
 
     kw['source'] = filename
 
     _execute_script(inp, **kw)
-    
+
+
 def _execute_script(inp, **kw):
-    """
-    Execute lines taken from a file-like iterator.
-    """
-    # initialize new local dictionary & get global + current local
+    """Execute lines taken from a file-like iterator."""
+    # initialize new local dictionary and get global and current local
     namespaces.new_local_dict()
     globals_dict, locals_dict = namespaces.get_twill_glocals()
     
@@ -208,10 +194,11 @@ def _execute_script(inp, **kw):
     try:
 
         for n, line in enumerate(inp):
-            if not line.strip():            # skip empty lines
+            line = line.strip()
+            if not line:  # skip empty lines
                 continue
 
-            cmdinfo = "%s:%d" % (sourceinfo, n,)
+            cmdinfo = '%s:%d' % (sourceinfo, n,)
             log.info('AT LINE: %s', cmdinfo)
 
             cmd, args = parse_command(line, globals_dict, locals_dict)
@@ -221,7 +208,7 @@ def _execute_script(inp, **kw):
             try:
                 execute_command(cmd, args, globals_dict, locals_dict, cmdinfo)
             except SystemExit:
-                # abort script execution, if a SystemExit is raised.
+                # abort script execution if a SystemExit is raised
                 return
             except TwillAssertionError as e:
                 log.error(
@@ -241,12 +228,9 @@ def _execute_script(inp, **kw):
     finally:
         namespaces.pop_local_dict()
 
-###
 
 def log_commands(flag):
-    """
-    Turn on/off printing of commands as they are executed.  'flag' is bool.
-    """
+    """Turn printing of commands as they are executed on or off."""
     global _log_commands
     old_flag = _log_commands is log.info
     _log_commands = log.info if flag else log.debug
@@ -254,6 +238,7 @@ def log_commands(flag):
         
 
 _re_variable = re.compile("\${(.*?)}")
+
 
 def variable_substitution(raw_str, globals_dict, locals_dict):
     s = []
@@ -267,4 +252,3 @@ def variable_substitution(raw_str, globals_dict, locals_dict):
         pos = m.end()
     s.append(raw_str[pos:])
     return ''.join(s)
-

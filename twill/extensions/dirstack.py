@@ -17,8 +17,7 @@ _dirstack = []
 
 
 def chdir(where):
-    """
-    >> chdir <where>
+    """>> chdir <where>
 
     Change to the new location, after saving the current directory onto
     the directory stack.  The global variable __dir__ is set to the cwd.
@@ -34,8 +33,7 @@ def chdir(where):
 
 
 def popd():
-    """
-    >> popd
+    """>> popd
 
     Change back to the last directory on the directory stack.  The global
     variable __dir__ is set to the cwd.

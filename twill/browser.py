@@ -10,17 +10,16 @@ from lxml import html
 from requests.exceptions import InvalidSchema, ConnectionError
 
 from . import log
-from utils import print_form, unique_match, _follow_equiv_refresh, ResultWrapper
-from errors import TwillException
+from .utils import (
+    print_form, unique_match, ResultWrapper, _follow_equiv_refresh)
+from .errors import TwillException
 
 
 class TwillBrowser(object):
     """A simple, stateful browser"""
 
     def __init__(self):
-        #
         # create special link/forms parsing code to run tidy on HTML first.
-        #
         self.result = None
         self.last_submit_button = None
 
@@ -48,9 +47,7 @@ class TwillBrowser(object):
         return self._auth
 
     def go(self, url):
-        """
-        Visit given URL.
-        """
+        """Visit given URL."""
         try_urls = []
         if '://' in url:
             try_urls.append(url)
@@ -77,16 +74,12 @@ class TwillBrowser(object):
         log.info('==> at %s', self.get_url())
 
     def reload(self):
-        """
-        Tell the browser to reload the current page.
-        """
+        """Tell the browser to reload the current page."""
         self._journey('reload')
         log.info('==> reloaded')
 
     def back(self):
-        """
-        Return to previous page, if possible.
-        """
+        """Return to previous page, if possible."""
         try:
             self._journey('back')
             log.info('==> back to %s', self.get_url())
@@ -94,17 +87,13 @@ class TwillBrowser(object):
             log.warning('==> back at empty page')
 
     def get_code(self):
-        """
-        Get the HTTP status code received for the current page.
-        """
+        """Get the HTTP status code received for the current page."""
         if self.result is not None:
             return self.result.get_http_code()
         return None
 
     def get_html(self):
-        """
-        Get the HTML for the current page.
-        """
+        """Get the HTML for the current page."""
         if self.result is not None:
             return self.result.get_page()
         return None
@@ -115,49 +104,42 @@ class TwillBrowser(object):
         raise TwillException("Error: Getting title with no page")
 
     def get_url(self):
-        """
-        Get the URL of the current page.
-        """
+        """Get the URL of the current page."""
         if self.result is not None:
             return self.result.get_url()
         return None
 
     def find_link(self, pattern):
-        """
-        Find the first link with a URL, link text, or name matching the
-        given pattern.
+        """Find the first link matching the given pattern.
+
+        The pattern is searched in the URL, link text, or name.
         """
         if self.result is not None:
             return self.result.find_link(pattern)
         return ''
 
     def follow_link(self, link):
-        """
-        Follow the given link.
-        """
+        """Follow the given link."""
         self._journey('follow_link', link)
         log.info('==> at %s', self.get_url())
 
     def set_agent_string(self, agent):
-        """
-        Set the agent string to the given value.
-        """
-        self._session.headers.update({'User-agent' : agent})
+        """Set the agent string to the given value."""
+        self._session.headers.update({'User-agent': agent})
         return
 
     def showforms(self):
-        """
-        Pretty-print all of the forms.  Include the global form (form
-        elements outside of <form> pairs) as forms[0] iff present.
+        """Pretty-print all of the forms.
+
+        Include the global form (form elements outside of <form> pairs)
+        as forms[0] if present.
         """
         forms = self.get_all_forms()
-        for n, f in enumerate(forms):
-            print_form(n, f)
+        for n, form in enumerate(forms):
+            print_form(form, n)
 
     def showlinks(self):
-        """
-        Pretty-print all of the links.
-        """
+        """Pretty-print all of the links."""
         info = log.info
         links = self.get_all_links()
         if links:
@@ -169,9 +151,7 @@ class TwillBrowser(object):
             info('\n** no links **\n')
 
     def showhistory(self):
-        """
-        Pretty-print the history of links visited.
-        """
+        """Pretty-print the history of links visited."""
         info = log.info
         history = self._history
         if history:
@@ -183,32 +163,29 @@ class TwillBrowser(object):
             info('\n** no history **\n')
 
     def get_all_links(self):
-        """
-        Return a list of all of the links on the page
-        """
+        """Return a list of all of the links on the page."""
         return [] if self.result is None else self.result.get_links()
 
     def get_all_forms(self):
-        """
-        Return a list of all of the forms, with global_form at index 0
-        iff present.
+        """Return a list of all of the forms.
+
+        Include the global form at index 0 if present.
         """
         return [] if self.result is None else self.result.get_forms()
 
     def get_form(self, formname):
-        """
-        Return the first form that matches 'formname'.
-        """
+        """Return the first form that matches the given form name."""
         return None if self.result is None else self.result.get_form(formname)
 
     def get_form_field(self, form, fieldname):
-        """
-        Return the control that matches 'fieldname'.  Must be
-        a *unique* regexp/exact string match.
+        """Return the control that matches the given field name.
+
+        Must be a *unique* regexp/exact string match.
         """
         if fieldname in form.fields.keys():
-            controls = [f for f in form.inputs if f.get("name") == fieldname
-                        and hasattr(f, 'type') and f.type == 'checkbox']
+            controls = [f for f in form.inputs
+                        if f.get('name') == fieldname and
+                        hasattr(f, 'type') and f.type == 'checkbox']
             if len(controls) > 1:
                 return html.CheckboxGroup(controls)
 
@@ -217,9 +194,9 @@ class TwillBrowser(object):
         found = None
         found_multiple = False
 
-        matches = [c for c in form.inputs if c.get("id") == fieldname]
+        matches = [c for c in form.inputs if c.get('id') == fieldname]
 
-        # test exact match.
+        # test exact match
         if matches:
             if unique_match(matches):
                 found = matches[0]
@@ -256,15 +233,15 @@ class TwillBrowser(object):
                 if unique_match(matches):
                     found = matches[0]
                 else:
-                    found_multiple = True # record for error
+                    found_multiple = True  # record for error
 
         if found is None:
-            clickies = [ c for c in form.inputs if c.value == fieldname]
+            clickies = [c for c in form.inputs if c.value == fieldname]
             if clickies:
                 if len(clickies) == 1:
                     found = clickies[0]
                 else:
-                    found_multiple = True   # record for error
+                    found_multiple = True  # record for error
 
         # error out?
         if found is None:
@@ -276,13 +253,10 @@ class TwillBrowser(object):
         return found
 
     def clicked(self, form, control):
-        """
-        Record a 'click' in a specific form.
-        """
+        """Record a 'click' in a specific form."""
         if self._form != form:
-            # construct a function to choose a particular form; select_form
-            # can use this to pick out a precise form.
-
+            # construct a function to choose a particular form;
+            # select_form can use this to pick out a precise form.
             self._form = form
             self.last_submit_button = None
         # record the last submit button clicked.
@@ -290,20 +264,18 @@ class TwillBrowser(object):
             self.last_submit_button = control
 
     def submit(self, fieldname=None):
-        """
-        Submit the currently clicked form using the given field.
-        """
+        """Submit the currently clicked form using the given field."""
         if fieldname is not None:
             fieldname = str(fieldname)
-        
-        if len(self.get_all_forms()) == 0:
+
+        forms = self.get_all_forms()
+        if not forms:
             raise TwillException("no forms on this page!")
         
         ctl = None
-        
+
         form = self._form
         if form is None:
-            forms = [i for i in self.get_all_forms()]
             if len(forms) == 1:
                 form = forms[0]
             else:
@@ -316,63 +288,49 @@ class TwillBrowser(object):
 
         # no fieldname?  see if we can use the last submit button clicked...
         if fieldname is None:
-            if self.last_submit_button is not None:
-                ctl = self.last_submit_button
-            else:
+            if self.last_submit_button is None:
                 # get first submit button in form.
-                submits = [ c for c in form.inputs 
-                            if hasattr(c, 'type') and (c.type == 'submit' 
-                            or c.type == 'image')]
-                if len(submits) != 0:
-                    ctl = submits[0]             
+                submits = [c for c in form.inputs
+                           if hasattr(c, 'type') and
+                           c.type in ('submit', 'image')]
+                if submits:
+                    ctl = submits[0]
+            else:
+                ctl = self.last_submit_button
         else:
             # fieldname given; find it.
             ctl = self.get_form_field(form, fieldname)
 
-        #
         # now set up the submission by building the request object that
         # will be sent in the form submission.
-        #
-        if ctl is not None:
+        if ctl is None:
+            log.debug('Note: submit without using a submit button')
+        else:
             log.info(
                 "Note: submit is using submit button:"
                 " name='%s', value='%s'", ctl.get('name'), ctl.value)
-            
             if hasattr(ctl, 'type') and ctl.type == 'image':
                 pass
 
-        else:
-            log.debug('Note: submit without using a submit button')
-
+        # add referer information.  this may require upgrading the
+        # request object to have an 'add_unredirected_header' function.
         # @BRT: For now, the referrer is always the current page
         # @CTB this seems like an issue for further work.
         headers = {'referer': self.get_url()}
 
-        #
-        # add referer information.  this may require upgrading the
-        # request object to have an 'add_unredirected_header' function.
-        #
-
-        #
         # now actually GO.
-        #
         payload = list(form.form_values())
-        if ctl is not None and ctl.get("name") is not None:
-            payload.append( (ctl.get("name"), ctl.value) )
+        if ctl is not None and ctl.get('name') is not None:
+            payload.append((ctl.get('name'), ctl.value))
         if form.method == 'POST':
-            if len(self._formFiles) != 0:
+            if self._formFiles:
                 r = self._session.post(
-                                        form.action, 
-                                        data=payload, 
-                                        files=self._formFiles, 
-                                        headers=headers
-                                      )
+                    form.action,
+                    data=payload, files=self._formFiles, headers=headers)
             else:
                 r = self._session.post(
-                                        form.action, 
-                                        data=payload, 
-                                        headers=headers
-                                      )
+                    form.action,
+                    data=payload, headers=headers)
         else:
             r = self._session.get(form.action, data=payload, headers=headers)
 
@@ -381,32 +339,24 @@ class TwillBrowser(object):
         self.result = ResultWrapper(r)
 
     def save_cookies(self, filename):
-        """
-        Save cookies into the given file.
-        """
+        """Save cookies into the given file."""
         with open(filename, 'wb') as f:
             pickle.dump(self._session.cookies, f)
 
     def load_cookies(self, filename):
-        """
-        Load cookies from the given file.
-        """
+        """Load cookies from the given file."""
         with open(filename, 'rb') as f:
             self._session.cookies = pickle.load(f)
 
     def clear_cookies(self):
-        """
-        Delete all of the cookies.
-        """
+        """Delete all of the cookies."""
         self._session.cookies.clear()
 
     def show_cookies(self):
-        """
-        Pretty-print all of the cookies.
-        """
+        """Pretty-print all of the cookies."""
         info = log.info
         cookies = self._session.cookies
-        n = len(requests.utils.dict_from_cookiejar(cookies))
+        n = len(cookies)
         if n:
             log.info('\nThere are %d cookie(s) in the cookie jar.\n', n)
             for n, cookie in enumerate(cookies):
@@ -415,26 +365,23 @@ class TwillBrowser(object):
         else:
             log.info('\nThere are no cookies in the cookie jar.\n', n)
 
-    # BRT: Added to test for meta redirection
-    #       Shamelessly stolen from 
-    #       http://stackoverflow.com/questions/2318446/how-to-follow-meta-refreshes-in-python
-    #       Took some modification to get it working, though
-    #       Original post notes that this doesn't check circular redirect
-    #       Is this something we're concerned with?
     def _test_for_meta_redirections(self, r):
-        """
-        Checks a document for meta redirection
-        """
+        """Checks a document for meta redirection."""
+        # @BRT: Added to test for meta redirection
+        # Shamelessly stolen from
+        # http://stackoverflow.com/questions/2318446/how-to-follow-meta-refreshes-in-python
+        # Took some modification to get it working, though.
+        # Original post notes that this doesn't check circular redirect.
+        # Is this something we're concerned with?
         html_tree = html.fromstring(r.text)
         attr = html_tree.xpath(
-        "//meta[translate(@http-equiv, 'REFSH', 'refsh') = 'refresh']/@content"
-                )
-        if len(attr) > 0:
-            wait, text = attr[0].split(";")
+            "//meta[translate(@http-equiv, 'REFSH', 'refsh')"
+            " = 'refresh']/@content")
+        if attr:
+            wait, text = attr[0].split(';')
             # @BRT: Strip surrounding quotes and ws; less brute force method?
-            #       Other chars that need to be dealt with?
-            text = text.strip()
-            text = text.strip('\'"')
+            # Other chars that need to be dealt with?
+            text = text.strip().strip('\'"')
             if text.lower().startswith("url="):
                 url = text[4:]
                 if not url.startswith('http'):
@@ -443,28 +390,27 @@ class TwillBrowser(object):
                     return True, url
         return False, None
 
-    # BRT: Added to test for meta redirection
-    # Shamelessly stolen from the same link as _test_for_meta_redirections
     def _follow_redirections(self, r, s):
+        """Follows a meta refresh redirections if it exists.
+
+        Note: This is a recursive function.
         """
-        Recursive function that follows meta refresh redirections if they exist.
-        """
+        # @BRT: Added to test for meta redirection
+        # Shamelessly stolen from the same link as _test_for_meta_redirections
         redirected, url = self._test_for_meta_redirections(r)
         if redirected:
             r = self._follow_redirections(s.get(url), s)
         return r
 
     def _journey(self, func_name, *args, **kwargs):
-        """
-        'func_name' should be one of 'open', 'reload', 'back', or 'follow_link'.
+        """Execute the funtion with the given name and arguments.
 
-        journey then runs that function with the given arguments and turns
+        The name should be one of 'open', 'reload', 'back', or 'follow_link'.
+        This method then runs that function with the given arguments and turns
         the results into a nice friendly standard ResultWrapper object, which
-        is stored as 'self.result'.
+        is stored as self.result.
 
-        All exceptions other than HTTPError are unhandled.
-        
-        (Idea stolen straight from PBP.)
+        (Idea stolen from Python Browsing Probe (PBP).)
         """
         self.last_submit_button = None
 
@@ -487,12 +433,8 @@ class TwillBrowser(object):
             except IndexError:
                 raise TwillException
 
-        if url in self._auth.keys():
-            auth = self._auth[url]
-        else:
-            auth = None
-
-        r = self._session.get(url, auth = auth)
+        auth = self._auth.get(url)
+        r = self._session.get(url, auth=auth)
 
         if _follow_equiv_refresh():
             r = self._follow_redirections(r, self._session)

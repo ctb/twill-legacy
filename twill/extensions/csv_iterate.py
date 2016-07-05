@@ -14,8 +14,7 @@ __all__ = ['csv_iterate']
 
 
 def csv_iterate(filename, scriptname):
-    """
-    >> csv_iterate <csv_file> <script>
+    """>> csv_iterate <csv_file> <script>
 
     For each line in <csv_file>, read in a list of comma-separated values,
     put them in $col1...$colN, and execute <script>.

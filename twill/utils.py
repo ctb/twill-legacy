@@ -24,13 +24,13 @@ from errors import TwillException
 class ResultWrapper(object):
     """Deal with request results, and present them in a unified form.
 
-    These objects are returned by 'journey'-wrapped functions.
+    These objects are returned by browser._journey()-wrapped functions.
     """
     def __init__(self, req):
         self.req = req
         self.lxml = html.fromstring(self.req.text)
         orphans = self.lxml.xpath('//input[not(ancestor::form)]')
-        if len(orphans) > 0:
+        if orphans:
             form = ['<form>']
             for orphan in orphans:
                 form.append(etree.tostring(orphan))
@@ -57,227 +57,212 @@ class ResultWrapper(object):
         return self.forms
 
     def get_title(self):
-        selector = cssselect.CSSSelector("title")
+        selector = cssselect.CSSSelector('title')
         return selector(self.lxml)[0].text
 
     def get_links(self):
-        selector = cssselect.CSSSelector("a")
+        selector = cssselect.CSSSelector('a')
         return [
-                 # (stringify_children(l) or '', l.get("href")) 
-                 (l.text or '', l.get("href"))
-                 for l in selector(self.lxml)
-               ]
-    def find_link(self, pattern):
-        selector = cssselect.CSSSelector("a")
+            (a.text or '', a.get('href')) for a in selector(self.lxml)]
 
+    def find_link(self, pattern):
+        selector = cssselect.CSSSelector('a')
         links = [
-                 # (stringify_children(l) or '', l.get("href")) 
-                 (l.text or '', l.get("href"))
-                 for l in selector(self.lxml)
-                ]
+            (a.text or '', a.get('href')) for a in selector(self.lxml)]
+        search = re.search
         for link in links:
-            if re.search(pattern, link[0]) or re.search(pattern, link[1]):
+            if search(pattern, link[0]) or search(pattern, link[1]):
                 return link[1]
         return ''
 
     def get_form(self, formname):
         forms = self.get_forms()
 
-        # first try ID
-        for f in forms:
-            id = f.get("id")
-            if id and str(id) == formname:
-                return f
+        # first, try ID
+        for form in forms:
+            form_id = form.get('id')
+            if form_id and str(form_id) == formname:
+                return form
         
-        # next try regexps
+        # next, try regexps
         regexp = re.compile(formname)
-        for f in forms:
-            if f.get("name") and regexp.search(f.get("name")):
-                return f
+        for form in forms:
+            if form.get('name') and regexp.search(form.get('name')):
+                return form
 
-        # ok, try number
+        # last, try number
         try:
-            formnum = int(formname)
-            if formnum >= 0 and formnum <= len(forms):
-                return forms[formnum - 1]
-        except (ValueError, IndexError):              # int() failed
+            formnum = int(formname) - 1
+            if not 0 <= formnum < len(forms):
+                raise IndexError
+        except (ValueError, IndexError):
             return None
+        else:
+            return forms[formnum]
+
 
 def trunc(s, length):
-    """
-    Truncate a string s to length length, by cutting off the last 
-    (length-4) characters and replacing them with ' ...'
-    """
-    if not s:
-        return ''
-    
-    if len(s) > length:
-        return s[:length-4] + ' ...'
-    
-    return s
+    """Truncate a string to a given length.
 
-def print_form(n, f):
+     The string is truncated by cutting off the last (length-4) characters
+     and replacing them with ' ...'
     """
-    Pretty-print the given form, assigned # n.
-    """
+    if s and len(s) > length:
+        return s[:length - 4] + ' ...'
+    else:
+        return s
+
+
+def print_form(form, n):
+    """Pretty-print the given form, with the assigned number."""
     info = log.info
-    if f.get('name'):
-        info('\nForm name=%s (#%d)', f.get('name'), n + 1)
+    name = form.get('name')
+    if name:
+        info('\nForm name=%s (#%d)', name, n + 1)
     else:
         info('\nForm #%d', n + 1)
 
-    if f.inputs is not None:
-        info("## ## __Name__________________"
-            " __Type___ __ID________ __Value__________________")
+    if form.inputs is not None:
+        info('## __Name__________________'
+            ' __Type___ __ID________ __Value__________________')
 
-    for n, field in enumerate(f.inputs):
-        if hasattr(field, 'value_options'):
-            items = [i.name if hasattr(i, 'name') else i
-                     for i in field.value_options]
-            value_displayed = "%s of %s" % ([i for i in field.value], items)
-        else:
-            value_displayed = "%s" % (field.value,)
-
-        submit_index = '  '
-        strings = (
-            "%-2s" % (n + 1,),
-            submit_index,
-            "%-24s %-9s" % (
-               trunc(str(field.name), 24),
-               trunc(field.type if hasattr(field, 'type') else 'select', 9)),
-            "%-12s" % (trunc(field.get("id") or "(None)", 12),),
-            trunc(value_displayed, 40))
-        info(' '.join(strings))
+        for n, field in enumerate(form.inputs):
+            value = field.value
+            if hasattr(field, 'value_options'):
+                items = ', '.join("'%s'" % (
+                    opt.name if hasattr(opt, 'name') else opt,)
+                    for opt in field.value_options)
+                value_displayed = '%s of %s' % (value, items)
+            else:
+                value_displayed = '%s' % (value,)
+            field_name = field.name
+            field_type = field.type if hasattr(field, 'type') else 'select'
+            field_id = field.get('id')
+            strings = (
+                '%-2s' % (n + 1,),
+                '%-24s %-9s' % (
+                    trunc(field_name, 24), trunc(field_type, 9)),
+                '%-12s' % (trunc(field_id, 12),),
+                trunc(value_displayed, 40))
+            info(' '.join(strings))
     info('')
 
+
 def make_boolean(value):
-    """Convert the input value into a boolean like so:"""
-    value = str(value)
-    value = value.lower().strip()
+    """Convert the input value into a boolean."""
+    value = str(value).lower().strip()
 
     # true/false
     if value in ('true', 'false'):
-        if value == 'true':
-            return True
-        return False
+        return value == 'true'
 
     # 0/nonzero
     try:
         ival = int(value)
-        return bool(ival)
     except ValueError:
         pass
+    else:
+        return bool(ival)
 
     # +/-
     if value in ('+', '-'):
-        if value == '+':
-            return True
-        return False
+        return value == '+'
 
     # on/off
     if value in ('on', 'off'):
-        if value == 'on':
-            return True
-        return False
+        return value == 'on'
 
     raise TwillException("unable to convert '%s' into true/false" % (value,))
 
-def set_form_control_value(control, val):
+
+def set_form_control_value(control, value):
+    """Set the given control to the given value
+
+    The controls can be checkboxes, select elements etc.
     """
-    Helper function to deal with setting form values on checkboxes, lists etc.
-    """
-    if hasattr(control, 'type') and control.type == 'checkbox':
-        try:
-            # checkbox = control.get()
-            val = make_boolean(val)
-            control.checked = val
-            return
-        except TwillException:
-            # if there's more than one checkbox, use the behaviour for
-            # ClientForm.ListControl, below.
-            pass
+    if hasattr(control, 'type'):
+        if control.type == 'checkbox':
+            try:
+                value = make_boolean(value)
+            except TwillException:
+                # if there's more than one checkbox,
+                # it should be a html.CheckboxGroup, see below.
+                pass
+            else:
+                control.checked = value
+
+        elif control.type not in ('submit', 'image'):
+            control.value = value
             
     elif isinstance(control, html.CheckboxGroup):
-        if val.startswith('-'):
-            val = val[1:]
-            flag = False
-        else:
-            flag = True
-            if val.startswith('+'):
-                val = val[1:]
-        if flag:
-            control.value.add(val)
-        else:
+        if value.startswith('-'):
+            value = value[1:]
             try:
-                control.value.remove(val)
+                control.value.remove(value)
             except KeyError:
                 pass
+        else:
+            if value.startswith('+'):
+                value = value[1:]
+            control.value.add(value)
 
     elif isinstance(control, html.SelectElement):
-        #
         # for ListControls (checkboxes, multiselect, etc.) we first need
         # to find the right *value*.  Then we need to set it +/-.
-        #
-
-        # figure out if we want to *select* it, or if we want to *deselect*
-        # it (flag T/F).  By default (no +/-) select...
-        if val.startswith('-'):
-            val = val[1:]
-            flag = False
+        # Figure out if we want to *select* it, or if we want to *deselect*
+        # it.  By default (no +/-) select...
+        if value.startswith('-'):
+            add = False
+            value = value[1:]
         else:
-            flag = True
-            if val.startswith('+'):
-                val = val[1:]
+            add = True
+            if value.startswith('+'):
+                value = value[1:]
 
         # now, select the value.
-
-        options = [i.strip() for i in control.value_options]
-        optionNames = [i.text.strip() for i in control.getchildren()]
-        fullOptions = dict(zip(optionNames, options))
-        for k,v in fullOptions.iteritems():
-            if (val == k or val == v) and flag:
-                if hasattr(control, 'checkable') and control.checkable:
-                    control.checked = flag
-                else:
-                    control.value.add(v)
-                return
-            elif (val == k or val == v) and not flag:
+        options = [opt.strip() for opt in control.value_options]
+        option_names = [c.text.strip() for c in control.getchildren()]
+        full_options = dict(zip(option_names, options))
+        for name, opt in full_options.iteritems():
+            if value not in (name, opt):
+                continue
+            if hasattr(control, 'checkable') and control.checkable:
+                control.checked = add
+            if add:
+                control.value.add(opt)
+                break
+            else:
                 try:
-                    control.value.remove(v)
+                    control.value.remove(opt)
                 except ValueError:
                     pass
-                return
-        raise(TwillException("Attempt to set invalid value"))
-        
+                break
+        else:
+            raise TwillException('Attempt to set an invalid value')
+
     else:
-        if(hasattr(control, 'type') and control.type != 'submit'):
-            control.value = val
-        #else:
-            #raise(TwillException("Attempt to set value on invalid control"))
+        raise TwillException('Attempt to set value on invalid control')
+
 
 def _all_the_same_submit(matches):
+    """Check if a list of controls all belong to the same control.
+
+    For use with checkboxes, hidden, and submit buttons.
     """
-    Utility function to check to see if a list of controls all really
-    belong to the same control: for use with checkboxes, hidden, and
-    submit buttons.
-    """
-    name = None
-    value = None
+    name = value = None
     for match in matches:
-        if match.type not in ['submit', 'hidden']:
+        if match.type not in ('submit', 'hidden'):
             return False
         if name is None:
             name = match.name
             value = match.value
-        else:
-            if match.name != name or match.value!= value:
+        elif match.name != name or match.value != value:
                 return False
     return True
 
+
 def _all_the_same_checkbox(matches):
-    """
-    Check whether all these controls are actually the the same
-    checkbox.
+    """Check if a list of controls all belong to the same checkbox.
 
     Hidden controls can combine with checkboxes, to allow form
     processors to ensure a False value is returned even if user
@@ -286,7 +271,7 @@ def _all_the_same_checkbox(matches):
     """
     name = None
     for match in matches:
-        if match.type not in ['checkbox', 'hidden']:
+        if match.type not in ('checkbox', 'hidden'):
             return False
         if name is None:
             name = match.name
@@ -295,14 +280,12 @@ def _all_the_same_checkbox(matches):
                 return False
     return True
 
-def unique_match(matches):
-    return len(matches) == 1 or \
-           _all_the_same_checkbox(matches) or \
-           _all_the_same_submit(matches)
 
-#
-# stuff to run 'tidy'...
-#
+def unique_match(matches):
+    """Check whether a match is unique"""
+    return (len(matches) == 1 or
+            _all_the_same_checkbox(matches) or _all_the_same_submit(matches))
+
 
 def run_tidy(html):
     """Run HTML Tidy on the given HTML string.
@@ -316,42 +299,38 @@ def run_tidy(html):
     if not tidylib:
         if require_tidy:
             raise TwillException(
-                "require_tidy is set but PyTidyLib is not installed")
+                'Option require_tidy is set, but PyTidyLib is not installed')
         return None, None
     
     clean_html, errors = tidylib.tidy_document(html)
-    
     return clean_html, errors
 
 
 def _is_valid_filename(f):
-    return not (f.endswith('~') or f.endswith('.bak') or f.endswith('.old'))
+    """Check if the given filename is valid (not a backup file)."""
+    return not f.endswith(('~', '.bak', '.old'))
 
-# Added so browser can ask whether to follow meta redirects
+
 def _follow_equiv_refresh():
+    """Check if the browser shall ask whether to follow meta redirects."""
     from twill.commands import _options
     return _options.get('acknowledge_equiv_refresh')
 
-def gather_filenames(arglist):
-    """
-    Collect script files from within directories.
-    """
-    l = []
 
-    for filename in arglist:
-        if os.path.isdir(filename):
-            thislist = []
-            for (dirpath, dirnames, filenames) in os.walk(filename):
-                if '.svn' in dirpath:   # ignore subversion files
+def gather_filenames(arglist):
+    """Collect script files from within directories."""
+    names = []
+    for arg in arglist:
+        if os.path.isdir(arg):
+            s = []
+            for dirpath, dirnames, filenames in os.walk(arg):
+                if dirpath in ('.git', '.hg', '.svn'):
                     continue
                 for f in filenames:
                     if _is_valid_filename(f):
                         f = os.path.join(dirpath, f)
-                        thislist.append(f)
-                        
-            thislist.sort()
-            l.extend(thislist)
+                        s.append(f)
+            names.extend(sorted(s))
         else:
-            l.append(filename)
-
-    return l
+            names.append(arg)
+    return names

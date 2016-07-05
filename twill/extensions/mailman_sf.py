@@ -14,8 +14,7 @@ __all__ = ['discard_all_messages', 'exit_if_empty']
 
 
 def exit_if_empty():
-    """
-    >> exit_if_empty
+    """>> exit_if_empty
 
     Exit the script currently running, if there are no deferred messages
     on the current page.
@@ -28,8 +27,7 @@ def exit_if_empty():
 
 
 def discard_all_messages():
-    """
-    >> discard_all_messages
+    """>> discard_all_messages
 
     Set all buttons to "discard".
     """

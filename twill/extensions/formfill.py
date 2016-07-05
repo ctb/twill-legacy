@@ -6,7 +6,7 @@ added into the main twill command set.)
 
 Commands:
 
- * fv_match -- fill in *all* fields that match a regexp (unlike 'formvalue'
+ * fv_match -- fill in *all* fields that match a regex (unlike 'formvalue'
         which will complain about multiple matches).  Useful for forms
         with lots of repeated fieldnames -- 'field-1', 'field-2', etc.
 
@@ -25,9 +25,8 @@ from twill import commands, get_browser, log, utils
 __all__ = ['fv_match', 'fv_multi_match', 'fv_multi', 'fv_multi_sub']
 
 
-def fv_match(formname, regexp, value):
-    """
-    >> fv_match <formname> <field regexp> <value>
+def fv_match(formname, regex, value):
+    """>> fv_match <formname> <field regex> <value>
 
     Set value of *all* form fields with a name that matches the given
     regular expression.
@@ -42,10 +41,10 @@ def fv_match(formname, regexp, value):
         log.error("no such form '%s'", formname)
         return
 
-    regexp = re.compile(regexp)
+    regex = re.compile(regex)
 
     matches = [
-        ctl for ctl in form.inputs if regexp.search(str(ctl.get('name')))]
+        ctl for ctl in form.inputs if regex.search(str(ctl.get('name')))]
 
     if matches:
         log.info('-- matches %d', len(matches))
@@ -62,9 +61,8 @@ def fv_match(formname, regexp, value):
         log.info('set %d values total', n)
 
 
-def fv_multi_match(formname, regexp, *values):
-    """
-    >> fv_multi_match <formname> <field regexp> <value> [<value> [<value>..]]
+def fv_multi_match(formname, regex, *values):
+    """>> fv_multi_match <formname> <field regex> <value> [<value> [<value>..]]
 
     Set value of each consecutive matching form field with the next specified
     value.  If there are no more values, use the last for all remaining form
@@ -77,10 +75,10 @@ def fv_multi_match(formname, regexp, *values):
         log.error("no such form '%s'", formname)
         return
 
-    regexp = re.compile(regexp)
+    regex = re.compile(regex)
 
     matches = [
-        ctl for ctl in form.inputs if regexp.search(str(ctl.get('name')))]
+        ctl for ctl in form.inputs if regex.search(str(ctl.get('name')))]
 
     if matches:
         log.info('-- matches %d, values %d', len(matches), len(values))
@@ -98,8 +96,7 @@ def fv_multi_match(formname, regexp, *values):
 
 
 def fv_multi(formname, *pairs):
-    """
-    >> fv_multi <formname> [ <pair1> [ <pair2> [ <pair3> ]]]
+    """>> fv_multi <formname> [<pair1> [<pair2> [<pair3>]]]
 
     Set multiple form fields; each pair should be of the form
     
@@ -115,8 +112,7 @@ def fv_multi(formname, *pairs):
 
 
 def fv_multi_sub(formname, *pairs):
-    """
-    >> fv_multi_sub <formname> [ <pair1> [ <pair2> [ <pair3> ]]]
+    """>> fv_multi_sub <formname> [<pair1> [<pair2> [<pair3>]]]
 
     Set multiple form fields (as with 'fv_multi') and then submit().
     """

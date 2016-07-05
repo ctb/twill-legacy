@@ -14,8 +14,7 @@ __all__ = ['get_args']
 
 
 def get_args(require=0):
-    """
-    >> get_args [<require>]
+    """>> get_args [<require>]
 
     Load the command line arguments after the last '--' into $arg1...$argN,
     optionally requiring at least 'require' such arguments.

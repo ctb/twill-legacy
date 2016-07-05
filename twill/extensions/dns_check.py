@@ -20,9 +20,9 @@ try:
 except ImportError:
     raise Exception("ERROR: must have dnspython installed to use the DNS extension module")
 
+
 def dns_a(host, ipaddress, server=None):
-    """
-    >> dns_a <name> <ipaddress> [<name server>]
+    """>> dns_a <name> <ipaddress> [<name server>]
 
     Assert that <name> resolves to <ipaddress> (and is an A record).
     Optionally use the given name server.
@@ -36,9 +36,9 @@ def dns_a(host, ipaddress, server=None):
 
     raise TwillAssertionError
 
+
 def dns_cname(host, cname, server=None):
-    """
-    >> dns_cname <name> <alias_for> [<name server>]
+    """>> dns_cname <name> <alias_for> [<name server>]
 
     Assert that <name> is a CNAME alias for <alias_for>  Optionally use
     <name server>.
@@ -54,9 +54,9 @@ def dns_cname(host, cname, server=None):
 
     raise TwillAssertionError
 
+
 def dns_resolves(host, ipaddress, server=None):
-    """
-    >> dns_resolves <name> <name2/ipaddress> [<name server>]
+    """>> dns_resolves <name> <name2/ipaddress> [<name server>]
     
     Assert that <name> ultimately resolves to the given IP address (or
     the same IP address that 'name2' resolves to).  Optionally use the
@@ -71,9 +71,9 @@ def dns_resolves(host, ipaddress, server=None):
 
     raise TwillAssertionError
 
+
 def dns_mx(host, mailserver, server=None):
-    """
-    >> dns_mx <name> <mailserver> [<name server>]
+    """>> dns_mx <name> <mailserver> [<name server>]
 
     Assert that <mailserver> is a mailserver for <name>.
     """
@@ -85,9 +85,9 @@ def dns_mx(host, mailserver, server=None):
 
     raise TwillAssertionError
 
+
 def dns_ns(host, query_ns, server=None):
-    """
-    >> dns_ns <domain> <nameserver> [<name server to use>]
+    """>> dns_ns <domain> <nameserver> [<name server to use>]
 
     Assert that <nameserver> is a mailserver for <domain>.
     """
@@ -99,23 +99,18 @@ def dns_ns(host, query_ns, server=None):
 
     raise TwillAssertionError
 
-###
 
 def is_ip_addr(text):
-    """
-    Check the 'name' to see if it's just an IP address.
-    """
-    
+    """Check the 'name' to see if it's just an IP address."""
     try:
         inet_aton(text)
         return True
     except socket.error:
         return False
 
+
 def _resolve_name(name, server):
-    """
-    Resolve the given name to an IP address.
-    """
+    """Resolve the given name to an IP address."""
     if is_ip_addr(name):
         return name
     
@@ -127,10 +122,9 @@ def _resolve_name(name, server):
 
     return str(answers[0])
 
+
 def _query(query, query_type, server):
-    """
-    Query, perhaps via the given name server.  (server=None to use default).
-    """
+    """Query, perhaps via the given name server (None to use default)."""
     r = Resolver()
     if server:
         r.nameservers = [_resolve_name(server, None)]

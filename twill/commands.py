@@ -3,7 +3,12 @@ Implementation of all of the individual 'twill' commands available through
 twill-sh.
 """
 
+import getpass
+import re
+import time
 import sys
+
+from os.path import sep
 
 from lxml import html
 
@@ -13,7 +18,10 @@ except ImportError:
     soupparser = None
 import requests
 
-from . import log
+from . import log, set_output, set_errout, utils
+from .browser import TwillBrowser
+from .errors import TwillException, TwillAssertionError
+from .namespaces import get_twill_glocals
 
 __all__ = [
     'add_auth', 'add_extra_header', 'agent', 'back',
@@ -35,25 +43,16 @@ __all__ = [
     'tidy_ok', 'title', 'url']
 
 
-import re, getpass, time
-
-from browser import TwillBrowser
-
-from errors import TwillException, TwillAssertionError
-import utils
-from utils import set_form_control_value, run_tidy
-from namespaces import get_twill_glocals
-
 browser = TwillBrowser()
 
 
 def get_browser():
+    """Get the twill browser instance."""
     return browser
 
 
 def reset_browser():
-    """
-    >> reset_browser
+    """>> reset_browser
 
     Reset the browser completely.
     """
@@ -62,24 +61,20 @@ def reset_browser():
 
     global _options
     _options = {}
-    _options.update(_orig_options)
+    _options.update(_default_options)
 
 
-###
+def exit(code='0'):
+    """twill coammand: exit [<code>]
 
-def exit(code="0"):
-    """
-    exit [<code>]
-
-    Exits twill, with the given exit code (defaults to 0, "no error").
+    Exit twill, with the given exit code (defaults to 0, "no error").
     """
     raise SystemExit(int(code))
 
 
 def go(url):
-    """
-    >> go <url>
-    
+    """>> go <url>
+
     Visit the URL given.
     """
     browser.go(url)
@@ -87,8 +82,7 @@ def go(url):
 
 
 def reload():
-    """
-    >> reload
+    """>> reload
     
     Reload the current URL.
     """
@@ -97,20 +91,18 @@ def reload():
 
 
 def code(should_be):
-    """
-    >> code <int>
+    """>> code <int>
     
     Check to make sure the response code for the last page is as given.
     """
     should_be = int(should_be)
-    if browser.get_code() != int(should_be):
-        raise TwillAssertionError("code is %s != %s" % (browser.get_code(),
-                                                        should_be))
+    if browser.get_code() != should_be:
+        raise TwillAssertionError
+        "code is %s != %s" % (browser.get_code(), should_be)
 
 
 def tidy_ok():
-    """
-    >> tidy_ok
+    """>> tidy_ok
 
     Assert that 'tidy' produces no warnings or errors when run on the current
     page.
@@ -122,19 +114,16 @@ def tidy_ok():
     if page is None:
         raise TwillAssertionError("not viewing HTML!")
 
-    (clean_page, errors) = run_tidy(page)
+    (clean_page, errors) = utils.run_tidy(page)
     if clean_page is None:  # tidy doesn't exist...
         if _options.get('tidy_should_exist'):
             raise TwillAssertionError("cannot run 'tidy'")
     elif errors:
         raise TwillAssertionError("tidy errors:\n====\n%s\n====\n" % (errors,))
 
-        # page is fine.
-
 
 def url(should_be):
-    """
-    >> url <regexp>
+    """>> url <regexp>
 
     Check to make sure that the current URL matches the regexp.  The local
     variable __match__ is set to the matching part of the URL.
@@ -154,49 +143,42 @@ current url is '%s';
 does not match '%s'
 """ % (current_url, should_be,))
 
-    if m.groups():
-        match_str = m.group(1)
-    else:
-        match_str = m.group(0)
-
+    match_str = m.group(1 if m.groups() else 0)
     global_dict, local_dict = get_twill_glocals()
     local_dict['__match__'] = match_str
     return match_str
 
 
 def follow(what):
-    """
-    >> follow <regexp>
+    """>> follow <regexp>
     
     Find the first matching link on the page & visit it.
     """
     regexp = re.compile(what)
     link = browser.find_link(regexp)
-    if link != '':
+    if link:
         browser.follow_link(link)
         return browser.get_url()
 
     raise TwillAssertionError("no links match to '%s'" % (what,))
 
 
-def _parseFindFlags(flags):
-    KNOWN_FLAGS = {
-        'i': re.IGNORECASE,
-        'm': re.MULTILINE,
-        's': re.DOTALL,
-    }
-    finalFlags = 0
+_find_flags = dict(i=re.IGNORECASE, m=re.MULTILINE, s=re.DOTALL)
+
+
+def _parse_find_flags(flags):
+    """Helper function to parse the find flags."""
+    re_flags = 0
     for char in flags:
         try:
-            finalFlags |= KNOWN_FLAGS[char]
+            re_flags |= _find_flags[char]
         except IndexError:
             raise TwillAssertionError("unknown 'find' flag %r" % char)
-    return finalFlags
+    return re_flags
 
 
 def find(what, flags=''):
-    """
-    >> find <regexp> [<flags>]
+    """>> find <regexp> [<flags>]
     
     Succeed if the regular expression is on the page.  Sets the local
     variable __match__ to the matching text.
@@ -223,8 +205,7 @@ def find(what, flags=''):
             raise TwillAssertionError("no element to path '%s'" % (what,))
         match_str = unicode(elements[0])
     else:
-        regexp = re.compile(what, _parseFindFlags(flags))
-        match = regexp.search(page)
+        match = re.search(what, page, flags=_parse_find_flags(flags))
         if not match:
             raise TwillAssertionError("no match to '%s'" % (what,))
         match_str = match.group(1 if match.groups() else 0)
@@ -232,8 +213,7 @@ def find(what, flags=''):
 
 
 def notfind(what, flags=''):
-    """
-    >> notfind <regexp> [<flags>]
+    """>> notfind <regexp> [<flags>]
     
     Fail if the regular expression is on the page.
     """
@@ -246,8 +226,7 @@ def notfind(what, flags=''):
 
 
 def back():
-    """
-    >> back
+    """>> back
     
     Return to the previous page.
     """
@@ -256,21 +235,19 @@ def back():
 
 
 def show():
-    """
-    >> show
+    """>> show
     
     Show the HTML for the current page.
     """
-    html = browser.get_html()
+    html = browser.get_html().strip()
     log.info('')
-    log.info(html.strip())
+    log.info(html)
     log.info('')
     return html
 
 
 def echo(*strs):
-    """
-    >> echo <list> <of> <strings>
+    """>> echo <list> <of> <strings>
     
     Echo the arguments to the screen.
     """
@@ -278,8 +255,7 @@ def echo(*strs):
 
 
 def save_html(filename=None):
-    """
-    >> save_html [<filename>]
+    """>> save_html [<filename>]
     
     Save the HTML for the current page into <filename>.  If no filename
     given, construct the filename from the URL.
@@ -291,11 +267,10 @@ def save_html(filename=None):
 
     if filename is None:
         url = browser.get_url()
-        url = url.split('?')[0]
-        filename = url.split('/')[-1]
-        if filename is "":
+        url = url.split('?', 1)[0]
+        filename = url.rsplit('/', 1)[-1]
+        if not filename:
             filename = 'index.html'
-
         log.info("Using filename '%s'", filename)
 
     f = open(filename, 'w')
@@ -304,8 +279,7 @@ def save_html(filename=None):
 
 
 def sleep(interval=1):
-    """
-    >> sleep [<interval>]
+    """>> sleep [<interval>]
 
     Sleep for the specified amount of time.
     If no interval is given, sleep for 1 second.
@@ -325,8 +299,7 @@ _agent_map = dict(
 
 
 def agent(what):
-    """
-    >> agent <agent>
+    """>> agent <agent>
     
     Set the agent string (identifying the browser brand).
 
@@ -339,8 +312,7 @@ def agent(what):
 
 
 def submit(submit_button=None):
-    """
-    >> submit [<buttonspec>]
+    """>> submit [<buttonspec>]
     
     Submit the current form (the one last clicked on) by clicking on the
     n'th submission button.  If no "buttonspec" is given, submit the current
@@ -358,8 +330,7 @@ def submit(submit_button=None):
 
 
 def showforms():
-    """
-    >> showforms
+    """>> showforms
     
     Show all of the forms on the current page.
     """
@@ -368,8 +339,7 @@ def showforms():
 
 
 def showlinks():
-    """
-    >> showlinks
+    """>> showlinks
     
     Show all of the links on the current page.
     """
@@ -378,8 +348,7 @@ def showlinks():
 
 
 def showhistory():
-    """
-    >> showhistory
+    """>> showhistory
 
     Show the browser history (what URLs were visited).
     """
@@ -388,16 +357,15 @@ def showhistory():
 
 
 def formclear(formname):
-    """
-    >> formclear <formname>
+    """>> formclear <formname>
     
     Run 'clear' on all of the controls in this form.
     """
     form = browser.get_form(formname)
     for control in form.inputs:
-        if "readonly" in control.attrib.keys() or \
-                (hasattr(control, 'type') and (control.type == 'submit' or \
-                                                           control.type == 'image' or control.type == 'hidden')):
+        if 'readonly' in control.attrib or 'disabled' in control.attrib or (
+                hasattr(control, 'type') and
+                control.type in ('submit', 'image', 'hidden')):
             continue
         elif isinstance(control, html.SelectElement):
             control.value = []
@@ -408,12 +376,11 @@ def formclear(formname):
 
 
 def formvalue(formname, fieldname, value):
-    """
-    >> formvalue <formname> <field> <value>
+    """>> formvalue <formname> <field> <value>
 
     Set value of a form field.
 
-    There are some ambiguities in the way formvalue deals with lists:
+    There are some ambiguities in the way 'formvalue' deals with lists:
     'formvalue' will *add* the given value to a list of multiple selection,
     for lists that allow it.
 
@@ -427,7 +394,7 @@ def formvalue(formname, fieldname, value):
       3. if fieldname is an integer, it's tried as an index;
       4. unique & exact match to submit-button values.
 
-    Formvalue ignores read-only fields completely; if they're readonly,
+    'formvalue' ignores read-only fields completely; if they're readonly,
     nothing is done, unless the config options ('config' command) are
     changed.
 
@@ -443,12 +410,12 @@ def formvalue(formname, fieldname, value):
     if isinstance(control, html.CheckboxGroup):
         pass
 
-    elif 'readonly' in control.attrib.keys() and _options[
-        'readonly_controls_writeable']:
+    elif 'readonly' in control.attrib and _options[
+            'readonly_controls_writeable']:
         log.info('forcing read-only form field to writeable')
         del control.attrib['readonly']
 
-    elif 'readonly' in control.attrib.keys() or (
+    elif 'readonly' in control.attrib or (
                 hasattr(control, 'type') and control.type == 'file'):
         log.info('form field is read-only or ignorable; nothing done.')
         return
@@ -457,34 +424,33 @@ def formvalue(formname, fieldname, value):
         raise TwillException(
             'form field is for file upload; use "formfile" instead')
 
-    set_form_control_value(control, value)
+    utils.set_form_control_value(control, value)
 
 
-fv = formvalue
+fv = formvalue  # alias
 
 
 def formaction(formname, action):
-    """
-    >> formaction <formname> <action_url>
+    """>> formaction <formname> <action_url>
 
-    Sets action parameter on form to action_url
+    Sets action parameter on form to action_url.
+
+    'formaction' is available as 'fa' as well.
     """
     form = browser.get_form(formname)
     log.info("Setting action for form %s to %s", form, action)
     form.action = action
 
 
-fa = formaction
+fa = formaction  # alias
 
 
 def formfile(formname, fieldname, filename, content_type=None):
-    """
-    >> formfile <form> <field> <filename> [ <content_type> ]
+    """>> formfile <form> <field> <filename> [<content_type>]
 
     Upload a file via an "upload file" form field.
     """
-    import os.path
-    filename = filename.replace('/', os.path.sep)
+    filename = filename.replace('/', sep)
 
     form = browser.get_form(formname)
     control = browser.get_form_field(form, fieldname)
@@ -493,7 +459,8 @@ def formfile(formname, fieldname, filename, content_type=None):
         raise TwillException('ERROR: field is not a file upload field!')
 
     browser.clicked(form, control)
-    fp = open(filename, 'rb')
+    plain = content_type and content_type.startswith(('plain/', 'html/'))
+    fp = open(filename, 'r' if plain else 'rb')
     browser._formFiles[fieldname] = fp
 
     log.info(
@@ -501,8 +468,7 @@ def formfile(formname, fieldname, filename, content_type=None):
 
 
 def extend_with(module_name):
-    """
-    >> extend_with <module>
+    """>> extend_with <module>
     
     Import contents of given module.
     """
@@ -510,15 +476,12 @@ def extend_with(module_name):
 
     exec "from %s import *" % (module_name,) in global_dict
 
-    ### now add the commands into the commands available for the shell,
-    ### and print out some nice stuff about what the extension module does.
+    # now add the commands into the commands available for the shell,
+    # and print out some nice stuff about what the extension module does.
 
-    import sys
     mod = sys.modules.get(module_name)
 
-    ###
-
-    import twill.shell, twill.parse
+    from . import parse, shell
 
     fnlist = getattr(mod, '__all__', None)
     if fnlist is None:
@@ -526,16 +489,14 @@ def extend_with(module_name):
 
     for command in fnlist:
         fn = getattr(mod, command)
-        twill.shell.add_command(command, fn.__doc__)
-        twill.parse.command_list.append(command)
-
-    ###
+        shell.add_command(command, fn.__doc__)
+        parse.command_list.append(command)
 
     info, debug = log.info, log.debug
     info("Imported extension module '%s'.", module_name)
     debug("(at %s)", mod.__file__)
 
-    if twill.shell.interactive:
+    if shell.interactive:
         if mod.__doc__:
             info("Description:\n\n%s\n", mod.__doc__.strip())
         else:
@@ -547,11 +508,11 @@ def extend_with(module_name):
 
 
 def getinput(prompt):
-    """
-    >> getinput <prompt>
+    """>> getinput <prompt>
+
     Get input, store it in '__input__'.
     """
-    _, local_dict = get_twill_glocals()
+    local_dict = get_twill_glocals()[1]
 
     inp = raw_input(prompt)
 
@@ -560,12 +521,11 @@ def getinput(prompt):
 
 
 def getpassword(prompt):
-    """
-    >> getpassword <prompt>
+    """>> getpassword <prompt>
     
     Get a password ("invisible input"), store it in '__password__'.
     """
-    _, local_dict = get_twill_glocals()
+    local_dict = get_twill_glocals()[1]
 
     # we use sys.stdin here in order to get the same behaviour on Unix
     # as on other platforms and for better testability of this function
@@ -576,8 +536,7 @@ def getpassword(prompt):
 
 
 def save_cookies(filename):
-    """
-    >> save_cookies <filename>
+    """>> save_cookies <filename>
 
     Save all of the current cookies to the given file.
     """
@@ -585,8 +544,7 @@ def save_cookies(filename):
 
 
 def load_cookies(filename):
-    """
-    >> load_cookies <filename>
+    """>> load_cookies <filename>
 
     Clear the cookie jar and load cookies from the given file.
     """
@@ -594,8 +552,7 @@ def load_cookies(filename):
 
 
 def clear_cookies():
-    """
-    >> clear_cookies
+    """>> clear_cookies
 
     Clear the cookie jar.
     """
@@ -603,8 +560,7 @@ def clear_cookies():
 
 
 def show_cookies():
-    """
-    >> show_cookies
+    """>> show_cookies
 
     Show all of the cookies in the cookie jar.
     """
@@ -612,22 +568,17 @@ def show_cookies():
 
 
 def add_auth(realm, uri, user, passwd):
-    """
-    >> add_auth <realm> <uri> <user> <passwd>
+    """>> add_auth <realm> <uri> <user> <passwd>
 
     Add HTTP Basic Authentication information for the given realm/uri.
 
     Note: realms are not currently supported; <realm> is ignored.
     """
     # swap around the type of HTTPPasswordMgr and
-    # HTTPPasswordMgrWithDefaultRealm depending on if with_default_realm 
-    # is on or not.
+    # HTTPPasswordMgrWithDefaultRealm depending on
+    # if with_default_realm is on or not.
     if _options['with_default_realm']:
         realm = None
-        browser._set_creds((uri, (user, passwd)))
-
-    else:
-        pass
 
     # @BRT: Browser does not currently support realm; just add by URI for now
     browser._set_creds((uri, (user, passwd)))
@@ -637,8 +588,7 @@ def add_auth(realm, uri, user, passwd):
 
 
 def debug(what, level):
-    """
-    >> debug <what> <level>
+    """>> debug <what> <level>
 
     <what> can be:
        * http (any level >= 1), to display the HTTP transactions.
@@ -665,8 +615,7 @@ def debug(what, level):
 
 
 def run(cmd):
-    """
-    >> run <command>
+    """>> run <command>
 
     <command> can be any valid python command; 'exec' is used to run it.
     """
@@ -675,7 +624,7 @@ def run(cmd):
     # execute command.
     global_dict, local_dict = get_twill_glocals()
 
-    import commands
+    from . import commands
 
     # set __url__
     local_dict['__cmd__'] = cmd
@@ -685,20 +634,17 @@ def run(cmd):
 
 
 def runfile(*files):
-    """
-    >> runfile <file1> [ <file2> ... ]
+    """>> runfile <file1> [<file2> ...]
 
     """
-    import parse
-    global_dict, local_dict = get_twill_glocals()
+    from . import parse
 
     for f in files:
         parse.execute_file(f, no_reset=True)
 
 
 def setglobal(name, value):
-    """
-    setglobal <name> <value>
+    """setglobal <name> <value>
 
     Sets the variable <name> to the value <value> in the global namespace.
     """
@@ -707,8 +653,7 @@ def setglobal(name, value):
 
 
 def setlocal(name, value):
-    """
-    setlocal <name> <value>
+    """setlocal <name> <value>
 
     Sets the variable <name> to the value <value> in the local namespace.
     """
@@ -717,8 +662,7 @@ def setlocal(name, value):
 
 
 def title(what):
-    """
-    >> title <regexp>
+    """>> title <regexp>
     
     Succeed if the regular expression is in the page title.
     """
@@ -742,50 +686,41 @@ def title(what):
 
 
 def redirect_output(filename):
-    """
-    >> redirect_output <filename>
+    """>> redirect_output <filename>
 
     Append all twill output to the given file.
     """
-    import twill
     fp = open(filename, 'a')
-    twill.set_output(fp)
+    set_output(fp)
 
 
 def reset_output():
-    """
-    >> reset_output
+    """>> reset_output
 
     Reset twill output to go to the screen.
     """
-    import twill
-    twill.set_output(None)
+    set_output(None)
 
 
 def redirect_error(filename):
-    """
-    >> redirect_error <filename>
+    """>> redirect_error <filename>
 
     Append all twill error output to the given file.
     """
-    import twill
     fp = open(filename, 'a')
-    twill.set_errout(fp)
+    set_errout(fp)
 
 
 def reset_error():
-    """
-    >> reset_error
+    """>> reset_error
     
     Reset twill error output to go to the screen.
     """
-    import twill
-    twill.set_errout(None)
+    set_errout(None)
 
 
 def add_extra_header(header_key, header_value):
-    """
-    >> add_header <name> <value>
+    """>> add_header <name> <value>
 
     Add an HTTP header to each HTTP request.  See 'show_extra_headers' and
     'clear_extra_headers'.
@@ -794,8 +729,7 @@ def add_extra_header(header_key, header_value):
 
 
 def show_extra_headers():
-    """
-    >> show_extra_headers
+    """>> show_extra_headers
 
     Show any extra headers being added to each HTTP request.
     """
@@ -811,8 +745,7 @@ def show_extra_headers():
 
 
 def clear_extra_headers():
-    """
-    >> clear_extra_headers
+    """>> clear_extra_headers
 
     Remove all user-defined HTTP headers.  See 'add_extra_header' and
     'show_extra_headers'.
@@ -820,25 +753,21 @@ def clear_extra_headers():
     browser._session.headers = dict([("Accept", "text/html; */*")])
 
 
-### options
+_default_options = dict(
+    readonly_controls_writeable=False,
+     use_tidy=True,
+     require_tidy=False,
+     use_BeautifulSoup=True,
+     require_BeautifulSoup=False,
+     allow_parse_errors=True,
+     with_default_realm=False,
+     acknowledge_equiv_refresh=True)
 
-_orig_options = dict(readonly_controls_writeable=False,
-                     use_tidy=True,
-                     require_tidy=False,
-                     use_BeautifulSoup=True,
-                     require_BeautifulSoup=False,
-                     allow_parse_errors=True,
-                     with_default_realm=False,
-                     acknowledge_equiv_refresh=True
-                     )
-
-_options = {}
-_options.update(_orig_options)  # make a copy
+_options = _default_options.copy()
 
 
 def config(key=None, value=None):
-    """
-    >> config [<key> [<int value>]]
+    """>> config [<key> [<int value>]]
 
     Configure/report various options.  If no <value> is given, report
     the current key value; if no <key> given, report current settings.
@@ -855,13 +784,9 @@ def config(key=None, value=None):
     Deprecated:
      * 'allow_parse_errors' has been removed.
     """
-    import utils
-
     info = log.info
     if key is None:
-        keys = _options.keys()
-        keys.sort()
-
+        keys = sorted(_options)
         info('\nCurrent configuration:\n')
         for k in keys:
             info('\t%s : %s', k, _options[k])
@@ -880,8 +805,7 @@ def config(key=None, value=None):
 
 
 def info():
-    """
-    >> info
+    """>> info
 
     Report information on current page.
     """
@@ -892,7 +816,6 @@ def info():
 
     content_type = browser.result.get_headers()['content-type']
     is_html = content_type and content_type.split(';')[0] == 'text/html'
-
     code = browser.get_code()
 
     info = log.info
