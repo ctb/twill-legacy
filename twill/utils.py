@@ -62,13 +62,13 @@ class ResultWrapper(object):
 
     def get_links(self):
         selector = cssselect.CSSSelector('a')
-        return [
-            (a.text or '', a.get('href')) for a in selector(self.lxml)]
+        return [(a.text or '', a.get('href'))
+                for a in selector(self.lxml)]
 
     def find_link(self, pattern):
         selector = cssselect.CSSSelector('a')
-        links = [
-            (a.text or '', a.get('href')) for a in selector(self.lxml)]
+        links = [(a.text or '', a.get('href'))
+                 for a in selector(self.lxml)]
         search = re.search
         for link in links:
             if search(pattern, link[0]) or search(pattern, link[1]):

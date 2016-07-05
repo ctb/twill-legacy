@@ -14,3 +14,9 @@ def test_make_boolean():
     assert not make_boolean('-')
     with raises(TwillException):
         make_boolean('no')
+
+
+def test_trunc():
+    trunc = utils.trunc
+    assert trunc('hello, world!', 12) == 'hello, w ...'
+    assert trunc('hello, world!', 13) == 'hello, world!'
