@@ -1,6 +1,5 @@
 """This module implements the TwillBrowser."""
 
-import logging
 import pickle
 import re
 
@@ -52,12 +51,15 @@ class TwillBrowser(object):
         """
         Visit given URL.
         """
+        try_urls = []
         if '://' in url:
-            try_urls = [url]
+            try_urls.append(url)
         else:  # URL does not have a schema
             # if this is a relative URL, then assume that we want to tack it
             # onto the end of the current URL
-            try_urls = [urljoin(self.get_url(), url)]
+            current_url = self.get_url()
+            if current_url:
+                try_urls.append(urljoin(self.get_url(), url))
             # if this is an absolute URL, it may be just missing the 'http://'
             # at the beginning, try fixing that (mimic browser behavior)
             if not url.startswith(('.', '/', '?')):
@@ -66,12 +68,11 @@ class TwillBrowser(object):
         for u in try_urls:
             try:
                 self._journey('open', u)
-            except (IOError, ConnectionError, InvalidSchema), error:
+            except (IOError, ConnectionError, InvalidSchema) as error:
                 log.info("cannot go to '%s': %s" % (u, error))
             else:
                 break
         else:
-            log.error("cannot go to '%s'" % (url,))
             raise TwillException("cannot go to '%s'" % (url,))
         log.info('==> at %s', self.get_url())
 
@@ -223,27 +224,25 @@ class TwillBrowser(object):
             if unique_match(matches):
                 found = matches[0]
             else:
-                found_multiple = True   # record for error reporting.
+                found_multiple = True  # record for error reporting
         
         matches = [c for c in form.inputs if str(c.name) == fieldname]
 
-        # test exact match.
+        # test exact match
         if matches:
             if unique_match(matches):
                 found = matches[0]
             else:
-                found_multiple = True   # record for error reporting.
+                found_multiple = True  # record for error reporting
 
-        # test index.
+        # test index
         if found is None:
             # try num
             clickies = [c for c in form.inputs]
             try:
                 fieldnum = int(fieldname) - 1
                 found = clickies[fieldnum]
-            except ValueError:          # int() failed
-                pass
-            except IndexError:          # fieldnum was incorrect
+            except (IndexError, ValueError):
                 pass
 
         # test regexp match
@@ -287,8 +286,7 @@ class TwillBrowser(object):
             self._form = form
             self.last_submit_button = None
         # record the last submit button clicked.
-        if hasattr(control, 'type') and \
-            (control.type == 'submit' or control.type == 'image'):
+        if hasattr(control, 'type') and control.type in ('submit', 'image'):
             self.last_submit_button = control
 
     def submit(self, fieldname=None):
@@ -305,13 +303,14 @@ class TwillBrowser(object):
         
         form = self._form
         if form is None:
-            forms = [ i for i in self.get_all_forms() ]
+            forms = [i for i in self.get_all_forms()]
             if len(forms) == 1:
                 form = forms[0]
             else:
-                raise TwillException("""\
-more than one form; you must select one (use 'fv') before submitting\
-""")
+                raise TwillException(
+                    "more than one form;"
+                    " you must select one (use 'fv') before submitting")
+
         if form.action is None:
             form.action = self.get_url()
 

@@ -8,8 +8,8 @@ import sys
 from cStringIO import StringIO
 
 from pyparsing import (
-    alphas, alphanums, CharsNotIn, Combine, Group, Literal,  Optional,
-    printables, removeQuotes, restOfLine,  Word, ZeroOrMore)
+    alphas, alphanums, CharsNotIn, Combine, Group, Literal, Optional,
+    ParseException, printables, removeQuotes, restOfLine, Word, ZeroOrMore)
 
 from errors import TwillAssertionError, TwillNameError
 
@@ -138,7 +138,11 @@ def parse_command(line, globals_dict, locals_dict):
     """
     Parse command.
     """
-    res = full_command.parseString(line)
+    try:
+        res = full_command.parseString(line)
+    except ParseException, e:
+        log.error('PARSE ERROR: %s', e)
+        res = None
     if res:
         _log_commands("twill: executing cmd '%s'", line.strip())
         args = process_args(res.arguments.asList(), globals_dict, locals_dict)
@@ -155,7 +159,7 @@ def execute_string(buf, **kw):
     
     kw['source'] = ['<string buffer>']
     if 'no_reset' not in kw:
-       kw['no_reset'] = True
+        kw['no_reset'] = True
     
     _execute_script(fp, **kw)
 

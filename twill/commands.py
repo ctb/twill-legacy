@@ -870,7 +870,7 @@ def config(key=None, value=None):
         v = _options.get(key)
         if v is None:
             log.error("no such configuration key '%s'", key)
-            info("valid keys are: %s", ';'.join(_options.keys()))
+            info("valid keys are: %s", ', '.join(_options.keys()))
             raise TwillException("no such configuration key: '%s'" % (key,))
         elif value is None:
             info('\nkey %s: value %s\n', key, v)
@@ -891,26 +891,18 @@ def info():
         return
 
     content_type = browser.result.get_headers()['content-type']
-
-    check_html = False
-    if content_type == 'text/html':
-        check_html = True
+    is_html = content_type and content_type.split(';')[0] == 'text/html'
 
     code = browser.get_code()
 
     info = log.info
     info('\tURL: %s', current_url)
     info('\tHTTP code: %s', code)
-    info('\tContent type: %s', content_type)
-    if check_html:
-        info('(HTML)')
-    else:
-        info('')
-    if check_html:
+    info('\tContent type: %s%s', content_type, ' (HTML)' if is_html else '')
+    if is_html:
         title = browser.get_title()
         info('\tPage title: %s', title)
         forms = browser.get_all_forms()
         if len(forms):
             info('\tThis page contains %d form(s)', len(forms))
-
     info('')
