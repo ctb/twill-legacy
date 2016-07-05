@@ -97,10 +97,10 @@ class TwillTest(Directory):
         'exit', 'multisubmitform', "exception", "plaintext",
         "testform", "testformaction",
         "test_refresh", "test_refresh2", "test_refresh3",
-        "test_checkbox", "test_simple_checkbox","echo",
+        "test_checkbox", "test_simple_checkbox", "echo",
         "test_checkboxes", 'test_global_form',
-        'tidy_fixable_html', 'BS_fixable_html', 'unfixable_html',
-        'effed_up_forms', 'effed_up_forms2', 'broken_linktext',
+        'broken_form_1', 'broken_form_2', 'broken_form_3',
+        'broken_form_4', 'broken_form_5', 'broken_linktext',
         'exit', 'display_post', 'display_environ']
 
     def test_global_form(self):
@@ -154,16 +154,14 @@ class TwillTest(Directory):
         session = get_session()
         return message(session)
 
-    def tidy_fixable_html(self):
+    def broken_form_1(self):
         return """\
-<!-- fixed by tidy, but not parseable otherwise: 0 forms on fail. -->
 <form>
 <input type=text name=blah value=thus>
 """
 
-    def BS_fixable_html(self):
+    def broken_form_2(self):
         return """\
-<!-- tidy errors out on this, but it can be parsed by BS. -->
 <form>
 <table>
 <tr><td>
@@ -174,9 +172,8 @@ class TwillTest(Directory):
 </form>
 """
 
-    def unfixable_html(self):
+    def broken_form_3(self):
         return """\
-<!-- tidy errors out on this, and it cannot be parsed by BS. -->
 <table>
 <tr><td>
 <input name='broken'>
@@ -186,7 +183,7 @@ class TwillTest(Directory):
 </form>
 """
 
-    def effed_up_forms(self):
+    def broken_form_4(self):
         return """\
 <font>
 <INPUT>
@@ -196,7 +193,7 @@ class TwillTest(Directory):
 </form>
 """
 
-    def effed_up_forms2(self):
+    def broken_form_5(self):
         return """\
 <div id="loginform">
    <form method="post" name="loginform" action="ChkLogin">

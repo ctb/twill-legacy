@@ -62,13 +62,11 @@ class ResultWrapper(object):
 
     def get_links(self):
         selector = cssselect.CSSSelector('a')
-        return [(a.text or '', a.get('href'))
+        return [(inner_tostring(a), a.get('href'))
                 for a in selector(self.lxml)]
 
     def find_link(self, pattern):
-        selector = cssselect.CSSSelector('a')
-        links = [(a.text or '', a.get('href'))
-                 for a in selector(self.lxml)]
+        links = self.get_links()
         search = re.search
         for link in links:
             if search(pattern, link[0]) or search(pattern, link[1]):
@@ -99,6 +97,12 @@ class ResultWrapper(object):
             return None
         else:
             return forms[formnum]
+
+
+def inner_tostring(element):
+    """Serialize all the inner text and sub elements of the given element."""
+    return '%s%s' % (
+        element.text, ''.join(map(etree.tostring, element.getchildren())))
 
 
 def trunc(s, length):

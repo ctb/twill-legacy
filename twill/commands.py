@@ -198,7 +198,7 @@ def find(what, flags=''):
     if 'x' in flags:
         if not soupparser:
             raise TwillException(
-                "beautfulsoup4 must be installed to use XPath expressions")
+                "beautifulsoup4 must be installed to use XPath expressions")
         tree = soupparser.fromstring(page)
         elements = tree.xpath(what)
         if not elements:
@@ -755,13 +755,9 @@ def clear_extra_headers():
 
 _default_options = dict(
     readonly_controls_writeable=False,
-     use_tidy=True,
-     require_tidy=False,
-     use_BeautifulSoup=True,
-     require_BeautifulSoup=False,
-     allow_parse_errors=True,
-     with_default_realm=False,
-     acknowledge_equiv_refresh=True)
+    require_tidy=False,
+    with_default_realm=False,
+    acknowledge_equiv_refresh=True)
 
 _options = _default_options.copy()
 
@@ -774,15 +770,10 @@ def config(key=None, value=None):
 
     So far:
 
-     * 'acknowledge_equiv_refresh', default 1 -- follow HTTP-EQUIV=REFRESH
-     * 'readonly_controls_writeable', default 0 -- make ro controls writeable
-     * 'require_tidy', default 0 -- *require* that tidy be installed
-     * 'use_BeautifulSoup', default 1 -- use the BeautifulSoup parser
-     * 'use_tidy', default 1 -- use tidy, if it's installed
-     * 'with_default_realm', default 0 -- use a default realm for HTTP AUTH
-
-    Deprecated:
-     * 'allow_parse_errors' has been removed.
+     * 'acknowledge_equiv_refresh', default True -- follow HTTP-EQUIV=REFRESH
+     * 'readonly_controls_writeable', default False -- all controls writeable
+     * 'require_tidy', default False -- *require* that tidy be installed
+     * 'with_default_realm', default False -- use a default realm for HTTP AUTH
     """
     info = log.info
     if key is None:

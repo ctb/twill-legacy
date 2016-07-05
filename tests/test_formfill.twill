@@ -2,7 +2,6 @@ extend_with require
 require success
 
 setlocal init_url __url__
-config use_tidy 0
 
 extend_with formfill
 

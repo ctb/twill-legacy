@@ -118,4 +118,3 @@ Contributions are welcome & will be duly acknowledged!
 .. _PAMIE: http://pamie.sourceforge.net/
 .. _PAMIE examples page: tutoriala.html
 .. _PyXPCOM: http://kb.mozillazine.org/PyXPCOM
-.. _BeautifulSoup: http://www.crummy.com/software/BeautifulSoup/

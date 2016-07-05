@@ -2,157 +2,32 @@ from twill import commands
 
 
 def test_links_parsing(url):
-    commands.config('use_tidy', '0')
+    """Test parsing a link text inside a span."""
     commands.go('/broken_linktext')
-    commands.config('use_tidy', '1')
+    # make sure link text is found even if it is nested
+    commands.follow('some text')
 
 
-def test_raw(url):
-    """Test parsing of raw, unfixed HTML."""
-    b = commands.get_browser()
-
-    commands.config('use_tidy', '0')
-    commands.config('use_BeautifulSoup', '0')
-    commands.config('allow_parse_errors', '0')
+def test_fixing_forms(url):
+    """Test parsing of broken HTML forms."""
+    forms = commands.get_browser().get_all_forms
 
     commands.go(url)
 
-    ###
-    
-    commands.go('/tidy_fixable_html')
+    commands.go('/broken_form_1')
+    assert len(forms()) == 1, 'can fix form 1'
 
-    forms = b.get_all_forms()
-    assert len(forms) == 1, "lxml should find one form on this page"
+    commands.go('/broken_form_2')
+    assert len(forms()) == 1, 'can fix form 2'
 
-    ###
+    commands.go('/broken_form_3')
+    assert len(forms()) == 1, 'can fix form 3'
 
-    commands.go('/BS_fixable_html')
-    forms = b.get_all_forms()
-    assert len(forms) == 1, "there should be one mangled form on this page"
+    commands.go('/broken_form_4')
+    assert len(forms()) == 2, 'can fix form 4'
 
-    ###
+    commands.go('/broken_form_5')
+    assert len(forms()) == 1, 'can fix form 5'
 
-    # TODO: still need to find something that only BS
-    # (and not the intolerant parser) can parse:
-    # commands.go('/unfixable_html')
-    # with raises(ClientForm.ParseError):
-    #    b._browser.forms()
-
-
-def test_tidy(url):
-    """Test parsing of tidy-processed HTML."""
-    b = commands.get_browser()
-
-    commands.config('use_tidy', '1')
-    commands.config('use_BeautifulSoup', '0')
-    commands.config('allow_parse_errors', '0')
-
-    commands.go(url)
-
-    ###
-    
-    commands.go('/tidy_fixable_html')
-
-    forms = b.get_all_forms()
-    assert len(forms) == 1, \
-        "you must have 'tidy' installed for this test to pass"
-
-    ###
-
-    commands.go('/BS_fixable_html')
-    forms = b.get_all_forms()
-    assert len(forms) == 1, \
-        "there should be one mangled form on this page"
-
-    ###
-
-    # TODO: still need to find something that only BS
-    # (and not the intolerant parser) can parse:
-    # commands.go('/unfixable_html')
-    # with raises(ClientForm.ParseError):
-    #    b._browser.forms()
-
-
-def test_BeautifulSoup(url):
-    """
-    test parsing of BS-processed HTML.
-    """
-    b = commands.get_browser()
-
-    commands.config('use_tidy', '0')
-    commands.config('use_BeautifulSoup', '1')
-    commands.config('allow_parse_errors', '0')
-
-    commands.go(url)
-
-    ###
-    
-    commands.go('/tidy_fixable_html')
-
-    forms = b.get_all_forms()
-    assert len(forms) == 1, "lxml should find one form on this page"
-
-    ###
-
-    commands.go('/BS_fixable_html')
-    forms = b.get_all_forms()
-    assert len(forms) == 1, \
-        "there should be one mangled form on this page"
-
-    ###
-
-    # TODO: still need to find something that only BS
-    # (and not the intolerant parser) can parse:
-    # commands.go('/unfixable_html')
-    # with raises(ClientForm.ParseError):
-    #    b._browser.forms()
-
-
-def test_allow_parse_errors(url):
-    """Test nice parsing."""
-    b = commands.get_browser()
-
-    commands.config('use_tidy', '0')
-    commands.config('use_BeautifulSoup', '1')
-    commands.config('allow_parse_errors', '1')
-
-    commands.go(url)
-
-    commands.go('/unfixable_html')
-    b.get_all_forms()
-
-
-def test_global_form(url):
-    """Test the handling of global form elements"""
-    b = commands.get_browser()
-    commands.config('use_tidy', '0')
-
-    commands.go(url)
-    commands.go('/effed_up_forms')
-    forms = b.get_all_forms()
-    assert len(forms) == 2
-
-
-def test_effed_up_forms2(url):
-    """Should always succeed; didn't back ~0.7."""
-    commands.config('use_tidy', '1')
-    commands.config('use_BeautifulSoup', '1')
-    commands.config('allow_parse_errors', '0')
-
-    commands.go(url)
-    commands.go('/effed_up_forms2')
-
-    b = commands.get_browser()
-    forms = b.get_all_forms()
-    form = forms[0]
-    inputs = [i for i in form.inputs]
-    assert len(inputs) == 3, \
-        "you must have 'tidy' installed for this test to pass"
-
-    # with a more correct form parser this would work like the above.
-    commands.config('use_tidy', '0')
-    commands.reload()
-    forms = b.get_all_forms()
-    form = forms[0]
-    inputs = [i for i in form.inputs]
-    assert len(inputs) == 3, "lxml should find 3 form inputs"
+    assert set(forms()[0].inputs.keys()) == set(
+        'username password login'.split()), 'should get proper fields'

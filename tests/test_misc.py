@@ -56,15 +56,13 @@ def test():
         commands.debug('nada', '1')
 
     commands.config()
+
     commands.config('readonly_controls_writeable')
-    commands.config('use_tidy')
-    commands.config('require_tidy')
-    
+
     commands.config('readonly_controls_writeable', 1)
-    commands.config('use_tidy', 1)
-    commands.config('require_tidy', 0)
-    
-    commands.config('require_tidy', "on")
+    commands.config('readonly_controls_writeable', 'on')
+    with raises(TwillException):
+        commands.config('readonly_controls_writeable', 'nada')
 
     commands.run("print 'hello'")
 
