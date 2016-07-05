@@ -1,4 +1,4 @@
-from .util import execute_script
+from .utils import execute_script
 
 
 def test(url):

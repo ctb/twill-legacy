@@ -6,7 +6,7 @@ import os
 
 import twill.unit
 
-from .util import test_dir
+from .utils import test_dir
 from .server import create_publisher
 
 from quixote.server.simple_server import run as quixote_run

@@ -1,14 +1,14 @@
 import pytest
 
-from . import util
+from . import utils
 
 
 @pytest.fixture(scope='session')
 def url(request):
-    util.cd_test_dir()
-    util.start_server()
+    utils.cd_test_dir()
+    utils.start_server()
 
-    url = util.get_url()
+    url = utils.get_url()
 
     from twill import set_output
     from twill.commands import go, find
@@ -26,8 +26,8 @@ and clear your proxy settings too!
 """)
 
     def stop():
-        util.stop_server()
-        util.pop_test_dir()
+        utils.stop_server()
+        utils.pop_test_dir()
 
     request.addfinalizer(stop)
 

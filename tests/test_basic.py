@@ -6,7 +6,7 @@ This should really be broken out into multiple sub scripts...
 
 import os
 
-from .util import execute_script, test_dir
+from .utils import execute_script, test_dir
 
 
 def test(url):

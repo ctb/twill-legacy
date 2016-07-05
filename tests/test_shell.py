@@ -5,7 +5,7 @@ import os
 from pytest import raises
 
 from twill.errors import TwillNameError
-from .util import execute_shell, test_dir
+from .utils import execute_shell, test_dir
 
 
 def test_shell_specific(url):

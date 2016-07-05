@@ -1,6 +1,6 @@
 import mock_dns
 
-from .util import execute_script
+from .utils import execute_script
 
 
 def setup_module():
