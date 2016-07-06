@@ -110,8 +110,7 @@ def start_server(port=None):
     if port is None:
         port = int(os.environ.get('TWILL_TEST_PORT', PORT))
 
-    out = tempfile.SpooledTemporaryFile(
-        max_size=256*1024, prefix='twill_test_')
+    out = open(os.devnull, 'w')  # the server output is not interesting
 
     print 'STARTING:', sys.executable, 'tests/server.py', os.getcwd()
     subprocess.Popen(
