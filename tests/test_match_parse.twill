@@ -1,15 +1,14 @@
 debug commands 1
 
 extend_with match_parse
-go http://www.idyll.org/
 
-split "org"
+split "world"
 echo __matchlist__
 
-findall "t."
+findall "w.rld"
 echo __matchlist__
 
-split "org"
+split "world"
 popmatch 0
 getmatch test 'm[0].split()'
 showvar test

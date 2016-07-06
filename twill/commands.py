@@ -488,7 +488,7 @@ def extend_with(module_name):
 
     if shell.interactive:
         if mod.__doc__:
-            info("Description:\n\n%s\n", mod.__doc__.strip())
+            info("\nDescription:\n\n%s\n", mod.__doc__.strip())
         else:
             if fnlist:
                 info('New commands:\n')

@@ -35,8 +35,6 @@ def test(url):
     twill.set_output(None)
     assert fp.getvalue()
 
-    ###
-
     # from stdin
     filename = os.path.join(test_dir, 'test_go.twill')
     old_in, sys.stdin = sys.stdin, open(filename)
@@ -48,14 +46,12 @@ def test(url):
     # from parse.execute_file
     twill.parse.execute_file('test_go_exit.twill', initial_url=url)
     
-    # also test some failures.
+    # also test some failures
 
     old_err, sys.stderr = sys.stderr, StringIO()
     try:
         twill.set_errout(sys.stderr)
-        #
         # failed assert in a script
-        #
         with raises(TwillAssertionError):
             twill.parse.execute_file('test_go_fail.twill', initial_url=url)
 
@@ -63,9 +59,7 @@ def test(url):
         with raises(TwillAssertionError):
             commands.code(400)
 
-        #
         # no such command (NameError)
-        #
         with raises(TwillNameError):
             twill.parse.execute_file('test_go_fail2.twill', initial_url=url)
     finally:

@@ -100,7 +100,6 @@ echo 'URL4 is' __url__
 
 go ./login
 
-
 # test formclear
 showforms
 fv 1 username test
