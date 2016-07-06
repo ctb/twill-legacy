@@ -227,7 +227,7 @@ going to pick based on your field name, or what form & field `submit`
 is going to "click" on.
 
 Here is the pseudocode for how `formvalue` and `submit` figure out
-what form to use (function `twill.commands.browser.get_form`)::
+what form to use (function `twill.browser.form`)::
 
    for each form on page:
        if supplied regexp pattern matches the form name, select
@@ -237,7 +237,7 @@ what form to use (function `twill.commands.browser.get_form`)::
    first form on the page).
 
 Here is the pseudocode for how `formvalue` and `submit` figure out
-what form field to use (function `twill.commands.browser.get_form_field`)::
+what form field to use (function `twill.browser.form_field`)::
 
    search current form for control name with exact match to fieldname;
    if single (unique) match, select.

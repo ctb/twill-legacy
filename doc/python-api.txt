@@ -35,24 +35,22 @@ In particular, they do not have any return values, so in order to e.g. get
 the HTML for a particular page, you will need to talk to the actual "Web
 browser" object that twill uses.
 
-To talk to the Web browser directly, call the ``get_browser`` function: ::
+To talk to the Web browser directly, import the ``browser`` object::
 
-   from twill import get_browser
-   b = get_browser()
+   from twill import browser
 
-   b.go("http://www.python.org/")
-   b.showforms()
+   browser.go("http://www.python.org/")
+   browser.showforms()
 
 This is the second way to use twill from Python, and it is much more flexible.
 All of the functions in ``commands.py`` use this same browser object, so
 you can mix and match: ::
 
-   from twill import get_browser
-   b = get_browser()
+   from twill import browser
 
    from twill.commands import *
    go("http://www.python.org/")
-   b.showforms()
+   browser.showforms()
 
 The basic difference is that functions available through the browser object
 are intended for use from Python, while ``commands.py`` functions define
@@ -122,9 +120,9 @@ another Python program, you can do:
    showforms()
 
    formclear('1')
-   fv("1", "name", "test")
-   fv("1", "password", "testpass")
-   fv("1", "confirm", "yes")
+   fv('1', 'name', 'test')
+   fv('1', 'password', 'testpass')
+   fv('1', 'confirm', 'yes')
    showforms()
 
    submit('0')

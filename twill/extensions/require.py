@@ -14,7 +14,7 @@ Commands:
                     (for links checking)
 """
 
-from twill import commands, log
+from twill import browser, commands, log
 
 __all__ = ['require', 'skip_require', 'flush_visited', 'no_require']
 
@@ -47,7 +47,7 @@ def require(what):
     global _requirements
 
     # install the post-load hook function.
-    hooks = commands.browser._post_load_hooks
+    hooks = browser._post_load_hooks
     if _require_post_load_hook not in hooks:
         log.debug('INSTALLING POST-LOAD HOOK')
         hooks.append(_require_post_load_hook)
@@ -63,9 +63,9 @@ def no_require():
 
     Remove all post-load requirements.
     """
-    hooks = commands.browser._post_load_hooks
+    hooks = browser._post_load_hooks
     hooks = [fn for fn in hooks if fn != _require_post_load_hook]
-    commands.browser._post_load_hooks = hooks
+    browser._post_load_hooks = hooks
 
     global _requirements
     _requirements = []

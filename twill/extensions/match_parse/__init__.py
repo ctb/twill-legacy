@@ -25,7 +25,7 @@ def split(what):
 
      Sets __matchlist__ to re.split(regexp, page).
      """
-     page = browser.get_html()
+     page = browser.html
 
      m = re.split(what, page)
 
@@ -38,7 +38,7 @@ def findall(what):
 
      Sets __matchlist__ to re.findall(regexp, page).
      """
-     page = browser.get_html()
+     page = browser.html
 
      regexp = re.compile(what, re.DOTALL)
      m = regexp.findall(page)

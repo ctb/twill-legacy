@@ -11,7 +11,7 @@ from pyparsing import (
     alphas, alphanums, CharsNotIn, Combine, Group, Literal, Optional,
     ParseException, printables, removeQuotes, restOfLine, Word, ZeroOrMore)
 
-from . import commands, log, namespaces
+from . import browser, commands, log, namespaces
 from .errors import TwillAssertionError, TwillNameError
 
 # pyparsing stuff
@@ -122,7 +122,7 @@ def execute_command(cmd, args, globals_dict, locals_dict, cmdinfo):
     result = eval(codeobj, globals_dict, locals_dict)
     
     # set __url__
-    locals_dict['__url__'] = commands.browser.get_url()
+    locals_dict['__url__'] = browser.url
 
     return result
 
@@ -171,7 +171,7 @@ def _execute_script(inp, **kw):
     namespaces.new_local_dict()
     globals_dict, locals_dict = namespaces.get_twill_glocals()
     
-    locals_dict['__url__'] = commands.browser.get_url()
+    locals_dict['__url__'] = browser.url
 
     # reset browser
     if not kw.get('no_reset'):
@@ -181,7 +181,7 @@ def _execute_script(inp, **kw):
     init_url = kw.get('initial_url')
     if init_url:
         commands.go(init_url)
-        locals_dict['__url__'] = commands.browser.get_url()
+        locals_dict['__url__'] = browser.url
 
     # should we catch exceptions on failure?
     catch_errors = False

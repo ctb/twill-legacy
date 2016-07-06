@@ -20,7 +20,7 @@ except ImportError:
     readline = None
 
 from . import (
-    commands, execute_file, log, loglevels, set_loglevel, set_output,
+    browser, commands, execute_file, log, loglevels, set_loglevel, set_output,
     namespaces, parse, __version__)
 from .utils import gather_filenames
 
@@ -195,7 +195,7 @@ class TwillCommandLoop(Singleton, cmd.Cmd):
     def provide_formname(self, prefix):
         """Provide the list of form names on the given page."""
         names = []
-        forms = commands.browser.get_all_forms()
+        forms = browser.forms
         for form in forms:
             id = form.attrib.get('id')
             if id and id.startswith(prefix):
@@ -209,7 +209,7 @@ class TwillCommandLoop(Singleton, cmd.Cmd):
     def provide_field(self, formname, prefix):
         """Provide the list of fields for the given formname or number."""
         names = []
-        form = commands.browser.get_form(formname)
+        form = browser.form(formname)
         if form is not None:
             for field in form.inputs:
                 id = field.attrib.get('id')
@@ -223,7 +223,7 @@ class TwillCommandLoop(Singleton, cmd.Cmd):
 
     def _set_prompt(self):
         """"Set the prompt to the current page."""
-        url = commands.browser.get_url()
+        url = browser.url
         if url is None:
             url = " *empty page* "
         self.prompt = "current page: %s\n>> " % (url,)

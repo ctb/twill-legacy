@@ -49,10 +49,11 @@ class TestInfo:
     def run_script(self):
         """Run the given twill script on the given server."""
         time.sleep(self.sleep)
-        url = self.get_url()
+        url = self.url
         execute_file(self.script, initial_url=url)
 
-    def get_url(self):
+    @property
+    def url(self):
         """"Get the test server URL."""
         return "http://%s:%d/" % (HOST, self.port)
 

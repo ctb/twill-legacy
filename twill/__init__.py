@@ -20,8 +20,8 @@ __version__ = "1.8.0"
 
 __all__ = [
     "TwillCommandLoop",
-    "execute_file", "execute_string",
-    "get_browser", "set_loglevel", "set_output", "set_errout"]
+    "browser", "execute_file", "execute_string",
+    "set_loglevel", "set_output", "set_errout"]
 
 
 this_dir = os.path.dirname(__file__)
@@ -85,15 +85,7 @@ set_output()
 
 
 # a convenience function:
-from .commands import get_browser
-
-
-def get_browser_state():
-    import warnings
-    warnings.warn(
-        "get_browser_state is deprecated;"
-        " use get_browser() instead.", DeprecationWarning)
-    return get_browser()
+from .browser import browser
 
 
 # the two core components of twill:

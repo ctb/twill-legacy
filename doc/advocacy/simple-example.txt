@@ -12,5 +12,4 @@ from twill.commands import *
 add_extra_header('User-Agent', 'Mozilla/5.0 (compatible; MyProgram/0.1)')
 go("http://python.org/")
 
-html = browser.get_html()
-print html
+print browser.html

@@ -8,7 +8,7 @@ for each and every message.)
 
 import re
 
-from twill import get_browser, log, utils
+from twill import browser, log, utils
 
 __all__ = ['discard_all_messages', 'exit_if_empty']
 
@@ -19,8 +19,7 @@ def exit_if_empty():
     Exit the script currently running, if there are no deferred messages
     on the current page.
     """
-    state = get_browser()
-    form = state.get_form('1')
+    form = browser.form()
     if not form:
         log.error("No messages; exiting.")
         raise SystemExit
@@ -35,9 +34,7 @@ def discard_all_messages():
 
 
 def _formvalue_by_regexp_setall(formname, fieldname, value):
-    state = get_browser()
-    
-    form = state.get_form(formname)
+    form = browser.form(formname)
     if not form:
         log.error("no such form '%s'", formname)
         return
@@ -51,7 +48,7 @@ def _formvalue_by_regexp_setall(formname, fieldname, value):
 
         n = 0
         for control in matches:
-            state.clicked(form, control)
+            browser.clicked(form, control)
             if not control.readonly:
                 utils.set_form_control_value(control, value)
                 n += 1

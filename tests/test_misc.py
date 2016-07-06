@@ -4,30 +4,28 @@ import sys
 
 from cStringIO import StringIO
 
-from pytest import raises, deprecated_call
+from pytest import raises
 
 import twill
 
-from twill import commands
+from twill import browser, commands
+from twill.browser import TwillBrowser
 from twill.errors import TwillAssertionError, TwillException
 
 
 def test():
+    assert isinstance(browser, TwillBrowser)
+
     # reset
     commands.reset_browser()
-
-    # get the current browser obj.
-    browser = twill.get_browser()
-    assert browser is commands.browser
+    assert isinstance(browser, TwillBrowser)
 
     # check the 'None' value of return code
-    assert browser.get_code() is None
+    assert browser.code is None
 
     # no forms, right?
     with raises(TwillException):
         browser.submit()
-
-    assert browser is deprecated_call(twill.get_browser_state)
 
     old_err, sys.stderr = sys.stderr, StringIO()
     try:

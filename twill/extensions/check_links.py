@@ -17,14 +17,14 @@ together with their referring pages.
 
 import re
 
-from twill import commands, log
+from twill import browser, commands, log
 from twill.errors import TwillAssertionError
 
 __all__ = ['check_links', 'report_bad_links']
 
 # first, set up config options & persistent 'bad links' memory...
-if commands._options.get('check_links.only_collection_bad_links') is None:
-    commands._options['check_links.only_collect_bad_links'] = False
+if commands.options.get('check_links.only_collection_bad_links') is None:
+    commands.options['check_links.only_collect_bad_links'] = False
 
 bad_links_dict = {}
 
@@ -45,8 +45,6 @@ def check_links(pattern='', visited={}):
     """
     log.debug('in check_links')
     
-    browser = commands.browser
-
     # compile the regexp
     regexp = None
     if pattern:
@@ -59,7 +57,7 @@ def check_links(pattern='', visited={}):
 
     collected_urls = {}
 
-    links = list(browser._browser.links())
+    links = list(browser.links())
     if not links:
         log.debug("no links to check!?")
         return
@@ -95,7 +93,7 @@ def check_links(pattern='', visited={}):
                 went = True
                 browser.follow_link(link)
                 
-                code = browser.get_code()
+                code = browser.code
                 assert code == 200
 
                 visited[link.absolute_url] = 1
@@ -112,12 +110,12 @@ def check_links(pattern='', visited={}):
 
     info = log.info
     if failed:
-        if commands._options['check_links.only_collect_bad_links']:
-            for l in failed:
-                refering_pages = bad_links_dict.get(l, [])
-                info('*** %s', browser.get_url())
-                refering_pages.append(browser.get_url())
-                bad_links_dict[l] = refering_pages
+        if commands.options['check_links.only_collect_bad_links']:
+            for link in failed:
+                refering_pages = bad_links_dict.get(link, [])
+                info('*** %s', browser.url)
+                refering_pages.append(browser.url)
+                bad_links_dict[link] = refering_pages
         else:
             info('\nCould not follow %d links', len(failed))
             info('\t%s\n', '\n\t'.join(failed))

@@ -19,18 +19,19 @@ except ImportError:
 import requests
 
 from . import log, set_output, set_errout, utils
-from .browser import TwillBrowser
+from .browser import browser
 from .errors import TwillException, TwillAssertionError
 from .namespaces import get_twill_glocals
 
 __all__ = [
-    'add_auth', 'add_extra_header', 'agent', 'back',
+    'add_auth', 'add_extra_header', 'agent',
+    'back', 'browser',
     'clear_cookies', 'clear_extra_headers',
     'code', 'config',
     'debug', 'echo', 'exit', 'extend_with',
     'fa', 'find', 'follow',
     'formaction', 'formclear', 'formfile', 'formvalue', 'fv',
-    'get_browser', 'getinput', 'getpassword',
+    'getinput', 'getpassword',
     'go', 'info', 'load_cookies', 'notfind',
     'redirect_error', 'redirect_output',
     'reload', 'reset_browser', 'reset_error', 'reset_output',
@@ -43,29 +44,18 @@ __all__ = [
     'tidy_ok', 'title', 'url']
 
 
-browser = TwillBrowser()
-
-
-def get_browser():
-    """Get the twill browser instance."""
-    return browser
-
-
 def reset_browser():
     """>> reset_browser
 
     Reset the browser completely.
     """
-    global browser
-    browser = TwillBrowser()
-
-    global _options
-    _options = {}
-    _options.update(_default_options)
+    browser.reset()
+    options.clear()
+    options.update(default_options)
 
 
 def exit(code='0'):
-    """twill coammand: exit [<code>]
+    """twill command: exit [<code>]
 
     Exit twill, with the given exit code (defaults to 0, "no error").
     """
@@ -78,7 +68,7 @@ def go(url):
     Visit the URL given.
     """
     browser.go(url)
-    return browser.get_url()
+    return browser.url
 
 
 def reload():
@@ -87,7 +77,7 @@ def reload():
     Reload the current URL.
     """
     browser.reload()
-    return browser.get_url()
+    return browser.url
 
 
 def code(should_be):
@@ -96,9 +86,9 @@ def code(should_be):
     Check to make sure the response code for the last page is as given.
     """
     should_be = int(should_be)
-    if browser.get_code() != should_be:
+    if browser.code != should_be:
         raise TwillAssertionError
-        "code is %s != %s" % (browser.get_code(), should_be)
+        "code is %s != %s" % (browser.code, should_be)
 
 
 def tidy_ok():
@@ -110,13 +100,13 @@ def tidy_ok():
     If 'tidy' cannot be run, will fail silently (unless 'tidy_should_exist'
     option is true; see 'config' command).
     """
-    page = browser.get_html()
+    page = browser.html
     if page is None:
         raise TwillAssertionError("not viewing HTML!")
 
     (clean_page, errors) = utils.run_tidy(page)
     if clean_page is None:  # tidy doesn't exist...
-        if _options.get('tidy_should_exist'):
+        if options.get('tidy_should_exist'):
             raise TwillAssertionError("cannot run 'tidy'")
     elif errors:
         raise TwillAssertionError("tidy errors:\n====\n%s\n====\n" % (errors,))
@@ -129,7 +119,7 @@ def url(should_be):
     variable __match__ is set to the matching part of the URL.
     """
     regexp = re.compile(should_be)
-    current_url = browser.get_url()
+    current_url = browser.url
 
     m = None
     if current_url is not None:
@@ -158,7 +148,7 @@ def follow(what):
     link = browser.find_link(regexp)
     if link:
         browser.follow_link(link)
-        return browser.get_url()
+        return browser.url
 
     raise TwillAssertionError("no links match to '%s'" % (what,))
 
@@ -193,7 +183,7 @@ def find(what, flags=''):
     For explanations of these, please see the Python re module
     documentation.
     """
-    page = browser.get_html()
+    page = browser.html
     local_dict = get_twill_glocals()[1]
     if 'x' in flags:
         if not soupparser:
@@ -231,7 +221,7 @@ def back():
     Return to the previous page.
     """
     browser.back()
-    return browser.get_url()
+    return browser.url
 
 
 def show():
@@ -239,7 +229,7 @@ def show():
     
     Show the HTML for the current page.
     """
-    html = browser.get_html().strip()
+    html = browser.html.strip()
     log.info('')
     log.info(html)
     log.info('')
@@ -260,13 +250,13 @@ def save_html(filename=None):
     Save the HTML for the current page into <filename>.  If no filename
     given, construct the filename from the URL.
     """
-    html = browser.get_html()
+    html = browser.html
     if html is None:
         log.warning("No page to save.")
         return
 
     if filename is None:
-        url = browser.get_url()
+        url = browser.url
         url = url.split('?', 1)[0]
         filename = url.rsplit('/', 1)[-1]
         if not filename:
@@ -308,7 +298,7 @@ def agent(what):
     """
     what = what.strip()
     agent = _agent_map.get(what, what)
-    browser.set_agent_string(agent)
+    browser.agent_string = agent
 
 
 def submit(submit_button=None):
@@ -335,7 +325,7 @@ def showforms():
     Show all of the forms on the current page.
     """
     browser.showforms()
-    return browser.get_all_forms()
+    return browser.forms
 
 
 def showlinks():
@@ -344,7 +334,7 @@ def showlinks():
     Show all of the links on the current page.
     """
     browser.showlinks()
-    return browser.get_all_links()
+    return browser.links
 
 
 def showhistory():
@@ -361,7 +351,7 @@ def formclear(formname):
     
     Run 'clear' on all of the controls in this form.
     """
-    form = browser.get_form(formname)
+    form = browser.form(formname)
     for control in form.inputs:
         if 'readonly' in control.attrib or 'disabled' in control.attrib or (
                 hasattr(control, 'type') and
@@ -400,17 +390,17 @@ def formvalue(formname, fieldname, value):
 
     'formvalue' is available as 'fv' as well.
     """
-    form = browser.get_form(formname)
+    form = browser.form(formname)
     if form is None:
         raise TwillAssertionError("no matching forms!")
 
-    control = browser.get_form_field(form, fieldname)
+    control = browser.form_field(form, fieldname)
 
     browser.clicked(form, control)
     if isinstance(control, html.CheckboxGroup):
         pass
 
-    elif 'readonly' in control.attrib and _options[
+    elif 'readonly' in control.attrib and options[
             'readonly_controls_writeable']:
         log.info('forcing read-only form field to writeable')
         del control.attrib['readonly']
@@ -437,7 +427,7 @@ def formaction(formname, action):
 
     'formaction' is available as 'fa' as well.
     """
-    form = browser.get_form(formname)
+    form = browser.form(formname)
     log.info("Setting action for form %s to %s", form, action)
     form.action = action
 
@@ -452,8 +442,8 @@ def formfile(formname, fieldname, filename, content_type=None):
     """
     filename = filename.replace('/', sep)
 
-    form = browser.get_form(formname)
-    control = browser.get_form_field(form, fieldname)
+    form = browser.form(formname)
+    control = browser.form_field(form, fieldname)
 
     if not (hasattr(control, 'type') and control.type == 'file'):
         raise TwillException('ERROR: field is not a file upload field!')
@@ -577,11 +567,11 @@ def add_auth(realm, uri, user, passwd):
     # swap around the type of HTTPPasswordMgr and
     # HTTPPasswordMgrWithDefaultRealm depending on
     # if with_default_realm is on or not.
-    if _options['with_default_realm']:
+    if options['with_default_realm']:
         realm = None
 
     # @BRT: Browser does not currently support realm; just add by URI for now
-    browser._set_creds((uri, (user, passwd)))
+    browser.creds = (uri, (user, passwd))
 
     log.info(
         "Added auth info: realm '%s' / URI '%s' / user '%s'", realm, uri, user)
@@ -624,11 +614,9 @@ def run(cmd):
     # execute command.
     global_dict, local_dict = get_twill_glocals()
 
-    from . import commands
-
     # set __url__
     local_dict['__cmd__'] = cmd
-    local_dict['__url__'] = commands.browser.get_url()
+    local_dict['__url__'] = browser.url
 
     exec (cmd, global_dict, local_dict)
 
@@ -667,7 +655,7 @@ def title(what):
     Succeed if the regular expression is in the page title.
     """
     regexp = re.compile(what)
-    title = browser.get_title()
+    title = browser.title
 
     log.info("title is '%s'", title)
 
@@ -725,7 +713,7 @@ def add_extra_header(header_key, header_value):
     Add an HTTP header to each HTTP request.  See 'show_extra_headers' and
     'clear_extra_headers'.
     """
-    browser._session.headers.update({header_key: header_value})
+    browser.headers[header_key] = header_value
 
 
 def show_extra_headers():
@@ -734,7 +722,7 @@ def show_extra_headers():
     Show any extra headers being added to each HTTP request.
     """
     info = log.info
-    headers = browser._session.headers
+    headers = browser.headers
     if headers:
         info('\nThe following HTTP headers are added to each request:\n')
         for key, value in headers.iteritems():
@@ -750,16 +738,16 @@ def clear_extra_headers():
     Remove all user-defined HTTP headers.  See 'add_extra_header' and
     'show_extra_headers'.
     """
-    browser._session.headers = dict([("Accept", "text/html; */*")])
+    browser.reset_headers()
 
 
-_default_options = dict(
+options = {}  # the global options dictionary
+
+default_options = dict(
     readonly_controls_writeable=False,
     require_tidy=False,
     with_default_realm=False,
     acknowledge_equiv_refresh=True)
-
-_options = _default_options.copy()
 
 
 def config(key=None, value=None):
@@ -777,22 +765,22 @@ def config(key=None, value=None):
     """
     info = log.info
     if key is None:
-        keys = sorted(_options)
+        keys = sorted(options)
         info('\nCurrent configuration:\n')
         for k in keys:
-            info('\t%s : %s', k, _options[k])
+            info('\t%s : %s', k, options[k])
         info('')
     else:
-        v = _options.get(key)
+        v = options.get(key)
         if v is None:
             log.error("no such configuration key '%s'", key)
-            info("valid keys are: %s", ', '.join(_options.keys()))
+            info("valid keys are: %s", ', '.join(options.keys()))
             raise TwillException("no such configuration key: '%s'" % (key,))
         elif value is None:
             info('\nkey %s: value %s\n', key, v)
         else:
             value = utils.make_boolean(value)
-            _options[key] = value
+            options[key] = value
 
 
 def info():
@@ -800,23 +788,23 @@ def info():
 
     Report information on current page.
     """
-    current_url = browser.get_url()
+    current_url = browser.url
     if current_url is None:
         log.warning("We're not on a page!")
         return
 
-    content_type = browser.result.get_headers()['content-type']
+    content_type = browser.result.headers['content-type']
     is_html = content_type and content_type.split(';')[0] == 'text/html'
-    code = browser.get_code()
+    code = browser.code
 
     info = log.info
     info('\tURL: %s', current_url)
     info('\tHTTP code: %s', code)
     info('\tContent type: %s%s', content_type, ' (HTML)' if is_html else '')
     if is_html:
-        title = browser.get_title()
+        title = browser.title
         info('\tPage title: %s', title)
-        forms = browser.get_all_forms()
+        forms = browser.forms
         if len(forms):
             info('\tThis page contains %d form(s)', len(forms))
     info('')

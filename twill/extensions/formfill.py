@@ -20,7 +20,7 @@ Commands:
 
 import re
 
-from twill import commands, get_browser, log, utils
+from twill import browser, commands, log, utils
 
 __all__ = ['fv_match', 'fv_multi_match', 'fv_multi', 'fv_multi_sub']
 
@@ -34,9 +34,7 @@ def fv_match(formname, regex, value):
     (Unlike 'formvalue' or 'fv', this will not complain about multiple
     matches!)
     """
-    state = get_browser()
-    
-    form = state.get_form(formname)
+    form = browser.form(formname)
     if form is None:
         log.error("no such form '%s'", formname)
         return
@@ -51,7 +49,7 @@ def fv_match(formname, regex, value):
 
         n = 0
         for control in matches:
-            state.clicked(form, control)
+            browser.clicked(form, control)
             if 'readonly' in control.attrib.keys():
                 continue
 
@@ -68,9 +66,7 @@ def fv_multi_match(formname, regex, *values):
     value.  If there are no more values, use the last for all remaining form
     fields
     """
-    state = get_browser()
-
-    form = state.get_form(formname)
+    form = browser.form(formname)
     if form is None:
         log.error("no such form '%s'", formname)
         return
@@ -84,7 +80,7 @@ def fv_multi_match(formname, regex, *values):
         log.info('-- matches %d, values %d', len(matches), len(values))
 
         for n, control in enumerate(matches):
-            state.clicked(form, control)
+            browser.clicked(form, control)
             if 'readonly' in control.attrib.keys():
                 continue
             try:

@@ -8,12 +8,12 @@ from .utils import execute_script
 
 
 def test(url):
-    # test empty page get_title
+    # test empty page title
     namespaces.new_local_dict()
     twill.commands.reset_browser()
-    browser = twill.get_browser()
+    browser = twill.browser
     with raises(TwillException):
-        browser.get_title()
+        browser.title
 
     # now test a few special cases
     commands.go(url)
@@ -44,7 +44,7 @@ def test(url):
         commands.formfile('1', 'selecttest', 'null')
 
     commands.go('http://www.google.com/')
-    browser.get_title()
+    browser.title
 
     # test the twill script.
     execute_script('test_form.twill', initial_url=url)

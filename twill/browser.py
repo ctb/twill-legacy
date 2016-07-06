@@ -19,13 +19,15 @@ class TwillBrowser(object):
     """A simple, stateful browser"""
 
     def __init__(self):
+        self.reset()
+
+    def reset(self):
         # create special link/forms parsing code to run tidy on HTML first.
         self.result = None
         self.last_submit_button = None
 
         # Session stores cookies
         self._session = requests.Session()
-        self._session.headers.update({"Accept": "text/html; */*"})
 
         # An lxml FormElement, none until a form is selected
         # replaces self._browser.form from mechanize
@@ -40,11 +42,13 @@ class TwillBrowser(object):
 
         self._history = []
 
-    def _set_creds(self, creds):
-        self._auth[creds[0]] = requests.auth.HTTPBasicAuth(*creds[1])
-
-    def _get_creds(self):
+    @property
+    def creds(self):
         return self._auth
+
+    @creds.setter
+    def creds(self, creds):
+        self._auth[creds[0]] = requests.auth.HTTPBasicAuth(*creds[1])
 
     def go(self, url):
         """Visit given URL."""
@@ -54,9 +58,9 @@ class TwillBrowser(object):
         else:  # URL does not have a schema
             # if this is a relative URL, then assume that we want to tack it
             # onto the end of the current URL
-            current_url = self.get_url()
+            current_url = self.url
             if current_url:
-                try_urls.append(urljoin(self.get_url(), url))
+                try_urls.append(urljoin(current_url, url))
             # if this is an absolute URL, it may be just missing the 'http://'
             # at the beginning, try fixing that (mimic browser behavior)
             if not url.startswith(('.', '/', '?')):
@@ -71,7 +75,7 @@ class TwillBrowser(object):
                 break
         else:
             raise TwillException("cannot go to '%s'" % (url,))
-        log.info('==> at %s', self.get_url())
+        log.info('==> at %s', self.url)
 
     def reload(self):
         """Tell the browser to reload the current page."""
@@ -82,32 +86,30 @@ class TwillBrowser(object):
         """Return to previous page, if possible."""
         try:
             self._journey('back')
-            log.info('==> back to %s', self.get_url())
+            log.info('==> back to %s', self.url)
         except TwillException:
             log.warning('==> back at empty page')
 
-    def get_code(self):
+    @property
+    def code(self):
         """Get the HTTP status code received for the current page."""
-        if self.result is not None:
-            return self.result.get_http_code()
-        return None
+        return self.result.http_code if self.result else None
 
-    def get_html(self):
+    @property
+    def html(self):
         """Get the HTML for the current page."""
-        if self.result is not None:
-            return self.result.get_page()
-        return None
+        return self.result.page if self.result else None
 
-    def get_title(self):
-        if self.result is not None:
-            return self.result.get_title()
-        raise TwillException("Error: Getting title with no page")
+    @property
+    def title(self):
+        if self.result is None:
+            raise TwillException("Error: Getting title with no page")
+        return self.result.title
 
-    def get_url(self):
+    @property
+    def url(self):
         """Get the URL of the current page."""
-        if self.result is not None:
-            return self.result.get_url()
-        return None
+        return self.result.url if self.result else None
 
     def find_link(self, pattern):
         """Find the first link matching the given pattern.
@@ -121,12 +123,25 @@ class TwillBrowser(object):
     def follow_link(self, link):
         """Follow the given link."""
         self._journey('follow_link', link)
-        log.info('==> at %s', self.get_url())
+        log.info('==> at %s', self.url)
 
-    def set_agent_string(self, agent):
+    @property
+    def headers(self):
+        return self._session.headers
+
+    def reset_headers(self):
+        self.headers.clear()
+        self.headers.update({"Accept": "text/html; */*"})
+
+    @property
+    def agent_string(self):
+        """Get the agent string."""
+        return self.headers.get('User-Agent')
+
+    @agent_string.setter
+    def agent_string(self, agent):
         """Set the agent string to the given value."""
-        self._session.headers.update({'User-agent': agent})
-        return
+        self.headers['User-agent'] = agent
 
     def showforms(self):
         """Pretty-print all of the forms.
@@ -134,14 +149,13 @@ class TwillBrowser(object):
         Include the global form (form elements outside of <form> pairs)
         as forms[0] if present.
         """
-        forms = self.get_all_forms()
-        for n, form in enumerate(forms):
+        for n, form in enumerate(self.forms):
             print_form(form, n)
 
     def showlinks(self):
         """Pretty-print all of the links."""
         info = log.info
-        links = self.get_all_links()
+        links = self.links
         if links:
             info('\nLinks (%d links total):\n', len(links))
             for n, link in enumerate(links):
@@ -157,98 +171,100 @@ class TwillBrowser(object):
         if history:
             info('\nHistory (%d pages total):\n', len(history))
             for n, page in enumerate(history):
-                info('\t%d. %s', n + 1, page.get_url())
+                info('\t%d. %s', n + 1, page.url)
             info('')
         else:
             info('\n** no history **\n')
 
-    def get_all_links(self):
+    @property
+    def links(self):
         """Return a list of all of the links on the page."""
-        return [] if self.result is None else self.result.get_links()
+        return [] if self.result is None else self.result.links
 
-    def get_all_forms(self):
+    @property
+    def forms(self):
         """Return a list of all of the forms.
 
         Include the global form at index 0 if present.
         """
-        return [] if self.result is None else self.result.get_forms()
+        return [] if self.result is None else self.result.forms
 
-    def get_form(self, formname):
+    def form(self, formname=1):
         """Return the first form that matches the given form name."""
-        return None if self.result is None else self.result.get_form(formname)
+        return None if self.result is None else self.result.form(formname)
 
-    def get_form_field(self, form, fieldname):
+    def form_field(self, form, fieldname=1):
         """Return the control that matches the given field name.
 
-        Must be a *unique* regexp/exact string match.
+        Must be a *unique* regex/exact string match.
         """
-        if fieldname in form.fields.keys():
-            controls = [f for f in form.inputs
+        inputs = form.inputs
+
+        if fieldname in form.fields:
+            controls = [f for f in inputs
                         if f.get('name') == fieldname and
                         hasattr(f, 'type') and f.type == 'checkbox']
             if len(controls) > 1:
                 return html.CheckboxGroup(controls)
 
-        fieldname = str(fieldname)
-        
         found = None
         found_multiple = False
 
-        matches = [c for c in form.inputs if c.get('id') == fieldname]
+        if not isinstance(fieldname, int):
 
-        # test exact match
-        if matches:
-            if unique_match(matches):
-                found = matches[0]
-            else:
-                found_multiple = True  # record for error reporting
-        
-        matches = [c for c in form.inputs if str(c.name) == fieldname]
-
-        # test exact match
-        if matches:
-            if unique_match(matches):
-                found = matches[0]
-            else:
-                found_multiple = True  # record for error reporting
-
-        # test index
-        if found is None:
-            # try num
-            clickies = [c for c in form.inputs]
-            try:
-                fieldnum = int(fieldname) - 1
-                found = clickies[fieldnum]
-            except (IndexError, ValueError):
-                pass
-
-        # test regexp match
-        if found is None:
-            regexp = re.compile(fieldname)
-
-            matches = [ctl for ctl in form.inputs
-                        if regexp.search(str(ctl.get("name")))]
-
+            # test exact match to id
+            matches = [c for c in inputs if c.get('id') == fieldname]
             if matches:
                 if unique_match(matches):
                     found = matches[0]
                 else:
-                    found_multiple = True  # record for error
+                    found_multiple = True
 
+            if found is None:
+                # test exact match to name
+                matches = [c for c in inputs if c.name == fieldname]
+                if matches:
+                    if unique_match(matches):
+                        found = matches[0]
+                    else:
+                        found_multiple = True
+
+        # test field index
         if found is None:
-            clickies = [c for c in form.inputs if c.value == fieldname]
-            if clickies:
-                if len(clickies) == 1:
-                    found = clickies[0]
-                else:
-                    found_multiple = True  # record for error
+            if fieldname == '3':
+                pass
+            try:
+                found = list(inputs)[int(fieldname) - 1]
+            except (IndexError, ValueError):
+                pass
+
+        if not isinstance(fieldname, int):
+
+            if found is None:
+                # test regex match
+                regex = re.compile(fieldname)
+                matches = [c for c in inputs
+                           if c.name and regex.search(c.name)]
+                if matches:
+                    if unique_match(matches):
+                        found = matches[0]
+                    else:
+                        found_multiple = True
+
+            if found is None:
+                # test field values
+                matches = [c for c in inputs if c.value == fieldname]
+                if matches:
+                    if len(matches) == 1:
+                        found = matches[0]
+                    else:
+                        found_multiple = True
 
         # error out?
         if found is None:
-            if not found_multiple:
-                raise TwillException('no field matches "%s"' % (fieldname,))
-            else:
+            if found_multiple:
                 raise TwillException('multiple matches to "%s"' % (fieldname,))
+            raise TwillException('no field matches "%s"' % (fieldname,))
 
         return found
 
@@ -268,7 +284,7 @@ class TwillBrowser(object):
         if fieldname is not None:
             fieldname = str(fieldname)
 
-        forms = self.get_all_forms()
+        forms = self.forms
         if not forms:
             raise TwillException("no forms on this page!")
         
@@ -284,7 +300,7 @@ class TwillBrowser(object):
                     " you must select one (use 'fv') before submitting")
 
         if form.action is None:
-            form.action = self.get_url()
+            form.action = self.url
 
         # no fieldname?  see if we can use the last submit button clicked...
         if fieldname is None:
@@ -299,7 +315,7 @@ class TwillBrowser(object):
                 ctl = self.last_submit_button
         else:
             # fieldname given; find it.
-            ctl = self.get_form_field(form, fieldname)
+            ctl = self.form_field(form, fieldname)
 
         # now set up the submission by building the request object that
         # will be sent in the form submission.
@@ -316,7 +332,7 @@ class TwillBrowser(object):
         # request object to have an 'add_unredirected_header' function.
         # @BRT: For now, the referrer is always the current page
         # @CTB this seems like an issue for further work.
-        headers = {'referer': self.get_url()}
+        headers = {'referer': self.url}
 
         # now actually GO.
         payload = list(form.form_values())
@@ -421,10 +437,10 @@ class TwillBrowser(object):
             # Try to find the link first
             url = self.find_link(args[0])
             if '://' not in url:
-                url = urljoin(self.get_url(), url)
+                url = urljoin(self.url, url)
 
         elif func_name == 'reload':
-            url = self.get_url()
+            url = self.url
 
         elif func_name == 'back':
             try:
@@ -441,7 +457,10 @@ class TwillBrowser(object):
 
         if func_name in ['follow_link', 'open']:
             # If we're really reloading and just didn't say so, don't store
-            if self.result is not None and self.result.get_url() != r.url:
+            if self.result is not None and self.result.url != r.url:
                 self._history.append(self.result)
 
         self.result = ResultWrapper(r)
+
+
+browser = TwillBrowser()  # the global twill browser instance

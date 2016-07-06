@@ -41,52 +41,58 @@ class ResultWrapper(object):
         else:
             self.forms = self.lxml.forms
 
-    def get_url(self):
+    @property
+    def url(self):
         return self.req.url
 
-    def get_http_code(self):
+    @property
+    def http_code(self):
         return self.req.status_code
 
-    def get_page(self):
+    @property
+    def page(self):
         return self.req.text
 
-    def get_headers(self):
+    @property
+    def headers(self):
         return self.req.headers
 
-    def get_forms(self):
-        return self.forms
-
-    def get_title(self):
+    @property
+    def title(self):
         selector = cssselect.CSSSelector('title')
         return selector(self.lxml)[0].text
 
-    def get_links(self):
+    @property
+    def links(self):
         selector = cssselect.CSSSelector('a')
         return [(inner_tostring(a), a.get('href'))
                 for a in selector(self.lxml)]
 
     def find_link(self, pattern):
-        links = self.get_links()
+        links = self.links
         search = re.search
         for link in links:
             if search(pattern, link[0]) or search(pattern, link[1]):
                 return link[1]
         return ''
 
-    def get_form(self, formname):
-        forms = self.get_forms()
+    def form(self, formname=1):
+        forms = self.forms
 
-        # first, try ID
-        for form in forms:
-            form_id = form.get('id')
-            if form_id and str(form_id) == formname:
-                return form
-        
-        # next, try regexps
-        regexp = re.compile(formname)
-        for form in forms:
-            if form.get('name') and regexp.search(form.get('name')):
-                return form
+        if not isinstance(formname, int):
+
+            # first, try ID
+            for form in forms:
+                form_id = form.get('id')
+                if form_id and form_id == formname:
+                    return form
+
+            # next, try regex with name
+            regex = re.compile(formname)
+            for form in forms:
+                name = form.get('name')
+                if name and regex.search(name):
+                    return form
 
         # last, try number
         try:
@@ -297,8 +303,8 @@ def run_tidy(html):
     Return a 2-tuple (output, errors).  (None, None) will be returned if
     PyTidyLib (or the required shared library for tidy) isn't installed.
     """
-    from commands import _options
-    require_tidy = _options.get('require_tidy')
+    from .commands import options
+    require_tidy = options.get('require_tidy')
 
     if not tidylib:
         if require_tidy:
@@ -317,8 +323,8 @@ def _is_valid_filename(f):
 
 def _follow_equiv_refresh():
     """Check if the browser shall ask whether to follow meta redirects."""
-    from twill.commands import _options
-    return _options.get('acknowledge_equiv_refresh')
+    from .commands import options
+    return options.get('acknowledge_equiv_refresh')
 
 
 def gather_filenames(arglist):
