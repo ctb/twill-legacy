@@ -8,11 +8,14 @@ from urlparse import urljoin
 import requests
 from lxml import html
 from requests.exceptions import InvalidSchema, ConnectionError
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 from . import log
 from .utils import (
     print_form, unique_match, ResultWrapper, _follow_equiv_refresh)
 from .errors import TwillException
+
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
 class TwillBrowser(object):
