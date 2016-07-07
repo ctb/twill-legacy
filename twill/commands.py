@@ -278,14 +278,52 @@ def sleep(interval=1):
 
 
 _agent_map = dict(
-    ie5='Mozilla/4.0 (compatible; MSIE 5.0; Windows NT 5.1)',
-    ie55='Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 5.1)',
+    chrome40='Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36'
+        ' (KHTML, like Gecko) Chrome/40.0.2214.93 Safari/537.36',
+    googlebot2='Mozilla/5.0 (compatible; Googlebot/2.1;'
+        ' +http://www.google.com/bot.html)',
+    edge12='Mozilla/5.0 (Windows NT 10.0)'
+        ' AppleWebKit/537.36 (KHTML, like Gecko)'
+        ' Chrome/42.0.2311.135 Safari/537.36 Edge/12.10136',
+    firefox40='Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0)'
+        ' Gecko/20100101 Firefox/40.1',
     ie6='Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)',
-    moz17='Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7) Gecko/20040616',
+    ie7='Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)',
+    ie8='Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.0; Trident/4.0)',
+    ie9='Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.0; Trident/5.0)',
+    ie10='Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)',
+    ie11='Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko',
+    iemobile9='Mozilla/5.0 (compatible; MSIE 9.0; Windows Phone OS 7.5;'
+        ' Trident/5.0; IEMobile/9.0)',
     opera7='Opera/7.0 (Windows NT 5.1; U) [en]',
-    konq32='Mozilla/5.0 (compatible; Konqueror/3.2.3; Linux 2.4.14; X11; i686)',
-    saf11='Mozilla/5.0 (Macintosh; U; PPC Mac OS X; en-us) AppleWebKit/100 (KHTML, like Gecko) Safari/100',
-    aol9='Mozilla/4.0 (compatible; MSIE 5.5; AOL 9.0; Windows NT 5.1)', )
+    opera8='Opera/8.00 (Windows NT 5.1; U; en)',
+    opera9='Opera/9.00 (Windows NT 5.2; U; en)',
+    opera10='Opera/9.80 (Windows NT 6.1; U; en) Presto/2.2.15 Version/10.00',
+    opera11='Opera/9.80 (Windows NT 6.1; U; en) Presto/2.7.62 Version/11.00',
+    opera12='Opera/12.0 (Windows NT 5.1; U; en) Presto/22.9.168 Version/12.00',
+    operamini7='Opera/9.80 (Android; Opera Mini/7.0.29952/28.2075; en)'
+        ' Presto/2.8.119 Version/11.10',
+    operamini9='Opera/9.80 (J2ME/MIDP; Opera Mini/9 (Compatible; MSIE:9.0;'
+        ' iPhone; BlackBerry9700; AppleWebKit/24.746; en)'
+        ' Presto/2.5.25 Version/10.54',
+    konqueror3='Mozilla/5.0 (compatible; Konqueror/3.0; Linux)',
+    konqueror4='Mozilla/5.0 (compatible; Konqueror/4.0; Linux)'
+        ' KHTML/4.0.3 (like Gecko)',
+    safari1='Mozilla/5.0 (Macintosh; PPC Mac OS X; en)'
+        ' AppleWebKit/85.7 (KHTML, like Gecko) Safari/85.6',
+    safari2='Mozilla/5.0 (Macintosh; PPC Mac OS; en)'
+        ' AppleWebKit/412 (KHTML, like Gecko) Safari/412',
+    safari3='Mozilla/5.0 (Macintosh; Intel Mac OS X; en)'
+        ' AppleWebKit/522.7 (KHTML, like Gecko) Version/3.0 Safari/522.7',
+    safari4='Mozilla/5.0 (Macintosh; U; PPC Mac OS X 10_5_6; en)'
+        ' AppleWebKit/530.9+ (KHTML, like Gecko) Version/4.0 Safari/528.16',
+    safari5='Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en)'
+        ' AppleWebKit/534.1+ (KHTML, like Gecko) Version/5.0 Safari/533.16',
+    safari6='Mozilla/5.0 (iPad; CPU OS 6_0 like Mac OS X) AppleWebKit/536'
+        '.26 (KHTML, like Gecko) Version/6.0 Mobile/10A5355d Safari/8536.25',
+    safari7='Mozilla/5.0 (iPad; CPU OS 7_1_2 like Mac OS X) AppleWebKit/537'
+        '.51.2 (KHTML, like Gecko) Version/7.0 Mobile/11D257 Safari/9537.53',
+)
 
 
 def agent(what):

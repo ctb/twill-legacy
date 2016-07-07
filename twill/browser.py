@@ -19,9 +19,6 @@ class TwillBrowser(object):
     """A simple, stateful browser"""
 
     def __init__(self):
-        self.reset()
-
-    def reset(self):
         # create special link/forms parsing code to run tidy on HTML first.
         self.result = None
         self.last_submit_button = None
@@ -42,12 +39,18 @@ class TwillBrowser(object):
 
         self._history = []
 
+    def reset(self):
+        """Reset the browser"""
+        self.__init__()
+
     @property
     def creds(self):
+        """Get the credentials for basic authentication."""
         return self._auth
 
     @creds.setter
     def creds(self, creds):
+        """Set the credentials for basic authentication."""
         self._auth[creds[0]] = requests.auth.HTTPBasicAuth(*creds[1])
 
     def go(self, url):
