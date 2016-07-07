@@ -87,8 +87,8 @@ def code(should_be):
     """
     should_be = int(should_be)
     if browser.code != should_be:
-        raise TwillAssertionError
-        "code is %s != %s" % (browser.code, should_be)
+        raise TwillAssertionError(
+            "code is %s != %s" % (browser.code, should_be))
 
 
 def tidy_ok():
@@ -599,20 +599,14 @@ def add_auth(realm, uri, user, passwd):
     """>> add_auth <realm> <uri> <user> <passwd>
 
     Add HTTP Basic Authentication information for the given realm/uri.
-
-    Note: realms are not currently supported; <realm> is ignored.
     """
-    # swap around the type of HTTPPasswordMgr and
-    # HTTPPasswordMgrWithDefaultRealm depending on
-    # if with_default_realm is on or not.
-    if options['with_default_realm']:
-        realm = None
-
-    # @BRT: Browser does not currently support realm; just add by URI for now
-    browser.creds = (uri, (user, passwd))
+    browser.creds = ((uri, realm), (user, passwd))
 
     log.info(
         "Added auth info: realm '%s' / URI '%s' / user '%s'", realm, uri, user)
+
+    if options['with_default_realm']:
+        browser.creds = (uri, (user, passwd))
 
 
 def debug(what, level):
