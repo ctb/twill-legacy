@@ -23,6 +23,9 @@ class TwillBrowser(object):
         self.result = None
         self.last_submit_button = None
 
+        # whether the SSL cert will be verified, or can be a ca bundle path
+        self.verify = False
+
         # Session stores cookies
         self._session = requests.Session()
 
@@ -424,7 +427,7 @@ class TwillBrowser(object):
     _re_basic_auth = re.compile('Basic realm="(.*)"', re.I)
 
     def _journey(self, func_name, *args, **kwargs):
-        """Execute the funtion with the given name and arguments.
+        """Execute the function with the given name and arguments.
 
         The name should be one of 'open', 'reload', 'back', or 'follow_link'.
         This method then runs that function with the given arguments and turns
@@ -454,7 +457,7 @@ class TwillBrowser(object):
             except IndexError:
                 raise TwillException
 
-        r = self._session.get(url)
+        r = self._session.get(url, verify=self.verify)
         if r.status_code == 401:
             header = r.headers.get('WWW-Authenticate')
             realm = self._re_basic_auth.match(header)
@@ -462,7 +465,7 @@ class TwillBrowser(object):
                 realm = realm.group(1)
                 auth = self._auth.get((url, realm)) or self._auth.get(url)
                 if auth:
-                    r = self._session.get(url, auth=auth)
+                    r = self._session.get(url, auth=auth, verify=self.verify)
 
         if _follow_equiv_refresh():
             r = self._follow_redirections(r, self._session)
