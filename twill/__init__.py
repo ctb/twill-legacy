@@ -16,7 +16,7 @@ import logging
 import sys
 import os.path
 
-__version__ = "1.8.0"
+__version__ = '2.0.dev'
 
 __all__ = [
     "TwillCommandLoop",

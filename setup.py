@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import os
+import re
 import sys
 
 from setuptools import setup
@@ -23,22 +25,25 @@ class PyTest(TestCommand):
         errno = pytest.main(self.pytest_args)
         sys.exit(errno)
 
+with open(os.path.join(os.path.dirname(__file__),
+                       'twill', '__init__.py')) as initfile:
+    VERSION = re.compile(r".*__version__ = '(.*?)'",
+                         re.S).match(initfile.read()).group(1)
 
 setup(
     name='twill',
-    version='2.0',
+    version=VERSION,
     download_url='https://pypi.python.org/pypi/twill',
-      
+
     description='twill Web browsing language',
     author='C. Titus Brown and Ben R. Taylor',
     author_email='titus@idyll.org',
     license='MIT',
 
-    packages=[
-        'twill', 'twill.extensions', 'twill.extensions.match_parse'],
+    packages=['twill', 'twill.extensions'],
 
     # allow both
-    entry_points=dict(console_scripts=['twill-sh = twill.shell:main'],),
+    entry_points=dict(console_scripts=['twill-sh=twill.shell:main']),
     scripts=['twill-fork'],
 
     maintainer='C. Titus Brown',

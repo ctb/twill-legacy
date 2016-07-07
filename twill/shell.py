@@ -32,7 +32,7 @@ def make_cmd_fn(cmd):
     function name.  (This is where the twill.commands functions actually
     get executed.)
     """
-    
+
     def do_cmd(rest_of_line, cmd=cmd):
         global_dict, local_dict = namespaces.get_twill_glocals()
 
@@ -76,7 +76,7 @@ def make_help_cmd(cmd, docstring):
         print()
         print('=' * width)
         print()
-        
+
     return help_cmd
 
 
@@ -123,11 +123,11 @@ class TwillCommandLoop(Singleton, Cmd):
         # handle initial URL argument
         if initial_url:
             commands.go(initial_url)
-            
+
         self._set_prompt()
 
         self.names = []
-        
+
         global_dict, local_dict = namespaces.get_twill_glocals()
 
         # add all of the commands from twill
@@ -282,7 +282,7 @@ interactive = False  # 'True' if interacting with user
 
 def main():
     global twillargs, interactive
-    
+
     # make sure that the current working directory is in the path.
     if '.' not in sys.path:
         sys.path.append('.')
@@ -379,7 +379,7 @@ def main():
             failed = True
 
     if not args or options.interact:
-        welcome_msg = "" if args else "\n -= Welcome to twill! =-\n"
+        welcome_msg = "" if args else "\n -= Welcome to twill =-\n"
 
         interactive = True
         shell = TwillCommandLoop(initial_url=options.url)
