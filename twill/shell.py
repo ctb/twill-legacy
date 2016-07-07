@@ -294,21 +294,23 @@ def main():
     parser = OptionParser()
     add = parser.add_option
 
-    add('-q', '--quiet', action="store_true", dest="quiet",
+    add('-q', '--quiet', action='store_true', dest='quiet',
         help='do not show normal output')
-    add('-i', '--interactive', action="store_true", dest="interact",
+    add('-i', '--interactive', action='store_true', dest='interact',
         help='drop into an interactive shell (after running files)')
-    add('-f', '--fail', action="store_true", dest="fail",
+    add('-f', '--fail', action='store_true', dest='fail',
         help='fail exit on first file to fail')
-    add('-n', '--never-fail', action="store_true", dest="never_fail",
+    add('-d', '--dump-html', action='store', dest='dumpfile',
+        help="dump HTML to this file on error")
+    add('-n', '--never-fail', action='store_true', dest='never_fail',
         help='continue executing scripts past errors')
-    add('-v', '--version', action="store_true", dest="show_version",
+    add('-v', '--version', action='store_true', dest='show_version',
         help='show version information and exit')
-    add('-u', '--url', nargs=1, action="store", dest="url",
-        help="start at the given URL before each script")
-    add('-l', '--loglevel', nargs=1, action="store", dest="loglevel",
-        help="set the logging level")
-    add('-o', '--output', nargs=1, action="store", dest="outfile",
+    add('-u', '--url', nargs=1, action='store', dest='url',
+        help='start at the given URL before each script')
+    add('-l', '--loglevel', nargs=1, action='store', dest='loglevel',
+        help='set the logging level')
+    add('-o', '--output', nargs=1, action='store', dest='outfile',
         help="print log to output file or 'none'")
 
     # parse arguments
@@ -326,18 +328,24 @@ def main():
         print('twill version %s.' % (__version__,))
         sys.exit(0)
 
-    if options.loglevel:
-        if options.loglevel not in loglevels:
+    loglevel = options.loglevel
+    if loglevel:
+        loglevel = loglevel.lstrip('=').lstrip().upper() or None
+    if loglevel:
+        if loglevel not in loglevels:
             sys.exit(
                 "valid log levels are %s" % ', '.join(sorted(loglevels)))
-        set_loglevel(options.loglevel)
+        set_loglevel(loglevel)
 
-    outfile = None
-
-    if options.outfile:
+    outfile = options.outfile
+    if outfile:
+        outfile = outfile.lstrip('=').lstrip() or None
+        if outfile == '-':
+            outfile = None
+    if outfile:
         try:
-            path = os.devnull if options.outfile == 'none' else options.outfile
-            outfile = open(path, 'w')
+            outfile = os.devnull if outfile == 'none' else outfile
+            outfile = open(outfile, 'w')
         except IOError as e:
             sys.exit("Invalid output file '%s': %s", options.outfile, e)
 
@@ -359,6 +367,8 @@ def main():
         failure = []
 
         filenames = gather_filenames(args)
+        dump = None
+        dumpfile = options.dumpfile
 
         for filename in filenames:
             log.info('>> EXECUTING FILE %s', filename)
@@ -368,6 +378,8 @@ def main():
                              never_fail=options.never_fail)
                 success.append(filename)
             except Exception as e:
+                if dumpfile:
+                    dump = browser.html
                 if options.fail:
                     raise
                 else:
@@ -376,6 +388,16 @@ def main():
                     failure.append(filename)
 
         log.info('--')
+        if dump:
+            if dumpfile == '-':
+                log.info('HTML when error was encountered:\n\n%s\n--',
+                         dump.strip())
+            else:
+                if isinstance(dump, unicode):
+                    dump = dump.encode('utf-8')
+                open(dumpfile, 'w').write(dump)
+                log.info('HTML has been dumped to %s\n', dumpfile)
+
         log.info('%d of %d files SUCCEEDED.',
                  len(success), len(success) + len(failure))
         if len(failure):
