@@ -283,6 +283,10 @@ interactive = False  # 'True' if interacting with user
 def main():
     global twillargs, interactive
 
+    # show the shorthand name for usage
+    if sys.argv[0].endswith('-script.py'):
+        sys.argv[0] = sys.argv[0].rsplit('-', 1)[0]
+
     # make sure that the current working directory is in the path.
     if '.' not in sys.path:
         sys.path.append('.')
@@ -293,7 +297,7 @@ def main():
     add('-q', '--quiet', action="store_true", dest="quiet",
         help='do not show normal output')
     add('-i', '--interactive', action="store_true", dest="interact",
-        help='drop into an interactive shell after running files (if any)')
+        help='drop into an interactive shell (after running files)')
     add('-f', '--fail', action="store_true", dest="fail",
         help='fail exit on first file to fail')
     add('-n', '--never-fail', action="store_true", dest="never_fail",
@@ -303,9 +307,9 @@ def main():
     add('-u', '--url', nargs=1, action="store", dest="url",
         help="start at the given URL before each script")
     add('-l', '--loglevel', nargs=1, action="store", dest="loglevel",
-        help="set the log level")
+        help="set the logging level")
     add('-o', '--output', nargs=1, action="store", dest="outfile",
-        help="print log to outfile, or discards output if set to 'none'")
+        help="print log to output file or 'none'")
 
     # parse arguments
     sysargs = sys.argv[1:]
