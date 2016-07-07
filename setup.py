@@ -43,7 +43,7 @@ setup(
     packages=['twill', 'twill.extensions'],
 
     # allow both
-    entry_points=dict(console_scripts=['twill-sh=twill.shell:main']),
+    entry_points=dict(console_scripts=['twill=twill.shell:main']),
     scripts=['twill-fork'],
 
     maintainer='C. Titus Brown',
