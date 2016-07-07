@@ -7,11 +7,11 @@ This is an implementation of a command-line interpreter based on the
 
 from __future__ import print_function
 
-import cmd
 import os
 import sys
 import traceback
 
+from cmd import Cmd
 from optparse import OptionParser
 
 try:
@@ -22,7 +22,7 @@ except ImportError:
 from . import (
     browser, commands, execute_file, log, loglevels, set_loglevel, set_output,
     namespaces, parse, __version__)
-from .utils import gather_filenames
+from .utils import gather_filenames, Singleton
 
 
 def make_cmd_fn(cmd):
@@ -80,30 +80,11 @@ def make_help_cmd(cmd, docstring):
     return help_cmd
 
 
-class Singleton(object):
-    """A mixin class to create singleton objects."""
-
-    def __new__(cls, *args, **kwds):
-        it = cls.__dict__.get('__it__')
-        if it is not None:
-            return it
-        cls.__it__ = it = object.__new__(cls)
-        it.init(*args, **kwds)
-        return it
-    
-    def init(self, *args, **kwds):
-        pass
-
-    @classmethod
-    def reset(cls):
-        cls.__it__ = None
-
-
 def add_command(cmd, docstring):
     """Add a command with given docstring to the shell."""
-    command_shell = get_command_shell()
-    if command_shell:
-        command_shell.add_command(cmd, docstring)
+    shell = get_command_shell()
+    if shell:
+        shell.add_command(cmd, docstring)
 
 
 def get_command_shell():
@@ -111,7 +92,7 @@ def get_command_shell():
     return getattr(TwillCommandLoop, '__it__', None)
 
 
-class TwillCommandLoop(Singleton, cmd.Cmd):
+class TwillCommandLoop(Singleton, Cmd):
     """The command-line interpreter for twill commands.
 
     This is a Singleton object: you can't create more than one
@@ -121,12 +102,10 @@ class TwillCommandLoop(Singleton, cmd.Cmd):
     by the metaclass.
     """
 
-    def init(self, **kw):
-        if 'stdin' in kw:
-            cmd.Cmd.__init__(self, None, stdin=kw['stdin'])
-            self.use_rawinput = False
-        else:
-            cmd.Cmd.__init__(self)
+    def init(self, stdin=None, initial_url=None, fail_on_unknown=False):
+        Cmd.__init__(self, stdin=stdin)
+
+        self.use_rawinput = stdin is None
 
         # initialize a new local namespace.
         namespaces.new_local_dict()
@@ -139,12 +118,11 @@ class TwillCommandLoop(Singleton, cmd.Cmd):
                 pass
 
         # fail on unknown commands? for test-shell, primarily.
-        self.fail_on_unknown = kw.get('fail_on_unknown', False)
+        self.fail_on_unknown = fail_on_unknown
 
         # handle initial URL argument
-        url = kw.get('initial_url')
-        if url:
-            commands.go(url)
+        if initial_url:
+            commands.go(initial_url)
             
         self._set_prompt()
 

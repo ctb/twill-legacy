@@ -21,6 +21,25 @@ from . import log
 from errors import TwillException
 
 
+class Singleton(object):
+    """A mixin class to create singleton objects."""
+
+    def __new__(cls, *args, **kwds):
+        it = cls.__dict__.get('__it__')
+        if it is not None:
+            return it
+        cls.__it__ = it = object.__new__(cls)
+        it.init(*args, **kwds)
+        return it
+
+    def init(self, *args, **kwds):
+        pass
+
+    @classmethod
+    def reset(cls):
+        cls.__it__ = None
+
+
 class ResultWrapper(object):
     """Deal with request results, and present them in a unified form.
 
