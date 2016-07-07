@@ -361,7 +361,7 @@ def main():
         filenames = gather_filenames(args)
 
         for filename in filenames:
-            log.info('>> EXECUTING FILE', filename)
+            log.info('>> EXECUTING FILE %s', filename)
             try:
                 interactive = False
                 execute_file(filename, initial_url=options.url,
