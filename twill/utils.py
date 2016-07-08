@@ -8,6 +8,8 @@ code is implemented in the ConfigurableParsingFactory class.
 import os
 import re
 
+from collections import namedtuple
+
 from lxml import etree, html, cssselect
 
 try:
@@ -19,6 +21,9 @@ except (ImportError, OSError):
 
 from . import log
 from errors import TwillException
+
+
+Link = namedtuple('Link', 'text, url')
 
 
 class Singleton(object):
@@ -84,16 +89,15 @@ class ResultWrapper(object):
     @property
     def links(self):
         selector = cssselect.CSSSelector('a')
-        return [(inner_tostring(a), a.get('href'))
+        return [Link(inner_tostring(a), a.get('href'))
                 for a in selector(self.lxml)]
 
     def find_link(self, pattern):
-        links = self.links
-        search = re.search
-        for link in links:
-            if search(pattern, link[0]) or search(pattern, link[1]):
-                return link[1]
-        return ''
+        regex = re.compile(pattern)
+        for link in self.links:
+            if regex.search(link.text) or regex.search(link.url):
+                return link
+        return None
 
     def form(self, formname=1):
         forms = self.forms
@@ -126,15 +130,18 @@ class ResultWrapper(object):
 
 def inner_tostring(element):
     """Serialize all the inner text and sub elements of the given element."""
-    return '%s%s' % (
-        element.text, ''.join(map(etree.tostring, element.getchildren())))
+    text = element.text or ''
+    children = element.getchildren()
+    if children:
+        text += ''.join(map(etree.tostring, children))
+    return text.strip()
 
 
 def trunc(s, length):
     """Truncate a string to a given length.
 
-     The string is truncated by cutting off the last (length-4) characters
-     and replacing them with ' ...'
+    The string is truncated by cutting off the last (length-4) characters
+    and replacing them with ' ...'
     """
     if s and len(s) > length:
         return s[:length - 4] + ' ...'
@@ -222,7 +229,7 @@ def set_form_control_value(control, value):
 
         elif control.type not in ('submit', 'image'):
             control.value = value
-            
+
     elif isinstance(control, html.CheckboxGroup):
         if value.startswith('-'):
             value = value[1:]
@@ -330,9 +337,51 @@ def run_tidy(html):
             raise TwillException(
                 'Option require_tidy is set, but PyTidyLib is not installed')
         return None, None
-    
+
     clean_html, errors = tidylib.tidy_document(html)
     return clean_html, errors
+
+
+def _follow_equiv_refresh():
+    """Check if the browser shall ask whether to follow meta redirects."""
+    from .commands import options
+    return options.get('acknowledge_equiv_refresh')
+
+
+def is_twill_filename(filename):
+    """Check if the given filename has the twill file extension."""
+    return filename.endswith(twill_ext)
+
+
+def make_twill_filename(name):
+    """Add the twill extension to the name of a script if necessary."""
+    twillname, ext = os.path.splitext(name)
+    if not ext:
+        twillname += twill_ext
+        if os.path.exists(twillname):
+            name = twillname
+    return name
+
+
+def gather_filenames(arglist):
+    """Collect script files from within directories."""
+    names = []
+    for arg in arglist:
+        name = make_twill_filename(arg)
+        if os.path.isdir(name):
+            walknames = []
+            for dirpath, dirnames, filenames in os.walk(arg):
+                if dirpath.startswith('.'):
+                    continue
+                for filename in filenames:
+                    if not is_twill_filename(filename):
+                        continue
+                    filename = os.path.join(dirpath, filename)
+                    walknames.append(filename)
+            names.extend(sorted(walknames))
+        else:
+            names.append(name)
+    return names
 
 
 def _is_valid_filename(f):

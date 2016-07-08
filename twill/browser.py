@@ -12,7 +12,7 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 from . import log
 from .utils import (
-    print_form, unique_match, ResultWrapper, _follow_equiv_refresh)
+    print_form, trunc, unique_match, ResultWrapper, _follow_equiv_refresh)
 from .errors import TwillException
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -125,9 +125,7 @@ class TwillBrowser(object):
 
         The pattern is searched in the URL, link text, or name.
         """
-        if self.result is not None:
-            return self.result.find_link(pattern)
-        return ''
+        return self.result.find_link(pattern) if self.result else None
 
     def follow_link(self, link):
         """Follow the given link."""
@@ -168,7 +166,7 @@ class TwillBrowser(object):
         if links:
             info('\nLinks (%d links total):\n', len(links))
             for n, link in enumerate(links):
-                info('\t%d. %s ==> %s', n + 1, link[0], link[1])
+                info('\t%d. %s ==> %s', n + 1, trunc(link.text, 40), link.url)
             info('')
         else:
             info('\n** no links **\n')
@@ -447,7 +445,7 @@ class TwillBrowser(object):
 
         elif func_name == 'follow_link':
             # Try to find the link first
-            url = self.find_link(args[0])
+            url = args[0].url
             if '://' not in url:
                 url = urljoin(self.url, url)
 
@@ -474,7 +472,7 @@ class TwillBrowser(object):
         if _follow_equiv_refresh():
             r = self._follow_redirections(r, self._session)
 
-        if func_name in ['follow_link', 'open']:
+        if func_name in ('follow_link', 'open'):
             # If we're really reloading and just didn't say so, don't store
             if self.result is not None and self.result.url != r.url:
                 self._history.append(self.result)
