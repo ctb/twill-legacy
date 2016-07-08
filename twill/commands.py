@@ -435,18 +435,14 @@ def formvalue(formname, fieldname, value):
     control = browser.form_field(form, fieldname)
 
     browser.clicked(form, control)
-    if isinstance(control, html.CheckboxGroup):
-        pass
 
-    elif 'readonly' in control.attrib and options[
-            'readonly_controls_writeable']:
-        log.info('forcing read-only form field to writeable')
-        del control.attrib['readonly']
-
-    elif 'readonly' in control.attrib or (
-                hasattr(control, 'type') and control.type == 'file'):
-        log.info('form field is read-only or ignorable; nothing done.')
-        return
+    if 'readonly' in control.attrib:
+        if options['readonly_controls_writeable']:
+            log.info('forcing read-only form field to writeable')
+            del control.attrib['readonly']
+        else:
+            log.info('form field is read-only or ignorable; nothing done.')
+            return
 
     if hasattr(control, 'type') and control.type == 'file':
         raise TwillException(
