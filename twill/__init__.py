@@ -19,9 +19,9 @@ import os.path
 __version__ = '2.0.dev'
 
 __all__ = [
-    "TwillCommandLoop",
-    "browser", "execute_file", "execute_string",
-    "set_loglevel", "set_output", "set_errout"]
+    'browser', 'execute_file', 'execute_string',
+    'set_loglevel', 'set_output', 'set_errout',
+    'twill_ext', 'TwillCommandLoop']
 
 
 this_dir = os.path.dirname(__file__)
@@ -29,6 +29,8 @@ this_dir = os.path.dirname(__file__)
 # This means that user extensions will take priority over twill extensions.
 extensions = os.path.join(this_dir, 'extensions')
 sys.path.append(extensions)
+
+twill_ext = '.twill'  # file extension for twill scripts
 
 
 loglevels = dict(

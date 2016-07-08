@@ -6,12 +6,13 @@ import re
 import sys
 
 from cStringIO import StringIO
+from os.path import splitext
 
 from pyparsing import (
     alphas, alphanums, CharsNotIn, Combine, Group, Literal, Optional,
     ParseException, printables, removeQuotes, restOfLine, Word, ZeroOrMore)
 
-from . import browser, commands, log, namespaces
+from . import browser, commands, log, namespaces, twill_ext
 from .errors import TwillAssertionError, TwillNameError
 
 # pyparsing stuff
@@ -158,7 +159,13 @@ def execute_string(buf, **kw):
 def execute_file(filename, **kw):
     """Execute commands from a file."""
     # read the input lines
-    inp = sys.stdin if filename == "-" else open(filename)
+    if filename == '-':
+        inp = sys.stdin
+    else:
+        name, ext = splitext(filename)
+        if not ext:
+            filename = name + twill_ext
+        inp = open(filename)
 
     kw['source'] = filename
 
