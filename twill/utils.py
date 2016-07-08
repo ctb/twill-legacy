@@ -19,7 +19,7 @@ except (ImportError, OSError):
     # OSError can be raised when the HTML Tidy shared library is not installed
     tidylib = None
 
-from . import log
+from . import log, twill_ext
 from errors import TwillException
 
 
@@ -348,18 +348,25 @@ def _follow_equiv_refresh():
     return options.get('acknowledge_equiv_refresh')
 
 
+def is_hidden_filename(filename):
+    """Check if this is a hidden file (starting with a dot)."""
+    return filename not in (
+        '.', '..') and os.path.basename(filename).startswith('.')
+
+
 def is_twill_filename(filename):
     """Check if the given filename has the twill file extension."""
-    return filename.endswith(twill_ext)
+    return filename.endswith(twill_ext) and not is_hidden_filename(filename)
 
 
 def make_twill_filename(name):
     """Add the twill extension to the name of a script if necessary."""
-    twillname, ext = os.path.splitext(name)
-    if not ext:
-        twillname += twill_ext
-        if os.path.exists(twillname):
-            name = twillname
+    if name not in ('.', '..'):
+        twillname, ext = os.path.splitext(name)
+        if not ext:
+            twillname += twill_ext
+            if os.path.exists(twillname):
+                name = twillname
     return name
 
 
@@ -369,46 +376,14 @@ def gather_filenames(arglist):
     for arg in arglist:
         name = make_twill_filename(arg)
         if os.path.isdir(name):
-            walknames = []
             for dirpath, dirnames, filenames in os.walk(arg):
-                if dirpath.startswith('.'):
-                    continue
+                dirnames[:] = [
+                    d for d in dirnames if not is_hidden_filename(d)]
                 for filename in filenames:
                     if not is_twill_filename(filename):
                         continue
                     filename = os.path.join(dirpath, filename)
-                    walknames.append(filename)
-            names.extend(sorted(walknames))
+                    names.append(filename)
         else:
             names.append(name)
-    return names
-
-
-def _is_valid_filename(f):
-    """Check if the given filename is valid (not a backup file)."""
-    return not f.endswith(('~', '.bak', '.old'))
-
-
-def _follow_equiv_refresh():
-    """Check if the browser shall ask whether to follow meta redirects."""
-    from .commands import options
-    return options.get('acknowledge_equiv_refresh')
-
-
-def gather_filenames(arglist):
-    """Collect script files from within directories."""
-    names = []
-    for arg in arglist:
-        if os.path.isdir(arg):
-            s = []
-            for dirpath, dirnames, filenames in os.walk(arg):
-                if dirpath in ('.git', '.hg', '.svn'):
-                    continue
-                for f in filenames:
-                    if _is_valid_filename(f):
-                        f = os.path.join(dirpath, f)
-                        s.append(f)
-            names.extend(sorted(s))
-        else:
-            names.append(arg)
     return names

@@ -653,14 +653,15 @@ def run(cmd):
     exec (cmd, global_dict, local_dict)
 
 
-def runfile(*files):
+def runfile(*args):
     """>> runfile <file1> [<file2> ...]
 
     """
     from . import parse
 
-    for f in files:
-        parse.execute_file(f, no_reset=True)
+    filenames = utils.gather_filenames(args)
+    for filename in filenames:
+        parse.execute_file(filename, no_reset=True)
 
 
 def setglobal(name, value):

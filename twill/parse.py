@@ -1,18 +1,15 @@
-"""
-Code parsing and evaluation for the twill mini-language.
-"""
+"""Code parsing and evaluation for the twill mini-language."""
 
 import re
 import sys
 
 from cStringIO import StringIO
-from os.path import splitext
 
 from pyparsing import (
     alphas, alphanums, CharsNotIn, Combine, Group, Literal, Optional,
     ParseException, printables, removeQuotes, restOfLine, Word, ZeroOrMore)
 
-from . import browser, commands, log, namespaces, twill_ext
+from . import browser, commands, log, namespaces
 from .errors import TwillAssertionError, TwillNameError
 
 # pyparsing stuff
@@ -80,12 +77,12 @@ def process_args(args, globals_dict, locals_dict):
                 val = arg
 
             log.info('VAL IS %s FOR %s', val, arg)
-            
+
             if isinstance(val, basestring):
                 newargs.append(val)
             else:
                 newargs.extend(val)
-                
+
         # $variable substitution
         elif arg.startswith('$') and not arg.startswith('${'):
             try:
@@ -121,7 +118,7 @@ def execute_command(cmd, args, globals_dict, locals_dict, cmdinfo):
 
     # eval the codeobj in the appropriate dictionary
     result = eval(codeobj, globals_dict, locals_dict)
-    
+
     # set __url__
     locals_dict['__url__'] = browser.url
 
@@ -148,26 +145,22 @@ def parse_command(line, globals_dict, locals_dict):
 def execute_string(buf, **kw):
     """Execute commands from a string buffer."""
     fp = StringIO(buf)
-    
+
     kw['source'] = ['<string buffer>']
     if 'no_reset' not in kw:
         kw['no_reset'] = True
-    
+
     _execute_script(fp, **kw)
 
 
 def execute_file(filename, **kw):
     """Execute commands from a file."""
     # read the input lines
-    if filename == '-':
-        inp = sys.stdin
-    else:
-        name, ext = splitext(filename)
-        if not ext:
-            filename = name + twill_ext
-        inp = open(filename)
+    inp = sys.stdin if filename == '-' else open(filename)
 
     kw['source'] = filename
+
+    log.info('\n>> Running twill file %s', filename)
 
     _execute_script(inp, **kw)
 
@@ -177,7 +170,7 @@ def _execute_script(inp, **kw):
     # initialize new local dictionary and get global and current local
     namespaces.new_local_dict()
     globals_dict, locals_dict = namespaces.get_twill_glocals()
-    
+
     locals_dict['__url__'] = browser.url
 
     # reset browser
@@ -197,7 +190,7 @@ def _execute_script(inp, **kw):
 
     # sourceinfo stuff
     sourceinfo = kw.get('source', "<input>")
-    
+
     try:
 
         for n, line in enumerate(inp):
@@ -242,7 +235,7 @@ def log_commands(flag):
     old_flag = _log_commands is log.info
     _log_commands = log.info if flag else log.debug
     return old_flag
-        
+
 
 _re_variable = re.compile("\${(.*?)}")
 

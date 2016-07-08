@@ -52,6 +52,7 @@ def make_cmd_fn(cmd):
             raise
         except Exception as e:
             log.error('\nERROR: %s\n', e)
+            log.debug(traceback.format_exc())
 
     return do_cmd
 
@@ -371,7 +372,6 @@ def main():
         dumpfile = options.dumpfile
 
         for filename in filenames:
-            log.info('>> EXECUTING FILE %s', filename)
             try:
                 interactive = False
                 execute_file(filename, initial_url=options.url,
