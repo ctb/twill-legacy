@@ -22,9 +22,9 @@ def showvar(which):
 
 
 def split(what):
-    """>> split <regexp>
+    """>> split <regex>
 
-    Sets __matchlist__ to re.split(regexp, page).
+    Sets __matchlist__ to re.split(regex, page).
     """
     page = browser.html
 
@@ -35,14 +35,14 @@ def split(what):
 
 
 def findall(what):
-    """>> findall <regexp>
+    """>> findall <regex>
 
-    Sets __matchlist__ to re.findall(regexp, page).
+    Sets __matchlist__ to re.findall(regex, page).
     """
     page = browser.html
 
-    regexp = re.compile(what, re.DOTALL)
-    m = regexp.findall(page)
+    regex = re.compile(what, re.DOTALL)
+    m = regex.findall(page)
 
     global_dict, local_dict = get_twill_glocals()
     local_dict['__matchlist__'] = m

@@ -21,7 +21,7 @@ A simple link checker is included with twill.  To use it, do ::
 the HTTP status code is 200 (success).  A list of failing links will be
 printed out at the end of the function.
 
-The 'check_links' function takes an optional argument, a regexp to filter
+The 'check_links' function takes an optional argument, a regex to filter
 for links that should be checked.  By default the filter matches everything;
 if you only wanted to check links on e.g. idyll.org, you could do ::
 
@@ -37,8 +37,8 @@ A few notes:
     can set up twill with all of the permissions necessary to visit restricted
     links & only then run check_links.
 
-match_parse -- extensions for slicing and dicing variables with regexps
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+match_parse -- extension for regular expressions with multiple matches
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The 'match_parse' extension module contains a number of functions for
 dealing with multiple matches, etc.  Here's some example code: ::
@@ -196,7 +196,7 @@ formfill provides three functions, 'fv_match', 'fv_multi', and
 'fv_multi_sub'.
 
 'fv_match' allows you to set many form fields all at once, based
-on regexp matching to the form field name, e.g. ::
+on regex matching to the form field name, e.g. ::
 
    fv_match <form> test-(\d+) 'hello world!'
 

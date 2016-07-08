@@ -113,17 +113,17 @@ def tidy_ok():
 
 
 def url(should_be):
-    """>> url <regexp>
+    """>> url <regex>
 
-    Check to make sure that the current URL matches the regexp.  The local
+    Check to make sure that the current URL matches the regex.  The local
     variable __match__ is set to the matching part of the URL.
     """
-    regexp = re.compile(should_be)
+    regex = re.compile(should_be)
     current_url = browser.url
 
     m = None
     if current_url is not None:
-        m = regexp.search(current_url)
+        m = regex.search(current_url)
     else:
         current_url = ''
 
@@ -140,12 +140,12 @@ does not match '%s'
 
 
 def follow(what):
-    """>> follow <regexp>
+    """>> follow <regex>
     
     Find the first matching link on the page & visit it.
     """
-    regexp = re.compile(what)
-    link = browser.find_link(regexp)
+    regex = re.compile(what)
+    link = browser.find_link(regex)
     if link:
         browser.follow_link(link)
         return browser.url
@@ -168,7 +168,7 @@ def _parse_find_flags(flags):
 
 
 def find(what, flags=''):
-    """>> find <regexp> [<flags>]
+    """>> find <regex> [<flags>]
     
     Succeed if the regular expression is on the page.  Sets the local
     variable __match__ to the matching text.
@@ -203,7 +203,7 @@ def find(what, flags=''):
 
 
 def notfind(what, flags=''):
-    """>> notfind <regexp> [<flags>]
+    """>> notfind <regex> [<flags>]
     
     Fail if the regular expression is on the page.
     """
@@ -413,12 +413,12 @@ def formvalue(formname, fieldname, value):
     for lists that allow it.
 
     Forms are matched against 'formname' as follows:
-      1. regexp match to actual form name;
+      1. regex match to actual form name;
       2. if 'formname' is an integer, it's tried as an index.
 
     Form controls are matched against 'fieldname' as follows:
       1. unique exact match to control name;
-      2. unique regexp match to control name;
+      2. unique regex match to control name;
       3. if fieldname is an integer, it's tried as an index;
       4. unique & exact match to submit-button values.
 
@@ -682,16 +682,16 @@ def setlocal(name, value):
 
 
 def title(what):
-    """>> title <regexp>
+    """>> title <regex>
     
     Succeed if the regular expression is in the page title.
     """
-    regexp = re.compile(what)
+    regex = re.compile(what)
     title = browser.title
 
     log.info("title is '%s'", title)
 
-    m = regexp.search(title)
+    m = regex.search(title)
     if not m:
         raise TwillAssertionError("title does not contain '%s'" % (what,))
 

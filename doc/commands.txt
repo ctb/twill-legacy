@@ -27,7 +27,7 @@ Assertions
 **code** *<code>* -- assert that the last page loaded had this HTTP status,
 e.g. ``code 200`` asserts that the page loaded fine.
 
-**find** *<regexp>* [*<flags>*] -- assert that the page contains this
+**find** *<regex>* [*<flags>*] -- assert that the page contains this
 regular expression. The variable ``__match__`` is set to the first matching
 subgroup (or the entire matching string, if no subgroups are specified).
 When called from Python, the matching string is returned. It also accepts
@@ -38,18 +38,18 @@ and **s** for dotall matching.
 matched by the XPath expression. The variable ``__match__`` is set to
 the first matching element's string representation.
 
-**notfind** *<regexp>* [*<flags>*] -- assert that the page *does not* contain
+**notfind** *<regex>* [*<flags>*] -- assert that the page *does not* contain
 this regular expression. It accepts the same flags of **find**.
 
 **notfind** *<xpath>* **x** -- assert that the page *does not* contain this
 element pointed by the XPath expression.
 
-**url** *<regexp>* -- assert that the current URL matches the given regexp.
+**url** *<regex>* -- assert that the current URL matches the given regex.
 The variable ``__match__`` is set to the first matching subgroup
 (or the entire matching string, if no subgroups are specified).
 When called from Python, the matching string is returned.
 
-**title** *<regexp>* -- assert that the title of this page matches this
+**title** *<regex>* -- assert that the title of this page matches this
 regular expression.  The variable ``__match__`` is set to the first matching
 subgroup (or the entire matching string, if no subgroups are specified).
 When called from Python, the matching string is returned.
@@ -230,7 +230,7 @@ Here is the pseudocode for how `formvalue` and `submit` figure out
 what form to use (function `twill.browser.form`)::
 
    for each form on page:
-       if supplied regexp pattern matches the form name, select
+       if supplied regex pattern matches the form name, select
    
    if no form name, try converting to an integer N & using N-1 as
    an index into the list or forms on the page (i.e. form 1 is the
@@ -245,7 +245,7 @@ what form field to use (function `twill.browser.form_field`)::
    if no match, convert fieldname into a number and use as an index, if
    possible.
 
-   if no match, search current form for control name with regexp match to
+   if no match, search current form for control name with regex match to
    fieldname; if single (unique) match, select.
 
    if *still* no match, look for exact matches to submit-button values.

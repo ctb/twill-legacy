@@ -23,7 +23,7 @@ def test(url):
     with raises(TwillAssertionError):
         commands.fv('2', 'submit', '1')
 
-    # test regexp match
+    # test regex match
     commands.fv('1', '.*you', '1')
 
     # test ambiguous match to value

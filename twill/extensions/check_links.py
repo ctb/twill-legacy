@@ -48,8 +48,8 @@ def check_links(pattern=''):
     
     debug('in check_links')
     
-    # compile the regexp
-    regexp = re.compile(pattern) if pattern else None
+    # compile the regex
+    regex = re.compile(pattern) if pattern else None
 
     # iterate over all links, collecting those that match
     #
@@ -71,12 +71,12 @@ def check_links(pattern=''):
             debug("url '%s' is not an HTTP link; ignoring", url)
             continue
 
-        if regexp:
-            if regexp.search(url):
+        if regex:
+            if regex.search(url):
                 collected_urls.add(url)
-                debug("Gathered URL %s -- matched regexp", url)
+                debug("Gathered URL %s -- matched pattern", url)
             else:
-                debug("URL %s doesn't match regexp", url)
+                debug("URL %s doesn't match pattern", url)
         else:
             collected_urls.add(url)
             debug("Gathered URL %s.", url)

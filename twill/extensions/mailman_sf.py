@@ -30,18 +30,18 @@ def discard_all_messages():
 
     Set all buttons to "discard".
     """
-    _formvalue_by_regexp_setall('1', '^\d+$', '3')
+    _formvalue_by_regex_setall('1', '^\d+$', '3')
 
 
-def _formvalue_by_regexp_setall(formname, fieldname, value):
+def _formvalue_by_regex_setall(formname, fieldname, value):
     form = browser.form(formname)
     if not form:
         log.error("no such form '%s'", formname)
         return
 
-    regexp = re.compile(fieldname)
+    regex = re.compile(fieldname)
 
-    matches = [ctl for ctl in form.controls if regexp.search(str(ctl.name))]
+    matches = [ctl for ctl in form.controls if regex.search(str(ctl.name))]
 
     if matches:
         log.info('-- matches %d', len(matches))
