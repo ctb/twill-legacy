@@ -444,9 +444,12 @@ class TwillBrowser(object):
             url = args[0]
 
         elif func_name == 'follow_link':
-            # Try to find the link first
-            url = args[0].url
-            if '://' not in url:
+            url = args[0]
+            try:
+                url = url.url
+            except AttributeError:
+                pass  # this is already a url
+            if '://' not in url and self.url:
                 url = urljoin(self.url, url)
 
         elif func_name == 'reload':
