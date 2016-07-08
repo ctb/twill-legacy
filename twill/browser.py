@@ -107,7 +107,12 @@ class TwillBrowser(object):
     @property
     def html(self):
         """Get the HTML for the current page."""
-        return self.result.page if self.result else None
+        return self.result.text if self.result else None
+
+    @property
+    def dump(self):
+        """Get the binary content of the current page."""
+        return self.result.content if self.result else None
 
     @property
     def title(self):

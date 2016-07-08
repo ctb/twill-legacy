@@ -295,24 +295,26 @@ def main():
     parser = OptionParser()
     add = parser.add_option
 
-    add('-q', '--quiet', action='store_true', dest='quiet',
-        help='do not show normal output')
-    add('-i', '--interactive', action='store_true', dest='interact',
-        help='drop into an interactive shell (after running files)')
-    add('-f', '--fail', action='store_true', dest='fail',
-        help='fail exit on first file to fail')
     add('-d', '--dump-html', action='store', dest='dumpfile',
         help="dump HTML to this file on error")
-    add('-n', '--never-fail', action='store_true', dest='never_fail',
-        help='continue executing scripts past errors')
-    add('-v', '--version', action='store_true', dest='show_version',
-        help='show version information and exit')
-    add('-u', '--url', nargs=1, action='store', dest='url',
-        help='start at the given URL before each script')
+    add('-f', '--fail', action='store_true', dest='fail',
+        help='fail exit on first file to fail')
+    add('-i', '--interactive', action='store_true', dest='interactive',
+        help='drop into an interactive shell (after running files)')
     add('-l', '--loglevel', nargs=1, action='store', dest='loglevel',
         help='set the logging level')
+    add('-n', '--never-fail', action='store_true', dest='never_fail',
+        help='continue executing scripts past errors')
     add('-o', '--output', nargs=1, action='store', dest='outfile',
-        help="print log to output file or 'none'")
+        help="print log to output file")
+    add('-q', '--quiet', action='store_true', dest='quiet',
+        help='do not show normal output')
+    add('-u', '--url', nargs=1, action='store', dest='url',
+        help='start at the given URL before each script')
+    add('-v', '--version', action='store_true', dest='show_version',
+        help='show version information and exit')
+    add('-w', '--show-error-in-browser', action='store_true',
+        dest='show_browser', help="show dumped HTML in a web browser ")
 
     # parse arguments
     sysargs = sys.argv[1:]
@@ -329,47 +331,50 @@ def main():
         print('twill version %s.' % (__version__,))
         sys.exit(0)
 
-    loglevel = options.loglevel
-    if loglevel:
-        loglevel = loglevel.lstrip('=').lstrip().upper() or None
-    if loglevel:
-        if loglevel not in loglevels:
-            sys.exit(
-                "valid log levels are %s" % ', '.join(sorted(loglevels)))
-        set_loglevel(loglevel)
-
+    quiet = options.quiet
+    show_browser = options.show_browser
+    dumpfile = options.dumpfile
     outfile = options.outfile
+    loglevel = options.loglevel
+    interactive = options.interactive or not args
+
     if outfile:
         outfile = outfile.lstrip('=').lstrip() or None
         if outfile == '-':
             outfile = None
+
+    if interactive and (quiet or outfile or dumpfile or webbrowser):
+            sys.exit("Interactive mode is incompatible with -q, -o, -d and -w")
+
+    if options.show_browser and (not dumpfile or dumpfile == '-'):
+        sys.exit("Please also specify a dump file with -d")
+
     if outfile:
         try:
-            outfile = os.devnull if outfile == 'none' else outfile
             outfile = open(outfile, 'w')
         except IOError as e:
             sys.exit("Invalid output file '%s': %s", options.outfile, e)
 
-    if options.quiet:
-        if options.interact or not args:
-            sys.exit("interactive mode is incompatible with -q")
+    if loglevel:
+        loglevel = loglevel.lstrip('=').lstrip().upper() or None
+        if loglevel not in loglevels:
+            sys.exit("Valid log levels are %s" % ', '.join(sorted(loglevels)))
+        set_loglevel(loglevel)
 
-        if outfile is None:
-            outfile = open(os.devnull, 'w')
+    if quiet:
+        outfile = open(os.devnull, 'w')
 
     set_output(outfile)
 
-    # If run from the command line, find & run any scripts put on the command
-    # line.  If none, drop into an interactive AutoShell.
+    # first find and run any scripts put on the command line
 
     failed = False
-    if len(args):
+    if args:
         success = []
         failure = []
 
         filenames = gather_filenames(args)
         dump = None
-        dumpfile = options.dumpfile
 
         for filename in filenames:
             try:
@@ -379,7 +384,7 @@ def main():
                 success.append(filename)
             except Exception as e:
                 if dumpfile:
-                    dump = browser.html
+                    dump = browser.dump
                 if options.fail:
                     raise
                 else:
@@ -393,10 +398,13 @@ def main():
                 log.info('HTML when error was encountered:\n\n%s\n--',
                          dump.strip())
             else:
-                if isinstance(dump, unicode):
-                    dump = dump.encode('utf-8')
-                open(dumpfile, 'w').write(dump)
-                log.info('HTML has been dumped to %s\n', dumpfile)
+                try:
+                    with open(dumpfile, 'wb') as f:
+                        f.write(dump)
+                except IOError as e:
+                    log.error('Could not dump to %s: %s\n', dumpfile, e)
+                else:
+                    log.info('HTML has been dumped to %s\n', dumpfile)
 
         log.info('%d of %d files SUCCEEDED.',
                  len(success), len(success) + len(failure))
@@ -404,10 +412,19 @@ def main():
             log.error('Failed:\n\t%s', '\n\t'.join(failure))
             failed = True
 
-    if not args or options.interact:
+        if dump and show_browser:
+            import webbrowser
+
+            url = 'file:///%s' % (
+                os.path.abspath(dumpfile).replace(os.sep, '/'),)
+            log.debug('Running web browser on %s', url)
+            webbrowser.open(url)
+
+    # if no scripts to run or -i is set, drop into an interactive shell
+
+    if options.interactive:
         welcome_msg = "" if args else "\n -= Welcome to twill =-\n"
 
-        interactive = True
         shell = TwillCommandLoop(initial_url=options.url)
 
         while True:

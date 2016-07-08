@@ -50,9 +50,9 @@ class ResultWrapper(object):
 
     These objects are returned by browser._journey()-wrapped functions.
     """
-    def __init__(self, req):
-        self.req = req
-        self.lxml = html.fromstring(self.req.text)
+    def __init__(self, response):
+        self.response = response
+        self.lxml = html.fromstring(self.text)
         orphans = self.lxml.xpath('//input[not(ancestor::form)]')
         if orphans:
             form = ['<form>']
@@ -67,32 +67,44 @@ class ResultWrapper(object):
 
     @property
     def url(self):
-        return self.req.url
+        """"Get the url of the result page."""
+        return self.response.url
 
     @property
     def http_code(self):
-        return self.req.status_code
+        """Get the http status code of the result page."""
+        return self.response.status_code
 
     @property
-    def page(self):
-        return self.req.text
+    def text(self):
+        """Get the text of the result page."""
+        return self.response.text
+
+    @property
+    def content(self):
+        """Get the binary content of the result page."""
+        return self.response.content
 
     @property
     def headers(self):
-        return self.req.headers
+        """Get the headers of the result page."""
+        return self.response.headers
 
     @property
     def title(self):
+        """Get the title of the result page."""
         selector = cssselect.CSSSelector('title')
         return selector(self.lxml)[0].text
 
     @property
     def links(self):
+        """Get all links in the result page."""
         selector = cssselect.CSSSelector('a')
         return [Link(inner_tostring(a), a.get('href'))
                 for a in selector(self.lxml)]
 
     def find_link(self, pattern):
+        """Find a link with a given pattern on the result page."""
         regex = re.compile(pattern)
         for link in self.links:
             if regex.search(link.text) or regex.search(link.url):
@@ -100,6 +112,7 @@ class ResultWrapper(object):
         return None
 
     def form(self, formname=1):
+        """Get the form with the given name on the result page"""
         forms = self.forms
 
         if not isinstance(formname, int):
