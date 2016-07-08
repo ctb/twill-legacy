@@ -308,8 +308,9 @@ class TwillBrowser(object):
                     "more than one form;"
                     " you must select one (use 'fv') before submitting")
 
-        if form.action is None:
-            form.action = self.url
+        action = form.action or ''
+        if '://' not in action:
+             form.action = urljoin(self.url, action)
 
         # no fieldname?  see if we can use the last submit button clicked...
         if fieldname is None:
