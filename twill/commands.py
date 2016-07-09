@@ -447,6 +447,7 @@ def formvalue(formname, fieldname, value):
         raise TwillException(
             'form field is for file upload; use "formfile" instead')
 
+    value = browser.decode(value)
     utils.set_form_control_value(control, value)
 
 

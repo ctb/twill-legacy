@@ -407,6 +407,12 @@ class TwillBrowser(object):
         else:
             log.info('\nThere are no cookies in the cookie jar.\n', n)
 
+    def decode(self, value):
+        """Decode a value using the current encoding."""
+        if isinstance(value, str) and self.encoding:
+            value = value.decode(self.encoding)
+        return value
+
     def _encode_payload(self, payload):
         """Encode a payload with the current encoding."""
         encoding = self.encoding
