@@ -18,6 +18,7 @@ def teardown_module():
 
 _app_was_hit = False
 
+
 def success():
     return _app_was_hit
 
@@ -84,7 +85,7 @@ def test_wrapper_intercept():
     data yielded from the initial app call.  See wsgi_intercept.py, section
     containing 'generator_data', for more info.
 
-    Thhis test had worked in all wsgi_intercept versions before 0.10.1.
+    This test had worked in all wsgi_intercept versions before 0.10.1.
     In later versions, this seems to be broken again.
     This should be fixed in wsgi_intercept, if it is a real problem.
     """
@@ -103,7 +104,7 @@ def test_wrapper_intercept():
     remove_wsgi_intercept('localhost', 80)
 
 
-class iterator_app:
+class IteratorApp:
     """Test some tricky iterator stuff in wsgi_intercept."""
 
     content = ['Hello, world']
@@ -123,7 +124,7 @@ class iterator_app:
 
 
 def test_iter_stuff():
-    add_wsgi_intercept('localhost', 80, iterator_app)
+    add_wsgi_intercept('localhost', 80, IteratorApp)
     print 'go'
     commands.go('http://localhost:80/')
     print 'find'
