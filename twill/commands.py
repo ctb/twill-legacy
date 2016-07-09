@@ -29,13 +29,13 @@ __all__ = [
     'clear_cookies', 'clear_extra_headers',
     'code', 'config',
     'debug', 'echo', 'exit', 'extend_with',
-    'fa', 'find', 'follow',
-    'formaction', 'formclear', 'formfile', 'formvalue', 'fv',
+    'find', 'follow',
+    'formaction', 'fa', 'formclear', 'formfile', 'formvalue', 'fv',
     'getinput', 'getpassword',
     'go', 'info', 'load_cookies', 'notfind',
     'redirect_error', 'redirect_output',
     'reload', 'reset_browser', 'reset_error', 'reset_output',
-    'run', 'runfile',
+    'run', 'runfile', 'rf',
     'save_cookies', 'save_html',
     'setglobal', 'setlocal',
     'show', 'show_cookies', 'show_extra_headers',
@@ -652,12 +652,18 @@ def run(cmd):
 def runfile(*args):
     """>> runfile <file1> [<file2> ...]
 
+
+    Execute the given twill scripts or directories of twill scripts.
+
+    'runfile' is available as 'rf' as well.
     """
     from . import parse
 
     filenames = utils.gather_filenames(args)
     for filename in filenames:
         parse.execute_file(filename, no_reset=True)
+
+rf = runfile  # alias
 
 
 def setglobal(name, value):

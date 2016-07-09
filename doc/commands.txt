@@ -165,6 +165,8 @@ or warnings.  (`tidy` is very stringent -- you've been warned!)
 
 **runfile** *<file1> [ <file2> ... ]* -- execute the given files.
 
+**rf** -- abbreviation for 'runfile'.
+
 **agent** -- set the browser's "User-agent" string.
 
 **sleep** *[<seconds>]* -- sleep the given number of seconds.
