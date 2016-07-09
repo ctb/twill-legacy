@@ -242,8 +242,8 @@ def set_form_control_value(control, value):
 
     The controls can be checkboxes, select elements etc.
     """
-    if hasattr(control, 'type'):
-        if control.type == 'checkbox':
+    if isinstance(control, html.InputElement):
+        if control.checkable:
             try:
                 value = make_boolean(value)
             except TwillException:
@@ -252,7 +252,6 @@ def set_form_control_value(control, value):
                 pass
             else:
                 control.checked = value
-
         elif control.type not in ('submit', 'image'):
             control.value = value
 
@@ -272,10 +271,8 @@ def set_form_control_value(control, value):
             control.value.add(value)
 
     elif isinstance(control, html.SelectElement):
-        # for ListControls (checkboxes, multiselect, etc.) we first need
-        # to find the right *value*.  Then we need to set it +/-.
-        # Figure out if we want to *select* it, or if we want to *deselect*
-        # it.  By default (no +/-) select...
+        # for ListControls we need to find the right *value*,
+        # and figure out if we want to *select* or *deselect*
         if value.startswith('-'):
             add = False
             value = value[1:]
@@ -291,17 +288,17 @@ def set_form_control_value(control, value):
         for name, opt in full_options.iteritems():
             if value not in (name, opt):
                 continue
-            if hasattr(control, 'checkable') and control.checkable:
-                control.checked = add
-            if add:
-                control.value.add(opt)
-                break
-            else:
-                try:
+            if isinstance(control.value, html.MultipleSelectOptions):
+                if add:
+                    control.value.add(opt)
+                elif opt in control.value:
                     control.value.remove(opt)
-                except ValueError:
-                    pass
-                break
+            else:
+                if add:
+                    control.value = opt
+                else:
+                    control.value = None
+            break
         else:
             raise TwillException('Attempt to set an invalid value')
 
