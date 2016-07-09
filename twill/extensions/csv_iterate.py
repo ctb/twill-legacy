@@ -22,9 +22,9 @@ def csv_iterate(filename, scriptname):
     global_dict, local_dict = namespaces.get_twill_glocals()
 
     reader = csv.reader(open(filename, "rb"))
-    for i, row in enumerate(reader):
+    for i, row in enumerate(reader, 1):
         log.debug('csv_iterate: on row %d of %s', i, filename)
-        for j, col in enumerate(row):
-            global_dict["col%d" % (j + 1,)] = col
+        for j, col in enumerate(row, 1):
+            global_dict["col%d" % (j,)] = col
 
         execute_file(scriptname, no_reset=True)

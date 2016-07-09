@@ -175,7 +175,7 @@ def print_form(form, n):
         info('## __Name__________________'
             ' __Type___ __ID________ __Value__________________')
 
-        for n, field in enumerate(form.inputs):
+        for n, field in enumerate(form.inputs, 1):
             value = field.value
             if hasattr(field, 'value_options'):
                 items = ', '.join("'%s'" % (
@@ -188,7 +188,7 @@ def print_form(form, n):
             field_type = field.type if hasattr(field, 'type') else 'select'
             field_id = field.get('id')
             strings = (
-                '%-2s' % (n + 1,),
+                '%-2s' % (n,),
                 '%-24s %-9s' % (
                     trunc(field_name, 24), trunc(field_type, 9)),
                 '%-12s' % (trunc(field_id, 12),),

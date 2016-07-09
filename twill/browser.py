@@ -168,7 +168,7 @@ class TwillBrowser(object):
         Include the global form (form elements outside of <form> pairs)
         as forms[0] if present.
         """
-        for n, form in enumerate(self.forms):
+        for n, form in enumerate(self.forms, 1):
             print_form(form, n)
 
     def showlinks(self):
@@ -177,8 +177,8 @@ class TwillBrowser(object):
         links = self.links
         if links:
             info('\nLinks (%d links total):\n', len(links))
-            for n, link in enumerate(links):
-                info('\t%d. %s ==> %s', n + 1, trunc(link.text, 40), link.url)
+            for n, link in enumerate(links, 1):
+                info('\t%d. %s ==> %s', n, trunc(link.text, 40), link.url)
             info('')
         else:
             info('\n** no links **\n')
@@ -189,8 +189,8 @@ class TwillBrowser(object):
         history = self._history
         if history:
             info('\nHistory (%d pages total):\n', len(history))
-            for n, page in enumerate(history):
-                info('\t%d. %s', n + 1, page.url)
+            for n, page in enumerate(history, 1):
+                info('\t%d. %s', n , page.url)
             info('')
         else:
             info('\n** no history **\n')
@@ -395,8 +395,8 @@ class TwillBrowser(object):
         n = len(cookies)
         if n:
             log.info('\nThere are %d cookie(s) in the cookie jar.\n', n)
-            for n, cookie in enumerate(cookies):
-                info('\t%d. %s', n + 1, cookie)
+            for n, cookie in enumerate(cookies, 1):
+                info('\t%d. %s', n, cookie)
             info('')
         else:
             log.info('\nThere are no cookies in the cookie jar.\n', n)

@@ -193,12 +193,12 @@ def _execute_script(inp, **kw):
 
     try:
 
-        for n, line in enumerate(inp):
+        for n, line in enumerate(inp, 1):
             line = line.strip()
             if not line:  # skip empty lines
                 continue
 
-            cmdinfo = '%s:%d' % (sourceinfo, n,)
+            cmdinfo = '%s:%d' % (sourceinfo, n)
             log.info('AT LINE: %s', cmdinfo)
 
             cmd, args = parse_command(line, globals_dict, locals_dict)
@@ -214,7 +214,7 @@ def _execute_script(inp, **kw):
                 log.error(
                     "\nOops! Twill assertion error on line %d of '%s'"
                     " while executing\n>>> %s\n\nError message: %s\n",
-                    n, sourceinfo, line.strip(), str(e).strip())
+                    n , sourceinfo, line.strip(), str(e).strip())
                 if not catch_errors:
                     raise
             except Exception as e:

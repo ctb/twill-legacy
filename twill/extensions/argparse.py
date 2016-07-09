@@ -30,8 +30,8 @@ def get_args(require=0):
             (len(shell.twillargs), require))
 
     if shell.twillargs:
-        for i, arg in enumerate(shell.twillargs):
-            global_dict["arg%d" % (i + 1,)] = arg
+        for n, arg in enumerate(shell.twillargs, 1):
+            global_dict["arg%d" % (n,)] = arg
 
         log.info("get_args: loaded %d args as $arg1..$arg%d.", i + 1, i + 1)
     else:
