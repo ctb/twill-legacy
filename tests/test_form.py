@@ -17,7 +17,10 @@ def test(url):
 
     # now test a few special cases
     commands.go(url)
+    assert browser.title == 'Hello, world!'
+
     commands.go('/login')
+    assert browser.title is None
 
     # test no matching forms
     with raises(TwillAssertionError):
@@ -42,9 +45,6 @@ def test(url):
 
     with raises(TwillException):
         commands.formfile('1', 'selecttest', 'null')
-
-    commands.go('http://www.google.com/')
-    browser.title
 
     # test the twill script.
     execute_script('test_form.twill', initial_url=url)

@@ -84,7 +84,10 @@ class ResultWrapper(object):
     def title(self):
         """Get the title of the result page."""
         selector = cssselect.CSSSelector('title')
-        return selector(self.lxml)[0].text
+        try:
+            return selector(self.lxml)[0].text
+        except IndexError:
+            return None
 
     @property
     def links(self):
