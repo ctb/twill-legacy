@@ -144,8 +144,7 @@ def follow(what):
 
     Find the first matching link on the page & visit it.
     """
-    regex = re.compile(what)
-    link = browser.find_link(regex)
+    link = browser.find_link(what)
     if link:
         browser.follow_link(link)
         return browser.url

@@ -214,7 +214,7 @@ def _execute_script(inp, **kw):
                 log.error(
                     "\nOops! Twill assertion error on line %d of '%s'"
                     " while executing\n>>> %s\n\nError message: %s\n",
-                    n , sourceinfo, line.strip(), str(e).strip())
+                    n, sourceinfo, line.strip(), str(e).strip())
                 if not catch_errors:
                     raise
             except Exception as e:

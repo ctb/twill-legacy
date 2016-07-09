@@ -110,6 +110,11 @@ class TwillBrowser(object):
         return self.result.http_code if self.result else None
 
     @property
+    def encoding(self):
+        """Get the encoding used by the server for the current page."""
+        return self.result.encoding if self.result else None
+
+    @property
     def html(self):
         """Get the HTML for the current page."""
         return self.result.text if self.result else None
@@ -350,12 +355,17 @@ class TwillBrowser(object):
         # request object to have an 'add_unredirected_header' function.
         # @BRT: For now, the referrer is always the current page
         # @CTB this seems like an issue for further work.
-        headers = {'referer': self.url}
+        enctype = form.attrib.get(
+            'enctype', 'application/x-www-form-urlencoded')
+        headers = {'Referer': self.url, 'Content-Type': enctype}
 
-        # now actually GO.
-        payload = list(form.form_values())
+        payload = form.form_values()
         if ctl is not None and ctl.get('name') is not None:
             payload.append((ctl.get('name'), ctl.value))
+
+        payload = self._encode_payload(payload)
+
+        # now actually GO
         if form.method == 'POST':
             if self._formFiles:
                 r = self._session.post(
@@ -363,10 +373,10 @@ class TwillBrowser(object):
                     data=payload, files=self._formFiles, headers=headers)
             else:
                 r = self._session.post(
-                    form.action,
-                    data=payload, headers=headers)
+                    form.action, data=payload, headers=headers)
         else:
-            r = self._session.get(form.action, data=payload, headers=headers)
+            r = self._session.get(
+                form.action, data=payload, headers=headers)
 
         self._formFiles.clear()
         self._history.append(self.result)
@@ -398,6 +408,18 @@ class TwillBrowser(object):
             info('')
         else:
             log.info('\nThere are no cookies in the cookie jar.\n', n)
+
+    def _encode_payload(self, payload):
+        """Encode a payload with the current encoding."""
+        encoding = self.encoding
+        if not encoding or encoding.lower() in ('utf8', 'utf-8'):
+            return
+        new_payload = []
+        for name, val in payload:
+            if isinstance(val, unicode):
+                val = val.encode(encoding)
+            new_payload.append((name, val))
+        return new_payload
 
     def _test_for_meta_redirections(self, r):
         """Checks a document for meta redirection."""

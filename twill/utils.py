@@ -52,6 +52,7 @@ class ResultWrapper(object):
     """
     def __init__(self, response):
         self.response = response
+        self.encoding = response.encoding
         self.lxml = html.fromstring(self.text)
         self._fix_forms()
 
