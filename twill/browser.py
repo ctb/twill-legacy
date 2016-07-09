@@ -250,8 +250,6 @@ class TwillBrowser(object):
 
         # test field index
         if found is None:
-            if fieldname == '3':
-                pass
             try:
                 found = list(inputs)[int(fieldname) - 1]
             except (IndexError, ValueError):
@@ -306,7 +304,7 @@ class TwillBrowser(object):
         forms = self.forms
         if not forms:
             raise TwillException("no forms on this page!")
-        
+
         ctl = None
 
         form = self._form
@@ -334,7 +332,7 @@ class TwillBrowser(object):
             else:
                 ctl = self.last_submit_button
         else:
-            # fieldname given; find it.
+            # fieldname given; find it
             ctl = self.form_field(form, fieldname)
 
         # now set up the submission by building the request object that
