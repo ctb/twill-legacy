@@ -355,28 +355,26 @@ class TwillBrowser(object):
         # request object to have an 'add_unredirected_header' function.
         # @BRT: For now, the referrer is always the current page
         # @CTB this seems like an issue for further work.
-        enctype = form.attrib.get(
-            'enctype', 'application/x-www-form-urlencoded')
-        headers = {'Referer': self.url, 'Content-Type': enctype}
+        # Note: We do not set Content-Type from form.attrib.get('enctype'),
+        # since Requests does a much better job at setting the proper one.
+        headers = {'Referer': self.url}
 
         payload = form.form_values()
         if ctl is not None and ctl.get('name') is not None:
             payload.append((ctl.get('name'), ctl.value))
-
         payload = self._encode_payload(payload)
 
         # now actually GO
         if form.method == 'POST':
             if self._formFiles:
                 r = self._session.post(
-                    form.action,
-                    data=payload, files=self._formFiles, headers=headers)
+                    form.action, data=payload, headers=headers,
+                    files=self._formFiles)
             else:
                 r = self._session.post(
                     form.action, data=payload, headers=headers)
         else:
-            r = self._session.get(
-                form.action, data=payload, headers=headers)
+            r = self._session.get(form.action, data=payload, headers=headers)
 
         self._formFiles.clear()
         self._history.append(self.result)
@@ -413,7 +411,7 @@ class TwillBrowser(object):
         """Encode a payload with the current encoding."""
         encoding = self.encoding
         if not encoding or encoding.lower() in ('utf8', 'utf-8'):
-            return
+            return payload
         new_payload = []
         for name, val in payload:
             if isinstance(val, unicode):
