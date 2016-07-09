@@ -73,7 +73,7 @@ def go(url):
 
 def reload():
     """>> reload
-    
+
     Reload the current URL.
     """
     browser.reload()
@@ -82,7 +82,7 @@ def reload():
 
 def code(should_be):
     """>> code <int>
-    
+
     Check to make sure the response code for the last page is as given.
     """
     should_be = int(should_be)
@@ -141,7 +141,7 @@ does not match '%s'
 
 def follow(what):
     """>> follow <regex>
-    
+
     Find the first matching link on the page & visit it.
     """
     regex = re.compile(what)
@@ -169,7 +169,7 @@ def _parse_find_flags(flags):
 
 def find(what, flags=''):
     """>> find <regex> [<flags>]
-    
+
     Succeed if the regular expression is on the page.  Sets the local
     variable __match__ to the matching text.
 
@@ -204,7 +204,7 @@ def find(what, flags=''):
 
 def notfind(what, flags=''):
     """>> notfind <regex> [<flags>]
-    
+
     Fail if the regular expression is on the page.
     """
     try:
@@ -217,7 +217,7 @@ def notfind(what, flags=''):
 
 def back():
     """>> back
-    
+
     Return to the previous page.
     """
     browser.back()
@@ -226,7 +226,7 @@ def back():
 
 def show():
     """>> show
-    
+
     Show the HTML for the current page.
     """
     html = browser.html.strip()
@@ -238,7 +238,7 @@ def show():
 
 def echo(*strs):
     """>> echo <list> <of> <strings>
-    
+
     Echo the arguments to the screen.
     """
     log.info(' '.join(map(str, strs)))
@@ -246,7 +246,7 @@ def echo(*strs):
 
 def save_html(filename=None):
     """>> save_html [<filename>]
-    
+
     Save the HTML for the current page into <filename>.  If no filename
     given, construct the filename from the URL.
     """
@@ -328,7 +328,7 @@ _agent_map = dict(
 
 def agent(what):
     """>> agent <agent>
-    
+
     Set the agent string (identifying the browser brand).
 
     Some convenient shortcuts:
@@ -341,7 +341,7 @@ def agent(what):
 
 def submit(submit_button=None):
     """>> submit [<buttonspec>]
-    
+
     Submit the current form (the one last clicked on) by clicking on the
     n'th submission button.  If no "buttonspec" is given, submit the current
     form by using the last clicked submit button.
@@ -359,7 +359,7 @@ def submit(submit_button=None):
 
 def showforms():
     """>> showforms
-    
+
     Show all of the forms on the current page.
     """
     browser.showforms()
@@ -368,7 +368,7 @@ def showforms():
 
 def showlinks():
     """>> showlinks
-    
+
     Show all of the links on the current page.
     """
     browser.showlinks()
@@ -386,7 +386,7 @@ def showhistory():
 
 def formclear(formname):
     """>> formclear <formname>
-    
+
     Run 'clear' on all of the controls in this form.
     """
     form = browser.form(formname)
@@ -436,7 +436,7 @@ def formvalue(formname, fieldname, value):
 
     browser.clicked(form, control)
 
-    if 'readonly' in control.attrib:
+    if hasattr(control, 'attrib') and 'readonly' in control.attrib:
         if options['readonly_controls_writeable']:
             log.info('forcing read-only form field to writeable')
             del control.attrib['readonly']
@@ -493,7 +493,7 @@ def formfile(formname, fieldname, filename, content_type=None):
 
 def extend_with(module_name):
     """>> extend_with <module>
-    
+
     Import contents of given module.
     """
     global_dict, local_dict = get_twill_glocals()
@@ -546,7 +546,7 @@ def getinput(prompt):
 
 def getpassword(prompt):
     """>> getpassword <prompt>
-    
+
     Get a password ("invisible input"), store it in '__password__'.
     """
     local_dict = get_twill_glocals()[1]
@@ -686,7 +686,7 @@ def setlocal(name, value):
 
 def title(what):
     """>> title <regex>
-    
+
     Succeed if the regular expression is in the page title.
     """
     regex = re.compile(what)
@@ -736,7 +736,7 @@ def redirect_error(filename):
 
 def reset_error():
     """>> reset_error
-    
+
     Reset twill error output to go to the screen.
     """
     set_errout(None)
