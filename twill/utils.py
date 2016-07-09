@@ -94,7 +94,7 @@ class ResultWrapper(object):
     def links(self):
         """Get all links in the result page."""
         selector = cssselect.CSSSelector('a')
-        return [Link(inner_tostring(a), a.get('href'))
+        return [Link(a.text_content(), a.get('href'))
                 for a in selector(self.lxml)]
 
     def find_link(self, pattern):
@@ -153,15 +153,6 @@ class ResultWrapper(object):
         for form in self.forms:
             for button in form.xpath("//button[@type='submit']"):
                 button.tag = 'input'
-
-
-def inner_tostring(element):
-    """Serialize all the inner text and sub elements of the given element."""
-    text = element.text or ''
-    children = element.getchildren()
-    if children:
-        text += ''.join(map(etree.tostring, children))
-    return text.strip()
 
 
 def trunc(s, length):
