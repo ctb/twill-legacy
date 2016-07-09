@@ -53,17 +53,7 @@ class ResultWrapper(object):
     def __init__(self, response):
         self.response = response
         self.lxml = html.fromstring(self.text)
-        orphans = self.lxml.xpath('//input[not(ancestor::form)]')
-        if orphans:
-            form = ['<form>']
-            for orphan in orphans:
-                form.append(etree.tostring(orphan))
-            form.append('</form>')
-            form = ''.join(form)
-            self.forms = html.fromstring(form).forms
-            self.forms.extend(self.lxml.forms)
-        else:
-            self.forms = self.lxml.forms
+        self._fix_forms()
 
     @property
     def url(self):
@@ -139,6 +129,26 @@ class ResultWrapper(object):
             return None
         else:
             return forms[formnum]
+
+    def _fix_forms(self):
+        """Fix forms on the page for use with twill."""
+        # put all stray fields into a form
+        orphans = self.lxml.xpath('//input[not(ancestor::form)]')
+        if orphans:
+            form = ['<form>']
+            for orphan in orphans:
+                form.append(etree.tostring(orphan))
+            form.append('</form>')
+            form = ''.join(form)
+            self.forms = html.fromstring(form).forms
+            self.forms.extend(self.lxml.forms)
+        else:
+            self.forms = self.lxml.forms
+        # convert all submit button elements to input elements, since
+        # otherwise lxml will not recognize them as form input fields
+        for form in self.forms:
+            for button in form.xpath("//button[@type='submit']"):
+                button.tag = 'input'
 
 
 def inner_tostring(element):
