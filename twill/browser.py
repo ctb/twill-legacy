@@ -10,7 +10,7 @@ from lxml import html
 from requests.exceptions import InvalidSchema, ConnectionError
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
-from . import log
+from . import log, __version__
 from .utils import (
     print_form, trunc, unique_match, ResultWrapper, _follow_equiv_refresh)
 from .errors import TwillException
@@ -20,6 +20,8 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 class TwillBrowser(object):
     """A simple, stateful browser"""
+
+    user_agent = 'TwillBrowser/%s' % (__version__,)
 
     def __init__(self):
         # create special link/forms parsing code to run tidy on HTML first.
@@ -44,6 +46,9 @@ class TwillBrowser(object):
         self._post_load_hooks = []
 
         self._history = []
+
+        # set default headers
+        self.reset_headers()
 
     def reset(self):
         """Reset the browser"""
@@ -75,11 +80,11 @@ class TwillBrowser(object):
             if not url.startswith(('.', '/', '?')):
                 try_urls.append('http://%s' % (url,))
                 try_urls.append('https://%s' % (url,))
-        for u in try_urls:
+        for try_url in try_urls:
             try:
-                self._journey('open', u)
+                self._journey('open', try_url)
             except (IOError, ConnectionError, InvalidSchema) as error:
-                log.info("cannot go to '%s': %s" % (u, error))
+                log.info("cannot go to '%s': %s" % (try_url, error))
             else:
                 break
         else:
@@ -143,7 +148,9 @@ class TwillBrowser(object):
 
     def reset_headers(self):
         self.headers.clear()
-        self.headers.update({"Accept": "text/html; */*"})
+        self.headers.update({
+            'Accept': 'text/html; */*',
+            'User-Agent': self.user_agent})
 
     @property
     def agent_string(self):
