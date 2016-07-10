@@ -275,7 +275,7 @@ def set_form_control_value(control, value):
 
         # now, select the value.
         options = [opt.strip() for opt in control.value_options]
-        option_names = [c.text.strip() for c in control.getchildren()]
+        option_names = [(c.text or '').strip() for c in control.getchildren()]
         full_options = dict(zip(option_names, options))
         for name, opt in full_options.iteritems():
             if value not in (name, opt):
