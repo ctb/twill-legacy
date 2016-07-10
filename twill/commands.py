@@ -24,7 +24,7 @@ from .errors import TwillException, TwillAssertionError
 from .namespaces import get_twill_glocals
 
 __all__ = [
-    'add_auth', 'add_extra_header', 'agent',
+    'add_auth', 'add_cleanup', 'add_extra_header', 'agent',
     'back', 'browser',
     'clear_cookies', 'clear_extra_headers',
     'code', 'config',
@@ -652,7 +652,6 @@ def run(cmd):
 def runfile(*args):
     """>> runfile <file1> [<file2> ...]
 
-
     Execute the given twill scripts or directories of twill scripts.
 
     'runfile' is available as 'rf' as well.
@@ -663,7 +662,21 @@ def runfile(*args):
     for filename in filenames:
         parse.execute_file(filename, no_reset=True)
 
+
 rf = runfile  # alias
+
+
+def add_cleanup(*args):
+    """>> add_cleanup <file1> [<file2> ...]
+
+    Execute the given twill scripts after the current twill script.
+    """
+
+    local_dict = get_twill_glocals()[1]
+    cleanups = local_dict.setdefault('__cleanups__', [])
+    filenames = utils.gather_filenames(args)
+    log.debug('Adding cleanup scripts: %s', ', '.join(filenames))
+    cleanups.extend(reversed(filenames))
 
 
 def setglobal(name, value):

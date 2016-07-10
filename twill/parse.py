@@ -155,13 +155,11 @@ def execute_string(buf, **kw):
 
 def execute_file(filename, **kw):
     """Execute commands from a file."""
-    # read the input lines
     inp = sys.stdin if filename == '-' else open(filename)
-
-    kw['source'] = filename
 
     log.info('\n>> Running twill file %s', filename)
 
+    kw['source'] = filename
     _execute_script(inp, **kw)
 
 
@@ -209,6 +207,7 @@ def _execute_script(inp, **kw):
                 execute_command(cmd, args, globals_dict, locals_dict, cmdinfo)
             except SystemExit:
                 # abort script execution if a SystemExit is raised
+                locals_dict['__cleanups__'] = None
                 return
             except TwillAssertionError as e:
                 log.error(
@@ -226,6 +225,18 @@ def _execute_script(inp, **kw):
                     raise
 
     finally:
+        cleanups = locals_dict.get('__cleanups__')
+        if cleanups:
+            result = browser.result
+            for filename in reversed(cleanups):
+                log.info('\n>> Running twill cleanup file %s', filename)
+                try:
+                    inp = open(filename)
+                    _execute_script(inp, source=filename, no_reset=True)
+                except Exception as e:
+                    log.error('>> Cannot run cleanup file %s: %s', filename, e)
+            browser.reset()
+            browser.result = result
         namespaces.pop_local_dict()
 
 

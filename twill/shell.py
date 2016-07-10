@@ -388,7 +388,7 @@ def main():
                 if options.fail:
                     raise
                 else:
-                    log.error('** UNHANDLED EXCEPTION: %s', e)
+                    log.error('\n*** ERROR: %s', e)
                     log.debug(traceback.format_exc())
                     failure.append(filename)
 

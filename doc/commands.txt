@@ -163,9 +163,14 @@ or warnings.  (`tidy` is very stringent -- you've been warned!)
 
 **run** *<command>* -- execute the given Python command.
 
-**runfile** *<file1> [ <file2> ... ]* -- execute the given files.
+**runfile** *<file1> [ <file2> ... ]* -- execute the given file(s).
 
 **rf** -- abbreviation for 'runfile'.
+
+**rf** -- abbreviation for 'runfile'.
+
+**add_cleanup** *<file1> [ <file2> ... ]* -- add the given cleanup file(s).
+These will be run after the current file has executed (successfully or not).
 
 **agent** -- set the browser's "User-agent" string.
 
