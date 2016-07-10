@@ -223,72 +223,63 @@ class TwillBrowser(object):
         Must be a *unique* regex/exact string match.
         """
         inputs = form.inputs
-
-        if fieldname in form.fields:
-            controls = [f for f in inputs
-                        if f.get('name') == fieldname and
-                        hasattr(f, 'type') and f.type == 'checkbox']
-            if len(controls) > 1:
-                return html.CheckboxGroup(controls)
-
-        found = None
         found_multiple = False
 
         if not isinstance(fieldname, int):
 
-            # test exact match to id
-            matches = [c for c in inputs if c.get('id') == fieldname]
-            if matches:
-                if unique_match(matches):
-                    found = matches[0]
-                else:
-                    found_multiple = True
+            if fieldname in form.fields:
+                match_name = [c for c in inputs if c.name == fieldname]
+                if len(match_name) > 1:
+                    if all(hasattr(c, 'type') and c.type == 'checkbox'
+                           for c in match_name):
+                        return html.CheckboxGroup(match_name)
+                    if all(hasattr(c, 'type') and c.type == 'radio'
+                           for c in match_name):
+                        return html.RadioGroup(match_name)
+            else:
+                match_name = None
 
-            if found is None:
-                # test exact match to name
-                matches = [c for c in inputs if c.name == fieldname]
-                if matches:
-                    if unique_match(matches):
-                        found = matches[0]
-                    else:
-                        found_multiple = True
+            # test exact match to id
+            match_id = [c for c in inputs if c.get('id') == fieldname]
+            if match_id:
+                if unique_match(match_id):
+                    return match_id[0]
+                found_multiple = True
+
+            # test exact match to name
+            if match_name:
+                if unique_match(match_name):
+                    return match_name[0]
+                found_multiple = True
 
         # test field index
-        if found is None:
-            try:
-                found = list(inputs)[int(fieldname) - 1]
-            except (IndexError, ValueError):
-                pass
+        try:
+            return list(inputs)[int(fieldname) - 1]
+        except (IndexError, ValueError):
+            pass
 
         if not isinstance(fieldname, int):
 
-            if found is None:
-                # test regex match
-                regex = re.compile(fieldname)
-                matches = [c for c in inputs
-                           if c.name and regex.search(c.name)]
-                if matches:
-                    if unique_match(matches):
-                        found = matches[0]
-                    else:
-                        found_multiple = True
+            # test regex match
+            regex = re.compile(fieldname)
+            match_name = [c for c in inputs
+                          if c.name and regex.search(c.name)]
+            if match_name:
+                if unique_match(match_name):
+                    return match_name[0]
+                found_multiple = True
 
-            if found is None:
-                # test field values
-                matches = [c for c in inputs if c.value == fieldname]
-                if matches:
-                    if len(matches) == 1:
-                        found = matches[0]
-                    else:
-                        found_multiple = True
+            # test field values
+            match_value = [c for c in inputs if c.value == fieldname]
+            if match_value:
+                if len(match_value) == 1:
+                    return match_value[0]
+                found_multiple = True
 
-        # error out?
-        if found is None:
-            if found_multiple:
-                raise TwillException('multiple matches to "%s"' % (fieldname,))
-            raise TwillException('no field matches "%s"' % (fieldname,))
-
-        return found
+        # error out
+        if found_multiple:
+            raise TwillException('multiple matches to "%s"' % (fieldname,))
+        raise TwillException('no field matches "%s"' % (fieldname,))
 
     def add_form_file(self, fieldname, fp):
         self._form_files[fieldname] = fp
@@ -362,7 +353,6 @@ class TwillBrowser(object):
 
         payload = form.form_values()
         if ctl is not None and ctl.get('name') is not None:
-            payload = payload[:]
             payload.append((ctl.get('name'), ctl.value))
         payload = self._encode_payload(payload)
 

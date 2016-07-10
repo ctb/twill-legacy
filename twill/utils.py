@@ -247,7 +247,7 @@ def set_form_control_value(control, value):
         elif control.type not in ('submit', 'image'):
             control.value = value
 
-    elif isinstance(control, html.TextareaElement):
+    elif isinstance(control, (html.TextareaElement, html.RadioGroup)):
         control.value = value
 
     elif isinstance(control, html.CheckboxGroup):
