@@ -37,7 +37,7 @@ class TwillBrowser(object):
         # An lxml FormElement, none until a form is selected
         # replaces self._browser.form from mechanize
         self._form = None
-        self._formFiles = {}
+        self._form_files = {}
 
         # A dict of HTTPBasicAuth from requests, keyed off URL
         self._auth = {}
@@ -290,6 +290,9 @@ class TwillBrowser(object):
 
         return found
 
+    def add_form_file(self, fieldname, fp):
+        self._form_files[fieldname] = fp
+
     def clicked(self, form, control):
         """Record a 'click' in a specific form."""
         if self._form != form:
@@ -348,10 +351,8 @@ class TwillBrowser(object):
             log.info(
                 "Note: submit is using submit button:"
                 " name='%s', value='%s'", ctl.get('name'), ctl.value)
-            if hasattr(ctl, 'type') and ctl.type == 'image':
-                pass
 
-        # add referer information.  this may require upgrading the
+        # Add referer information.  This may require upgrading the
         # request object to have an 'add_unredirected_header' function.
         # @BRT: For now, the referrer is always the current page
         # @CTB this seems like an issue for further work.
@@ -361,22 +362,25 @@ class TwillBrowser(object):
 
         payload = form.form_values()
         if ctl is not None and ctl.get('name') is not None:
+            payload = payload[:]
             payload.append((ctl.get('name'), ctl.value))
         payload = self._encode_payload(payload)
 
         # now actually GO
         if form.method == 'POST':
-            if self._formFiles:
+            if self._form_files:
                 r = self._session.post(
                     form.action, data=payload, headers=headers,
-                    files=self._formFiles)
+                    files=self._form_files)
             else:
                 r = self._session.post(
                     form.action, data=payload, headers=headers)
         else:
             r = self._session.get(form.action, data=payload, headers=headers)
 
-        self._formFiles.clear()
+        self._form = None
+        self._form_files.clear()
+        self.last_submit_button = None
         self._history.append(self.result)
         self.result = ResultWrapper(r)
 
@@ -474,6 +478,8 @@ class TwillBrowser(object):
 
         (Idea stolen from Python Browsing Probe (PBP).)
         """
+        self._form = None
+        self._form_files.clear()
         self.last_submit_button = None
 
         if func_name == 'open':

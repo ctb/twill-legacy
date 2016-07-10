@@ -485,7 +485,7 @@ def formfile(formname, fieldname, filename, content_type=None):
     browser.clicked(form, control)
     plain = content_type and content_type.startswith(('plain/', 'html/'))
     fp = open(filename, 'r' if plain else 'rb')
-    browser._formFiles[fieldname] = fp
+    browser.add_form_file(fieldname, fp)
 
     log.info(
         'Added file "%s" to file upload field "%s"', filename, control.name)
