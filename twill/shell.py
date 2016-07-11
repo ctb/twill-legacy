@@ -343,7 +343,7 @@ def main():
         if outfile == '-':
             outfile = None
 
-    if interactive and (quiet or outfile or dumpfile or webbrowser):
+    if interactive and (quiet or outfile or dumpfile or show_browser):
             sys.exit("Interactive mode is incompatible with -q, -o, -d and -w")
 
     if options.show_browser and (not dumpfile or dumpfile == '-'):
@@ -424,7 +424,7 @@ def main():
 
     # if no scripts to run or -i is set, drop into an interactive shell
 
-    if options.interactive:
+    if interactive:
         welcome_msg = "" if args else "\n -= Welcome to twill =-\n"
 
         shell = TwillCommandLoop(initial_url=options.url)
