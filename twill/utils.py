@@ -10,7 +10,7 @@ import re
 
 from collections import namedtuple
 
-from lxml import etree, html, cssselect
+from lxml import etree, html
 
 try:
     import tidylib
@@ -84,18 +84,16 @@ class ResultWrapper(object):
     @property
     def title(self):
         """Get the title of the result page."""
-        selector = cssselect.CSSSelector('title')
         try:
-            return selector(self.lxml)[0].text
+            return self.lxml.xpath('//title[1]/text()')[0]
         except IndexError:
             return None
 
     @property
     def links(self):
         """Get all links in the result page."""
-        selector = cssselect.CSSSelector('a')
         return [Link(a.text_content(), a.get('href'))
-                for a in selector(self.lxml)]
+                for a in self.lxml.xpath('//a[@href]')]
 
     def find_link(self, pattern):
         """Find a link with a given pattern on the result page."""

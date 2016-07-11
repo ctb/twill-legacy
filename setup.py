@@ -70,7 +70,7 @@ Web pages or grabbing data from password-protected sites automatically.""",
         'Topic :: Software Development :: Testing'
     ],
 
-    install_requires=['lxml', 'cssselect', 'requests', 'pyparsing'],
+    install_requires=['lxml', 'requests', 'pyparsing'],
     extras_require={'tidy': ['pytidylib'], 'xpath': ['beautifulsoup4']},
     tests_require=['pytest', 'quixote', 'pytidylib', 'beautifulsoup4'],
     cmdclass={'test': PyTest}
