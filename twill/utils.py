@@ -10,7 +10,7 @@ import re
 
 from collections import namedtuple
 
-from lxml import etree, html
+from lxml import html
 
 try:
     import tidylib
@@ -53,7 +53,8 @@ class ResultWrapper(object):
     def __init__(self, response):
         self.response = response
         self.encoding = response.encoding
-        self.lxml = html.fromstring(self.text)
+        self.tree = html.fromstring(self.text)
+        self.xpath = self.tree.xpath
         self._fix_forms()
 
     @property
@@ -85,7 +86,7 @@ class ResultWrapper(object):
     def title(self):
         """Get the title of the result page."""
         try:
-            return self.lxml.xpath('//title[1]/text()')[0]
+            return self.xpath('//title[1]/text()')[0]
         except IndexError:
             return None
 
@@ -93,7 +94,7 @@ class ResultWrapper(object):
     def links(self):
         """Get all links in the result page."""
         return [Link(a.text_content(), a.get('href'))
-                for a in self.lxml.xpath('//a[@href]')]
+                for a in self.xpath('//a[@href]')]
 
     def find_link(self, pattern):
         """Find a link with a given pattern on the result page."""
@@ -135,17 +136,17 @@ class ResultWrapper(object):
     def _fix_forms(self):
         """Fix forms on the page for use with twill."""
         # put all stray fields into a form
-        orphans = self.lxml.xpath('//input[not(ancestor::form)]')
+        orphans = self.xpath('//input[not(ancestor::form)]')
         if orphans:
             form = ['<form>']
             for orphan in orphans:
-                form.append(etree.tostring(orphan))
+                form.append(html.tostring(orphan))
             form.append('</form>')
             form = ''.join(form)
             self.forms = html.fromstring(form).forms
-            self.forms.extend(self.lxml.forms)
+            self.forms.extend(self.tree.forms)
         else:
-            self.forms = self.lxml.forms
+            self.forms = self.tree.forms
         # convert all submit button elements to input elements, since
         # otherwise lxml will not recognize them as form input fields
         for form in self.forms:

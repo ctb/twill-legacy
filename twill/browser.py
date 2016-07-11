@@ -408,6 +408,10 @@ class TwillBrowser(object):
             value = value.decode(self.encoding)
         return value
 
+    def xpath(self, path):
+        """Evaluate an xpath expression."""
+        return self.result.xpath(path) if self.result else []
+
     def _encode_payload(self, payload):
         """Encode a payload with the current encoding."""
         encoding = self.encoding

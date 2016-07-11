@@ -12,10 +12,6 @@ from os.path import sep
 
 from lxml import html
 
-try:
-    from lxml.html import soupparser
-except ImportError:
-    soupparser = None
 import requests
 
 from . import log, set_output, set_errout, utils
@@ -185,11 +181,7 @@ def find(what, flags=''):
     page = browser.html
     local_dict = get_twill_glocals()[1]
     if 'x' in flags:
-        if not soupparser:
-            raise TwillException(
-                "beautifulsoup4 must be installed to use XPath expressions")
-        tree = soupparser.fromstring(page)
-        elements = tree.xpath(what)
+        elements = browser.xpath(what)
         if not elements:
             raise TwillAssertionError("no element to path '%s'" % (what,))
         match_str = unicode(elements[0])
