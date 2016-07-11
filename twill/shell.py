@@ -388,6 +388,8 @@ def main():
                 if options.fail:
                     raise
                 else:
+                    if browser.first_error:
+                        log.error('\nFirst error: %s', browser.first_error)
                     log.error('\n*** ERROR: %s', e)
                     log.debug(traceback.format_exc())
                     failure.append(filename)

@@ -182,9 +182,7 @@ def _execute_script(inp, **kw):
         locals_dict['__url__'] = browser.url
 
     # should we catch exceptions on failure?
-    catch_errors = False
-    if kw.get('never_fail'):
-        catch_errors = True
+    catch_errors = kw.get('never_fail')
 
     # sourceinfo stuff
     sourceinfo = kw.get('source', "<input>")
@@ -207,26 +205,24 @@ def _execute_script(inp, **kw):
                 execute_command(cmd, args, globals_dict, locals_dict, cmdinfo)
             except SystemExit:
                 # abort script execution if a SystemExit is raised
-                locals_dict['__cleanups__'] = None
                 return
-            except TwillAssertionError as e:
-                log.error(
-                    "\nOops! Twill assertion error on line %d of '%s'"
-                    " while executing\n>>> %s\n\nError message: %s\n",
-                    n, sourceinfo, line.strip(), str(e).strip())
-                if not catch_errors:
-                    raise
             except Exception as e:
-                log.error(
-                    "\nOOPS! Exception raised on line %d of '%s'"
-                    " while executing\n>>> %s\n\nError message: %s\n",
-                    n, sourceinfo, line.strip(), str(e).strip())
+                error_type = e.__class__.__name__ or 'Error'
+                error = "%s raised on line %d of '%s'" % (
+                    error_type, n, sourceinfo)
+                if line:
+                    error += " while executing\n>>> %s'" % (line,)
+                log.error("\nOops! %s", error)
+                if not browser.first_error:
+                    browser.first_error = error
+                log.error("\nError: %s", str(e).strip())
                 if not catch_errors:
                     raise
 
     finally:
         cleanups = locals_dict.get('__cleanups__')
         if cleanups:
+            error = browser.first_error
             result = browser.result
             for filename in reversed(cleanups):
                 log.info('\n>> Running twill cleanup file %s', filename)
@@ -236,6 +232,7 @@ def _execute_script(inp, **kw):
                 except Exception as e:
                     log.error('>> Cannot run cleanup file %s: %s', filename, e)
             browser.reset()
+            browser.first_error = error
             browser.result = result
         namespaces.pop_local_dict()
 

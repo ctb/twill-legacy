@@ -27,6 +27,7 @@ class TwillBrowser(object):
         # create special link/forms parsing code to run tidy on HTML first.
         self.result = None
         self.last_submit_button = None
+        self.first_error = None
 
         # whether the SSL cert will be verified, or can be a ca bundle path
         self.verify = False
