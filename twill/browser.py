@@ -422,7 +422,7 @@ class TwillBrowser(object):
             return payload
         new_payload = []
         for name, val in payload:
-            if isinstance(val, unicode):
+            if not isinstance(val, bytes):
                 val = val.encode(encoding)
             new_payload.append((name, val))
         return new_payload
