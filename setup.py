@@ -61,9 +61,8 @@ setup(
 
     packages=['twill', 'twill.extensions'],
 
-    # allow both
-    entry_points=dict(console_scripts=['twill=twill.shell:main']),
-    scripts=['twill-fork'],
+    entry_points=dict(console_scripts=[
+        'twill=twill.shell:main', 'twill-fork=twill.fork:main']),
 
     maintainer='C. Titus Brown',
     maintainer_email='titus@idyll.org',

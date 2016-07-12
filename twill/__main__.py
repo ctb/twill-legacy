@@ -1,4 +1,4 @@
-# main module for the twill package
+"""main module for the twill package"""
 
 from . import shell
 

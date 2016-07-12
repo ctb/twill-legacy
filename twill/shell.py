@@ -291,9 +291,9 @@ def main():
     if sys.argv[0].endswith('-script.py'):
         sys.argv[0] = sys.argv[0].rsplit('-', 1)[0]
 
-    # make sure that the current working directory is in the path.
-    if '.' not in sys.path:
-        sys.path.append('.')
+    # make sure that the current working directory is in the path
+    if '' not in sys.path:
+        sys.path.append('')
 
     parser = OptionParser()
     add = parser.add_option
@@ -359,8 +359,8 @@ def main():
             sys.exit("Invalid output file '%s': %s", options.outfile, e)
 
     if loglevel:
-        loglevel = loglevel.lstrip('=').lstrip().upper() or None
-        if loglevel not in loglevels:
+        loglevel = loglevel.lstrip('=').lstrip() or None
+        if loglevel.upper() not in loglevels:
             sys.exit("Valid log levels are %s" % ', '.join(sorted(loglevels)))
         set_loglevel(loglevel)
 

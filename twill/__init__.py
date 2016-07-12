@@ -60,7 +60,7 @@ def set_loglevel(level=None):
     if level is None:
         level = logging.INFO
     if isinstance(level, str):
-        level = loglevels[level]
+        level = loglevels[level.upper()]
     log.setLevel(level)
 
 
