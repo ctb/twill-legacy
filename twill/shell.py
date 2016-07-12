@@ -21,8 +21,15 @@ except ImportError:
 
 from . import (
     browser, commands, execute_file, log, loglevels, set_loglevel, set_output,
-    namespaces, parse, __version__)
+    namespaces, parse, __url__, __version__)
 from .utils import gather_filenames, Singleton
+
+version_info = """
+twill version: %s
+Python Version: %s
+
+See %s for more info.
+""" % (__version__, sys.version.split(None, 1)[0], __url__)
 
 
 def make_cmd_fn(cmd):
@@ -70,13 +77,11 @@ def make_help_cmd(cmd, docstring):
             w = len(line.rstrip())
             if w > width:
                 width = w
-        print()
-        print('=' * width)
-        print('\nHelp for command %s:\n' % (cmd,))
-        print(message)
-        print()
-        print('=' * width)
-        print()
+        info = log.info
+        info('\n%s' % ('=' * width,))
+        info('\nHelp for command %s:\n', cmd)
+        info(message)
+        info('\n%s\n' % ('=' * width,))
 
     return help_cmd
 
@@ -253,17 +258,15 @@ class TwillCommandLoop(Singleton, Cmd):
 
     def help_help(self):
         """Show help for the help command."""
-        print("\nWhat do YOU think the command 'help' does?!?\n")
+        log.info("\nWhat do YOU think the command 'help' does?!?\n")
 
     def do_version(self, *args):
         """Show the version number of twill."""
-        print("\ntwill version %s.\n" % (__version__,))
-        print("See http://www.idyll.org/~t/www-tools/twill/ for more info.")
-        print()
+        log.info(version_info)
 
     def help_version(self):
         """Show help for the version command."""
-        print("\nPrint version information.\n")
+        log.info("\nPrint version information.\n")
 
     def do_exit(self, *args):
         """Exit the twill shell."""
@@ -271,7 +274,7 @@ class TwillCommandLoop(Singleton, Cmd):
 
     def help_exit(self):
         """Show help for the exit command."""
-        print("\nExit twill.\n")
+        log.info("\nExit twill.\n")
 
     do_quit = do_exit
     help_quit = help_exit
@@ -328,7 +331,7 @@ def main():
     options, args = parser.parse_args(sysargs)
 
     if options.show_version:
-        print('twill version %s.' % (__version__,))
+        log.info(version_info)
         sys.exit(0)
 
     quiet = options.quiet

@@ -1,4 +1,8 @@
-"""twill Web testing language and associated utilities."""
+"""twill web browsing and testing language and associated utilities.
+
+A scripting system for automating web browsing.  Useful for testing
+web pages or grabbing data from password-protected sites automatically.
+"""
 
 # This file is part of the twill source distribution.
 #
@@ -17,6 +21,9 @@ import sys
 import os.path
 
 __version__ = '2.0.dev'
+
+__url__ = 'http://twill.idyll.org/'
+__download_url__ = 'https://pypi.python.org/pypi/twill'
 
 __all__ = [
     'browser', 'execute_file', 'execute_string',

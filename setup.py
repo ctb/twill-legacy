@@ -25,19 +25,38 @@ class PyTest(TestCommand):
         errno = pytest.main(self.pytest_args)
         sys.exit(errno)
 
+
+def extract_desc(content):
+    d = re.search('"""(.*?)"""', content, re.S).group(1)
+    d = d.split('\n', 1)
+    d = (d[0].strip(), d[1].strip())
+    return d
+
+
+def extract_var(content, what):
+    return re.search("__%s__ = '(.*?)'" % (what,), content).group(1)
+
+
 with open(os.path.join(os.path.dirname(__file__),
                        'twill', '__init__.py')) as initfile:
-    VERSION = re.compile(r".*__version__ = '(.*?)'",
-                         re.S).match(initfile.read()).group(1)
+    content = initfile.read()
+    description = extract_desc(content)
+    version = extract_var(content, 'version')
+    url = extract_var(content, 'url')
+    download_url = extract_var(content, 'download_url')
+
 
 setup(
     name='twill',
-    version=VERSION,
-    download_url='https://pypi.python.org/pypi/twill',
 
-    description='twill Web browsing language',
+    version=version,
+    url=url,
+    download_url=download_url,
+    description=description[0],
+
     author='C. Titus Brown and Ben R. Taylor',
     author_email='titus@idyll.org',
+
     license='MIT',
 
     packages=['twill', 'twill.extensions'],
@@ -49,10 +68,8 @@ setup(
     maintainer='C. Titus Brown',
     maintainer_email='titus@idyll.org',
 
-    url='http://twill.idyll.org/',
-    long_description="""\
-A scripting system for automating Web browsing.  Useful for testing
-Web pages or grabbing data from password-protected sites automatically.""",
+    long_description=description[1],
+
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Console',
