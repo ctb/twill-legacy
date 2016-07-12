@@ -184,7 +184,7 @@ def find(what, flags=''):
         elements = browser.xpath(what)
         if not elements:
             raise TwillAssertionError("no element to path '%s'" % (what,))
-        match_str = unicode(elements[0])
+        match_str = browser.decode(elements[0])
     else:
         match = re.search(what, page, flags=_parse_find_flags(flags))
         if not match:
@@ -490,7 +490,7 @@ def extend_with(module_name):
     """
     global_dict, local_dict = get_twill_glocals()
 
-    exec "from %s import *" % (module_name,) in global_dict
+    exec("from %s import *" % (module_name,), global_dict)
 
     # now add the commands into the commands available for the shell,
     # and print out some nice stuff about what the extension module does.
@@ -530,7 +530,10 @@ def getinput(prompt):
     """
     local_dict = get_twill_glocals()[1]
 
-    inp = raw_input(prompt)
+    try:
+        inp = raw_input(prompt)
+    except NameError:  # Python 3
+        inp = input(prompt)
 
     local_dict['__input__'] = inp
     return inp
@@ -605,7 +608,7 @@ def debug(what, level):
        * commands (any level >= 1), to display the commands being executed.
        * equiv-refresh (any level >= 1) to display HTTP-EQUIV refresh handling.
     """
-    import parse
+    from . import parse
 
     try:
         level = int(level)
@@ -638,7 +641,7 @@ def run(cmd):
     local_dict['__cmd__'] = cmd
     local_dict['__url__'] = browser.url
 
-    exec (cmd, global_dict, local_dict)
+    exec(cmd, global_dict, local_dict)
 
 
 def runfile(*args):
@@ -765,7 +768,7 @@ def show_extra_headers():
     headers = browser.headers
     if headers:
         info('\nThe following HTTP headers are added to each request:\n')
-        for key, value in headers.iteritems():
+        for key, value in headers.items():
             info('\t"%s" = "%s"', key, value)
         info('')
     else:

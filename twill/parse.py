@@ -3,14 +3,20 @@
 import re
 import sys
 
-from cStringIO import StringIO
+from io import StringIO
 
 from pyparsing import (
     alphas, alphanums, CharsNotIn, Combine, Group, Literal, Optional,
     ParseException, printables, removeQuotes, restOfLine, Word, ZeroOrMore)
 
 from . import browser, commands, log, namespaces
-from .errors import TwillAssertionError, TwillNameError
+from .errors import TwillNameError
+
+try:
+    basestring
+except NameError:  # Python 3
+    basestring = str
+
 
 # pyparsing stuff
 
@@ -144,6 +150,12 @@ def parse_command(line, globals_dict, locals_dict):
 
 def execute_string(buf, **kw):
     """Execute commands from a string buffer."""
+    if isinstance(buf, bytes):  # Python 2
+        try:
+            buf = buf.decode('utf-8')
+        except UnicodeDecodeError:
+            buf = buf.decode('latin-1')
+
     fp = StringIO(buf)
 
     kw['source'] = ['<string buffer>']
@@ -211,7 +223,7 @@ def _execute_script(inp, **kw):
                 error = "%s raised on line %d of '%s'" % (
                     error_type, n, sourceinfo)
                 if line:
-                    error += " while executing\n>>> %s'" % (line,)
+                    error += " while executing\n>> %s" % (line,)
                 log.error("\nOops! %s", error)
                 if not browser.first_error:
                     browser.first_error = error

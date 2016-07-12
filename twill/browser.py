@@ -3,7 +3,10 @@
 import pickle
 import re
 
-from urlparse import urljoin
+try:
+    from urllib.parse import urljoin
+except ImportError:  # Python 2
+    from urlparse import urljoin
 
 import requests
 from lxml import html
@@ -85,7 +88,7 @@ class TwillBrowser(object):
             try:
                 self._journey('open', try_url)
             except (IOError, ConnectionError, InvalidSchema) as error:
-                log.info("cannot go to '%s': %s" % (try_url, error))
+                log.info("cannot go to '%s': %s", try_url, error)
             else:
                 break
         else:
@@ -404,7 +407,7 @@ class TwillBrowser(object):
 
     def decode(self, value):
         """Decode a value using the current encoding."""
-        if isinstance(value, str) and self.encoding:
+        if isinstance(value, bytes) and self.encoding:
             value = value.decode(self.encoding)
         return value
 

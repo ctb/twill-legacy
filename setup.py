@@ -8,7 +8,7 @@ from setuptools import setup
 from setuptools.command.test import test as TestCommand
 
 python_version = sys.version_info[:2]
-if not (2, 6) <= python_version <= (2, 7):
+if not (2, 6) <= python_version <= (2, 7) and not python_version >= (3, 3):
     sys.exit("Python %s.%s is not supported by twill." % python_version)
 
 
@@ -65,6 +65,10 @@ Web pages or grabbing data from password-protected sites automatically.""",
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
         'Programming Language :: Other Scripting Engines',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Software Development :: Testing'

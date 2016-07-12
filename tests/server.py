@@ -2,9 +2,14 @@
 
 """Quixote test app for twill."""
 
+from __future__ import print_function
 
-import base64
 import os
+
+try:
+    from base64 import decodebytes
+except ImportError:  # Python 2
+    from base64 import decodestring as decodebytes
 
 from quixote.publish import Publisher
 from quixote.errors import AccessError
@@ -14,6 +19,12 @@ from quixote.form import widget
 from quixote import (
     get_session, get_session_manager, get_path,
     redirect, get_request, get_response)
+
+try:
+    basestring
+except NameError:  # Python 3
+    basestring = str
+
 
 HOST = '127.0.0.1'
 PORT = 8080
@@ -59,7 +70,8 @@ class UnauthorizedError(AccessError):
 def create_publisher():
     """Create a publisher for TwillTest, with session management added on."""
     session_manager = SessionManager(session_class=AlwaysSession)
-    return Publisher(TwillTest(), session_manager=session_manager)
+    return Publisher(TwillTest(), session_manager=session_manager,
+                     display_exceptions='plain')
 
 
 def message(session):
@@ -517,19 +529,32 @@ class HttpAuthRestricted(AccessControlled, Directory):
     def _q_access(self):
         r = get_request()
 
-        print '======================== NEW REQUEST'
-        for k, v in r.environ.items():
-            print '***', k, ':', v
-
+        login = passwd = None
         ha = r.get_environ('HTTP_AUTHORIZATION', None)
         if ha:
-            auth_type, auth_string = ha.split()
-            login, passwd = base64.decodestring(auth_string).split(':')
- 
-            if login == 'test' and passwd == 'password':
-                return
-            
-        raise UnauthorizedError
+            auth_type, auth_string = ha.split(None, 1)
+            if auth_type.lower() == 'basic':
+                if not isinstance(auth_string, bytes):  # Python 3
+                    auth_string = auth_string.encode('utf-8')
+                auth_string = decodebytes(auth_string)
+                login, passwd = auth_string.split(b':', 1)
+                if not isinstance(login, str):  # Python 3
+                    login = login.decode('utf-8')
+                if not isinstance(passwd, str):  # Python 3
+                    passwd = passwd.decode('utf-8')
+
+                if (login, passwd) != ('test', 'password'):
+                    passwd = None
+
+        if passwd:
+            print("Successful login as '%s'" % (login,))
+        elif login:
+            print("Invalid login attempt as '%s'" % (login,))
+        else:
+            print("Access has been denied")
+        print()
+        if not passwd:
+            raise UnauthorizedError
 
     def _q_index(self):
         return "you made it!"
@@ -538,7 +563,7 @@ class HttpAuthRestricted(AccessControlled, Directory):
 if __name__ == '__main__':
     from quixote.server.simple_server import run
     port = int(os.environ.get('TWILL_TEST_PORT', PORT))
-    print 'starting twill test server on port %d.' % (port,)
+    print('starting twill test server on port %d.' % (port,))
     try:
         run(create_publisher, host=HOST, port=port)
     except KeyboardInterrupt:

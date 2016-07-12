@@ -1,4 +1,4 @@
-import mock_dns
+from . import mock_dns
 
 from .utils import execute_script
 

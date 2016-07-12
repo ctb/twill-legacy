@@ -20,7 +20,7 @@ except (ImportError, OSError):
     tidylib = None
 
 from . import log, twill_ext
-from errors import TwillException
+from .errors import TwillException
 
 
 Link = namedtuple('Link', 'text, url')
@@ -29,16 +29,12 @@ Link = namedtuple('Link', 'text, url')
 class Singleton(object):
     """A mixin class to create singleton objects."""
 
-    def __new__(cls, *args, **kwds):
+    def __new__(cls, *args, **kwargs):
         it = cls.__dict__.get('__it__')
         if it is not None:
             return it
         cls.__it__ = it = object.__new__(cls)
-        it.init(*args, **kwds)
         return it
-
-    def init(self, *args, **kwds):
-        pass
 
     @classmethod
     def reset(cls):
@@ -138,11 +134,11 @@ class ResultWrapper(object):
         # put all stray fields into a form
         orphans = self.xpath('//input[not(ancestor::form)]')
         if orphans:
-            form = ['<form>']
+            form = [b'<form>']
             for orphan in orphans:
                 form.append(html.tostring(orphan))
-            form.append('</form>')
-            form = ''.join(form)
+            form.append(b'</form>')
+            form = b''.join(form)
             self.forms = html.fromstring(form).forms
             self.forms.extend(self.tree.forms)
         else:
@@ -276,7 +272,7 @@ def set_form_control_value(control, value):
         options = [opt.strip() for opt in control.value_options]
         option_names = [(c.text or '').strip() for c in control.getchildren()]
         full_options = dict(zip(option_names, options))
-        for name, opt in full_options.iteritems():
+        for name, opt in full_options.items():
             if value not in (name, opt):
                 continue
             if isinstance(control.value, html.MultipleSelectOptions):

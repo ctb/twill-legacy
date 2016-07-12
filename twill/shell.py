@@ -103,7 +103,7 @@ class TwillCommandLoop(Singleton, Cmd):
     by the metaclass.
     """
 
-    def init(self, stdin=None, initial_url=None, fail_on_unknown=False):
+    def __init__(self,  stdin=None, initial_url=None, fail_on_unknown=False):
         Cmd.__init__(self, stdin=stdin)
 
         self.use_rawinput = stdin is None

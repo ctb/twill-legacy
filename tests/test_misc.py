@@ -2,11 +2,9 @@
 
 import sys
 
-from cStringIO import StringIO
+from io import StringIO
 
 from pytest import raises
-
-import twill
 
 from twill import browser, commands
 from twill.browser import TwillBrowser
@@ -62,5 +60,5 @@ def test():
     with raises(TwillException):
         commands.config('readonly_controls_writeable', 'nada')
 
-    commands.run("print 'hello'")
+    commands.run("print('Hello!')")
 

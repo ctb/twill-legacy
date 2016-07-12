@@ -1,17 +1,19 @@
 """Utility functions for testing twill"""
 
+from __future__ import print_function
+
 import os
 import sys
 import getpass
 import subprocess
-import tempfile
 import time
-import urllib
 
-from cStringIO import StringIO
+from io import StringIO
+
+import requests
 
 test_dir = os.path.dirname(__file__)
-print 'the test directory is:', test_dir
+print('the test directory is:', test_dir)
 sys.path.insert(0, os.path.abspath(os.path.join(test_dir, '..')))
 
 import twill  # import twill from the right directory
@@ -20,6 +22,9 @@ import twill  # import twill from the right directory
 HOST = '127.0.0.1'  # interface to run the server on
 PORT = 8080  # default port to run the server on
 SLEEP = 0.5  # time to wait for the server to start
+
+START = True  # whether to automatically start the quixote server
+LOG = None  # name of the server log file or None
 
 _cwd = '.'  # current working directory
 _url = None  # current server url
@@ -56,6 +61,8 @@ def execute_script(filename, inp=None, initial_url=None):
 
     if inp:
         # use inp as the std input for the actual script commands
+        if isinstance(inp, bytes):  # Python 2
+            inp = inp.decode('utf-8')
         inp_fp = StringIO(inp)
         old_stdin, sys.stdin = sys.stdin, inp_fp
         old_getpass, getpass.getpass = getpass.getpass, mock_getpass
@@ -75,12 +82,16 @@ def execute_shell(filename, inp=None, initial_url=None,
         filename = os.path.join(test_dir, filename)
 
     cmd_inp = open(filename).read()
-    cmd_inp += '\nquit\n'
+    if isinstance(cmd_inp, bytes):  # Python 2
+        cmd_inp = cmd_inp.decode('utf-8')
+    cmd_inp += u'\nquit\n'
     cmd_inp = StringIO(cmd_inp)
     cmd_loop = twill.shell.TwillCommandLoop
 
     if inp:
         # use inp as the std input for the actual script commands
+        if isinstance(inp, bytes):  # Python 2
+            inp = inp.decode('utf-8')
         inp_fp = StringIO(inp)
         old_stdin, sys.stdin = sys.stdin, inp_fp
         old_getpass, getpass.getpass = getpass.getpass, mock_getpass
@@ -95,7 +106,7 @@ def execute_shell(filename, inp=None, initial_url=None,
         if inp:
             sys.stdin = old_stdin
             getpass.getpass = old_getpass
-    
+
 
 def start_server(port=None):
     """Start a simple test web server.
@@ -110,14 +121,13 @@ def start_server(port=None):
     if port is None:
         port = int(os.environ.get('TWILL_TEST_PORT', PORT))
 
-    out = open(os.devnull, 'w')  # the server output is not interesting
-
-    print 'STARTING:', sys.executable, 'tests/server.py', os.getcwd()
-    subprocess.Popen(
-        [sys.executable, '-u', 'server.py'],
-        stderr=subprocess.STDOUT, stdout=out)
-   
-    time.sleep(SLEEP)  # wait until the server is up and running
+    if START:
+        out = open(LOG or os.devnull, 'w', buffering=1)
+        print('STARTING:', sys.executable, 'tests/server.py', os.getcwd())
+        subprocess.Popen(
+            [sys.executable, '-u', 'server.py'],
+            stderr=subprocess.STDOUT, stdout=out)
+        time.sleep(SLEEP)  # wait until the server is up and running
 
     _url = 'http://%s:%d/' % (HOST, port)
 
@@ -125,9 +135,11 @@ def start_server(port=None):
 def stop_server():
     """Stop a previously started test web server."""
     global _url
-    if _url is not None:
-        try:
-            urllib.urlopen('%sexit' % (_url,))
-        except Exception:
-            pass
+
+    if _url:
+        if START:
+            try:
+                requests.get('%sexit' % (_url,))
+            except Exception:
+                print('Could not stop the server')
         _url = None

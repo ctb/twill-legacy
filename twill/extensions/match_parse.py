@@ -7,6 +7,11 @@ import re
 from twill import browser, log
 from twill.namespaces import get_twill_glocals
 
+try:
+    basestring
+except NameError:  # Python 3
+    basestring = str
+
 
 def showvar(which):
     """>> showvar var

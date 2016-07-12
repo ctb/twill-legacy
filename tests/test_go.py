@@ -1,7 +1,7 @@
 import os
 import sys
 
-from cStringIO import StringIO
+from io import StringIO
 
 from pytest import raises
 

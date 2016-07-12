@@ -3,7 +3,11 @@
 import sys
 import time
 
-from cStringIO import StringIO
+if str is bytes:
+    from io import BytesIO as StringIO
+else:
+    from io import StringIO
+
 from multiprocessing import Process
 
 from .parse import execute_file
@@ -68,4 +72,3 @@ def run_test(test_info):
         test_info.run_script()
     finally:
         server_process.terminate()
-

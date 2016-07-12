@@ -32,7 +32,7 @@ def simple_app(environ, start_response):
     global _app_was_hit
     _app_was_hit = True
     
-    return ['WSGI intercept successful!\n']
+    return [b'WSGI intercept successful!\n']
 
 
 def test_intercept():
@@ -41,10 +41,8 @@ def test_intercept():
 
     add_wsgi_intercept('localhost', 80, lambda: simple_app)
     assert not _app_was_hit
-    print 'go'
     commands.go('http://localhost:80/')
     commands.show()
-    print 'find'
     commands.find("WSGI intercept successful")
     assert _app_was_hit
     remove_wsgi_intercept('localhost', 80)
@@ -96,9 +94,7 @@ def test_wrapper_intercept():
 
     add_wsgi_intercept('localhost', 80, lambda: wrap_app)
     assert not _app_was_hit
-    print 'go'
     commands.go('http://localhost:80/')
-    print 'find'
     commands.find("WSGI intercept successful")
     assert _app_was_hit
     remove_wsgi_intercept('localhost', 80)
@@ -107,7 +103,7 @@ def test_wrapper_intercept():
 class IteratorApp:
     """Test some tricky iterator stuff in wsgi_intercept."""
 
-    content = ['Hello, world']
+    content = [b'Hello, world']
 
     def __call__(self, environ, start_response):
         status = '200 OK'
@@ -119,15 +115,15 @@ class IteratorApp:
         self._iter = iter(self.content)
         return self
 
-    def next(self):
-        return self._iter.next()
+    def __next__(self):
+        return next(self._iter)
+
+    next = __next__  # for Python 2
 
 
 def test_iter_stuff():
     add_wsgi_intercept('localhost', 80, IteratorApp)
-    print 'go'
     commands.go('http://localhost:80/')
-    print 'find'
     commands.show()
     commands.find("Hello, world")
     commands.notfind("Hello, worldHello, world")
