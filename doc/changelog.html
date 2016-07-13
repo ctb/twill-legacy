@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>ChangeLog</title>
+<style type="text/css">
+
+body,p,table,li,h1,h2,h3,hr
+{
+font-family: verdana, arial, 'sans serif'; 
+font-size: 95%
+}
+
+strong
+{
+font-family: verdana, arial, 'sans serif'; 
+font-size: 85%
+}
+
+
+h1.title
+{
+font-size: 110%
+}
+
+body
+{
+#ffffff;
+}
+
+a:link {COLOR: navy;}
+a:visited {COLOR: firebrick;}
+a:active {COLOR: seashell;}
+a:hover {COLOR: navy;}
+
+div {
+    margin:0;
+    padding:0 .25em 0 0;
+/*     text-align: right
+     border:1px solid #aaa;
+     background-color:#ececec; */
+    }
+
+
+pre.literal-block, pre.doctest-block {
+  margin-left: 2em ;
+  margin-right: 2em ;
+  background-color: #ffffff;
+  border: thin black solid;
+  padding: 5px;
+}
+
+</style>
+</head>
+<body>
+<div class="document" id="changelog">
+<h1 class="title">ChangeLog</h1>
+<h2 class="subtitle" id="released-2016">2.0 (released ... 2016)</h2>
+
+<p>This version is based on twill 1.8, which was a refactoring
+of version 0.9 that used requests and lxml instead of mechanize,
+done by Ben Taylor in April 2014.  It also integrates ideas and
+code from <a class="reference external" href="http://www.coactivate.org/projects/flunc/">Flunc</a> which was created by Luke Tucker and Robert Marianski
+in 2006-2007, and from <a class="reference external" href="https://bitbucket.org/brandizzi/retwill/">ReTwill</a> which was created in April 2012
+as a fork from twill 0.9 by Adam Victor Brandizzi.
+The following improvements and changes were made in this version:</p>
+<ul class="simple">
+<li>Larger refactoring, clean-up and modernization efforts to support
+Python 2.6, 2.7, 3.3 and higher.</li>
+<li>The console script has been renamed from 'twill-sh' to just 'twill'.</li>
+<li>We assume the default file extension '.twill' for twill scripts now.</li>
+<li>Uses <a class="reference external" href="http://lxml.de/">lxml</a> and <a class="reference external" href="http://docs.python-requests.org/">requests</a> instead of mechanize (like in version 1.8),
+but doesn't need cssselect and BeautifulSoup any more (unlike 1.8).</li>
+<li>Removed bundled packages which have become unnecessary (mechanize)
+or are available in newer versions on PyPI (pyparsing, wsgi_intercept)
+or in the standard library (subprocess).</li>
+<li>Removed parsing options (use_tidy, use_BeautifulSoup, allow_parse_errors)
+which have become insignificant due to the use of lxml.html.</li>
+<li>We use py.test instead of nosetests for testing twill now.</li>
+<li>Optimized the order of the URLs that are tried out by the twill browser.</li>
+<li>Added an option '-d' to dump the last HTML to a file or standard output
+and an option '-w' to show the HTML directly in the web browser (this
+feature was taken over from Flunc).</li>
+<li>Add alias 'rf' for 'runfiles' and made runfiles run directories of
+scripts as well. This helps writing test suites for twill scripts.</li>
+<li>Add command 'add_cleanup' to unconditionally run cleanup scripts after
+the current script finished. This allows resetting the state of the
+tested server, so that tests will always re-run on a clean state.
+Together with a small init.twill script, this creates a test fixture.
+(This idea was taken from Flunc, which supports cleanup scripts for
+test suites, although in a somewhat different way.)</li>
+<li>Accept non string values in variable substitution (this feature has
+been backported from ReTwill).</li>
+<li>Support XPath expressions in find/notfind commands (this feature has
+been backported from ReTwill).</li>
+<li>Make output better controllable by using log levels (this feature has
+been backported from ReTwill). See options '-l' and '-o'.</li>
+<li>Updated the map of predefined user agent strings.</li>
+<li>Support basic authentication with realm again (with_default_realm option
+switched off, which was broken in version 1.8).</li>
+<li>Server certificates are not verified by default, since they are usually
+not valid on test and staging servers.</li>
+<li>Improved handling of meta refresh. Circular redirects are detected and
+'debug equiv-refresh' is functional again.</li>
+<li>Moved the  examples and additional stuff into an 'extras' directory.</li>
+<li>Made sure everything (except twill-forks) also works on Windows.</li>
+<li>Fixed a lot of smaller and larger bugs and problems.</li>
+</ul>
+</div>
+</body>
+</html>

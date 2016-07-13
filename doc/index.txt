@@ -17,6 +17,7 @@ Downloading twill
 The latest release of twill is `twill 2.0 <ANNOUNCE-2.0.txt>`__,
 it is available for download_ from here, or you can use Python's pip_ tool
 to install or upgrade twill.
+Please see the changelog_ for what's new in this version.
 
 twill works with Python 2.6, 2.7, 3.3 or later.
 
@@ -124,6 +125,7 @@ Thanks, all!
 .. _MIT license: https://opensource.org/licenses/MIT
 
 .. _archive: http://lists.idyll.org/pipermail/twill/
+.. _changelog: changelog.html
 .. _cmd: https://docs.python.org/3/library/cmd.html
 .. _examples: examples.html
 
