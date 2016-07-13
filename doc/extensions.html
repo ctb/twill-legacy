@@ -3,31 +3,79 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.3.7: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
 <title>twill Extension Modules</title>
-<link rel="stylesheet" href="default.css" type="text/css" />
+<style type="text/css">
+
+body,p,table,li,h1,h2,h3,hr
+{
+font-family: verdana, arial, 'sans serif'; 
+font-size: 95%
+}
+
+strong
+{
+font-family: verdana, arial, 'sans serif'; 
+font-size: 85%
+}
+
+
+h1.title
+{
+font-size: 110%
+}
+
+body
+{
+#ffffff;
+}
+
+a:link {COLOR: navy;}
+a:visited {COLOR: firebrick;}
+a:active {COLOR: seashell;}
+a:hover {COLOR: navy;}
+
+div {
+    margin:0;
+    padding:0 .25em 0 0;
+/*     text-align: right
+     border:1px solid #aaa;
+     background-color:#ececec; */
+    }
+
+
+pre.literal-block, pre.doctest-block {
+  margin-left: 2em ;
+  margin-right: 2em ;
+  background-color: #ffffff;
+  border: thin black solid;
+  padding: 5px;
+}
+
+</style>
 </head>
 <body>
 <div class="document" id="twill-extension-modules">
 <h1 class="title">twill Extension Modules</h1>
+
 <div class="contents topic" id="contents">
-<p class="topic-title first"><a name="contents">Contents</a></p>
+<p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference" href="#check-links-a-simple-link-checker" id="id1" name="id1">check_links -- a simple link checker</a></li>
-<li><a class="reference" href="#match-parse-extensions-for-slicing-and-dicing-variables-with-regexps" id="id2" name="id2">match_parse -- extensions for slicing and dicing variables with regexps</a></li>
-<li><a class="reference" href="#require-assert-that-specific-conditions-hold-after-each-page-is-loaded" id="id3" name="id3">require -- assert that specific conditions hold after each page is loaded</a></li>
-<li><a class="reference" href="#mailman-sf-discard-spam-messages-from-your-sourceforge-mailing-lists" id="id4" name="id4">mailman_sf -- discard spam messages from your SourceForge mailing lists</a></li>
-<li><a class="reference" href="#argparse-pass-arguments-into-twill-scripts-via-sys-argv" id="id5" name="id5">argparse -- pass arguments into twill scripts via sys.argv</a></li>
-<li><a class="reference" href="#dns-check-make-assertions-about-domain-name-service-records" id="id6" name="id6">dns_check -- make assertions about domain name service records</a></li>
-<li><a class="reference" href="#csv-iterate-iterate-over-lists-of-values" id="id7" name="id7">csv_iterate -- iterate over lists of values</a></li>
-<li><a class="reference" href="#dirstack-manipulate-the-current-working-directory-cwd" id="id8" name="id8">dirstack -- manipulate the current working directory (cwd)</a></li>
-<li><a class="reference" href="#formfill-convenience-functions-for-filling-out-forms" id="id9" name="id9">formfill -- convenience functions for filling out forms</a></li>
+<li><a class="reference internal" href="#check-links-a-simple-link-checker" id="id1">check_links -- a simple link checker</a></li>
+<li><a class="reference internal" href="#match-parse-extension-for-regular-expressions-with-multiple-matches" id="id2">match_parse -- extension for regular expressions with multiple matches</a></li>
+<li><a class="reference internal" href="#require-assert-that-specific-conditions-hold-after-each-page-is-loaded" id="id3">require -- assert that specific conditions hold after each page is loaded</a></li>
+<li><a class="reference internal" href="#mailman-sf-discard-spam-messages-from-your-sourceforge-mailing-lists" id="id4">mailman_sf -- discard spam messages from your SourceForge mailing lists</a></li>
+<li><a class="reference internal" href="#argparse-pass-arguments-into-twill-scripts-via-sys-argv" id="id5">argparse -- pass arguments into twill scripts via sys.argv</a></li>
+<li><a class="reference internal" href="#dns-check-make-assertions-about-domain-name-service-records" id="id6">dns_check -- make assertions about domain name service records</a></li>
+<li><a class="reference internal" href="#csv-iterate-iterate-over-lists-of-values" id="id7">csv_iterate -- iterate over lists of values</a></li>
+<li><a class="reference internal" href="#dirstack-manipulate-the-current-working-directory-cwd" id="id8">dirstack -- manipulate the current working directory (cwd)</a></li>
+<li><a class="reference internal" href="#formfill-convenience-functions-for-filling-out-forms" id="id9">formfill -- convenience functions for filling out forms</a></li>
 </ul>
 </div>
 <p>Several different extension modules are distributed with twill, under
 'twill.extensions'.</p>
 <div class="section" id="check-links-a-simple-link-checker">
-<h1><a class="toc-backref" href="#id1" name="check-links-a-simple-link-checker">check_links -- a simple link checker</a></h1>
+<h1><a class="toc-backref" href="#id1">check_links -- a simple link checker</a></h1>
 <p>A simple link checker is included with twill.  To use it, do</p>
 <pre class="literal-block">
 go &lt;page&gt;
@@ -38,7 +86,7 @@ check_links
 <p>'check_links' will visit each link on the current page and verify that
 the HTTP status code is 200 (success).  A list of failing links will be
 printed out at the end of the function.</p>
-<p>The 'check_links' function takes an optional argument, a regexp to filter
+<p>The 'check_links' function takes an optional argument, a regex to filter
 for links that should be checked.  By default the filter matches everything;
 if you only wanted to check links on e.g. idyll.org, you could do</p>
 <pre class="literal-block">
@@ -56,8 +104,8 @@ links &amp; only then run check_links.</li>
 </ul>
 </blockquote>
 </div>
-<div class="section" id="match-parse-extensions-for-slicing-and-dicing-variables-with-regexps">
-<h1><a class="toc-backref" href="#id2" name="match-parse-extensions-for-slicing-and-dicing-variables-with-regexps">match_parse -- extensions for slicing and dicing variables with regexps</a></h1>
+<div class="section" id="match-parse-extension-for-regular-expressions-with-multiple-matches">
+<h1><a class="toc-backref" href="#id2">match_parse -- extension for regular expressions with multiple matches</a></h1>
 <p>The 'match_parse' extension module contains a number of functions for
 dealing with multiple matches, etc.  Here's some example code:</p>
 <pre class="literal-block">
@@ -84,7 +132,7 @@ echo __match__
 </pre>
 </div>
 <div class="section" id="require-assert-that-specific-conditions-hold-after-each-page-is-loaded">
-<h1><a class="toc-backref" href="#id3" name="require-assert-that-specific-conditions-hold-after-each-page-is-loaded">require -- assert that specific conditions hold after each page is loaded</a></h1>
+<h1><a class="toc-backref" href="#id3">require -- assert that specific conditions hold after each page is loaded</a></h1>
 <p>The 'require' extension module contains four functions that let you
 assert specific conditions.  For example,</p>
 <pre class="literal-block">
@@ -104,7 +152,7 @@ you call 'flush_visited' (see below).</p>
 <p><strong>flush_visited</strong> -- flush the list of visited links.</p>
 </div>
 <div class="section" id="mailman-sf-discard-spam-messages-from-your-sourceforge-mailing-lists">
-<h1><a class="toc-backref" href="#id4" name="mailman-sf-discard-spam-messages-from-your-sourceforge-mailing-lists">mailman_sf -- discard spam messages from your SourceForge mailing lists</a></h1>
+<h1><a class="toc-backref" href="#id4">mailman_sf -- discard spam messages from your SourceForge mailing lists</a></h1>
 <p>The 'mailman_sf' extension module contains two functions, 'discard_all_messages'
 and 'exit_if_empty'.  Here's some example code:</p>
 <pre class="literal-block">
@@ -130,11 +178,11 @@ submit 0
 </pre>
 </div>
 <div class="section" id="argparse-pass-arguments-into-twill-scripts-via-sys-argv">
-<h1><a class="toc-backref" href="#id5" name="argparse-pass-arguments-into-twill-scripts-via-sys-argv">argparse -- pass arguments into twill scripts via sys.argv</a></h1>
+<h1><a class="toc-backref" href="#id5">argparse -- pass arguments into twill scripts via sys.argv</a></h1>
 <p>The 'argparse' extension module contains one function, 'get_args'.  'get_args'
 loads all of the post-scriptfile command-line arguments into variables, e.g.</p>
 <pre class="literal-block">
-% ./twill-sh script1 script2 script3 -- val1 val2 val3
+$ twill script1 script2 script3 -- val1 val2 val3
 ...
 &gt;&gt; extend_with argparse
 &gt;&gt; get_args
@@ -143,9 +191,9 @@ args are val1 val2 val3
 </pre>
 </div>
 <div class="section" id="dns-check-make-assertions-about-domain-name-service-records">
-<h1><a class="toc-backref" href="#id6" name="dns-check-make-assertions-about-domain-name-service-records">dns_check -- make assertions about domain name service records</a></h1>
+<h1><a class="toc-backref" href="#id6">dns_check -- make assertions about domain name service records</a></h1>
 <p>dns_check implements functions to test domain name service (DNS) resolution.
-You'll need <a class="reference" href="http://www.dnspython.org/">dnspython</a> to use it.</p>
+You'll need <a class="reference external" href="http://www.dnspython.org/">dnspython</a> to use it.</p>
 <p>Functions:</p>
 <blockquote>
 <ul class="simple">
@@ -158,7 +206,7 @@ You'll need <a class="reference" href="http://www.dnspython.org/">dnspython</a> 
 </blockquote>
 </div>
 <div class="section" id="csv-iterate-iterate-over-lists-of-values">
-<h1><a class="toc-backref" href="#id7" name="csv-iterate-iterate-over-lists-of-values">csv_iterate -- iterate over lists of values</a></h1>
+<h1><a class="toc-backref" href="#id7">csv_iterate -- iterate over lists of values</a></h1>
 <p>csv_iterate provides a single function, 'csv_iterate', that lets you
 run a script once for each row in a file of comma-separated values.
 For example, if you had a file 'test.csv' containing</p>
@@ -183,7 +231,7 @@ first value is value3, second is value4
 combinations of values for specific forms.</p>
 </div>
 <div class="section" id="dirstack-manipulate-the-current-working-directory-cwd">
-<h1><a class="toc-backref" href="#id8" name="dirstack-manipulate-the-current-working-directory-cwd">dirstack -- manipulate the current working directory (cwd)</a></h1>
+<h1><a class="toc-backref" href="#id8">dirstack -- manipulate the current working directory (cwd)</a></h1>
 <p>dirstack provides two functions, 'chdir' and 'popd', which change the
 directory and recover the original directory, respectively.  The cwd
 is kept in the global variable '__dir__'.</p>
@@ -198,11 +246,11 @@ is kept in the global variable '__dir__'.</p>
 back to the original directory.</p>
 </div>
 <div class="section" id="formfill-convenience-functions-for-filling-out-forms">
-<h1><a class="toc-backref" href="#id9" name="formfill-convenience-functions-for-filling-out-forms">formfill -- convenience functions for filling out forms</a></h1>
+<h1><a class="toc-backref" href="#id9">formfill -- convenience functions for filling out forms</a></h1>
 <p>formfill provides three functions, 'fv_match', 'fv_multi', and
 'fv_multi_sub'.</p>
 <p>'fv_match' allows you to set many form fields all at once, based
-on regexp matching to the form field name, e.g.</p>
+on regex matching to the form field name, e.g.</p>
 <pre class="literal-block">
 fv_match &lt;form&gt; test-(\d+) 'hello world!'
 </pre>

@@ -27,7 +27,7 @@ Installing twill on Windows
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The most frequent problem people seem to encounter on Windows is the
-inability to run 'twill-sh'.  This happens because the Python
+inability to run 'twill'.  This happens because the Python
 installation's 'scripts' directory isn't in the path by default.
 According to the `Python Windows FAQ`_, the magic incantation is
 something like this: ::
@@ -62,7 +62,7 @@ The first and only thing you should do before asking the list (twill@lists.idyll
    >>> import twill.shell
    >>> twill.shell.main()
 
-(This should drop you into the twill shell irrespective of whether 'twill-sh'
+(This should drop you into the twill shell irrespective of whether 'twill'
 is on your path.)  **If this works**, twill is installed correctly and you
 just need to adjust your path (see above for examples).  If you still
 need help, or the above code doesn't work, please copy and paste the results

@@ -2,15 +2,17 @@
 twill's Python API
 ==================
 
-Using TwillBrowser
-Making extensions
+twill is essentially a web browsing and testing tool based on the
+`requests`_ and `lxml`_ packages.  All twill commands are implemented in
+the ``commands.py`` file, and pyparsing_ does the work of parsing the
+input and converting it into Python commands (see ``parse.py``).
+Interactive shell work and readline support is implemented via the `cmd`_
+module (from the standard Python library).
 
-twill is essentially a testing tool based on the `requests`_ and `lxml`_
-packages.  All twill commands are implemented in the ``commands.py``
-file, and pyparsing_ does the work of parsing the input and converting
-it into Python commands (see ``parse.py``).  Interactive shell work and
-readline support is implemented via the `cmd`_ module (from the standard
-Python library).
+.. _requests: http://docs.python-requests.org/
+.. _lxml: http://lxml.de/
+.. _pyparsing: http://pyparsing.wikispaces.com/
+.. _cmd: https://docs.python.org/3/library/cmd.html
 
 Using twill from Python
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -27,8 +29,7 @@ use them directly from Python.  For example, ::
    showforms()
 
 This has the advantage of being very simple, as well as being tied
-directly to the documented set of commands in `the commands
-reference`_.
+directly to the documented set of commands in `the commands reference`_.
 
 However, the functions in ``commands.py`` are too simple for some situations.
 In particular, they do not have any return values, so in order to e.g. get
@@ -58,14 +59,9 @@ the twill *language*.  In fact, all of the functions in ``commands.py``
 are small snippets of code wrapped around the browser object.
 
 For more information on the functions exposed by the browser object,
-see the **TwillBrowser** section below.
+see the code of the **TwillBrowser** class in twill.browser.
 
 .. _the commands reference: commands.html
-
-TwillBrowser
-~~~~~~~~~~~~
-
-...
 
 Extending twill
 ~~~~~~~~~~~~~~~
@@ -79,10 +75,9 @@ with mailman lists on SourceForge; this extension is used by
 
 Notes:
 
-  * If your extension raises ``SystemExit``, twill will stop
-    processing the script.  This is a useful way to build in
-    conditionals, e.g. see the ``discard-sf-mailman-msgs`` example
-    script.
+  * If your extension raises ``SystemExit``, twill will stop processing
+    the script.  This is a useful way to build in conditionals, e.g.
+    see the ``discard-sf-mailman-msgs`` example script.
 
 Passing variables from Python into twill
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -109,13 +104,11 @@ Using twill in other Python programs
 
 All of the commands available in twill are implemented as top-level functions
 in the `twill.commands` module.  For example, to use twill functionality from
-another Python program, you can do:
-
-::
+another Python program, you can do::
 
    from twill.commands import go, showforms, formclear, fv, submit
 
-   go('http://issola.caltech.edu/~t/qwsgi/qwsgi-demo.cgi/')
+   go('http://localhost:8080/')
    go('./widgets')
    showforms()
 
@@ -135,14 +128,3 @@ to twill.set_output, e.g. ::
    twill.set_output(StringIO())
 
 will send all non-error output into a StringIO() object.
-
-twill also provides a simple wrapper for requests_ and lxml_ functionality,
-in the `browser.py` module.  This may be useful for twill extensions as
-well as for other toolkits, but the API is still unstable.
-
-.. _requests: http://docs.python-requests.org/
-.. _lxml: http://lxml.de/
-.. _pyparsing: http://pyparsing.sourceforge.net/
-.. _darcs: http://abridgegame.org/darcs/
-
-.. _cmd: http://docs.python.org/lib/module-cmd.html

@@ -32,14 +32,15 @@ regular expression. The variable ``__match__`` is set to the first matching
 subgroup (or the entire matching string, if no subgroups are specified).
 When called from Python, the matching string is returned. It also accepts
 some flags: **i**, for case-insensitive matching, **m** for multi-line mode
-and **s** for dotall matching.
+and **s** for dotall matching. The flag **x** uses XPath expressions instead
+of regular expressions (see below).
 
 **find** *<xpath>* **x** -- assert that the page contains the element
 matched by the XPath expression. The variable ``__match__`` is set to
 the first matching element's string representation.
 
 **notfind** *<regex>* [*<flags>*] -- assert that the page *does not* contain
-this regular expression. It accepts the same flags of **find**.
+this regular expression. It accepts the same flags as **find**.
 
 **notfind** *<xpath>* **x** -- assert that the page *does not* contain this
 element pointed by the XPath expression.
@@ -89,13 +90,13 @@ clicked, use the first submit button on the form.  See `details on
 form handling`_ for more information.
 
 **formvalue** *<formnum> <fieldname> <value>* --- set the given field in
-the given form to the given value.  For read-only form widgets/controls,
+the given form to the given value.  For read-only form controls,
 the click may be recorded for use by **submit**, but the value is not
 changed unless the 'config' command has changed the default behavior.
 See 'config' and `details on form handling`_ for more information on
 the 'formvalue' command.
 
-For list widgets, you can use 'formvalue <formnum> <fieldname> +value'
+For list controls, you can use 'formvalue <formnum> <fieldname> +value'
 or 'formvalue <formnum> <fieldname> -value' to select or deselect a
 particular value.
 
@@ -104,7 +105,7 @@ particular value.
 **formaction** *<formnum> <action>* -- change the form action URL to the
 given URL.
 
-**fa** -- abbreviation for 'fa'.
+**fa** -- abbreviation for 'formaction'.
 
 **formclear** -- clear all values in the form.
 
@@ -127,10 +128,9 @@ Debugging
 =========
 
 **debug** *<what>* *<level>* -- turn on or off debugging/tracing for
-  various functions.  The first argument is either 'http' to show HTTP
-  headers, 'equiv-refresh' to test HTTP EQUIV-REFRESH headers, or
-  'commands' to show twill commands.  The second argument is '0' for off,
-  '1' for on.
+various functions.  The first argument is either 'http' to show HTTP
+headers, 'equiv-refresh' to show "meta refresh" redirects, or 'commands'
+to show twill commands.  The second argument is '0' for off, '1' for on.
 
 Variable handling
 =================
@@ -167,8 +167,6 @@ or warnings.  (`tidy` is very stringent -- you've been warned!)
 
 **rf** -- abbreviation for 'runfile'.
 
-**rf** -- abbreviation for 'runfile'.
-
 **add_cleanup** *<file1> [ <file2> ... ]* -- add the given cleanup file(s).
 These will be run after the current file has executed (successfully or not).
 
@@ -182,7 +180,7 @@ Defaults to 1 second.
 **extend_with** *<module>* -- import commands from Python module.  This acts
 like ``from <module> import *`` does in Python, so e.g. a function
 ``fn`` in ``extmodule`` would be available as ``fn``.
-See *examples/extend_example.py* for an example.
+See *extras/examples/extend_example.py* for an example.
 
 **getinput** *<prompt>* -- get keyboard input and store it in ``__input__``.
 When called from Python, this function returns the input value.

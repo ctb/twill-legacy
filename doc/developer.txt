@@ -2,17 +2,19 @@
 Developing twill
 ================
 
-twill is entirely written in Python.  You will need Python 2.6 or 2.7
-to develop it.  Python 3 is not yet supported.
+twill is entirely written in Python.  You will need Python 2.6, 2.7, 3.3
+or higher to use and develop it.
 
 Package tests
 ~~~~~~~~~~~~~
 
 twill comes with several unit tests.  They depend on `py.test`_ and
-`Quixote`_.  To run them, type 'python setup.py test'
-in the top package directory.
+`Quixote`_.  To run them, type 'python setup.py test' in the top level
+directory, or simply type 'py.test'. To run an individual test, you
+can use the command 'python setup.py test -a tests/test_something.py'
+or simply 'py.test tests/test_something.py'.
 
-.. pytest.org: http://pytest.org/
+.. _py.test: http://pytest.org/
 .. _Quixote: http://quixote.ca/
 
 Licensing
@@ -66,55 +68,6 @@ To pull in changes made by the lead developer some time later:
 
    darcs pull
 
-Advanced documentation
-~~~~~~~~~~~~~~~~~~~~~~
-
-twill uses a melange of different packages.  Here are some potentially
-useful links:
-
- * `urllib2.py: the missing manual`_ -- a detailed discussion of urllib2
-   functionality that can be directly applied to twill.
-
-.. _`urllib2.py: the missing manual`: http://www.voidspace.org.uk/python/articles/urllib2.shtml
-
-Future Plans
-------------
-
-TODO:
-
-for 9.0 (beta).
-
- 1. RECORDING.
- 2. execute directories/directory trees.
- 3. expose 'browser' & document re Grig; regexp esp.; make source docs.
- 4. twill-fork: make file writing stuff optional; test massive fork fn.
- 5. add config directives for socket timeout.
- 6. directory stuff: import from specific place, access script location.
-
-Misc fixes & cleanups:
-
- 1. Paul McGuire's pyparsing suggestions.
- 2. cookie "1" vs 1, in cookielib.
- 3. extend_with etc. -- module namespaces, e.g. extmodule.fn?
- 4. implement more complex proxy support.  proxies proxies proxies.
- 5. 'history' to show command history...
- 6. record commands to script
- 7. command line option for stdout -> file
-
-Random ideas:
-
- 1. Build twill interfaces for zope.testbrowser and mechanoid and pycurl.
-
-    (This shouldn't be too difficult, since both are based on mechanize...)
-
- 2. Develop twill-like languages for PAMIE_ and PyXPCOM_.  Note that the
-    hard work, at least for PAMIE, is already done; check out the
-    `PAMIE examples page`_.
-
 Contributions are welcome & will be duly acknowledged!
 
 .. _darcs: http://abridgegame.org/darcs/
-
-.. _PAMIE: http://pamie.sourceforge.net/
-.. _PAMIE examples page: tutoriala.html
-.. _PyXPCOM: http://kb.mozillazine.org/PyXPCOM

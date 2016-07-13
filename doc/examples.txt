@@ -2,10 +2,10 @@
 twill Examples
 ==============
 
-Example: logging into slashdot.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Example: logging into slashdot
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This script logs you into slashdot (assuming you have an account!).  ::
+This script logs you into slashdot (assuming you have an account!). ::
 
     setlocal username <your username>
     setlocal password <your password>

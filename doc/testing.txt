@@ -2,34 +2,37 @@
 Testing Web sites with twill
 ============================
 
-twill was initially designed for testing Web sites, although since then
+twill was initially designed for testing web sites, although since then
 people have also figured out that it's good for browsing_ unsuspecting
-Web sites.
+web sites.
 
 .. _browsing: browsing.html
 
-Using twill-sh
-~~~~~~~~~~~~~~
+Using the twill command
+~~~~~~~~~~~~~~~~~~~~~~~
 
 The simplest way to test Web sites is to write one or more twill scripts
 and then simply run ::
 
-    twill-sh [ -u initial_url ] script(s)
+    twill [ -u initial_url ] script(s)
 
 either from the command-line (for development purposes), via a cron job
 (to check to see if sites are up and responding), or from your functional
 or unit tests (see below).
 
-twill-sh will try to run each script given to it on the command line
+twill will try to run each script given to it on the command line
 once, and will report the number of scripts that failed.  The exit value
 of the script will be 0 if there are no failures, so you can use it in
 a shell script easily enough.
 
-twill-sh will gather scripts from directories, so you can create a whole
+twill will gather scripts from directories, so you can create a whole
 directory hierarchy containing your scripts and they will all be gathered
 and run, in standard lexical order.
 
-The ``-u`` flag can be used to give twill-sh an initial URL; this is
+twill scripts are assumed to have the '.twill' extensions; you don't
+need to specify it explicitly.
+
+The ``-u`` flag can be used to give twill an initial URL; this is
 equivalent to placing a "go (initial_url)" command at the top of the
 script, but is particularly handy for test frameworks where the URL
 might change depending on the developer.
@@ -37,15 +40,12 @@ might change depending on the developer.
 Stress testing
 ~~~~~~~~~~~~~~
 
-You can use the `twill-fork` script to do some stress testing.  The syntax is 
-
-::
+You can use the `twill-fork` script to do some stress testing.
+The syntax is ::
 
    twill-fork -n <number to execute> -p <number of processes> script [ scripts... ]
 
-For example,
-
-::
+For example, ::
 
    twill-fork -n 500 -p 10 test-script
 
@@ -60,44 +60,42 @@ measured between the start and end of script execution.
 
 Try `twill-fork -h` to get a list of other command line arguments.
 
-Note that twill-fork still needs a lot of work...
+Note that twill-fork runs only under Unix and still needs a lot of work...
 
   
 Unit testing
 ~~~~~~~~~~~~
 
-twill can be used in unit testing, and it contains
-some Python support infrastructure for this purpose.
+twill can be used in unit testing, and it contains some Python support
+infrastructure for this purpose.
 
 As an example, here's the code from twill's own unit test, testing the
 unit-test support code::
 
     import os
-    import testlib
-    import twill.unit
-    import twilltestserver
+    import twill
     from quixote.server.simple_server import run as quixote_run
 
+    PORT=8090  # port to run the server on
+
+    def run_server():
+        """Function to run the server"""
+        quixote_run(twill.tests.server.create_publisher, port=PORT)
+
     def test():
-        # port to run the server on
-        PORT=8090
-
-        # create a function to run the server
-        def run_server_fn():
-            quixote_run(twilltestserver.create_publisher, port=PORT)
-
-        # abspath to the script
-        script = os.path.join(testlib.testdir, 'test-unit-support.twill')
+        """The unit test"""
+        test_dir = twill.tests.utils.testdir
+        script = os.path.join(test_dir, 'test_unit_support.twill')
 
         # create test_info object
-        test_info = twill.unit.TestInfo(script, run_server_fn, PORT)
+        test_info = twill.unit.TestInfo(script, run_server, PORT)
 
         # run tests!
         twill.unit.run_test(test_info)
 
-Here, I'm unit testing the Quixote application ``twilltestserver``, which
+Here, I'm unit testing the Quixote application ``twill.tests.server``, which
 is run by ``quixote_run`` (a.k.a. ``quixote.server.simple_server.run``) on
-port ``PORT``, using the twill script ``test-unit-support.twill``.  That
+port ``PORT``, using the twill script ``test_unit_support.twill``.  That
 script contains this code::
 
    # starting URL is provided to it by the unit test support framework.
@@ -108,8 +106,8 @@ script contains this code::
 A few things to note:
 
  * the initial URL is set based on the URL reported by ``TestInfo``,
-   which calculates it based on the ``PORT`` argument.  (This can be overriden
-   by subclasses.)
+   which calculates it based on the ``PORT`` argument.
+   (This can be overridden by subclasses.)
 
  * ``TestInfo`` contains code to (a) run the server function in a new
    process, and (b) run the twill script against that server.  It then

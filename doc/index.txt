@@ -3,10 +3,10 @@ twill: a simple scripting language for Web browsing
 ===================================================
 
 twill is a simple language that allows users to browse the Web from
-a command-line interface.  With twill, you can navigate through Web
+a command-line interface.  With twill, you can navigate through web
 sites that use forms, cookies, and most standard Web features.
 
-twill supports automated Web testing and has a simple Python interface.
+twill supports automated web testing and has a simple Python interface.
 Check out the examples_!
 
 twill is open source and written in Python.
@@ -14,15 +14,14 @@ twill is open source and written in Python.
 Downloading twill
 -----------------
 
-The latest release of twill is `twill 0.9 <ANNOUNCE-0.9.txt>`__,
-released Thursday, December 27th, 2007; it is available for download at
-http://darcs.idyll.org/~t/projects/twill-0.9.tar.gz.  You can also use
-Python's easy_install_ to install or upgrade twill.
+The latest release of twill is `twill 2.0 <ANNOUNCE-2.0.txt>`__,
+it is available for download_ from here, or you can use Python's pip_ tool
+to install or upgrade twill.
 
-twill works with Python 2.3 or later.
+twill works with Python 2.6, 2.7, 3.3 or later.
 
-To start using twill, install it and then type ``twill-sh``.  At the
-prompt type: ::
+To start using twill, install it and then type ``twill``.
+At the prompt, type::
 
    go http://www.slashdot.org/
    show
@@ -58,8 +57,6 @@ Documentation is available for the following topics:
 
  * `Other tools and packages`_ -- projects relevant to, or based upon, twill.
 
- * `Known problems`_ -- those problems that are still lurking in the code.
-
 Mailing List
 ------------
 
@@ -73,8 +70,8 @@ Bug reports, fixes, extensions, and links to interesting blog or
 use case reports are always welcome!  You can send them to the mailing
 list or to Titus directly.
 
-When reporting bugs, please be sure to use the '-f' flag for ``twill-sh``
-so that we can see the full traceback.
+When reporting bugs, please be sure to use the '-f -l debug' options
+with ``twill`` so that we can see the full traceback.
 
 Authors and License
 -------------------
@@ -124,11 +121,11 @@ Thanks, all!
 .. _Other tools and packages: other.html
 .. _Known problems: problems.html
 .. _Extension modules: extensions.html
+.. _MIT license: https://opensource.org/licenses/MIT
+
 .. _archive: http://lists.idyll.org/pipermail/twill/
-
-.. _cmd: http://docs.python.org/lib/module-cmd.html
-
-.. _MIT license: http://www.opensource.org/licenses/mit-license.php
-.. _easy_install: http://peak.telecommunity.com/DevCenter/EasyInstall
-
+.. _cmd: https://docs.python.org/3/library/cmd.html
 .. _examples: examples.html
+
+.. _pip: https://pypi.python.org/pypi/pip
+.. _download: http://darcs.idyll.org/~t/projects/twill-2.0.tar.gz

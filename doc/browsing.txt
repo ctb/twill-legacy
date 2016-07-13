@@ -2,17 +2,16 @@
 Web browsing with twill
 =======================
 
-twill strives to be a complete implementation of a Web browser,
+twill strives to be a complete implementation of a web browser,
 omitting only JavaScript support.  It includes support for cookies,
-basic authentication, and most (all?) HTTP trickery, including
-HTTP-EQUIV redirects.  Please `let me know`_ if you find a situation
-where it doesn't work!
+basic authentication, and trickery such as "meta refresh" redirects.
+Please `let me know`_ if you find a situation where it doesn't work!
 
 twill implements a variety of commands_.  With the built-in language,
 you can do things like go to a specific URL; follow links; fill out
 forms and submit them; save, load, and delete cookies; and change the
-agent string.  You can also easily extend twill with new and specialized
-Python commands.
+user agent string.  You can also easily extend twill with new and
+specialized commands using Python.
 
 .. _let me know: twill@lists.idyll.org
 .. _commands: commands.html
@@ -20,9 +19,10 @@ Python commands.
 Using twill interactively
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-twill-sh lets you interactively browse the Web.  It features built-in
-help, e.g. "help go" will describe the command 'go' to you;
-command-line completion with TAB; and history browsing (UP/DOWN arrows).
+The twill command line script lets you interactively browse the Web.
+It features built-in help, e.g. "help go" will describe the command 'go'
+to you; command-line completion with the TAB key; and history browsing
+with the UP/DOWN arrow keys.
 
 Proxy servers
 ~~~~~~~~~~~~~
@@ -41,19 +41,13 @@ Recording scripts
 ~~~~~~~~~~~~~~~~~
 
 Writing twill scripts is boring.  One simple way to get at least a
-rough initial script is to use the maxq_ recorder to generate a twill
-script.  maxq_ acts as an HTTP proxy and records all HTTP traffic; I
+rough initial script is to use the MaxQ_ recorder to generate a twill
+script.  MaxQ_ acts as an HTTP proxy and records all HTTP traffic; I
 have written a simple twill script generator for it.  The script
 generator and installation docs are included in the twill distribution
-under the directory ``maxq/``.
+under the directory ``extras/maxq``.
 
-A more recent option is to use the Firefox extension TestGen4Web_, which
-will record your Web browsing in a standard format.  Matt Harrison is
-working on converter.
-
-.. _converter: http://panela.blog-city.com/generate_twill_scripts_and_mechanize_unittests_from_testgen4.htm
-.. _TestGen4Web: http://developer.spikesource.com/wiki/index.php/Projects:TestGen4Web
-
+.. _MaxQ: http://maxq.tigris.org/
 
 Miscellaneous implementation details
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -63,10 +57,7 @@ Miscellaneous implementation details
  * http-equiv=refresh headers are handled immediately, independent of the
    'pause' component of the 'content' attribute.
 
- * twill does not understand javascript.
-
-.. _maxq: http://maxq.tigris.org/
-
+ * twill ignores JavaScript.
 
 Using HTML Tidy to check for broken HTML
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
