@@ -100,7 +100,7 @@ def tidy_ok():
     if page is None:
         raise TwillAssertionError("not viewing HTML!")
 
-    (clean_page, errors) = utils.run_tidy(page)
+    clean_page, errors = utils.run_tidy(page)
     if clean_page is None:  # tidy doesn't exist...
         if options.get('tidy_should_exist'):
             raise TwillAssertionError("cannot run 'tidy'")
@@ -617,10 +617,10 @@ def debug(what, level):
 
     log.info('DEBUG: setting %s debugging to level %d', what, level)
 
-    if what == "http":
+    if what == 'http':
         requests.packages.urllib3.connectionpool.debuglevel = level
     elif what == 'equiv-refresh':
-        utils._debug_print_refresh = level > 0  # TODO: currently not supported
+        browser.show_refresh = level > 0
     elif what == 'commands':
         parse.log_commands(level > 0)
     else:
@@ -784,13 +784,13 @@ def clear_extra_headers():
     browser.reset_headers()
 
 
-options = {}  # the global options dictionary
-
 default_options = dict(
     readonly_controls_writeable=False,
     require_tidy=False,
     with_default_realm=False,
     acknowledge_equiv_refresh=True)
+
+options = default_options.copy()  # the global options dictionary
 
 
 def config(key=None, value=None):
@@ -817,7 +817,7 @@ def config(key=None, value=None):
         v = options.get(key)
         if v is None:
             log.error("no such configuration key '%s'", key)
-            info("valid keys are: %s", ', '.join(options.keys()))
+            info("valid keys are: %s", ', '.join(sorted(options)))
             raise TwillException("no such configuration key: '%s'" % (key,))
         elif value is None:
             info('\nkey %s: value %s\n', key, v)

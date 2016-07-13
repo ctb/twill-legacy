@@ -50,7 +50,7 @@ def fv_match(formname, regex, value):
         n = 0
         for control in matches:
             browser.clicked(form, control)
-            if 'readonly' in control.attrib.keys():
+            if 'readonly' in control.attrib:
                 continue
 
             n += 1
@@ -81,7 +81,7 @@ def fv_multi_match(formname, regex, *values):
 
         for n, control in enumerate(matches):
             browser.clicked(form, control)
-            if 'readonly' in control.attrib.keys():
+            if 'readonly' in control.attrib:
                 continue
             try:
                 utils.set_form_control_value(control, values[n])

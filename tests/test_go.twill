@@ -25,10 +25,9 @@ showhistory
 
 back
 
-#go ../ @CTB this should work, yes?
+showhistory
 
-####
-# test '?' behavior
+# test query parameters
 
 go /echo
 

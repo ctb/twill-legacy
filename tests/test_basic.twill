@@ -207,11 +207,7 @@ submit
 code 200
 find "twill: a simple scripting"
 
-# ok, separate issue: redirect + enctype problem that I fixed in
-# wwwsearch, urllib2_support, HTTPRedirectHandler, redirect_request.
-# (redirects after a POST retain content-type inappropriately)
-
-## @@CTB
+# test PRG pattern
 go ./formpostredirect
 fv 1 test "hello"
 submit

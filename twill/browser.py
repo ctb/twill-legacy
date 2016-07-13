@@ -27,10 +27,12 @@ class TwillBrowser(object):
     user_agent = 'TwillBrowser/%s' % (__version__,)
 
     def __init__(self):
-        # create special link/forms parsing code to run tidy on HTML first.
         self.result = None
         self.last_submit_button = None
         self.first_error = None
+
+        # whether meta refresh will be displayed
+        self.show_refresh = False
 
         # whether the SSL cert will be verified, or can be a ca bundle path
         self.verify = False
@@ -350,7 +352,7 @@ class TwillBrowser(object):
         # Add referer information.  This may require upgrading the
         # request object to have an 'add_unredirected_header' function.
         # @BRT: For now, the referrer is always the current page
-        # @CTB this seems like an issue for further work.
+        # @CTB: this seems like an issue for further work.
         # Note: We do not set Content-Type from form.attrib.get('enctype'),
         # since Requests does a much better job at setting the proper one.
         headers = {'Referer': self.url}
@@ -427,42 +429,26 @@ class TwillBrowser(object):
             new_payload.append((name, val))
         return new_payload
 
-    def _test_for_meta_redirections(self, r):
-        """Checks a document for meta redirection."""
-        # @BRT: Added to test for meta redirection
-        # Shamelessly stolen from
-        # http://stackoverflow.com/questions/2318446/how-to-follow-meta-refreshes-in-python
-        # Took some modification to get it working, though.
-        # Original post notes that this doesn't check circular redirect.
-        # Is this something we're concerned with?
-        html_tree = html.fromstring(r.text)
-        attr = html_tree.xpath(
-            "//meta[translate(@http-equiv, 'REFSH', 'refsh')"
-            " = 'refresh']/@content")
-        if attr:
-            wait, text = attr[0].split(';')
-            # @BRT: Strip surrounding quotes and ws; less brute force method?
-            # Other chars that need to be dealt with?
-            text = text.strip().strip('\'"')
-            if text.lower().startswith("url="):
-                url = text[4:]
-                if not url.startswith('http'):
-                    # Relative URL, adapt
-                    url = urljoin(r.url, url)
-                    return True, url
-        return False, None
-
-    def _follow_redirections(self, r, s):
-        """Follows a meta refresh redirections if it exists.
-
-        Note: This is a recursive function.
-        """
-        # @BRT: Added to test for meta redirection
-        # Shamelessly stolen from the same link as _test_for_meta_redirections
-        redirected, url = self._test_for_meta_redirections(r)
-        if redirected:
-            r = self._follow_redirections(s.get(url), s)
-        return r
+    @staticmethod
+    def _get_meta_refresh_url(response):
+        """Get meta refresh url from a response."""
+        tree = html.fromstring(response.text)
+        try:
+            content = tree.xpath(  # "refresh" is case insensitive
+                "//meta[translate(@http-equiv,'REFSH','refsh')="
+                "'refresh'][1]/@content")[0]
+            url = content.split(';', 1)[1]  # ignore time interval
+            url = url.strip().strip('"').strip().strip("'").strip()
+            url = url.split('=', 1)
+            if url[0].strip().lower() != 'url':
+                raise IndexError
+            url = url[1].strip().strip('"').strip().strip("'").strip()
+        except IndexError:
+            url = None
+        else:
+            if '://' not in url:  # relative URL, adapt
+                url = urljoin(response.url, url)
+        return url
 
     _re_basic_auth = re.compile('Basic realm="(.*)"', re.I)
 
@@ -512,8 +498,20 @@ class TwillBrowser(object):
                 if auth:
                     r = self._session.get(url, auth=auth, verify=self.verify)
 
+        # handle redirection via meta refresh (not handled in requests)
         if _follow_equiv_refresh():
-            r = self._follow_redirections(r, self._session)
+            visited = set()  # break circular refresh chains
+            while True:
+                url = self._get_meta_refresh_url(r)
+                if not url:
+                    break
+                if url in visited:
+                    log.warning('Circular meta refresh detected!')
+                    break
+                (log.info if self.show_refresh else log.debug)(
+                    'Meta refresh to new URL: %s', url)
+                r = self._session.get(url)
+                visited.add(url)
 
         if func_name in ('follow_link', 'open'):
             # If we're really reloading and just didn't say so, don't store

@@ -3,15 +3,28 @@ code 200
 debug equiv-refresh 1
 
 # test http-equiv=refresh
+
+# check simple refresh
 go /test_refresh
 url /login
 code 200
 
+# check with upper case
 go /test_refresh2
 url /login
 code 200
 
-# turn it off & try again
+# check circular refresh
+go /test_refresh3
+url /test_refresh3
+code 200
+
+# check more realistic refresh
+go /test_refresh4
+url /login
+code 200
+
+# turn it off and try again
 config acknowledge_equiv_refresh off
 go /test_refresh
 url /test_refresh
@@ -25,7 +38,6 @@ url /login
 code 200
 
 # check quotes around url
-go /test_refresh3
+go /test_refresh5
 url /login
 code 200
-

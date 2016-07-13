@@ -108,7 +108,8 @@ class TwillTest(Directory):
         'simpleform', 'upload_file', 'http_auth', 'formpostredirect',
         'exit', 'multisubmitform', "exception", "plaintext",
         "testform", "testformaction",
-        "test_refresh", "test_refresh2", "test_refresh3",
+        "test_refresh", "test_refresh2",
+        "test_refresh3", "test_refresh4", "test_refresh5",
         "test_checkbox", "test_simple_checkbox", "echo",
         "test_checkboxes", 'test_global_form',
         'broken_form_1', 'broken_form_2', 'broken_form_3',
@@ -230,12 +231,28 @@ class TwillTest(Directory):
 """
     
     def test_refresh(self):
+        """test simple refresh"""
         return """\
 <meta http-equiv="refresh" content="2; url=./login">
 hello, world.
 """
-    
+
     def test_refresh2(self):
+        """test refresh with upper case"""
+        return """\
+    <META HTTP-EQUIV="REFRESH" CONTENT="2; URL=./login">
+    hello, world.
+    """
+
+    def test_refresh3(self):
+        """test circular refresh"""
+        return """\
+    <meta http-equiv="refresh" content="2; url=./test_refresh3">
+    hello, world.
+    """
+
+    def test_refresh4(self):
+        """test refresh together with similar meta tags"""
         return """\
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
@@ -250,10 +267,8 @@ hello, world.
 hello, world.
 """
 
-    def test_refresh3(self):
-        """
-        check for situation where given URL is quoted.
-        """
+    def test_refresh5(self):
+        """check for situation where given URL is quoted."""
         return """\
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
@@ -345,7 +360,7 @@ hello, world.
 
     def testformaction(self):
         request = get_request()
-        keys = [k for k in request.form.keys() if request.form[k]]
+        keys = [k for k in request.form if request.form[k]]
         keys.sort()
         return "==" + " AND ".join(keys) + "=="
 
@@ -459,10 +474,7 @@ hello, world.
 """ % (s,)
 
     def formpostredirect(self):
-        """
-        Test redirect after a form POST.  This tests a specific bug that
-        existed in the formerly used mechanize package.
-        """
+        """Test redirect after a form POST."""
         request = get_request()
 
         if not request.form:
