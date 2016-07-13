@@ -1,0 +1,5 @@
+# see http://ivory.idyll.org/blog/simple-with-twill.html
+
+add_extra_header User-Agent "Mozilla/5.0 (compatible; MyProgram/0.1)"
+go http://www.python.org/
+show
