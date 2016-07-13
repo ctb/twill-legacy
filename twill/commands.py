@@ -387,7 +387,10 @@ def formclear(formname):
                 control.type in ('submit', 'image', 'hidden')):
             continue
         elif isinstance(control, html.SelectElement):
-            control.value = []
+            if control.multiple:
+                control.value.clear()
+            else:
+                control.value = None
         else:
             if control.value is not None:
                 del control.value

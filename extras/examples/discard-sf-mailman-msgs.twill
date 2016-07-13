@@ -1,4 +1,5 @@
-# load in the mailman_sf & argparse extensions
+# load in the mailman_sf and argparse extensions
+
 extend_with mailman_sf
 extend_with argparse
 
@@ -18,6 +19,6 @@ code 200
 # if there aren't any messages on the page, exit.
 exit_if_empty
 
-# if not empty, discard all messages & submit
+# if not empty, discard all messages and submit
 discard_all_messages
 submit 0

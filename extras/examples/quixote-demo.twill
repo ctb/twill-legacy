@@ -1,0 +1,59 @@
+# Twill tests against the Quixote demo application
+
+# You need to start the Quicote demo first on your local host with
+# python quixote/server/simple_server.py --factory quixote.demo.create_publisher
+
+go http://127.0.0.1:8080/
+
+go ./simple
+back
+
+follow simple
+code 200
+back
+
+follow error
+code 500
+back
+
+follow publish_error
+code 400
+back
+
+follow extras
+follow 12
+follow factorial
+find 479001600
+back
+follow next
+follow next
+find 14
+
+go /
+follow dumpreq
+find PATH_INFO
+back
+
+go /
+follow extras
+follow form
+showforms
+
+formclear 1
+fv 1 name "test word"
+fv 1 password testpass
+fv 1 confirm yes
+showforms
+submit
+show
+
+code 200
+find testpass
+
+go /
+follow extras
+follow src
+find '__init__.pyc'
+back
+
+echo SUCCESS!
