@@ -21,6 +21,7 @@ def run_server(port=PORT):
 
 
 def test():
+    """The unit test"""
     # abspath to the script
     script = os.path.join(test_dir, 'test_unit_support.twill')
 

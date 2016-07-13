@@ -21,7 +21,7 @@ except ImportError:
 
 from . import (
     browser, commands, execute_file, log, loglevels, set_loglevel, set_output,
-    namespaces, parse, __url__, __version__)
+    namespaces, parse, shutdown, __url__, __version__)
 from .utils import gather_filenames, Singleton
 
 version_info = """
@@ -442,6 +442,8 @@ def main():
                 raise
 
             welcome_msg = ""
+
+    shutdown()
 
     if failed:
         sys.exit(1)

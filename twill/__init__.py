@@ -89,6 +89,13 @@ def set_errout(stream=None):
     sys.stderr = stream
 
 
+def shutdown():
+    """Shut down and flush the logging sytem."""
+    sys.stdout.flush()
+    sys.stderr.flush()
+    logging.shutdown()
+
+
 set_loglevel()
 set_output()
 

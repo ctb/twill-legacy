@@ -4,12 +4,12 @@ import os
 import re
 import sys
 
-from setuptools import setup
-from setuptools.command.test import test as TestCommand
-
 python_version = sys.version_info[:2]
 if not (2, 6) <= python_version <= (2, 7) and not python_version >= (3, 3):
     sys.exit("Python %s.%s is not supported by twill." % python_version)
+
+from setuptools import setup
+from setuptools.command.test import test as TestCommand
 
 
 class PyTest(TestCommand):
@@ -46,52 +46,58 @@ with open(os.path.join(os.path.dirname(__file__),
     download_url = extract_var(content, 'download_url')
 
 
-setup(
-    name='twill',
+def main():
 
-    version=version,
-    url=url,
-    download_url=download_url,
-    description=description[0],
+    setup(
+        name='twill',
 
-    author='C. Titus Brown and Ben R. Taylor',
-    author_email='titus@idyll.org',
+        version=version,
+        url=url,
+        download_url=download_url,
+        description=description[0],
 
-    license='MIT',
+        author='C. Titus Brown and Ben R. Taylor',
+        author_email='titus@idyll.org',
 
-    packages=['twill', 'twill.extensions'],
+        license='MIT',
 
-    entry_points=dict(console_scripts=[
-        'twill=twill.shell:main', 'twill-fork=twill.fork:main']),
+        packages=['twill', 'twill.extensions'],
 
-    maintainer='C. Titus Brown',
-    maintainer_email='titus@idyll.org',
+        entry_points=dict(console_scripts=[
+            'twill=twill.shell:main', 'twill-fork=twill.fork:main']),
 
-    long_description=description[1],
+        maintainer='C. Titus Brown',
+        maintainer_email='titus@idyll.org',
 
-    classifiers=[
-        'Development Status :: 4 - Beta',
-        'Environment :: Console',
-        'Intended Audience :: Developers',
-        'Intended Audience :: System Administrators',
-        'License :: OSI Approved :: MIT License',
-        'Natural Language :: English',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Other Scripting Engines',
-        'Topic :: Internet :: WWW/HTTP',
-        'Topic :: Software Development :: Testing'
-    ],
+        long_description=description[1],
 
-    install_requires=['lxml>=3.0', 'requests>=2.0', 'pyparsing>=2.0'],
-    extras_require={'tidy': ['pytidylib']},
-    tests_require=['pytest', 'quixote', 'pytidylib'],
-    cmdclass={'test': PyTest}
-)
+        classifiers=[
+            'Development Status :: 4 - Beta',
+            'Environment :: Console',
+            'Intended Audience :: Developers',
+            'Intended Audience :: System Administrators',
+            'License :: OSI Approved :: MIT License',
+            'Natural Language :: English',
+            'Operating System :: OS Independent',
+            'Programming Language :: Python',
+            'Programming Language :: Python :: 2',
+            'Programming Language :: Python :: 2.6',
+            'Programming Language :: Python :: 2.7',
+            'Programming Language :: Python :: 3',
+            'Programming Language :: Python :: 3.3',
+            'Programming Language :: Python :: 3.4',
+            'Programming Language :: Python :: 3.5',
+            'Programming Language :: Other Scripting Engines',
+            'Topic :: Internet :: WWW/HTTP',
+            'Topic :: Software Development :: Testing'
+        ],
+
+        install_requires=['lxml>=3.0', 'requests>=2.0', 'pyparsing>=2.0'],
+        extras_require={'tidy': ['pytidylib']},
+        tests_require=['pytest', 'quixote', 'pytidylib'],
+        cmdclass={'test': PyTest}
+    )
+
+
+if __name__ == '__main__':
+    main()

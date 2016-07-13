@@ -102,10 +102,10 @@ def execute_shell(filename, inp=None, initial_url=None,
     except SystemExit:
         pass
     finally:
-        cmd_loop.reset()  # do not keep as singleton
         if inp:
             sys.stdin = old_stdin
             getpass.getpass = old_getpass
+        cmd_loop.reset()  # do not keep as singleton
 
 
 def start_server(port=None):

@@ -67,6 +67,13 @@ def run_test(test_info):
     # run server
     server_process = Process(target=test_info.start_server)
     server_process.start()
+    # wait for server process to spin up
+    timeout = max(1, test_info.sleep)
+    wait = min(0.125, 0.125 * timeout)
+    waited = 0
+    while not server_process.is_alive() and waited < timeout:
+        time.sleep(wait)
+        waited += wait
     # run twill test script
     try:
         test_info.run_script()

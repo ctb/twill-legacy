@@ -10,6 +10,9 @@ from .utils import execute_shell, test_dir
 
 def test_shell_specific(url):
     execute_shell('test_shell.twill', initial_url=url, fail_on_unknown=True)
+
+
+def test_shell_fail(url):
     with raises(TwillNameError):
         execute_shell('test_shell_fail.twill', initial_url=url,
                       fail_on_unknown=True)
