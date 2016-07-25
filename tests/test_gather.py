@@ -13,9 +13,9 @@ def test_gather_dir():
         files = gather_filenames(('.',))
         if os.sep != '/':
             files = [f.replace(os.sep, '/') for f in files]
-        assert files == [
+        assert sorted(files) == sorted([
             './00-testme/x-script.twill',
             './01-test/b.twill', './02-test2/c.twill',
-            './02-test2/02-subtest/d.twill'], files
+            './02-test2/02-subtest/d.twill']), files
     finally:
         os.chdir(cwd)
