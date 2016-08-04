@@ -372,7 +372,7 @@ class TwillBrowser(object):
                 r = self._session.post(
                     form.action, data=payload, headers=headers)
         else:
-            r = self._session.get(form.action, data=payload, headers=headers)
+            r = self._session.get(form.action, params=payload, headers=headers)
 
         self._form = None
         self._form_files.clear()

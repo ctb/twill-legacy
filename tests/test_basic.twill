@@ -195,10 +195,19 @@ go ./ ##### this is a test
 
 # submit-button-less form
 go ./simpleform
+find 'method=POST'
 fv 1 n testa
 fv 1 n2 testb
 submit
 find "testa testb"
+url /simpleform$
+
+# submit with get method
+go ./getform
+find 'method=GET'
+url /getform$
+submit
+url /getform\?n=v$
 
 # file upload
 go ./upload_file

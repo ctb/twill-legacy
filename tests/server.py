@@ -105,7 +105,8 @@ class TwillTest(Directory):
     _q_exports = [
         'logout', 'increment', 'incrementfail', "", 'restricted',
         'login', ('test spaces', 'test_spaces'), 'test_spaces',
-        'simpleform', 'upload_file', 'http_auth', 'formpostredirect',
+        'simpleform', 'getform',
+        'upload_file', 'http_auth', 'formpostredirect',
         'exit', 'multisubmitform', "exception", "plaintext",
         "testform", "testformaction",
         "test_refresh", "test_refresh2",
@@ -326,10 +327,15 @@ hello, world.
         
         w1 = widget.StringWidget(name='n', value='')
         w2 = widget.StringWidget(name='n2', value='')
-        
-        return ("%s %s <form method=POST>'"
+
+        return ("%s %s <form method=POST>"
             "<input type=text name=n><input type=text name=n2></form>") % (
             w1.parse(request), w2.parse(request))
+
+    def getform(self):
+        """Get method..."""
+        return ("<form method=GET><input type=hidden name=n value=v>"
+            "<input type=submit value=send></form>")
 
     def multisubmitform(self):
         request = get_request()
