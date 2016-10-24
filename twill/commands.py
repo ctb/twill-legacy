@@ -819,9 +819,11 @@ def config(key=None, value=None):
         elif value is None:
             info('\nkey %s: value %s\n', key, v)
         else:
-            make_option = utils.make_boolean if isinstance(
-                v, bool) else utils.make_int
-            options[key] = make_option(value)
+            if isinstance(v, bool):
+                value = utils.make_boolean(value)
+            elif isinstance(v, int):
+                value = utils.make_int(value)
+            options[key] = value
 
 
 def info():
