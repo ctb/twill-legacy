@@ -49,7 +49,9 @@ The following improvements and changes were made in this version:
 * Server certificates are not verified by default, since they are usually
   not valid on test and staging servers.
 * Improved handling of meta refresh. Circular redirects are detected and
-  'debug equiv-refresh' is functional again.
+  'debug equiv-refresh' is functional again. A limit for the refresh time
+  interval can be set with the 'equiv_refresh_interval' option. By default
+  this is set to 2, so refresh intervals of 2 or more seconds are ignored.
 * Moved the  examples and additional stuff into an 'extras' directory.
 * Made sure everything (except twill-forks) also works on Windows.
 * Fixed a lot of smaller and larger bugs and problems.

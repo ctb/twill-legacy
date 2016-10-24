@@ -785,7 +785,7 @@ default_options = dict(
     readonly_controls_writeable=False,
     require_tidy=False,
     with_default_realm=False,
-    acknowledge_equiv_refresh=True)
+    equiv_refresh_interval=2)
 
 options = default_options.copy()  # the global options dictionary
 
@@ -798,7 +798,7 @@ def config(key=None, value=None):
 
     So far:
 
-     * 'acknowledge_equiv_refresh', default True -- follow HTTP-EQUIV=REFRESH
+     * 'equiv_refresh_interval', default 2 -- time limit for HTTP-EQUIV=REFRESH
      * 'readonly_controls_writeable', default False -- all controls writeable
      * 'require_tidy', default False -- *require* that tidy be installed
      * 'with_default_realm', default False -- use a default realm for HTTP AUTH
@@ -819,8 +819,9 @@ def config(key=None, value=None):
         elif value is None:
             info('\nkey %s: value %s\n', key, v)
         else:
-            value = utils.make_boolean(value)
-            options[key] = value
+            make_option = utils.make_boolean if isinstance(
+                v, bool) else utils.make_int
+            options[key] = make_option(value)
 
 
 def info():

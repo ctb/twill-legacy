@@ -6,6 +6,26 @@ debug equiv-refresh 1
 
 # check simple refresh
 go /test_refresh
+url /test_refresh
+code 200
+
+config equiv_refresh_interval 0
+reload
+url /test_refresh
+code 200
+
+config equiv_refresh_interval 1
+reload
+url /test_refresh
+code 200
+
+config equiv_refresh_interval 2
+reload
+url /test_refresh
+code 200
+
+config equiv_refresh_interval 3
+reload
 url /login
 code 200
 
@@ -20,19 +40,12 @@ url /test_refresh3
 code 200
 
 # check more realistic refresh
+config equiv_refresh_interval 0
 go /test_refresh4
-url /login
-code 200
-
-# turn it off and try again
-config acknowledge_equiv_refresh off
-go /test_refresh
 url /test_refresh
-show
 code 200
 
-# turn it back on
-config acknowledge_equiv_refresh on
+config equiv_refresh_interval 1
 reload
 url /login
 code 200

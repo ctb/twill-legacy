@@ -15,7 +15,7 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 from . import log, __version__
 from .utils import (
-    print_form, trunc, unique_match, ResultWrapper, _follow_equiv_refresh)
+    print_form, trunc, unique_match, ResultWrapper, _equiv_refresh_interval)
 from .errors import TwillException
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -430,25 +430,28 @@ class TwillBrowser(object):
         return new_payload
 
     @staticmethod
-    def _get_meta_refresh_url(response):
-        """Get meta refresh url from a response."""
+    def _get_meta_refresh(response):
+        """Get meta refresh interval and url from a response."""
         tree = html.fromstring(response.text)
         try:
             content = tree.xpath(  # "refresh" is case insensitive
                 "//meta[translate(@http-equiv,'REFSH','refsh')="
                 "'refresh'][1]/@content")[0]
-            url = content.split(';', 1)[1]  # ignore time interval
+            interval, url = content.split(';', 1)
+            interval = int(interval)
+            if interval < 0:
+                raise ValueError
             url = url.strip().strip('"').strip().strip("'").strip()
             url = url.split('=', 1)
             if url[0].strip().lower() != 'url':
                 raise IndexError
             url = url[1].strip().strip('"').strip().strip("'").strip()
-        except IndexError:
-            url = None
+        except (IndexError, ValueError):
+            interval = url = None
         else:
             if '://' not in url:  # relative URL, adapt
                 url = urljoin(response.url, url)
-        return url
+        return interval, url
 
     _re_basic_auth = re.compile('Basic realm="(.*)"', re.I)
 
@@ -499,11 +502,16 @@ class TwillBrowser(object):
                     r = self._session.get(url, auth=auth, verify=self.verify)
 
         # handle redirection via meta refresh (not handled in requests)
-        if _follow_equiv_refresh():
+        refresh_interval = _equiv_refresh_interval()
+        if refresh_interval:
             visited = set()  # break circular refresh chains
             while True:
-                url = self._get_meta_refresh_url(r)
+                interval, url = self._get_meta_refresh(r)
                 if not url:
+                    break
+                if interval >= refresh_interval:
+                    (log.info if self.show_refresh else log.debug)(
+                        'Meta refresh interval too long: %d', interval)
                     break
                 if url in visited:
                     log.warning('Circular meta refresh detected!')

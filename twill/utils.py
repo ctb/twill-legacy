@@ -224,6 +224,18 @@ def make_boolean(value):
     raise TwillException("unable to convert '%s' into true/false" % (value,))
 
 
+def make_int(value):
+    """Convert the input value into an int."""
+    try:
+        ival = int(value)
+    except Exception:
+        pass
+    else:
+        return ival
+
+    raise TwillException("unable to convert '%s' into an int" % (value,))
+
+
 def set_form_control_value(control, value):
     """Set the given control to the given value
 
@@ -355,10 +367,13 @@ def run_tidy(html):
     return clean_html, errors
 
 
-def _follow_equiv_refresh():
-    """Check if the browser shall ask whether to follow meta redirects."""
+def _equiv_refresh_interval():
+    """Get smallest interval for which the browser should follow redirects.
+
+    Redirection happens if the given interval is smaller than this.
+    """
     from .commands import options
-    return options.get('acknowledge_equiv_refresh')
+    return options.get('equiv_refresh_interval')
 
 
 def is_hidden_filename(filename):
