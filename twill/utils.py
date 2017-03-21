@@ -312,6 +312,8 @@ def _all_the_same_submit(matches):
     """
     name = value = None
     for match in matches:
+        if not isinstance(match, html.InputElement):
+            return False
         if match.type not in ('submit', 'hidden'):
             return False
         if name is None:
@@ -332,6 +334,8 @@ def _all_the_same_checkbox(matches):
     """
     name = None
     for match in matches:
+        if not isinstance(match, html.InputElement):
+            return False
         if match.type not in ('checkbox', 'hidden'):
             return False
         if name is None:
