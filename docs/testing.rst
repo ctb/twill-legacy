@@ -1,12 +1,12 @@
+.. _testing:
+
 ============================
 Testing Web sites with twill
 ============================
 
 twill was initially designed for testing web sites, although since then
-people have also figured out that it's good for browsing_ unsuspecting
-web sites.
-
-.. _browsing: browsing.html
+people have also figured out that it's good for :ref:`browsing <browsing>`
+unsuspecting web sites.
 
 Using the twill command
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -62,7 +62,7 @@ Try `twill-fork -h` to get a list of other command line arguments.
 
 Note that twill-fork runs only under Unix and still needs a lot of work...
 
-  
+
 Unit testing
 ~~~~~~~~~~~~
 
@@ -145,4 +145,4 @@ the given WSGI app: ::
 See the ``tests/test_wsgi_intercept.py`` unit test for more examples.
 
 .. _wsgi_intercept: https://pypi.python.org/pypi/wsgi_intercept
-.. _WSGI applications: http://www.python.org/peps/pep-0333.html
+.. _WSGI applications: https://www.python.org/dev/peps/pep-0333/

@@ -1,34 +1,28 @@
+.. _install:
+
 ================
 Installing twill
 ================
 
 .. contents::
 
-The recommended way to install twill is to use pip_: ::
+The recommended way to install twill is to use pip_::
 
    pip install twill
 
 You can also install it directly from the distribution tar.gz file
-by unpacking the .tar.gz file and running ::
+by unpacking the .tar.gz file and running::
 
    python setup.py install
 
-Either way, **you need to have setuptools installed**; setuptools
-isn't part of the Python standard library, so you will need to
-install it before you install twill.  To install both pip and
-setuptools, grab get-pip.py from ::
 
-  https://bootstrap.pypa.io/get-pip.py
-
-and run 'python get-pip.py'.  This will install pip and setuptools
-and put the pip script in your Python scripts directory.
 
 Troubleshooting your installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The first and only thing you should do before asking the list
-(twill@lists.idyll.org) for help is to see if you have the twill package
-installed correctly: ::
+The first and only thing you should do before creating an issue_ on the
+`GitHub project page`_ is to see if you have the twill package installed
+correctly::
 
    $ python
    >>> import twill.shell
@@ -44,13 +38,16 @@ Upgrading twill
 ~~~~~~~~~~~~~~~
 
 If you don't want to download a new tar.gz file, you can use
-pip to upgrade twill.  To get the latest release, use ::
+pip to upgrade twill.  To get the latest release, use::
 
    pip install -U twill
 
 To download the latest development release (which is usually pretty
-stable) use ::
+stable) use::
 
-   pip install -U https://github.com/ctb/twill/archive/master.zip
+   pip install -U https://github.com/Cito/twill/archive/master.zip
 
-.. _pip: https://pypi.python.org/pypi/pip
+.. _pip: https://docs.python.org/3/installing/index.html
+.. _issue: https://github.com/Cito/twill/issues
+.. _GitHub project page: https://github.com/Cito/twill
+

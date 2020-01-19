@@ -1,3 +1,5 @@
+.. _browsing:
+
 =======================
 Web browsing with twill
 =======================
@@ -5,15 +7,13 @@ Web browsing with twill
 twill strives to be a complete implementation of a web browser,
 omitting only JavaScript support.  It includes support for cookies,
 basic authentication, and trickery such as "meta refresh" redirects.
-Please `let me know`_ if you find a situation where it doesn't work!
 
-twill implements a variety of commands_.  With the built-in language,
-you can do things like go to a specific URL; follow links; fill out
-forms and submit them; save, load, and delete cookies; and change the
-user agent string.  You can also easily extend twill with new and
-specialized commands using Python.
+twill implements a variety of :ref:`commands <commands>`.
+With the built-in language, you can do things like go to a specific URL;
+follow links; fill out forms and submit them; save, load,
+and delete cookies; and change the user agent string. You can also
+easily extend twill with new and specialized commands using Python.
 
-.. _let me know: twill@lists.idyll.org
 .. _commands: commands.html
 
 Using twill interactively
@@ -29,11 +29,11 @@ Proxy servers
 
 twill understands the ``http_proxy`` environment variable generically
 used to set proxy server information.  To use a proxy in UNIX or
-Windows, just set the ``http_proxy`` environment variable, e.g. ::
+Windows, just set the ``http_proxy`` environment variable, e.g.::
 
    % export http_proxy="http://www.someproxy.com:3128"
 
-or ::
+or::
 
    % setenv http_proxy="http://www.someotherproxy.com:3148"
 
@@ -71,4 +71,4 @@ functioning ``PyTidyLib`` installation; so, to fail when it *isn't*
 installed, set ``config require_tidy 1``.
 
 .. _HTML Tidy: http://www.html-tidy.org/
-.. _PyTidyLib: http://countergram.com/open-source/pytidylib/
+.. _PyTidyLib: https://pythonhosted.org/pytidylib/

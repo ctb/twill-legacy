@@ -1,7 +1,6 @@
 *~
 *.swp
-*.pyc
-*.pyo
+*.py[co]
 *.egg-info
 *.log
 *.patch
@@ -13,6 +12,8 @@ __pycache__
 .idea
 .project
 .settings
+
+_build
 
 dist
 build

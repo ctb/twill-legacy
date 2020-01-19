@@ -5,7 +5,7 @@ import re
 import sys
 
 python_version = sys.version_info[:2]
-if not (2, 6) <= python_version <= (2, 7) and not python_version >= (3, 3):
+if python_version != (2, 7) and python_version < (3, 5):
     sys.exit("Python %s.%s is not supported by twill." % python_version)
 
 from setuptools import setup
@@ -56,7 +56,7 @@ def main():
         download_url=download_url,
         description=description[0],
 
-        author='C. Titus Brown and Ben R. Taylor',
+        author='C. Titus Brown, Ben R. Taylor et al.',
         author_email='titus@idyll.org',
 
         license='MIT',
@@ -81,12 +81,12 @@ def main():
             'Operating System :: OS Independent',
             'Programming Language :: Python',
             'Programming Language :: Python :: 2',
-            'Programming Language :: Python :: 2.6',
             'Programming Language :: Python :: 2.7',
             'Programming Language :: Python :: 3',
-            'Programming Language :: Python :: 3.3',
-            'Programming Language :: Python :: 3.4',
             'Programming Language :: Python :: 3.5',
+            'Programming Language :: Python :: 3.6',
+            'Programming Language :: Python :: 3.7',
+            'Programming Language :: Python :: 3.8',
             'Programming Language :: Other Scripting Engines',
             'Topic :: Internet :: WWW/HTTP',
             'Topic :: Software Development :: Testing'

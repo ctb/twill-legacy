@@ -1,3 +1,5 @@
+.. _python-api:
+
 ==================
 twill's Python API
 ==================
@@ -9,9 +11,9 @@ input and converting it into Python commands (see ``parse.py``).
 Interactive shell work and readline support is implemented via the `cmd`_
 module (from the standard Python library).
 
-.. _requests: http://docs.python-requests.org/
-.. _lxml: http://lxml.de/
-.. _pyparsing: http://pyparsing.wikispaces.com/
+.. _lxml: https://lxml.de/
+.. _requests: https://2.python-requests.org/en/master/
+.. _pyparsing: https://github.com/pyparsing/pyparsing
 .. _cmd: https://docs.python.org/3/library/cmd.html
 
 Using twill from Python
@@ -29,7 +31,8 @@ use them directly from Python.  For example, ::
    showforms()
 
 This has the advantage of being very simple, as well as being tied
-directly to the documented set of commands in `the commands reference`_.
+directly to the documented set of commands in
+:ref:`the commands reference <commands>`.
 
 However, the functions in ``commands.py`` are too simple for some situations.
 In particular, they do not have any return values, so in order to e.g. get
@@ -40,7 +43,7 @@ To talk to the Web browser directly, import the ``browser`` object::
 
    from twill import browser
 
-   browser.go("http://www.python.org/")
+   browser.go("https://www.python.org/")
    browser.showforms()
 
 This is the second way to use twill from Python, and it is much more flexible.
@@ -50,7 +53,7 @@ you can mix and match: ::
    from twill import browser
 
    from twill.commands import *
-   go("http://www.python.org/")
+   go("https://www.python.org/")
    browser.showforms()
 
 The basic difference is that functions available through the browser object
@@ -60,8 +63,6 @@ are small snippets of code wrapped around the browser object.
 
 For more information on the functions exposed by the browser object,
 see the code of the **TwillBrowser** class in twill.browser.
-
-.. _the commands reference: commands.html
 
 Extending twill
 ~~~~~~~~~~~~~~~

@@ -1,3 +1,5 @@
+.. _commands:
+
 ========================
 twill language reference
 ========================
@@ -196,7 +198,7 @@ For example, ::
    add_auth IdyllStuff http://www.idyll.org/ titus test
 
 tells twill that a request from the authentication realm
-"IdyllStuff" under http://www.idyll.org/ should be answered with
+"IdyllStuff" under ``http://www.idyll.org/`` should be answered with
 username 'titus', password 'test'.  If the 'with_default_realm' option
 is set to True, ignore 'realm'.
 
@@ -236,7 +238,7 @@ what form to use (function `twill.browser.form`)::
 
    for each form on page:
        if supplied regex pattern matches the form name, select
-   
+
    if no form name, try converting to an integer N & using N-1 as
    an index into the list or forms on the page (i.e. form 1 is the
    first form on the page).

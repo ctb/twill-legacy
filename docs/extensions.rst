@@ -1,3 +1,5 @@
+.. _extensions:
+
 =======================
 twill Extension Modules
 =======================
@@ -89,7 +91,6 @@ The other functions in this module are:
 **no_require** -- turn off requirements checking & reset conditions.
 
 **flush_visited** -- flush the list of visited links.
-
 
 mailman_sf -- discard spam messages from your SourceForge mailing lists
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -1,12 +1,14 @@
+.. _changelog:
+
 =========
 ChangeLog
 =========
 
-2.0 (released ... 2016)
+2.0 (released ... 2020)
 -----------------------
 
 This version is based on twill 1.8, which was a refactoring
-of version 0.9 that used requests and lxml instead of mechanize,
+of version 0.9 that used requests_ and lxml_ instead of mechanize,
 done by Ben Taylor in April 2014.  It also integrates ideas and
 code from Flunc_ which was created by Luke Tucker and Robert Marianski
 in 2006-2007, and from ReTwill_ which was created in April 2012
@@ -14,7 +16,7 @@ as a fork from twill 0.9 by Adam Victor Brandizzi.
 The following improvements and changes were made in this version:
 
 * Larger refactoring, clean-up and modernization efforts to support
-  Python 2.6, 2.7, 3.3 and higher.
+  Python 2.7, 3.5 and higher.
 * The console script has been renamed from 'twill-sh' to just 'twill'.
 * We assume the default file extension '.twill' for twill scripts now.
 * Uses lxml_ and requests_ instead of mechanize (like in version 1.8),
@@ -56,7 +58,7 @@ The following improvements and changes were made in this version:
 * Made sure everything (except twill-forks) also works on Windows.
 * Fixed a lot of smaller and larger bugs and problems.
 
-.. _Flunc: http://www.coactivate.org/projects/flunc/
+.. _lxml: https://lxml.de/
+.. _requests: https://2.python-requests.org/en/master/
+.. _Flunc: https://www.coactivate.org/projects/flunc/project-home
 .. _Retwill: https://bitbucket.org/brandizzi/retwill/
-.. _lxml: http://lxml.de/
-.. _requests: http://docs.python-requests.org/

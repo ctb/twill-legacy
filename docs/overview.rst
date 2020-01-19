@@ -1,30 +1,32 @@
-===================================================
-twill: a simple scripting language for Web browsing
-===================================================
+.. _overview:
 
-twill is a simple language that allows users to browse the Web from
+==============
+twill Overview
+==============
+
+**twill** is a simple language that allows users to browse the Web from
 a command-line interface.  With twill, you can navigate through web
 sites that use forms, cookies, and most standard Web features.
 
 twill supports automated web testing and has a simple Python interface.
-Check out the examples_!
+Check out the :ref:`examples`!
 
 twill is open source and written in Python.
 
 Downloading twill
 -----------------
 
-The latest release of twill is `twill 2.0 <ANNOUNCE-2.0.txt>`__,
-it is available for download_ from here, or you can use Python's pip_ tool
-to install or upgrade twill.
-Please see the changelog_ for what's new in this version.
+The latest release of twill is twill 2.0.
+It is available for `download`_ from the Python Package Index,
+and you can use Python's `pip`_ tool to install or upgrade twill.
+Please see the :ref:`changelog` for what's new in this version.
 
-twill works with Python 2.6, 2.7, 3.3 or later.
+twill works with Python 2.7 and 3.5 or later.
 
 To start using twill, install it and then type ``twill``.
 At the prompt, type::
 
-   go http://www.slashdot.org/
+   go https://www.slashdot.org/
    show
    showforms
    showhistory
@@ -33,43 +35,33 @@ Documentation
 -------------
 
 The documentation for the latest release is always at
-http://twill.idyll.org/.
-
-The in-development version of the docs can be found at
-http://darcs.idyll.org/~t/projects/twill/doc/.
+https://github.com/Cito/twill.
 
 Documentation is available for the following topics:
 
- * `Examples`_ -- some short examples.
+ * :ref:`examples` -- some short examples.
 
- * `Web browsing with twill`_ -- General introduction to twill.
+ * :ref:`browsing` -- General introduction to twill.
 
- * `Language reference`_ -- the twill scripting language.
+ * :ref:`commands` -- the twill scripting language.
 
- * `Testing Web sites with twill`_ -- how to use twill to test Web sites.
+ * :ref:`testing` -- how to use twill to test Web sites.
 
- * `Extension modules`_ -- extension modules that come with twill.
+ * :ref:`extensions` -- extension modules that come with twill.
 
- * `Python API`_ -- for Python programmers interested in using twill from
+ * :ref:`python-api` -- for Python programmers interested in using twill from
    Python.
 
- * `Developer information`_ -- for Python developers interested in extending
+ * :ref:`developer` -- for Python developers interested in extending
    or fixing twill.
 
- * `Other tools and packages`_ -- projects relevant to, or based upon, twill.
-
-Mailing List
-------------
-
-There's a moderately active mailing list at twill@lists.idyll.org; there is
-also an archive_ for this list.
+ * :ref:`other` -- projects relevant to, or based upon, twill.
 
 Contributing
 ------------
 
-Bug reports, fixes, extensions, and links to interesting blog or
-use case reports are always welcome!  You can send them to the mailing
-list or to Titus directly.
+Bug reports, fixes, extensions and pull requests can be submitted on
+the GitHub project page.
 
 When reporting bugs, please be sure to use the '-f -l debug' options
 with ``twill`` so that we can see the full traceback.
@@ -109,25 +101,22 @@ Thorne, and Bob Halley.
 
 Features were proposed by Ben Bangert, and Tristan De Buysscher.
 
+In April 2014, Ben Talyor created version 1.8 using requests and
+lxml instead of mechanize.
+
+In July 2016, Christoph Zwerschke created verson 2.0 which also
+integrates ideas and code from Flunc_ which was created by Luke Tucker
+and Robert Marianski in 2006-2007, and from ReTwill_ which was created
+in April 2012 as a fork from twill 0.9 by Adam Victor Brandizzi.
+
 Thanks, all!
 
-----
-
-.. _Installing twill: install.html
-.. _Web browsing with twill: browsing.html
-.. _Language reference: commands.html
-.. _Developer information: developer.html
-.. _Python API: python-api.html
-.. _Testing Web sites with twill: testing.html
-.. _Other tools and packages: other.html
-.. _Known problems: problems.html
-.. _Extension modules: extensions.html
-.. _MIT license: https://opensource.org/licenses/MIT
-
-.. _archive: http://lists.idyll.org/pipermail/twill/
-.. _changelog: changelog.html
-.. _cmd: https://docs.python.org/3/library/cmd.html
-.. _examples: examples.html
-
 .. _pip: https://pypi.python.org/pypi/pip
-.. _download: http://darcs.idyll.org/~t/projects/twill-2.0.tar.gz
+.. _download: https://pypi.org/project/twill/#files
+.. _GitHub project page: https://github.com/Cito/twill
+.. _MIT license: https://opensource.org/licenses/MIT
+.. _cmd: https://docs.python.org/3/library/cmd.html
+.. _lxml: http://lxml.de/
+.. _requests: http://docs.python-requests.org/
+.. _Flunc: https://www.coactivate.org/projects/flunc/project-home
+.. _Retwill: https://bitbucket.org/brandizzi/retwill/
