@@ -4,8 +4,6 @@
 Installing twill
 ================
 
-.. contents::
-
 The recommended way to install twill is to use pip_::
 
    pip install twill
