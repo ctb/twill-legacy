@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 
-import os
 import re
 import sys
 
 from setuptools import setup
-from setuptools.command.test import test as TestCommand
 
 python_version = sys.version_info[:2]
 if python_version != (2, 7) and python_version < (3, 5):
@@ -22,6 +20,7 @@ with open("README.md") as readme_file:
     readme = readme_file.read()
 
 require_twill = ['lxml>=4,<5', 'requests>=2,<3', 'pyparsing>=2,<3']
+require_docs = ['sphinx>=2.3,<3', 'sphinx_rtd_theme>=0.4,<1']
 require_tidy = ['pytidylib>=0.3,<0.4']
 require_quixote = [
     'quixote>=2.9,<3' if python_version[0] < 3 else 'quixote>=3,<4']
@@ -80,6 +79,7 @@ def main():
 
         install_requires=require_twill,
         extras_require={
+            'docs': require_docs,
             'tidy': require_tidy,
             'tests': require_tests
         },

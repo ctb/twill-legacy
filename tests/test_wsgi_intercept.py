@@ -31,7 +31,7 @@ def simple_app(environ, start_response):
 
     global _app_was_hit
     _app_was_hit = True
-    
+
     return [b'WSGI intercept successful!\n']
 
 
@@ -56,7 +56,7 @@ def write_app(environ, start_response):
 
     global _app_was_hit
     _app_was_hit = True
-    
+
     write_fn('WSGI intercept successful!\n')
     return []
 
@@ -69,7 +69,7 @@ class WrapperApp:
 
     def __call__(self, environ, start_response):
         generator = self.app(environ, start_response)
-        
+
         for i in generator:
             yield i
 

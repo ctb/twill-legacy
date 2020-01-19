@@ -5,11 +5,11 @@ Commands:
 
    require       -- turn on post-load requirements; either 'success' or
                     'links_ok'.
-                    
+
    no_require    -- turn off requirements.
-   
+
    skip_require  -- for the next page visit, skip requirements processing.
-   
+
    flush_visited -- flush the list of already visited pages
                     (for links checking)
 """
@@ -73,7 +73,7 @@ def no_require():
 
 def flush_visited():
     """>> flush_visited
-    
+
     Flush the list of pages successfully visited already.
     """
     global links_visited

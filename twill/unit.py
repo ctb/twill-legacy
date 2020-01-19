@@ -1,12 +1,8 @@
 """Support functionality for using twill in unit tests."""
 
+import io
 import sys
 import time
-
-if str is bytes:
-    from io import BytesIO as StringIO
-else:
-    from io import StringIO
 
 from multiprocessing import Process
 
@@ -15,6 +11,8 @@ from .parse import execute_file
 HOST = '127.0.0.1'  # interface to run the server on
 PORT = 8080  # default port to run the server on
 SLEEP = 0  # time to wait for the server to start
+
+StringIO = io.BytesIO if str is bytes else io.StringIO
 
 
 class TestInfo:
@@ -27,7 +25,7 @@ class TestInfo:
     The optional sleep argument specifies how many seconds to wait for the
     server to set itself up.  Default is 0.
     """
-    
+
     def __init__(self, script, server_fn, port=PORT, sleep=SLEEP):
         self.script = script
         self.server_fn = server_fn
@@ -43,7 +41,7 @@ class TestInfo:
         # create new stdout/stderr
         self.stdout = sys.stdout = StringIO()
         self.stderr = sys.stderr = StringIO()
-        
+
         try:
             self.server_fn()
         finally:

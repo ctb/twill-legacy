@@ -35,7 +35,7 @@ class AlwaysSession(Session):
     def __init__(self, session_id):
         Session.__init__(self, session_id)
         self.n = 0
-        
+
     def has_info(self):
         """Always save."""
         return True
@@ -59,7 +59,7 @@ class UnauthorizedError(AccessError):
     def __init__(self, realm='Protected', public_msg=None, private_msg=None):
         self.realm = realm
         AccessError.__init__(self, public_msg, private_msg)
-        
+
     def format(self):
         request = get_request()
         request.response.set_header(
@@ -75,7 +75,7 @@ def create_publisher():
 
 
 def message(session):
-        return """\
+    return """\
 <html>
 <head>
 <title>Hello, world!</title>
@@ -89,11 +89,13 @@ Your session ID is %s; this is visit #%d.
 <p>
 You are logged in as "%s".
 <p>
-<a href="./increment">increment</a> | <a href="./incrementfail">incrementfail</a>
+<a href="./increment">increment</a> |
+<a href="./incrementfail">incrementfail</a>
 <p>
 <a href="logout">log out</a>
 <p>
-(<a href="test spaces">test spaces</a> / <a href="test_spaces">test spaces2</a>)
+(<a href="test spaces">test spaces</a> /
+<a href="test_spaces">test spaces2</a>)
 </body>
 </html>
 """ % (session.id, session.n, session.user)
@@ -134,7 +136,8 @@ class TwillTest(Directory):
   <input type=submit>
   </form>
 
-  <form name="login" method="post" action="http://iorich.caltech.edu:8080/display_post">
+  <form name="login" method="post"
+        action="http://iorich.caltech.edu:8080/display_post">
   <input type=text name=hello>
   <input type=submit>
   </form>
@@ -230,7 +233,7 @@ class TwillTest(Directory):
 <span>some text</span>
 </a>
 """
-    
+
     def test_refresh(self):
         """test simple refresh"""
         return """\
@@ -306,7 +309,7 @@ hello, world.
         submit_widget = widget.SubmitWidget(name='submit', value='submit me')
         submit_widget2 = widget.SubmitWidget(
             name='nosubmit2', value="don't submit")
-        
+
         if request.form:
             assert not submit_widget2.parse(request)
             username = username_widget.parse(request)
@@ -316,7 +319,7 @@ hello, world.
                 return redirect('./')
 
         image_submit = '''<input type=image name='submit you' src=DNE.gif>'''
-                
+
         return "<form method=POST>Log in: %s<p>%s<p>%s<p>%s</form>" % (
             username_widget.render(), submit_widget2.render(),
             submit_widget.render(), image_submit)
@@ -324,22 +327,22 @@ hello, world.
     def simpleform(self):
         """No submit button..."""
         request = get_request()
-        
+
         w1 = widget.StringWidget(name='n', value='')
         w2 = widget.StringWidget(name='n2', value='')
 
         return ("%s %s <form method=POST>"
-            "<input type=text name=n><input type=text name=n2></form>") % (
-            w1.parse(request), w2.parse(request))
+                "<input type=text name=n><input type=text name=n2></form>") % (
+                w1.parse(request), w2.parse(request))
 
     def getform(self):
         """Get method..."""
         return ("<form method=GET><input type=hidden name=n value=v>"
-            "<input type=submit value=send></form>")
+                "<input type=submit value=send></form>")
 
     def multisubmitform(self):
         request = get_request()
-        
+
         submit1 = widget.SubmitWidget('sub_a', value='sub_a')
         submit2 = widget.SubmitWidget('sub_b', value='sub_b')
 
@@ -376,7 +379,7 @@ hello, world.
         s = ""
         if not request.form:
             s = "NO FORM"
-            
+
         if request.form and 'selecttest' in request.form:
             values = request.form['selecttest']
             if isinstance(values, basestring):
@@ -384,12 +387,12 @@ hello, world.
             s += "SELECTTEST: ==%s==<p>" % " AND ".join(values)
 
         if request.form:
-            l = []
+            names = []
             for name in ('item', 'item_a', 'item_b', 'item_c'):
                 if request.form.get(name):
                     value = request.form[name]
-                    l.append('%s=%s' % (name, value))
-            s += "NAMETEST: ==%s==<p>" % " AND ".join(l)
+                    names.append('%s=%s' % (name, value))
+            s += "NAMETEST: ==%s==<p>" % " AND ".join(names)
 
         return """\
 %s
@@ -522,9 +525,6 @@ hello, world.
 <input type=file name=upload>
 <input type=submit value=submit>
 </form>"""
-
-    def exit(self):
-        os._exit(0)
 
 
 class Restricted(AccessControlled, Directory):

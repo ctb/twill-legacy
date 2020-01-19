@@ -15,7 +15,6 @@ Commands:
           fv_multi <formname> field1=value1 field2=value2 field3=value3
 
  * fv_multi_sub -- same as 'fv_multi', followed by a 'submit'.
-        
 """
 
 import re
@@ -95,7 +94,7 @@ def fv_multi(formname, *pairs):
     """>> fv_multi <formname> [<pair1> [<pair2> [<pair3>]]]
 
     Set multiple form fields; each pair should be of the form
-    
+
         fieldname=value
 
     The pair will be split around the first '=', and

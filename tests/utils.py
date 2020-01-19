@@ -12,12 +12,12 @@ from io import StringIO
 
 import requests
 
+import twill
+
 test_dir = os.path.dirname(__file__)
-print('the test directory is:', test_dir)
-sys.path.insert(0, os.path.abspath(os.path.join(test_dir, '..')))
-
-import twill  # import twill from the right directory
-
+twill_dir = os.path.dirname(twill.__file__)
+if os.path.dirname(test_dir) != os.path.dirname(twill_dir):
+    raise ImportError('twill was not imported from the right directory')
 
 HOST = '127.0.0.1'  # interface to run the server on
 PORT = 8080  # default port to run the server on

@@ -5,7 +5,6 @@ Commands:
 
    get_args -- load all command-line arguments after the last --
       into $arg1...$argN.
-   
 """
 
 from twill import log, namespaces, shell
@@ -32,7 +31,7 @@ def get_args(require=0):
     if shell.twillargs:
         for n, arg in enumerate(shell.twillargs, 1):
             global_dict["arg%d" % (n,)] = arg
-
-        log.info("get_args: loaded %d args as $arg1..$arg%d.", i + 1, i + 1)
+        n = len(shell.twillargs)
+        log.info("get_args: loaded %d args as $arg1..$arg%d.", n, n)
     else:
         log.info("no arguments to parse!")

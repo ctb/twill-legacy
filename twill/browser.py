@@ -202,7 +202,7 @@ class TwillBrowser(object):
         if history:
             info('\nHistory (%d pages total):\n', len(history))
             for n, page in enumerate(history, 1):
-                info('\t%d. %s', n , page.url)
+                info('\t%d. %s', n, page.url)
             info('')
         else:
             info('\n** no history **\n')
@@ -324,7 +324,7 @@ class TwillBrowser(object):
 
         action = form.action or ''
         if '://' not in action:
-             form.action = urljoin(self.url, action)
+            form.action = urljoin(self.url, action)
 
         # no fieldname?  see if we can use the last submit button clicked...
         if fieldname is None:

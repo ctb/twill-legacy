@@ -80,8 +80,8 @@ def setmatch(what):
 
 
 def _do_eval(match, exp):
-     """Used internally to evaluate an expression."""
-     return eval(exp, globals(), {'m': match})
+    """Used internally to evaluate an expression."""
+    return eval(exp, globals(), {'m': match})
 
 
 def popmatch(which):

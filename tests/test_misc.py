@@ -45,7 +45,7 @@ def test():
     commands.debug('http', '0')
     commands.debug('http', '+')
     commands.debug('http', '-')
-    
+
     commands.debug('commands', '0')
     commands.debug('commands', '1')
     with raises(TwillException):
@@ -61,4 +61,3 @@ def test():
         commands.config('readonly_controls_writeable', 'nada')
 
     commands.run("print('Hello!')")
-

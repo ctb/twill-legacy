@@ -30,7 +30,7 @@ def discard_all_messages():
 
     Set all buttons to "discard".
     """
-    _formvalue_by_regex_setall('1', '^\d+$', '3')
+    _formvalue_by_regex_setall('1', '^\\d+$', '3')
 
 
 def _formvalue_by_regex_setall(formname, fieldname, value):

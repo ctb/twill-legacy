@@ -173,7 +173,7 @@ def print_form(form, n):
 
     if form.inputs is not None:
         info('## __Name__________________'
-            ' __Type___ __ID________ __Value__________________')
+             ' __Type___ __ID________ __Value__________________')
 
         for n, field in enumerate(form.inputs, 1):
             value = field.value
@@ -320,7 +320,7 @@ def _all_the_same_submit(matches):
             name = match.name
             value = match.value
         elif match.name != name or match.value != value:
-                return False
+            return False
     return True
 
 

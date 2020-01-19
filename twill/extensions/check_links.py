@@ -38,16 +38,16 @@ def check_links(pattern=''):
     it as a regular expression that link URLs must contain in order to be
     tested, e.g.
 
-        check_links http://.*\.google\.com
+        check_links http://.*\\.google\\.com
 
     would check only links to google URLs.  Note that because 'follow'
     is used to visit the pages, the referrer URL is properly set on the
     visit.
     """
     debug, info = log.debug, log.info
-    
+
     debug('in check_links')
-    
+
     # compile the regex
     regex = re.compile(pattern) if pattern else None
 
@@ -62,7 +62,7 @@ def check_links(pattern=''):
     if not links:
         debug("no links to check!?")
         return
-        
+
     for link in links:
         url = link.url
         url = url.split('#', 1)[0]  # get rid of subpage pointers

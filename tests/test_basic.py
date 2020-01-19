@@ -11,7 +11,7 @@ from .utils import execute_script, test_dir
 
 def test(url):
     inp = "unique1\nunique2\n"
-    
+
     execute_script('test_basic.twill', inp, initial_url=url)
 
 
@@ -21,4 +21,3 @@ def teardown_module():
             os.unlink(os.path.join(test_dir, filename))
         except OSError:
             pass
-

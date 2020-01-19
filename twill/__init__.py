@@ -101,14 +101,12 @@ set_output()
 
 
 # a convenience function:
-from .browser import browser
-
+from .browser import browser  # noqa: ignore=E402
 
 # the two core components of twill:
-from .parse import execute_file, execute_string
-from .shell import TwillCommandLoop
-
+from .parse import execute_file, execute_string  # noqa: ignore=E402
+from .shell import TwillCommandLoop  # noqa: ignore=E402
 
 # initialize global dict
-from . import namespaces
+from . import namespaces  # noqa: ignore=E402
 namespaces.init_global_dict()

@@ -45,7 +45,7 @@ def test(url):
 
     # from parse.execute_file
     twill.parse.execute_file('test_go_exit.twill', initial_url=url)
-    
+
     # also test some failures
 
     old_err, sys.stderr = sys.stderr, StringIO()

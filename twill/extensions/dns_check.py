@@ -18,7 +18,8 @@ try:
     from dns.name import from_text
     from dns.resolver import Resolver
 except ImportError:
-    raise Exception("ERROR: must have dnspython installed to use the DNS extension module")
+    raise Exception(
+        "ERROR: must have dnspython installed to use the DNS extension module")
 
 
 def dns_a(host, ipaddress, server=None):
@@ -28,7 +29,8 @@ def dns_a(host, ipaddress, server=None):
     Optionally use the given name server.
     """
     if not is_ip_addr(ipaddress):
-        raise Exception("<ipaddress> parameter must be an IP address, not a hostname")
+        raise Exception(
+            "<ipaddress> parameter must be an IP address, not a hostname")
 
     for answer in _query(host, 'A', server):
         if ipaddress == answer.address:
@@ -44,10 +46,11 @@ def dns_cname(host, cname, server=None):
     <name server>.
     """
     if is_ip_addr(cname):
-        raise Exception("<alias_for> parameter must be a hostname, not an IP address")
-    
+        raise Exception(
+            "<alias_for> parameter must be a hostname, not an IP address")
+
     cname = from_text(cname)
-    
+
     for answer in _query(host, 'CNAME', server):
         if cname == answer.target:
             return True
@@ -57,14 +60,14 @@ def dns_cname(host, cname, server=None):
 
 def dns_resolves(host, ipaddress, server=None):
     """>> dns_resolves <name> <name2/ipaddress> [<name server>]
-    
+
     Assert that <name> ultimately resolves to the given IP address (or
     the same IP address that 'name2' resolves to).  Optionally use the
     given name server.
     """
     if not is_ip_addr(ipaddress):
         ipaddress = _resolve_name(ipaddress, server)
-        
+
     for answer in _query(host, 1, server):
         if ipaddress == answer.address:
             return True
@@ -78,7 +81,7 @@ def dns_mx(host, mailserver, server=None):
     Assert that <mailserver> is a mailserver for <name>.
     """
     mailserver = from_text(mailserver)
-    
+
     for rdata in _query(host, 'MX', server):
         if mailserver == rdata.exchange:
             return True
@@ -92,7 +95,7 @@ def dns_ns(host, query_ns, server=None):
     Assert that <nameserver> is a mailserver for <domain>.
     """
     query_ns = from_text(query_ns)
-    
+
     for answer in _query(host, 'NS', server):
         if query_ns == answer.target:
             return True
@@ -113,7 +116,7 @@ def _resolve_name(name, server):
     """Resolve the given name to an IP address."""
     if is_ip_addr(name):
         return name
-    
+
     r = Resolver()
     if server:
         r.nameservers = [_resolve_name(server, None)]

@@ -29,7 +29,7 @@ def test_select_multiple(url):
     commands.fv('1', 'checkboxtest', '+one')
     commands.fv('1', 'checkboxtest', '+two')
     commands.fv('1', 'checkboxtest', '+three')
-    
+
     commands.submit()
     assert 'CHECKBOXTEST: ==one,two,three==' in browser.html
 

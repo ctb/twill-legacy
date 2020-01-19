@@ -97,7 +97,8 @@ def process_args(args, globals_dict, locals_dict):
                 val = arg
             newargs.append(val)
         else:
-            newargs.append(variable_substitution(arg, globals_dict, locals_dict))
+            newargs.append(variable_substitution(
+                arg, globals_dict, locals_dict))
 
     newargs = [arg.replace('\\n', '\n') for arg in newargs]
     return newargs
@@ -257,7 +258,7 @@ def log_commands(flag):
     return old_flag
 
 
-_re_variable = re.compile("\${(.*?)}")
+_re_variable = re.compile("\\${(.*?)}")
 
 
 def variable_substitution(raw_str, globals_dict, locals_dict):

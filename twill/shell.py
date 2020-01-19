@@ -347,7 +347,7 @@ def main():
             outfile = None
 
     if interactive and (quiet or outfile or dumpfile or show_browser):
-            sys.exit("Interactive mode is incompatible with -q, -o, -d and -w")
+        sys.exit("Interactive mode is incompatible with -q, -o, -d and -w")
 
     if options.show_browser and (not dumpfile or dumpfile == '-'):
         sys.exit("Please also specify a dump file with -d")
