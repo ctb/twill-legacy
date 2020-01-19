@@ -34,8 +34,8 @@ At the prompt, type::
 Documentation
 -------------
 
-The documentation for the latest release is always at
-https://github.com/Cito/twill.
+The documentation for the latest release is published
+online at https://cito.github.io/twill/.
 
 Documentation is available for the following topics:
 

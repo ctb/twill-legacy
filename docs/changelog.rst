@@ -59,6 +59,6 @@ The following improvements and changes were made in this version:
 * Fixed a lot of smaller and larger bugs and problems.
 
 .. _lxml: https://lxml.de/
-.. _requests: https://2.python-requests.org/en/master/
+.. _requests: https://2.python-requests.org/
 .. _Flunc: https://www.coactivate.org/projects/flunc/project-home
 .. _Retwill: https://bitbucket.org/brandizzi/retwill/
