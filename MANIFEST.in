@@ -1,0 +1,17 @@
+include MANIFEST.in
+
+include LICENSE
+include README.md
+
+include .bumpversion.cfg
+include .flake8
+
+include tox.ini
+
+graft tests
+recursive-include docs *.rst conf.py Makefile make.bat
+prune docs/_build
+graft extras
+recursive-include extras *.py *.java *.twill *.text
+
+global-exclude *.py[co] __pycache__

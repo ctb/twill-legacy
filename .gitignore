@@ -9,9 +9,12 @@ __pycache__
 
 .cache
 .coverage
+.eggs
 .idea
 .project
 .settings
+.tox
+.venv
 
 _build
 

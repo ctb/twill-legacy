@@ -111,10 +111,10 @@ in April 2012 as a fork from twill 0.9 by Adam Victor Brandizzi.
 
 Thanks, all!
 
-.. _pip: https://pypi.python.org/pypi/pip
-.. _download: https://pypi.org/project/twill/#files
 .. _GitHub project page: https://github.com/Cito/twill
 .. _MIT license: https://opensource.org/licenses/MIT
+.. _pip: https://pypi.python.org/pypi/pip
+.. _download: https://pypi.org/project/twill/#files
 .. _cmd: https://docs.python.org/3/library/cmd.html
 .. _lxml: http://lxml.de/
 .. _requests: http://docs.python-requests.org/

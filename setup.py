@@ -4,46 +4,31 @@ import os
 import re
 import sys
 
+from setuptools import setup
+from setuptools.command.test import test as TestCommand
+
 python_version = sys.version_info[:2]
 if python_version != (2, 7) and python_version < (3, 5):
     sys.exit("Python %s.%s is not supported by twill." % python_version)
 
-from setuptools import setup
-from setuptools.command.test import test as TestCommand
+with open("twill/__init__.py") as init_file:
+    init = init_file.read()
+    description = re.search('"""(.*)', init).group(1)
+    version = re.search("__version__ = '(.*)'", init).group(1)
+    url = re.search("__url__ = '(.*)'", init).group(1)
+    download_url = re.search("__download_url__ = '(.*)'", init).group(1)
 
+with open("README.md") as readme_file:
+    readme = readme_file.read()
 
-class PyTest(TestCommand):
-
-    user_options = [('pytest-args=', 'a', "Arguments to pass to py.test")]
-
-    def initialize_options(self):
-        TestCommand.initialize_options(self)
-        self.pytest_args = []
-
-    def run_tests(self):
-        import pytest
-        errno = pytest.main(self.pytest_args)
-        sys.exit(errno)
-
-
-def extract_desc(content):
-    d = re.search('"""(.*?)"""', content, re.S).group(1)
-    d = d.split('\n', 1)
-    d = (d[0].strip(), d[1].strip())
-    return d
-
-
-def extract_var(content, what):
-    return re.search("__%s__ = '(.*?)'" % (what,), content).group(1)
-
-
-with open(os.path.join(os.path.dirname(__file__),
-                       'twill', '__init__.py')) as initfile:
-    content = initfile.read()
-    description = extract_desc(content)
-    version = extract_var(content, 'version')
-    url = extract_var(content, 'url')
-    download_url = extract_var(content, 'download_url')
+require_twill = ['lxml>=4,<5', 'requests>=2,<3', 'pyparsing>=2,<3']
+require_tidy = ['pytidylib>=0.3,<0.4']
+require_quixote = [
+    'quixote>=2.9,<3' if python_version[0] < 3 else 'quixote>=3,<4']
+require_wsgi_intercept = ['wsgi_intercept>=1.4,<2']
+require_tests = [
+    'pytest>=4.6,<5' if python_version[0] < 3 else 'pytest>=5,<6'
+    ] + require_tidy + require_quixote + require_wsgi_intercept
 
 
 def main():
@@ -54,7 +39,7 @@ def main():
         version=version,
         url=url,
         download_url=download_url,
-        description=description[0],
+        description=description,
 
         author='C. Titus Brown, Ben R. Taylor et al.',
         author_email='titus@idyll.org',
@@ -69,7 +54,8 @@ def main():
         maintainer='C. Titus Brown',
         maintainer_email='titus@idyll.org',
 
-        long_description=description[1],
+        long_description=readme,
+        long_description_content_type='text/markdown',
 
         classifiers=[
             'Development Status :: 4 - Beta',
@@ -92,10 +78,11 @@ def main():
             'Topic :: Software Development :: Testing'
         ],
 
-        install_requires=['lxml>=3.0', 'requests>=2.0', 'pyparsing>=2.0'],
-        extras_require={'tidy': ['pytidylib']},
-        tests_require=['pytest', 'quixote', 'pytidylib'],
-        cmdclass={'test': PyTest}
+        install_requires=require_twill,
+        extras_require={
+            'tidy': require_tidy,
+            'tests': require_tests
+        },
     )
 
 

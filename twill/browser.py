@@ -89,7 +89,8 @@ class TwillBrowser(object):
         for try_url in try_urls:
             try:
                 self._journey('open', try_url)
-            except (IOError, ConnectionError, InvalidSchema) as error:
+            except (IOError,
+                    ConnectionError, InvalidSchema, UnicodeError) as error:
                 log.info("cannot go to '%s': %s", try_url, error)
             else:
                 break

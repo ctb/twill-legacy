@@ -4,19 +4,19 @@
 Developing twill
 ================
 
-twill is entirely written in Python.  You will need Python 2.6, 2.7, 3.3
+twill is entirely written in Python.  You will need Python 2.7, 3.5
 or higher to use and develop it.
 
 Package tests
 ~~~~~~~~~~~~~
 
-twill comes with several unit tests.  They depend on `py.test`_ and
-`Quixote`_.  To run them, type 'python setup.py test' in the top level
-directory, or simply type 'py.test'. To run an individual test, you
-can use the command 'python setup.py test -a tests/test_something.py'
-or simply 'py.test tests/test_something.py'.
+twill comes with several unit tests.  They depend on `pytest`_,
+`wsgi_intercept`_ and `Quixote`_.  To run them, type 'pytest'
+in the top level directory. To run an individual test, you can use
+the command 'pytest tests/test_something.py'.
 
-.. _py.test: http://pytest.org/
+.. _pytest: https://pytest.org/
+.. _wsgi_intercept: https://pypi.org/project/wsgi-intercept/
 .. _Quixote: http://quixote.ca/
 
 Licensing
@@ -36,40 +36,4 @@ Developer releases
 ~~~~~~~~~~~~~~~~~~
 
 "Developer releases" incorporating all recent significant changes are
-made available at http://darcs.idyll.org/~t/projects/twill-latest.tar.gz
-
-You can install them with easy_install by typing ::
-
-   easy_install -f http://darcs.idyll.org/~t/projects/twill-latest.tar.gz
-
-Obtaining twill with darcs
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-darcs_ is a distributed version control system that allows users to
-maintain their own versions of various programs.  It's a convenient
-way for me to make the latest source code available quickly, and
-it also is a dandy way to submit patches.
-
-To obtain twill using darcs, install darcs and then type
-
-::
-
-   darcs get http://darcs.idyll.org/~t/projects/twill/
-
-To propose a change to the lead developer, make the changes and
-then do a 'send':
-
-::
-
-   darcs record -am "explanation of change"
-   darcs send -a
-
-To pull in changes made by the lead developer some time later:
-
-::
-
-   darcs pull
-
-Contributions are welcome & will be duly acknowledged!
-
-.. _darcs: http://abridgegame.org/darcs/
+made available at https://github.com/Cito/twill.
