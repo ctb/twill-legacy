@@ -110,7 +110,7 @@ class TwillTest(Directory):
         'simpleform', 'getform',
         'upload_file', 'http_auth', 'formpostredirect',
         'exit', 'multisubmitform', "exception", "plaintext",
-        "testform", "testformaction",
+        "testform", "testformaction", "test_radiobuttons",
         "test_refresh", "test_refresh2",
         "test_refresh3", "test_refresh4", "test_refresh5",
         "test_checkbox", "test_simple_checkbox", "echo",
@@ -466,7 +466,6 @@ hello, world.
         s = ""
         if request.form and 'checkboxtest' in request.form:
             value = request.form['checkboxtest']
-
             if not isinstance(value, basestring):
                 value = value[0]
 
@@ -481,6 +480,27 @@ hello, world.
 <input type=submit value=post>
 </form>
 """ % (s,)
+
+    def test_radiobuttons(self):
+        request = get_request()
+
+        s = ""
+        if request.form and 'radiobuttontest' in request.form:
+            value = request.form['radiobuttontest']
+            if not isinstance(value, basestring):
+                value = ','.join(value)
+
+            s += "RADIOBUTTONTEST: ==%s==<p>" % value
+
+        return """\
+%s
+    <form method=POST>
+    <input type="radio" name="radiobuttontest" value="one">
+    <input type="radio" name="radiobuttontest" value="two">
+    <input type="radio" name="radiobuttontest" value="three">
+    <input type=submit value=post>
+    </form>
+    """ % (s,)
 
     def formpostredirect(self):
         """Test redirect after a form POST."""
