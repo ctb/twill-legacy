@@ -34,8 +34,8 @@ At the prompt, type::
 Documentation
 -------------
 
-The documentation for the latest release is published
-online at https://twill-tools.github.io/twill/.
+The documentation for the latest release is published online at
+https://twill-tools.github.io/twill/ and https://twill.readthedocs.io/.
 
 Documentation is available for the following topics:
 

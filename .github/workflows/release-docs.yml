@@ -3,7 +3,7 @@ name: Release twill documentation
 on:
   push:
     branches:
-      - 2.0
+      - master
 
 jobs:
   build:
