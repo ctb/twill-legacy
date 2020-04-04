@@ -9,6 +9,8 @@ See the [changelog](https://twill-tools.github.io/twill/changelog.html) for a su
 
 The [documentation](https://twill-tools.github.io/twill/) is included in the distribution and provided online.
 
-twill is Copyright (C) by C. Titus Brown et al. and is available for use, modification, and distribution under the MIT license.
+Copyright (c) by C. Titus Brown et al.
 
-The newer versions of Twill have been created and are maintained by [Christoph Zwerschke](https://github.com/Cito).
+Newer versions have been created and are maintained by [Christoph Zwerschke](https://github.com/Cito).
+ 
+twill is available for use, modification, and distribution under the MIT license.

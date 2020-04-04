@@ -109,6 +109,10 @@ integrates ideas and code from Flunc_ which was created by Luke Tucker
 and Robert Marianski in 2006-2007, and from ReTwill_ which was created
 in April 2012 as a fork from twill 0.9 by Adam Victor Brandizzi.
 
+The official relaunch of twill on its current `GitHub project page`_
+and the release of version 2.0 happened in April 2020 with the approval
+of its original author C. Titus Brown.
+
 Thanks, all!
 
 .. _GitHub project page: https://github.com/twill-tools/twill
