@@ -36,4 +36,4 @@ Developer releases
 ~~~~~~~~~~~~~~~~~~
 
 "Developer releases" incorporating all recent significant changes are
-made available at https://github.com/Cito/twill.
+made available at https://github.com/twill-tools/twill.

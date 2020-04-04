@@ -16,11 +16,11 @@ twill 2.0
 
 This fork is an attempt to create a more modern version 2.0 of twill based on the [lastest 1.8 version](https://pypi.python.org/pypi/twill) which uses [requests](https://2.python-requests.org/) and [lxml](https://lxml.de/) instead of [mechanize](http://wwwsearch.sourceforge.net/mechanize/), plus ideas from other forks and add-ons like [retwill](https://bitbucket.org/brandizzi/retwill/) or [flunc](https://www.coactivate.org/projects/flunc/project-home).
 
-Work is currently happening in the [2.0 branch](https://github.com/Cito/twill/tree/2.0) of this repository.
+Work is currently happening in the [2.0 branch](https://github.com/twill-tools/twill/tree/2.0) of this repository.
 
-See the [changelog](https://cito.github.io/twill/changelog.html) for things that have been changed and improved already.
+See the [changelog](https://twill-tools.github.io/twill/changelog.html) for things that have been changed and improved already.
 
-The [documentation](https://cito.github.io/twill/) is included in the distribution and provided online.
+The [documentation](https://twill-tools.github.io/twill/) is included in the distribution and provided online.
 
 twill 2.0 supports Python 2.7 and Python 3.5 or higher.
 

@@ -43,9 +43,9 @@ pip to upgrade twill.  To get the latest release, use::
 To download the latest development release (which is usually pretty
 stable) use::
 
-   pip install -U https://github.com/Cito/twill/archive/master.zip
+   pip install -U https://github.com/twill-tools/twill/archive/master.zip
 
 .. _pip: https://docs.python.org/3/installing/index.html
-.. _issue: https://github.com/Cito/twill/issues
-.. _GitHub project page: https://github.com/Cito/twill
+.. _issue: https://github.com/twill-tools/twill/issues
+.. _GitHub project page: https://github.com/twill-tools/twill
 

@@ -35,7 +35,7 @@ Documentation
 -------------
 
 The documentation for the latest release is published
-online at https://cito.github.io/twill/.
+online at https://twill-tools.github.io/twill/.
 
 Documentation is available for the following topics:
 
@@ -111,7 +111,7 @@ in April 2012 as a fork from twill 0.9 by Adam Victor Brandizzi.
 
 Thanks, all!
 
-.. _GitHub project page: https://github.com/Cito/twill
+.. _GitHub project page: https://github.com/twill-tools/twill
 .. _MIT license: https://opensource.org/licenses/MIT
 .. _pip: https://pypi.python.org/pypi/pip
 .. _download: https://pypi.org/project/twill/#files

@@ -22,7 +22,7 @@ import os.path
 
 __version__ = '2.0.dev'
 
-__url__ = 'https://github.com/Cito/twill'
+__url__ = 'https://github.com/twill-tools/twill'
 __download_url__ = 'https://pypi.org/project/twill/'
 
 __all__ = [
