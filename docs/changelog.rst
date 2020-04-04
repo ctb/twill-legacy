@@ -4,8 +4,8 @@
 ChangeLog
 =========
 
-2.0 (released ... 2020)
------------------------
+2.0 (released 2020-04-04)
+-------------------------
 
 This version is based on twill 1.8, which was a refactoring
 of version 0.9 that used requests_ and lxml_ instead of mechanize_,

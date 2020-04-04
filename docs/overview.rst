@@ -16,7 +16,7 @@ twill is open source and written in Python.
 Downloading twill
 -----------------
 
-The latest release of twill is twill 2.0.
+The latest release of twill is twill version 2.0.
 It is available for `download`_ from the Python Package Index,
 and you can use Python's `pip`_ tool to install or upgrade twill.
 Please see the :ref:`changelog` for what's new in this version.
@@ -49,10 +49,10 @@ Documentation is available for the following topics:
 
  * :ref:`extensions` -- extension modules that come with twill.
 
- * :ref:`python-api` -- for Python programmers interested in using twill from
+ * :ref:`python-api` -- for programmers interested in using twill from
    Python.
 
- * :ref:`developer` -- for Python developers interested in extending
+ * :ref:`developer` -- for developers interested in extending
    or fixing twill.
 
  * :ref:`other` -- projects relevant to, or based upon, twill.
@@ -60,10 +60,10 @@ Documentation is available for the following topics:
 Contributing
 ------------
 
-Bug reports, fixes, extensions and pull requests can be submitted on
-the GitHub project page.
+Issues including bug reports, fixes or extensions and pull requests
+can be submitted on the `GitHub project page`_.
 
-When reporting bugs, please be sure to use the '-f -l debug' options
+When reporting bugs, please be sure to use the ``-f -l debug`` options
 with ``twill`` so that we can see the full traceback.
 
 Authors and License
@@ -79,17 +79,17 @@ C. Titus Brown.  twill is available under the `MIT license`_.
 Acknowledgements
 ----------------
 
-Cory Dodt had a great idea with PBP, and I thank him for his insight.
-Ian Bicking gave me the idea of reimplementing PBP on top of IPython
-(since abandoned in favor of cmd_), and suggested the "in-process"
-hack.  Grig Gheorghiu was strangely enthusiastic about the simple demo
-I showed him and has religiously promoted twill ever since.  John
-J. Lee has promptly and enthusiastically checked in my various patches
-to mechanize.  Michele Simionato is an early adopter who has helped
-quite a bit.  Thanks, guys...
+In May 2004, Cory Dodt had a great idea with "Python Browser Poseur"
+(PBP), his insights helped C. Titus Brown. creating twill.  Ian Bicking
+had the idea of reimplementing PBP on top of IPython (since abandoned in
+favor of cmd_), and suggested the "in-process" hack.  Grig Gheorghiu was
+strangely enthusiastic about a simple demo shown by Titus and promoted
+twill since then. John J. Lee has promptly and enthusiastically checked
+in various patches to mechanize created by Titus. Michele Simionato is
+an early adopter who has also helped quite a bit.
 
 Bug reports have come in from the following fine people: Chris Miles,
-MATSUNO Tokuhiro, Elvelind Grandin, Mike Rovner, sureshvv, Terry Peppers,
+Matsuno Tokuhiro, Elvelind Grandin, Mike Rovner, sureshvv, Terry Peppers,
 Kieran Holland, Alexander Shvedunov, Norman Khine, Leonardo Santagada,
 Sebastien Pierre, Herve Cauwelier, aledain, Uy Do, David Hancock,
 and Tomi Hautakoski.
@@ -104,7 +104,7 @@ Features were proposed by Ben Bangert, and Tristan De Buysscher.
 In April 2014, Ben Talyor created version 1.8 using requests and
 lxml instead of mechanize.
 
-In July 2016, Christoph Zwerschke created verson 2.0 which also
+In July 2016, Christoph Zwerschke created version 2.0 which also
 integrates ideas and code from Flunc_ which was created by Luke Tucker
 and Robert Marianski in 2006-2007, and from ReTwill_ which was created
 in April 2012 as a fork from twill 0.9 by Adam Victor Brandizzi.

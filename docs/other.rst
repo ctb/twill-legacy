@@ -18,10 +18,10 @@ Nitesh Djanjani `tried it out`_ as well.
 Offshoots from the twill project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-I wrote a simple `wsgi_intercept`_ standalone package based on the WSGI
-interception stuff for in-process testing of WSGI apps by twill.  This
-is for people who want to talk directly to their Web
-apps without going through a network connection.
+C. Titus Brown wrote a simple `wsgi_intercept`_ standalone package based
+on the WSGI interception stuff for in-process testing of WSGI apps by twill.
+This is for people who want to talk directly to their Web apps without going
+through a network connection.
 
 .. _wsgi_intercept: https://pypi.python.org/pypi/wsgi_intercept
 
@@ -29,8 +29,7 @@ Other Python-based Web testing and browsing tools
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For those who want to use Python-based toolkits to test their Web
-apps, there are many great options.  Here are the ones I know
-about:
+apps, there are many great options.  Here are some of them:
 
 PBP_ was very similar to twill -- twill was initially based on it --
 but the project seems to be defunct now.
