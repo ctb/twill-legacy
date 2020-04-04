@@ -1,0 +1,11 @@
+version
+help help
+help exit
+help version
+
+redirect_output 'test_shell.out'
+reset_output
+
+extend_with shell_test_extension
+flag_true
+assert_flag

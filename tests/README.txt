@@ -1,7 +1,6 @@
-These are unit tests that can be executed using 'nose', 
+These are unit tests that can be executed using 'py.test',
 
-      http://somethingaboutorange.com/mrl/projects/nose/
+      http://pytest.org/latest/
 
-You can also simply run the test-*.py scripts individually.
-
-CTB 11/10/05
+You can either run the whole test suite at once or run the test_*.py scripts
+individually using py.test.  The server will only be started when necessary.

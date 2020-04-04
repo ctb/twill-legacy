@@ -1,0 +1,22 @@
+setglobal init __url__
+code 200
+
+find "session ID is None"
+echo found __match__
+
+find //html/body/p x
+echo found __match__
+
+find "//a[@href='logout']" x
+echo found __match__
+
+notfind "//a[@href='inexistent']" x
+echo notfound
+
+go ./login
+url g.*
+echo found __match__
+
+go ./login
+url g.*
+echo found __match__

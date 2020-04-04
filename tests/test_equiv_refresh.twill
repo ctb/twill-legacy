@@ -1,0 +1,56 @@
+code 200
+
+debug equiv-refresh 1
+
+# test http-equiv=refresh
+
+# check simple refresh
+go /test_refresh
+url /test_refresh
+code 200
+
+config equiv_refresh_interval 0
+reload
+url /test_refresh
+code 200
+
+config equiv_refresh_interval 1
+reload
+url /test_refresh
+code 200
+
+config equiv_refresh_interval 2
+reload
+url /test_refresh
+code 200
+
+config equiv_refresh_interval 3
+reload
+url /login
+code 200
+
+# check with upper case
+go /test_refresh2
+url /login
+code 200
+
+# check circular refresh
+go /test_refresh3
+url /test_refresh3
+code 200
+
+# check more realistic refresh
+config equiv_refresh_interval 0
+go /test_refresh4
+url /test_refresh
+code 200
+
+config equiv_refresh_interval 1
+reload
+url /login
+code 200
+
+# check quotes around url
+go /test_refresh5
+url /login
+code 200

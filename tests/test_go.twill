@@ -1,0 +1,41 @@
+extend_with require
+require success
+
+echo __url__
+setglobal init __url__
+
+show
+title "Hello"
+
+showhistory
+
+# test going too
+go /login
+
+showhistory
+
+go /login
+
+showhistory
+
+back
+back
+
+showhistory
+
+back
+
+showhistory
+
+# test query parameters
+
+go /echo
+
+go /echo?q=a1
+find a1
+
+go ?q=a2
+url /echo
+find a2
+
+no_require

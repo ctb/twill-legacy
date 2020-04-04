@@ -1,15 +1,23 @@
-"""
-Support functionality for using twill in unit tests.
-"""
+"""Support functionality for using twill in unit tests."""
 
-import sys, os, time
-from cStringIO import StringIO
+import io
+import sys
+import time
 
-# package import
-from parse import execute_file
+from multiprocessing import Process
+
+from .parse import execute_file
+
+HOST = '127.0.0.1'  # interface to run the server on
+PORT = 8080  # default port to run the server on
+SLEEP = 0  # time to wait for the server to start
+
+StringIO = io.BytesIO if str is bytes else io.StringIO
+
 
 class TestInfo:
-    """
+    """Test info container.
+
     Object containing info for a test: script to run, server function to
     run, and port to run it on.  Note that information about server port
     *must* be decided by the end of the __init__ function.
@@ -17,8 +25,8 @@ class TestInfo:
     The optional sleep argument specifies how many seconds to wait for the
     server to set itself up.  Default is 0.
     """
-    
-    def __init__(self, script, server_fn, port, sleep=0):
+
+    def __init__(self, script, server_fn, port=PORT, sleep=SLEEP):
         self.script = script
         self.server_fn = server_fn
         self.port = port
@@ -33,7 +41,7 @@ class TestInfo:
         # create new stdout/stderr
         self.stdout = sys.stdout = StringIO()
         self.stderr = sys.stderr = StringIO()
-        
+
         try:
             self.server_fn()
         finally:
@@ -41,49 +49,31 @@ class TestInfo:
             sys.stdout, sys.stderr = old_out, old_err
 
     def run_script(self):
-        """
-        Run the given twill script on the given server.
-        """
+        """Run the given twill script on the given server."""
         time.sleep(self.sleep)
-        url = self.get_url()
+        url = self.url
         execute_file(self.script, initial_url=url)
 
-    def get_url(self):
-        "Calculate the test server URL."
-        return "http://localhost:%d/" % (self.port,)
+    @property
+    def url(self):
+        """"Get the test server URL."""
+        return "http://%s:%d/" % (HOST, self.port)
 
-#
-# run_test
-#
 
 def run_test(test_info):
-    """
-    Run a test on a Web site where the Web site is running in a child
-    process.
-    """
-    pid = os.fork()
-
-    if pid is 0:
-        run_child_process(test_info)
-        # never returns...
-
-    #
-    # run twill test script.
-    #
-    
-    child_pid = pid
+    """Run test on a web site where the site is running in a sub process."""
+    # run server
+    server_process = Process(target=test_info.start_server)
+    server_process.start()
+    # wait for server process to spin up
+    timeout = max(1, test_info.sleep)
+    wait = min(0.125, 0.125 * timeout)
+    waited = 0
+    while not server_process.is_alive() and waited < timeout:
+        time.sleep(wait)
+        waited += wait
+    # run twill test script
     try:
         test_info.run_script()
     finally:
-        os.kill(child_pid, 9)
-
-#
-# run_child_process
-#
-        
-def run_child_process(test_info):
-    """
-    Run a Web server in a child process.
-    """
-    test_info.start_server()
-    sys.exit(0)
+        server_process.terminate()

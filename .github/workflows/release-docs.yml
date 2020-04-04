@@ -1,0 +1,35 @@
+name: Release twill documentation
+
+on:
+  push:
+    branches:
+      - 2.0
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install .[docs]
+    - name: Create docs with Sphinx
+      run: |
+        cd docs
+        make html
+        touch _build/html/.nojekyll
+    - name: Deploy docs to GitHub pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_branch: gh-pages
+        publish_dir: docs/_build/html
+        enable_jekyll: false
+        force_orphan: true

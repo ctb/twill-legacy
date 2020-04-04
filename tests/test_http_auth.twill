@@ -1,0 +1,32 @@
+# http basic auth
+
+go /http_auth/
+
+setlocal auth __url__
+code 401
+
+add_auth Bad __url__ test password
+add_auth Protected __url__ test bad
+
+go $auth
+code 401
+
+add_auth Bad __url__ test bad
+add_auth Protected __url__ test password
+
+go $auth
+code 200
+find "you made it!"
+
+reset_browser
+
+go $auth
+code 401
+
+config with_default_realm on
+
+add_auth Default __url__ test password
+
+go $auth
+code 200
+find "you made it!"

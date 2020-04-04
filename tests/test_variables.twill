@@ -1,0 +1,28 @@
+code 200
+setglobal init __url__
+
+run "counter = '0'"
+find "this is visit #${counter}"
+
+run 'counter = 0'
+find "this is visit #${counter}"
+
+go ./increment
+run 'counter += 1'
+find "this is visit #${counter}"
+
+run 'value = "Wilhelm"'
+go ./login
+fv 1 username $value
+submit 'submit me'
+code 200
+find 'You are logged in as "Wilhelm"'
+echo $value
+
+run 'value = 123456'
+go ./login
+fv 1 username $value
+submit 'submit me'
+code 200
+find 'You are logged in as "123456"'
+echo $value

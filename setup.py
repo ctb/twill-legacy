@@ -1,52 +1,90 @@
 #!/usr/bin/env python
 
-try:
-    from setuptools import setup
-except ImportError:
-    print '(WARNING: importing distutils, not setuptools!)'
-    from distutils.core import setup
+import re
+import sys
 
-#### twill info.
+from setuptools import setup
 
-setup(name = 'twill',
-      
-      version = '1.8.0',
-#      download_url = 'http://darcs.idyll.org/~t/projects/twill-0.9.tar.gz',
-      
-      description = 'twill Web browsing language',
-      author = 'C. Titus Brown and Ben R. Taylor',
-      author_email = 'titus@idyll.org',
-      license='MIT',
+python_version = sys.version_info[:2]
+if python_version != (2, 7) and python_version < (3, 5):
+    sys.exit("Python %s.%s is not supported by twill." % python_version)
 
-      packages = ['twill', 'twill.other_packages',
-                  'twill.other_packages._mechanize_dist',
-                  'twill.extensions',
-                  'twill.extensions.match_parse'],
+with open("twill/__init__.py") as init_file:
+    init = init_file.read()
+    description = re.search('"""(.*)', init).group(1)
+    version = re.search("__version__ = '(.*)'", init).group(1)
+    url = re.search("__url__ = '(.*)'", init).group(1)
+    download_url = re.search("__download_url__ = '(.*)'", init).group(1)
 
-      # allow both 
-      entry_points = dict(console_scripts=['twill-sh = twill.shell:main'],),
-      scripts = ['twill-fork'],
-      
-      maintainer = 'C. Titus Brown',
-      maintainer_email = 'titus@idyll.org',
+with open("README.md") as readme_file:
+    readme = readme_file.read()
 
-      url = 'http://twill.idyll.org/',
-      long_description = """\
-A scripting system for automating Web browsing.  Useful for testing
-Web pages or grabbing data from password-protected sites automatically.
-""",
-      classifiers = ['Development Status :: 4 - Beta',
-                     'Environment :: Console',
-                     'Intended Audience :: Developers',
-                     'Intended Audience :: System Administrators',
-                     'License :: OSI Approved :: MIT License',
-                     'Natural Language :: English',
-                     'Operating System :: OS Independent',
-                     'Programming Language :: Python',
-                     'Programming Language :: Other Scripting Engines',
-                     'Topic :: Internet :: WWW/HTTP',
-                     'Topic :: Software Development :: Testing',
-                     ],
+require_twill = ['lxml>=4,<5', 'requests>=2,<3', 'pyparsing>=2,<3']
+require_docs = ['sphinx>=2.3,<3', 'sphinx_rtd_theme>=0.4,<1']
+require_tidy = ['pytidylib>=0.3,<0.4']
+require_quixote = [
+    'quixote>=2.9,<3' if python_version[0] < 3 else 'quixote>=3,<4']
+require_wsgi_intercept = ['wsgi_intercept>=1.4,<2']
+require_tests = [
+    'pytest>=4.6,<5' if python_version[0] < 3 else 'pytest>=5,<6'
+    ] + require_tidy + require_quixote + require_wsgi_intercept
 
-      test_suite = 'nose.collector'
-      )
+
+def main():
+
+    setup(
+        name='twill',
+
+        version=version,
+        url=url,
+        download_url=download_url,
+        description=description,
+
+        author='C. Titus Brown, Ben R. Taylor et al.',
+        author_email='titus@idyll.org',
+
+        license='MIT',
+
+        packages=['twill', 'twill.extensions'],
+
+        entry_points=dict(console_scripts=[
+            'twill=twill.shell:main', 'twill-fork=twill.fork:main']),
+
+        maintainer='C. Titus Brown',
+        maintainer_email='titus@idyll.org',
+
+        long_description=readme,
+        long_description_content_type='text/markdown',
+
+        classifiers=[
+            'Development Status :: 4 - Beta',
+            'Environment :: Console',
+            'Intended Audience :: Developers',
+            'Intended Audience :: System Administrators',
+            'License :: OSI Approved :: MIT License',
+            'Natural Language :: English',
+            'Operating System :: OS Independent',
+            'Programming Language :: Python',
+            'Programming Language :: Python :: 2',
+            'Programming Language :: Python :: 2.7',
+            'Programming Language :: Python :: 3',
+            'Programming Language :: Python :: 3.5',
+            'Programming Language :: Python :: 3.6',
+            'Programming Language :: Python :: 3.7',
+            'Programming Language :: Python :: 3.8',
+            'Programming Language :: Other Scripting Engines',
+            'Topic :: Internet :: WWW/HTTP',
+            'Topic :: Software Development :: Testing'
+        ],
+
+        install_requires=require_twill,
+        extras_require={
+            'docs': require_docs,
+            'tidy': require_tidy,
+            'tests': require_tests
+        },
+    )
+
+
+if __name__ == '__main__':
+    main()

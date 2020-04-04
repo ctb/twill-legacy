@@ -1,0 +1,13 @@
+extend_with check_links
+
+check_links
+
+report_bad_links
+
+config check_links.only_collect_bad_links on
+
+check_links
+
+report_bad_links
+
+config check_links.only_collect_bad_links off
