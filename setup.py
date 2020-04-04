@@ -20,7 +20,7 @@ with open("README.md") as readme_file:
     readme = readme_file.read()
 
 require_twill = ['lxml>=4,<5', 'requests>=2,<3', 'pyparsing>=2,<3']
-require_docs = ['sphinx>=2.3,<3', 'sphinx_rtd_theme>=0.4,<1']
+require_docs = ['sphinx>=2.4,<3', 'sphinx_rtd_theme>=0.4,<1']
 require_tidy = ['pytidylib>=0.3,<0.4']
 require_quixote = [
     'quixote>=2.9,<3' if python_version[0] < 3 else 'quixote>=3,<4']
