@@ -1,5 +1,5 @@
 ===================================================
-twill: a simple scripting language for Web browsing
+twill: a simple scripting language for web browsing
 ===================================================
 
 .. toctree::
