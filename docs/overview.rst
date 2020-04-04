@@ -21,7 +21,7 @@ It is available for `download`_ from the Python Package Index,
 and you can use Python's `pip`_ tool to install or upgrade twill.
 Please see the :ref:`changelog` for what's new in this version.
 
-twill works with Python 2.7 and 3.5 or later.
+twill 2.0 works with Python 2.7 and 3.5 to 3.8.
 
 To start using twill, install it and then type ``twill``.
 At the prompt, type::
@@ -69,12 +69,12 @@ with ``twill`` so that we can see the full traceback.
 Authors and License
 -------------------
 
-The main author of twill is C. Titus Brown, titus@idyll.org.  A
-number of people have contributed bug reports and code since the first
+The original author of twill is C. Titus Brown, titus@idyll.org.
+A number of people have contributed bug reports and code since the first
 release; they are acknowledged below.
 
-The twill source code is Copyright (C) 2005, 2006, 2007 C. Titus
-Brown.  twill is available under the `MIT license`_.
+The original twill source code is Copyright (C) 2005, 2006, 2007
+C. Titus Brown.  twill is available under the `MIT license`_.
 
 Acknowledgements
 ----------------
