@@ -5,7 +5,7 @@ twill's Python API
 ==================
 
 twill is essentially a web browsing and testing tool based on the
-`requests`_ and `lxml`_ packages.  All twill commands are implemented in
+`requests`_ and `lxml`_ packages. All twill commands are implemented in
 the ``commands.py`` file, and pyparsing_ does the work of parsing the
 input and converting it into Python commands (see ``parse.py``).
 Interactive shell work and readline support is implemented via the `cmd`_
@@ -19,12 +19,12 @@ module (from the standard Python library).
 Using twill from Python
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-There are two fairly simple ways to use twill from Python.  (They are
+There are two fairly simple ways to use twill from Python. (They are
 compatible with each other, so you don't need to choose between them;
 just use whichever is appropriate.)
 
 The first is to simply import all of the commands in ``commands.py`` and
-use them directly from Python.  For example, ::
+use them directly from Python. For example, ::
 
    from twill.commands import *
    go("http://www.python.org/")
@@ -58,7 +58,7 @@ you can mix and match: ::
 
 The basic difference is that functions available through the browser object
 are intended for use from Python, while ``commands.py`` functions define
-the twill *language*.  In fact, all of the functions in ``commands.py``
+the twill *language*. In fact, all of the functions in ``commands.py``
 are small snippets of code wrapped around the browser object.
 
 For more information on the functions exposed by the browser object,
@@ -69,7 +69,7 @@ Extending twill
 
 Right now twill is very easy to extend: just build a Python module
 that exports the functions you want to call, place it in the
-PYTHONPATH, and run ``extend_with <modulename>``.  See
+PYTHONPATH, and run ``extend_with <modulename>``. See
 ``extensions/mailman_sf.py`` for an extension that helps deal
 with mailman lists on SourceForge; this extension is used by
 ``examples/discard-sf-mailman-msgs``.
@@ -77,7 +77,7 @@ with mailman lists on SourceForge; this extension is used by
 Notes:
 
   * If your extension raises ``SystemExit``, twill will stop processing
-    the script.  This is a useful way to build in conditionals, e.g.
+    the script. This is a useful way to build in conditionals, e.g.
     see the ``discard-sf-mailman-msgs`` example script.
 
 Passing variables from Python into twill
@@ -104,7 +104,7 @@ Using twill in other Python programs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 All of the commands available in twill are implemented as top-level functions
-in the `twill.commands` module.  For example, to use twill functionality from
+in the `twill.commands` module. For example, to use twill functionality from
 another Python program, you can do::
 
    from twill.commands import go, showforms, formclear, fv, submit

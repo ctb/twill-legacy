@@ -28,7 +28,7 @@ correctly::
 
 (This should drop you into the twill shell irrespective of whether 'twill'
 is on your path.)  **If this works**, twill is installed correctly and you
-just need to adjust your path (see above for examples).  If you still
+just need to adjust your path (see above for examples). If you still
 need help, or the above code doesn't work, please copy and paste the results
 of entering the above code into your e-mail to the list -- thanks!
 
@@ -36,7 +36,7 @@ Upgrading twill
 ~~~~~~~~~~~~~~~
 
 If you don't want to download a new tar.gz file, you can use
-pip to upgrade twill.  To get the latest release, use::
+pip to upgrade twill. To get the latest release, use::
 
    pip install -U twill
 

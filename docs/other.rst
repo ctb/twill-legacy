@@ -29,7 +29,7 @@ Other Python-based Web testing and browsing tools
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For those who want to use Python-based toolkits to test their Web
-apps, there are many great options.  Here are some of them:
+apps, there are many great options. Here are some of them:
 
 PBP_ was very similar to twill -- twill was initially based on it --
 but the project seems to be defunct now.
@@ -47,20 +47,20 @@ zope.testbrowser_ provides an easy-to-use programmable web browser with
 special focus on testing.
 
 mechanoid_ is a fork of mechanize_ that claims many bug fixes and a
-different programming style.  It's primarily used for scripting Web
+different programming style. It's primarily used for scripting Web
 sites, not for testing, but it can easily be used for testing.
 
 PAMIE_ and PyXPCOM_ provide a Python interface for interacting with IE
 and Mozilla-based browsers, respectively.
 
 Finally, Selenium_ is an in-browser testing system that several people
-have given rave reviews.  Note that it's not written in Python...
+have given rave reviews. Note that it's not written in Python...
 
 You might also consider checking out Ian Bicking's proto-implementation
 of `twill in Javascript`_.
 
 As twill was based upon mechanize, so is Perl's `WWW::Mechanize::Shell`_
-based upon `WWW::Mechanize`_.  There's even an `HTTP::Recorder`_.
+based upon `WWW::Mechanize`_. There's even an `HTTP::Recorder`_.
 WebTst_ also looks interesting.
 
 .. _funkload: http://funkload.nuxeo.org/

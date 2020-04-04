@@ -21,7 +21,7 @@ either from the command-line (for development purposes), via a cron job
 or unit tests (see below).
 
 twill will try to run each script given to it on the command line
-once, and will report the number of scripts that failed.  The exit value
+once, and will report the number of scripts that failed. The exit value
 of the script will be 0 if there are no failures, so you can use it in
 a shell script easily enough.
 
@@ -53,7 +53,7 @@ will fork 10 times and run `test-script` 50 times in each process.
 `twill-fork` will record the time it takes to run all of the scripts specified
 on the command and print a summary at the end.
 
-The time recorded is *not* the CPU time used.  (This would lead to an
+The time recorded is *not* the CPU time used. (This would lead to an
 inaccurate estimate because the client code uses blocking calls to
 retrieve Web pages.)  Rather, the time recorded is the clock time
 measured between the start and end of script execution.
@@ -95,7 +95,7 @@ unit-test support code::
 
 Here, I'm unit testing the Quixote application ``twill.tests.server``, which
 is run by ``quixote_run`` (a.k.a. ``quixote.server.simple_server.run``) on
-port ``PORT``, using the twill script ``test_unit_support.twill``.  That
+port ``PORT``, using the twill script ``test_unit_support.twill``. That
 script contains this code::
 
    # starting URL is provided to it by the unit test support framework.
@@ -110,7 +110,7 @@ A few things to note:
    (This can be overridden by subclasses.)
 
  * ``TestInfo`` contains code to (a) run the server function in a new
-   process, and (b) run the twill script against that server.  It then
+   process, and (b) run the twill script against that server. It then
    kills the server after script completion.
 
  * You can also pass a 'sleep' argument to the ``TestInfo`` constructor that
@@ -124,7 +124,7 @@ You can use `wsgi_intercept`_ for testing `WSGI applications`_.
 
 It provides two functions, `add_wsgi_intercept` and `remove_wsgi_intercept`,
 that allow Python applications to redirect HTTP calls into a WSGI application
-"in-process", without going via an external Internet call.  This is
+"in-process", without going via an external Internet call. This is
 particularly useful for unit tests, where setting up an externally
 available Web server can be inconvenient.
 

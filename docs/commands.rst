@@ -4,22 +4,22 @@
 twill language reference
 ========================
 
-The following commands are built into twill.  Note that all text after
+The following commands are built into twill. Note that all text after
 a '#' is ignored as a comment, unless it's in a quoted string.
 
 Browsing
 ========
 
-**go** *<url>* -- visit the given URL.  The Python function returns the
+**go** *<url>* -- visit the given URL. The Python function returns the
 final URL visited, after all redirects.
 
-**back** -- return to the previous URL.  The Python function returns that
+**back** -- return to the previous URL. The Python function returns that
 URL, if any.
 
-**reload** -- reload the current URL.  The Python function returns that URL,
+**reload** -- reload the current URL. The Python function returns that URL,
 if any.
 
-**follow** *<link name>* -- follow the given link.  The Python function
+**follow** *<link name>* -- follow the given link. The Python function
 returns the final URL visited, after all redirects.
 
 
@@ -53,7 +53,7 @@ The variable ``__match__`` is set to the first matching subgroup
 When called from Python, the matching string is returned.
 
 **title** *<regex>* -- assert that the title of this page matches this
-regular expression.  The variable ``__match__`` is set to the first matching
+regular expression. The variable ``__match__`` is set to the first matching
 subgroup (or the entire matching string, if no subgroups are specified).
 When called from Python, the matching string is returned.
 
@@ -71,7 +71,7 @@ Display
 **save_html** *[<filename>]* -- save the current page's HTML into a file.
 If no filename is given, derive the filename from the URL.
 
-**show** -- show the current page's HTML.  When called from Python,
+**show** -- show the current page's HTML. When called from Python,
 this function will also return a string containing the HTML.
 
 **showlinks** -- show all of the links on the current page.
@@ -88,11 +88,11 @@ Forms
 
 **submit** *[<n>]* -- click the n'th submit button, if given;
 otherwise submit via the last submission button clicked; if nothing
-clicked, use the first submit button on the form.  See `details on
+clicked, use the first submit button on the form. See `details on
 form handling`_ for more information.
 
 **formvalue** *<formnum> <fieldname> <value>* --- set the given field in
-the given form to the given value.  For read-only form controls,
+the given form to the given value. For read-only form controls,
 the click may be recorded for use by **submit**, but the value is not
 changed unless the 'config' command has changed the default behavior.
 See 'config' and `details on form handling`_ for more information on
@@ -130,21 +130,21 @@ Debugging
 =========
 
 **debug** *<what>* *<level>* -- turn on or off debugging/tracing for
-various functions.  The first argument is either 'http' to show HTTP
+various functions. The first argument is either 'http' to show HTTP
 headers, 'equiv-refresh' to show "meta refresh" redirects, or 'commands'
-to show twill commands.  The second argument is '0' for off, '1' for on.
+to show twill commands. The second argument is '0' for off, '1' for on.
 
 Variable handling
 =================
 
 **setglobal** *<name> <value>* -- set variable <name> to value <value> in
-global dictionary.  The value can be retrieved with '$value'.
+global dictionary. The value can be retrieved with '$value'.
 
 **setlocal** *<name> <value>* -- set variable <name> to value <value> in
-local dictionary.  The value can be retrieved with '$value'.
+local dictionary. The value can be retrieved with '$value'.
 
 The local dictionary is file-specific, while the global module is general
-to all the commands.  Local variables will override global variables if
+to all the commands. Local variables will override global variables if
 they exist.
 
 Note that you can do variable interpolation in strings with ${var}, e.g. ::
@@ -158,7 +158,7 @@ Other commands
 ==============
 
 **tidy_ok** -- check to see if 'tidy' runs on this page without any errors
-or warnings.  (`tidy` is very stringent -- you've been warned!)
+or warnings. (`tidy` is very stringent -- you've been warned!)
 
 **exit** *[<code>]* -- exit with the given integer code, if specified.
 'code' defaults to 0.
@@ -179,7 +179,7 @@ Defaults to 1 second.
 
 **reset_browser** -- reset the browser.
 
-**extend_with** *<module>* -- import commands from Python module.  This acts
+**extend_with** *<module>* -- import commands from Python module. This acts
 like ``from <module> import *`` does in Python, so e.g. a function
 ``fn`` in ``extmodule`` would be available as ``fn``.
 See *extras/examples/extend_example.py* for an example.
@@ -188,7 +188,7 @@ See *extras/examples/extend_example.py* for an example.
 When called from Python, this function returns the input value.
 
 **getpassword** *<prompt>* -- get *silent* keyboard input and store
-it in ``__password__``.  When called from Python, this function returns
+it in ``__password__``. When called from Python, this function returns
 the input value.
 
 **add_auth** *<realm> <uri> <user> <password>* -- add HTTP Basic
@@ -199,7 +199,7 @@ For example, ::
 
 tells twill that a request from the authentication realm
 "IdyllStuff" under ``http://www.idyll.org/`` should be answered with
-username 'titus', password 'test'.  If the 'with_default_realm' option
+username 'titus', password 'test'. If the 'with_default_realm' option
 is set to True, ignore 'realm'.
 
 **config** [*<key>* [*<value>*]] -- show/set configuration options.
@@ -228,7 +228,7 @@ Details on form handling
 .. _details on form handling:
 
 Both the `formvalue` (or `fv`) and `submit` commands rely on a certain
-amount of implicit cleverness to do their work.  In odd situations, it
+amount of implicit cleverness to do their work. In odd situations, it
 can be annoying to determine exactly what form field `formvalue` is
 going to pick based on your field name, or what form & field `submit`
 is going to "click" on.
@@ -272,3 +272,4 @@ Here is the pseudocode for `submit`::
 
    finally, if a button has been picked, submit using it;
    otherwise, submit without using a button
+

@@ -5,7 +5,7 @@ twill Overview
 ==============
 
 **twill** is a simple language that allows users to browse the Web from
-a command-line interface.  With twill, you can navigate through web
+a command-line interface. With twill, you can navigate through web
 sites that use forms, cookies, and most standard Web features.
 
 twill supports automated web testing and has a simple Python interface.
@@ -74,15 +74,15 @@ A number of people have contributed bug reports and code since the first
 release; they are acknowledged below.
 
 The original twill source code is Copyright (C) 2005, 2006, 2007
-C. Titus Brown.  twill is available under the `MIT license`_.
+C. Titus Brown. twill is available under the `MIT license`_.
 
 Acknowledgements
 ----------------
 
 In May 2004, Cory Dodt had a great idea with "Python Browser Poseur"
-(PBP), his insights helped C. Titus Brown. creating twill.  Ian Bicking
+(PBP), his insights helped C. Titus Brown. creating twill. Ian Bicking
 had the idea of reimplementing PBP on top of IPython (since abandoned in
-favor of cmd_), and suggested the "in-process" hack.  Grig Gheorghiu was
+favor of cmd_), and suggested the "in-process" hack. Grig Gheorghiu was
 strangely enthusiastic about a simple demo shown by Titus and promoted
 twill since then. John J. Lee has promptly and enthusiastically checked
 in various patches to mechanize created by Titus. Michele Simionato is

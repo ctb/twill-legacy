@@ -23,7 +23,7 @@ Example: searching Google and going to the first hit
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 *Please be aware that automated searching of Google violates their
-Terms of Service.  This is for example purposes only!*::
+Terms of Service. This is for example purposes only!*::
 
     setlocal query "twill Python"
 
@@ -33,3 +33,5 @@ Terms of Service.  This is for example purposes only!*::
     submit btnI     # use the "I'm feeling lucky" button
 
     show
+
+

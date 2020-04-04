@@ -12,7 +12,7 @@ Several different extension modules are distributed with twill, under
 check_links -- a simple link checker
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A simple link checker is included with twill.  To use it, do ::
+A simple link checker is included with twill. To use it, do ::
 
    go <page>
 
@@ -20,11 +20,11 @@ A simple link checker is included with twill.  To use it, do ::
    check_links
 
 'check_links' will visit each link on the current page and verify that
-the HTTP status code is 200 (success).  A list of failing links will be
+the HTTP status code is 200 (success). A list of failing links will be
 printed out at the end of the function.
 
 The 'check_links' function takes an optional argument, a regex to filter
-for links that should be checked.  By default the filter matches everything;
+for links that should be checked. By default the filter matches everything;
 if you only wanted to check links on e.g. idyll.org, you could do ::
 
    go http://idyll.org/
@@ -43,7 +43,7 @@ match_parse -- extension for regular expressions with multiple matches
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The 'match_parse' extension module contains a number of functions for
-dealing with multiple matches, etc.  Here's some example code: ::
+dealing with multiple matches, etc. Here's some example code: ::
 
    extend_with match_parse
    go http://www.idyll.org/
@@ -70,7 +70,7 @@ require -- assert that specific conditions hold after each page is loaded
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The 'require' extension module contains four functions that let you
-assert specific conditions.  For example, ::
+assert specific conditions. For example, ::
 
    extend_with require
    require success
@@ -80,8 +80,8 @@ will assert that after each page load, the HTTP code is 200 ("success").
 a page).
 
 Currently there are only two assertions available, 'success' and
-'links_ok'.  'links_ok' automatically runs 'check_links' (see above) after
-each page is loaded.  'links_ok' will not check links twice unless
+'links_ok'. 'links_ok' automatically runs 'check_links' (see above) after
+each page is loaded. 'links_ok' will not check links twice unless
 you call 'flush_visited' (see below).
 
 The other functions in this module are:
@@ -96,13 +96,13 @@ mailman_sf -- discard spam messages from your SourceForge mailing lists
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The 'mailman_sf' extension module contains two functions, 'discard_all_messages'
-and 'exit_if_empty'.  Here's some example code: ::
+and 'exit_if_empty'. Here's some example code: ::
 
   # load in the mailman_sf extensions module
   extend_with mailman_sf
 
   # unfortunately we have to hard-code in the mailing list name for
-  # the moment.  not sure how to do substitutions here.
+  # the moment. not sure how to do substitutions here.
   go https://lists.sourceforge.net/lists/admindb/pywx-announce
 
   # fill out the page with the list password.
@@ -121,7 +121,7 @@ and 'exit_if_empty'.  Here's some example code: ::
 argparse -- pass arguments into twill scripts via sys.argv
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The 'argparse' extension module contains one function, 'get_args'.  'get_args'
+The 'argparse' extension module contains one function, 'get_args'. 'get_args'
 loads all of the post-scriptfile command-line arguments into variables, e.g. ::
 
    $ twill script1 script2 script3 -- val1 val2 val3
@@ -177,7 +177,7 @@ dirstack -- manipulate the current working directory (cwd)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 dirstack provides two functions, 'chdir' and 'popd', which change the
-directory and recover the original directory, respectively.  The cwd
+directory and recover the original directory, respectively. The cwd
 is kept in the global variable '__dir__'.
 
 For example ::

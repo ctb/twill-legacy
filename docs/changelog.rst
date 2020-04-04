@@ -9,7 +9,7 @@ ChangeLog
 
 This version is based on twill 1.8, which was a refactoring
 of version 0.9 that used requests_ and lxml_ instead of mechanize_,
-done by Ben Taylor in April 2014.  It also integrates ideas and
+done by Ben Taylor in April 2014. It also integrates ideas and
 code from Flunc_ which was created by Luke Tucker and Robert Marianski
 in 2006-2007, and from ReTwill_ which was created in April 2012
 as a fork from twill 0.9 by Adam Victor Brandizzi.
