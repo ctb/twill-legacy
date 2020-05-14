@@ -56,6 +56,13 @@ def main():
         long_description=readme,
         long_description_content_type='text/markdown',
 
+        project_urls={
+            'Source': 'https://github.com/twill-tools/twill',
+            'Issues': 'https://github.com/twill-tools/twill/issues',
+            'Documentation': 'https://twill-tools.github.io/twill/',
+            'ChangeLog': 'https://twill-tools.github.io/twill/changelog.html'
+        },
+
         classifiers=[
             'Development Status :: 4 - Beta',
             'Environment :: Console',
