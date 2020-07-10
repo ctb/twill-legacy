@@ -9,7 +9,7 @@ include .flake8
 include tox.ini
 
 graft tests
-recursive-include docs *.rst conf.py Makefile make.bat
+recursive-include docs *.rst conf.py Makefile make.bat requirements.txt
 prune docs/_build
 graft extras
 recursive-include extras *.py *.java *.twill *.text
