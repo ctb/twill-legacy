@@ -1,7 +1,5 @@
 """Test the WSGI intercept code."""
 
-import pytest
-
 from twill import commands
 
 from wsgi_intercept import (

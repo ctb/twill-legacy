@@ -22,5 +22,3 @@ def test_switch_buttons(url):
         commands.fv('1', 'radiobuttontest', x)
         commands.submit()
         assert 'RADIOBUTTONTEST: ==%s==' % x in browser.html
-
-
