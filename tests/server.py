@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """Quixote test app for twill."""
 
@@ -109,7 +110,8 @@ class TwillTest(Directory):
         'login', ('test spaces', 'test_spaces'), 'test_spaces',
         'simpleform', 'getform',
         'upload_file', 'http_auth', 'formpostredirect',
-        'exit', 'multisubmitform', "exception", "plaintext",
+        'exit', 'multisubmitform', "exception",
+        "plaintext", "xml",
         "testform", "testformaction", "test_radiobuttons",
         "test_refresh", "test_refresh2",
         "test_refresh3", "test_refresh4", "test_refresh5",
@@ -527,6 +529,11 @@ hello, world.
         response = get_response()
         response.set_content_type("text/plain")
         return "hello, world"
+
+    def xml(self):
+        response = get_response()
+        response.set_content_type("text/xml")
+        return '<?xml version="1.0" encoding="utf-8" ?><foo>bår</foo>'
 
     def echo(self):
         request = get_request()

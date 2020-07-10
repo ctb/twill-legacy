@@ -433,7 +433,11 @@ class TwillBrowser(object):
     @staticmethod
     def _get_meta_refresh(response):
         """Get meta refresh interval and url from a response."""
-        tree = html.fromstring(response.text)
+        try:
+            tree = html.fromstring(response.text)
+        except ValueError:
+            # may happen when there is a content declaration
+            tree = html.fromstring(response.content)
         try:
             content = tree.xpath(  # "refresh" is case insensitive
                 "//meta[translate(@http-equiv,'REFSH','refsh')="

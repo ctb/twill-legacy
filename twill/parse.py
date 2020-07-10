@@ -168,7 +168,9 @@ def execute_string(buf, **kw):
 
 def execute_file(filename, **kw):
     """Execute commands from a file."""
-    inp = sys.stdin if filename == '-' else open(filename)
+    inp = sys.stdin if filename == '-' else (
+        open(filename) if str is bytes else  # Python 2
+        open(filename, encoding='utf-8'))  # Python 3
 
     log.info('\n>> Running twill file %s', filename)
 

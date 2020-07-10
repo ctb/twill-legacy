@@ -1,0 +1,6 @@
+go /xml
+find foo
+find bår
+notfind bar
+find //foo x
+notfind //foo/bar x
