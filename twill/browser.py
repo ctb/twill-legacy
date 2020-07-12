@@ -436,7 +436,7 @@ class TwillBrowser(object):
         try:
             tree = html.fromstring(response.text)
         except ValueError:
-            # may happen when there is a content declaration
+            # may happen when there is an XML encoding declaration
             tree = html.fromstring(response.content)
         try:
             content = tree.xpath(  # "refresh" is case insensitive

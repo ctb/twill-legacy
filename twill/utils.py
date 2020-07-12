@@ -52,7 +52,7 @@ class ResultWrapper(object):
         try:
             self.tree = html.fromstring(self.text)
         except ValueError:
-            # may happen when there is a content declaration
+            # may happen when there is an XML encoding declaration
             self.tree = html.fromstring(self.content)
         self.xpath = self.tree.xpath
         self._fix_forms()

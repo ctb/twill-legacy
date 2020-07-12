@@ -4,6 +4,11 @@
 ChangeLog
 =========
 
+2.0.1 (released 2020-07-12)
+---------------------------
+
+* Fixes an issue with encoding declarations (#5)
+
 2.0 (released 2020-04-04)
 -------------------------
 
