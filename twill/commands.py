@@ -91,8 +91,8 @@ def tidy_ok():
     Assert that 'tidy' produces no warnings or errors when run on the current
     page.
 
-    If 'tidy' cannot be run, will fail silently (unless 'tidy_should_exist'
-    option is true; see 'config' command).
+    If 'tidy' cannot be run, will fail silently (unless 'require_tidy' option
+    is true; see 'config' command).
     """
     page = browser.html
     if page is None:
@@ -100,7 +100,7 @@ def tidy_ok():
 
     clean_page, errors = utils.run_tidy(page)
     if clean_page is None:  # tidy doesn't exist...
-        if options.get('tidy_should_exist'):
+        if options.get('require_tidy'):
             raise TwillAssertionError("cannot run 'tidy'")
     elif errors:
         raise TwillAssertionError("tidy errors:\n====\n%s\n====\n" % (errors,))
