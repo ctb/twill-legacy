@@ -782,10 +782,10 @@ def clear_extra_headers():
 
 
 default_options = dict(
+    equiv_refresh_interval=2,
     readonly_controls_writeable=False,
     require_tidy=False,
-    with_default_realm=False,
-    equiv_refresh_interval=2)
+    with_default_realm=False)
 
 options = default_options.copy()  # the global options dictionary
 
@@ -795,6 +795,8 @@ def config(key=None, value=None):
 
     Configure/report various options.  If no <value> is given, report
     the current key value; if no <key> given, report current settings.
+
+    Options starting with "tidy_" will be used to configure HTML tidy.
 
     So far:
 
@@ -812,7 +814,7 @@ def config(key=None, value=None):
         info('')
     else:
         v = options.get(key)
-        if v is None:
+        if v is None and not key.startswith('tidy_'):
             log.error("no such configuration key '%s'", key)
             info("valid keys are: %s", ', '.join(sorted(options)))
             raise TwillException("no such configuration key: '%s'" % (key,))

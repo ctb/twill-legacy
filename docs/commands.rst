@@ -157,8 +157,9 @@ Note that you can do variable interpolation in strings with ${var}, e.g. ::
 Other commands
 ==============
 
-**tidy_ok** -- check to see if 'tidy' runs on this page without any errors
-or warnings. (`tidy` is very stringent -- you've been warned!)
+**tidy_ok** -- check to see if HTML Tidy runs on this page without any
+errors or warnings. This check is very stringent, but you can relax the
+default configuration by setting ``tidy_*`` configuration options.
 
 **exit** *[<code>]* -- exit with the given integer code, if specified.
 'code' defaults to 0.
@@ -203,6 +204,11 @@ username 'titus', password 'test'. If the 'with_default_realm' option
 is set to True, ignore 'realm'.
 
 **config** [*<key>* [*<value>*]] -- show/set configuration options.
+
+Configuration options starting with ``tidy_`` will be used when checking
+documents with HTML Tidy. For example, ::
+
+    config tidy_drop_empty_elements no
 
 **add_extra_headers** *<name>* *<value>* -- add an extra HTTP header to
 each HTTP request.

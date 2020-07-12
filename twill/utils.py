@@ -371,7 +371,9 @@ def run_tidy(html):
                 'Option require_tidy is set, but PyTidyLib is not installed')
         return None, None
 
-    clean_html, errors = tidylib.tidy_document(html)
+    opts = {key[5:].replace('_', '-'): value
+            for key, value in options.items() if key.startswith('tidy_')}
+    clean_html, errors = tidylib.tidy_document(html, opts)
     return clean_html, errors
 
 
