@@ -242,7 +242,8 @@ def _execute_script(inp, **kw):
             for filename in reversed(cleanups):
                 log.info('\n>> Running twill cleanup file %s', filename)
                 try:
-                    inp = open(filename)
+                    inp = (open(filename) if str is bytes else  # Python 2
+                           open(filename, encoding='utf-8'))  # Python 3
                     _execute_script(inp, source=filename, no_reset=True)
                 except Exception as e:
                     log.error('>> Cannot run cleanup file %s: %s', filename, e)
