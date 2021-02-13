@@ -28,7 +28,7 @@ def test():
     old_err, sys.stderr = sys.stderr, StringIO()
     try:
         with raises(TwillException):
-            browser.go('http://...')  # what's a good "nowhere"?!?
+            browser.go('http://0.0.0.0')  # URL parses, but is invalid
     finally:
         sys.stderr = old_err
 
