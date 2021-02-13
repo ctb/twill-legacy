@@ -18,11 +18,11 @@
 # -- Project information -----------------------------------------------------
 
 project = 'twill'
-copyright = '2020, C. Titus Brown, Ben R. Taylor et al'
+copyright = '2021, C. Titus Brown, Ben R. Taylor et al'
 author = 'C. Titus Brown, Ben R. Taylor et al'
 
 # The full version, including alpha/beta/rc tags
-version = release = '2.0.1'
+version = release = '2.0.2'
 
 
 # -- General configuration ---------------------------------------------------
