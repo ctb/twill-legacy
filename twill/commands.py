@@ -839,7 +839,7 @@ def info():
         return
 
     content_type = browser.result.headers['content-type']
-    is_html = content_type and content_type.split(';')[0] == 'text/html'
+    is_html = content_type and content_type.split(';', 1)[0] == 'text/html'
     code = browser.code
 
     info = log.info
