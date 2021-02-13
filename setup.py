@@ -20,13 +20,13 @@ with open("README.md") as readme_file:
     readme = readme_file.read()
 
 require_twill = ['lxml>=4,<5', 'requests>=2,<3', 'pyparsing>=2,<3']
-require_docs = ['sphinx>=2.4,<3', 'sphinx_rtd_theme>=0.4,<1']
+require_docs = ['sphinx>=3,<4', 'sphinx_rtd_theme>=0.5,<1']
 require_tidy = ['pytidylib>=0.3,<0.4']
 require_quixote = [
     'quixote>=2.9,<3' if python_version[0] < 3 else 'quixote>=3,<4']
-require_wsgi_intercept = ['wsgi_intercept>=1.4,<2']
+require_wsgi_intercept = ['wsgi_intercept>=1.9,<2']
 require_tests = [
-    'pytest>=4.6,<5' if python_version[0] < 3 else 'pytest>=5,<6'
+    'pytest>=4.6,<5' if python_version[0] < 3 else 'pytest>=6,<7'
     ] + require_tidy + require_quixote + require_wsgi_intercept
 
 
@@ -79,6 +79,7 @@ def main():
             'Programming Language :: Python :: 3.6',
             'Programming Language :: Python :: 3.7',
             'Programming Language :: Python :: 3.8',
+            'Programming Language :: Python :: 3.9',
             'Programming Language :: Other Scripting Engines',
             'Topic :: Internet :: WWW/HTTP',
             'Topic :: Software Development :: Testing'

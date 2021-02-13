@@ -21,7 +21,7 @@ It is available for `download`_ from the Python Package Index,
 and you can use Python's `pip`_ tool to install or upgrade twill.
 Please see the :ref:`changelog` for what's new in this version.
 
-twill 2.0 works with Python 2.7 and 3.5 to 3.8.
+twill 2.0 works with Python 2.7 and 3.5 to 3.9.
 
 To start using twill, install it and then type ``twill``.
 At the prompt, type::
