@@ -20,14 +20,14 @@ import logging
 import sys
 import os.path
 
-__version__ = '2.0.2'
+__version__ = '3.0a0'
 
 __url__ = 'https://github.com/twill-tools/twill'
 __download_url__ = 'https://pypi.org/project/twill/'
 
 __all__ = [
     'browser', 'execute_file', 'execute_string',
-    'set_loglevel', 'set_output', 'set_errout',
+    'log', 'set_log_level', 'set_output', 'set_err_out',
     'twill_ext', 'TwillCommandLoop']
 
 
@@ -40,7 +40,7 @@ sys.path.append(extensions)
 twill_ext = '.twill'  # file extension for twill scripts
 
 
-loglevels = dict(
+log_levels = dict(
     CRITICAL=logging.CRITICAL,
     ERROR=logging.ERROR,
     WARNING=logging.WARNING,
@@ -52,15 +52,15 @@ log = logging.getLogger()
 handler = None
 
 
-def set_loglevel(level=None):
+def set_log_level(level=None):
     """Set the logging level.
 
-    If no level is passed, use INFO as loging level.
+    If no level is passed, use INFO as logging level.
     """
     if level is None:
         level = logging.INFO
     if isinstance(level, str):
-        level = loglevels[level.upper()]
+        level = log_levels[level.upper()]
     log.setLevel(level)
 
 
@@ -79,7 +79,7 @@ def set_output(stream=None):
     sys.stdout = stream
 
 
-def set_errout(stream=None):
+def set_err_out(stream=None):
     """Set the error output.
 
     If no stream is passed, use standard error.
@@ -90,13 +90,13 @@ def set_errout(stream=None):
 
 
 def shutdown():
-    """Shut down and flush the logging sytem."""
+    """Shut down and flush the logging system."""
     sys.stdout.flush()
     sys.stderr.flush()
     logging.shutdown()
 
 
-set_loglevel()
+set_log_level()
 set_output()
 
 

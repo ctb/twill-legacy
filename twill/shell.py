@@ -5,8 +5,6 @@ This is an implementation of a command-line interpreter based on the
 'Cmd' class in the 'cmd' package of the default Python distribution.
 """
 
-from __future__ import print_function
-
 import os
 import sys
 import traceback
@@ -20,16 +18,19 @@ except ImportError:
     readline = None
 
 from . import (
-    browser, commands, execute_file, log, loglevels, set_loglevel, set_output,
+    browser, commands, execute_file,
+    log, log_levels, set_log_level, set_output,
     namespaces, parse, shutdown, __url__, __version__)
 from .utils import gather_filenames, Singleton
 
-version_info = """
-twill version: %s
-Python Version: %s
+python_version = sys.version.split(None, 1)[0]
 
-See %s for more info.
-""" % (__version__, sys.version.split(None, 1)[0], __url__)
+version_info = f"""
+twill version: {__version__}
+Python Version: {python_version}
+
+See {__url__} for more info.
+"""
 
 
 def make_cmd_fn(cmd):
@@ -143,13 +144,13 @@ class TwillCommandLoop(Singleton, Cmd):
 
     def add_command(self, command, docstring):
         """Add the given command into the lexicon of all commands."""
-        do_name = 'do_%s' % (command,)
+        do_name = f'do_{command}'
         do_cmd = make_cmd_fn(command)
         setattr(self, do_name, do_cmd)
 
         if docstring:
             help_cmd = make_help_cmd(command, docstring)
-            help_name = 'help_%s' % (command,)
+            help_name = f'help_{command}'
             setattr(self, help_name, help_cmd)
 
         self.names.append(do_name)
@@ -210,7 +211,7 @@ class TwillCommandLoop(Singleton, Cmd):
         url = browser.url
         if url is None:
             url = " *empty page* "
-        self.prompt = "current page: %s\n>> " % (url,)
+        self.prompt = f"current page: {url}\n>> "
 
     def precmd(self, line):
         """Run before each command; save."""
@@ -336,38 +337,39 @@ def main():
 
     quiet = options.quiet
     show_browser = options.show_browser
-    dumpfile = options.dumpfile
-    outfile = options.outfile
-    loglevel = options.loglevel
+    dump_file = options.dumpfile
+    out_file = options.outfile
+    log_level = options.loglevel
     interactive = options.interactive or not args
 
-    if outfile:
-        outfile = outfile.lstrip('=').lstrip() or None
-        if outfile == '-':
-            outfile = None
+    if out_file:
+        out_file = out_file.lstrip('=').lstrip() or None
+        if out_file == '-':
+            out_file = None
 
-    if interactive and (quiet or outfile or dumpfile or show_browser):
+    if interactive and (quiet or out_file or dump_file or show_browser):
         sys.exit("Interactive mode is incompatible with -q, -o, -d and -w")
 
-    if options.show_browser and (not dumpfile or dumpfile == '-'):
+    if options.show_browser and (not dump_file or dump_file == '-'):
         sys.exit("Please also specify a dump file with -d")
 
-    if outfile:
+    if out_file:
         try:
-            outfile = open(outfile, 'w')
+            out_file = open(out_file, 'w')
         except IOError as e:
-            sys.exit("Invalid output file '%s': %s", options.outfile, e)
+            sys.exit(f"Invalid output file '{out_file}': {e}")
 
-    if loglevel:
-        loglevel = loglevel.lstrip('=').lstrip() or None
-        if loglevel.upper() not in loglevels:
-            sys.exit("Valid log levels are %s" % ', '.join(sorted(loglevels)))
-        set_loglevel(loglevel)
+    if log_level:
+        log_level = log_level.lstrip('=').lstrip() or None
+        if log_level.upper() not in log_levels:
+            log_level_names = ', '.join(sorted(log_levels))
+            sys.exit(f"Valid log levels are: {log_level_names}")
+        set_log_level(log_level)
 
     if quiet:
-        outfile = open(os.devnull, 'w')
+        out_file = open(os.devnull, 'w')
 
-    set_output(outfile)
+    set_output(out_file)
 
     # first find and run any scripts put on the command line
 
@@ -386,7 +388,7 @@ def main():
                              never_fail=options.never_fail)
                 success.append(filename)
             except Exception as e:
-                if dumpfile:
+                if dump_file:
                     dump = browser.dump
                 if options.fail:
                     raise
@@ -399,17 +401,17 @@ def main():
 
         log.info('--')
         if dump:
-            if dumpfile == '-':
+            if dump_file == '-':
                 log.info('HTML when error was encountered:\n\n%s\n--',
                          dump.strip())
             else:
                 try:
-                    with open(dumpfile, 'wb') as f:
+                    with open(dump_file, 'wb') as f:
                         f.write(dump)
                 except IOError as e:
-                    log.error('Could not dump to %s: %s\n', dumpfile, e)
+                    log.error('Could not dump to %s: %s\n', dump_file, e)
                 else:
-                    log.info('HTML has been dumped to %s\n', dumpfile)
+                    log.info('HTML has been dumped to %s\n', dump_file)
 
         log.info('%d of %d files SUCCEEDED.',
                  len(success), len(success) + len(failure))
@@ -420,8 +422,7 @@ def main():
         if dump and show_browser:
             import webbrowser
 
-            url = 'file:///%s' % (
-                os.path.abspath(dumpfile).replace(os.sep, '/'),)
+            url = 'file:///' + os.path.abspath(dump_file).replace(os.sep, '/')
             log.debug('Running web browser on %s', url)
             webbrowser.open(url)
 

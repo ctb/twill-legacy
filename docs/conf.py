@@ -22,7 +22,7 @@ copyright = '2021, C. Titus Brown, Ben R. Taylor et al'
 author = 'C. Titus Brown, Ben R. Taylor et al'
 
 # The full version, including alpha/beta/rc tags
-version = release = '2.0.2'
+version = release = '3.0a0'
 
 
 # -- General configuration ---------------------------------------------------

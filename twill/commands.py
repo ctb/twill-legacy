@@ -12,7 +12,7 @@ from os.path import sep
 
 import requests
 
-from . import log, set_output, set_errout, utils
+from . import log, set_output, set_err_out, utils
 from .browser import browser
 from .errors import TwillException, TwillAssertionError
 from .namespaces import get_twill_glocals
@@ -26,7 +26,7 @@ __all__ = [
     'find', 'follow',
     'formaction', 'fa', 'formclear', 'formfile', 'formvalue', 'fv',
     'getinput', 'getpassword',
-    'go', 'info', 'load_cookies', 'notfind',
+    'go', 'info', 'load_cookies', 'notfind', 'options',
     'redirect_error', 'redirect_output',
     'reload', 'reset_browser', 'reset_error', 'reset_output',
     'run', 'runfile', 'rf',
@@ -81,8 +81,7 @@ def code(should_be):
     """
     should_be = int(should_be)
     if browser.code != should_be:
-        raise TwillAssertionError(
-            "code is %s != %s" % (browser.code, should_be))
+        raise TwillAssertionError(f"code is {browser.code} != {should_be}")
 
 
 def tidy_ok():
@@ -103,7 +102,7 @@ def tidy_ok():
         if options.get('require_tidy'):
             raise TwillAssertionError("cannot run 'tidy'")
     elif errors:
-        raise TwillAssertionError("tidy errors:\n====\n%s\n====\n" % (errors,))
+        raise TwillAssertionError(f"tidy errors:\n====\n{errors}\n====\n")
 
 
 def url(should_be):
@@ -122,10 +121,9 @@ def url(should_be):
         current_url = ''
 
     if not m:
-        raise TwillAssertionError("""\
-current url is '%s';
-does not match '%s'
-""" % (current_url, should_be,))
+        raise TwillAssertionError(
+            f"current url is '{current_url}';\n"
+            f"does not match '{should_be}'\n")
 
     match_str = m.group(1 if m.groups() else 0)
     global_dict, local_dict = get_twill_glocals()
@@ -143,7 +141,7 @@ def follow(what):
         browser.follow_link(link)
         return browser.url
 
-    raise TwillAssertionError("no links match to '%s'" % (what,))
+    raise TwillAssertionError(f"no links match to '{what}'")
 
 
 _find_flags = dict(i=re.IGNORECASE, m=re.MULTILINE, s=re.DOTALL)
@@ -156,7 +154,7 @@ def _parse_find_flags(flags):
         try:
             re_flags |= _find_flags[char]
         except IndexError:
-            raise TwillAssertionError("unknown 'find' flag %r" % char)
+            raise TwillAssertionError(f"unknown 'find' flag {char!r}")
     return re_flags
 
 
@@ -181,12 +179,12 @@ def find(what, flags=''):
     if 'x' in flags:
         elements = browser.xpath(what)
         if not elements:
-            raise TwillAssertionError("no element to path '%s'" % (what,))
+            raise TwillAssertionError(f"no element to path '{what}'")
         match_str = browser.decode(elements[0])
     else:
         match = re.search(what, page, flags=_parse_find_flags(flags))
         if not match:
-            raise TwillAssertionError("no match to '%s'" % (what,))
+            raise TwillAssertionError(f"no match to '{what}'")
         match_str = match.group(1 if match.groups() else 0)
     local_dict['__match__'] = match_str
 
@@ -201,7 +199,7 @@ def notfind(what, flags=''):
     except TwillAssertionError:
         pass
     else:
-        raise TwillAssertionError("match to '%s'" % (what,))
+        raise TwillAssertionError(f"match to '{what}'")
 
 
 def back():
@@ -487,7 +485,7 @@ def extend_with(module_name):
     """
     global_dict, local_dict = get_twill_glocals()
 
-    exec("from %s import *" % (module_name,), global_dict)
+    exec(f"from {module_name} import *", global_dict)
 
     # now add the commands into the commands available for the shell,
     # and print out some nice stuff about what the extension module does.
@@ -527,10 +525,7 @@ def getinput(prompt):
     """
     local_dict = get_twill_glocals()[1]
 
-    try:
-        inp = raw_input(prompt)
-    except NameError:  # Python 3
-        inp = input(prompt)
+    inp = input(prompt)
 
     local_dict['__input__'] = inp
     return inp
@@ -621,13 +616,13 @@ def debug(what, level):
     elif what == 'commands':
         parse.log_commands(level > 0)
     else:
-        raise TwillException('unknown debugging type: "%s"' % (what,))
+        raise TwillException(f'unknown debugging type: "{what}"')
 
 
 def run(cmd):
     """>> run <command>
 
-    <command> can be any valid python command; 'exec' is used to run it.
+    <command> can be any valid Python command; 'exec' is used to run it.
     """
     # @CTB: use pyparsing to grok the command?  make sure that quoting works...
 
@@ -701,7 +696,7 @@ def title(what):
 
     m = regex.search(title)
     if not m:
-        raise TwillAssertionError("title does not contain '%s'" % (what,))
+        raise TwillAssertionError(f"title does not contain '{what}'")
 
     if m.groups():
         match_str = m.group(1)
@@ -736,7 +731,7 @@ def redirect_error(filename):
     Append all twill error output to the given file.
     """
     fp = open(filename, 'a')
-    set_errout(fp)
+    set_err_out(fp)
 
 
 def reset_error():
@@ -744,7 +739,7 @@ def reset_error():
 
     Reset twill error output to go to the screen.
     """
-    set_errout(None)
+    set_err_out(None)
 
 
 def add_extra_header(header_key, header_value):

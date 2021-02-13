@@ -12,6 +12,8 @@ import twill.parse
 
 from .utils import execute_script, test_dir
 
+_log_commands = None
+
 
 def setup_module():
     global _log_commands
@@ -50,7 +52,7 @@ def test(url):
 
     old_err, sys.stderr = sys.stderr, StringIO()
     try:
-        twill.set_errout(sys.stderr)
+        twill.set_err_out(sys.stderr)
         # failed assert in a script
         with raises(TwillAssertionError):
             twill.parse.execute_file('test_go_fail.twill', initial_url=url)

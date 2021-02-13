@@ -1,16 +1,10 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 """Quixote test app for twill."""
 
-from __future__ import print_function
-
 import os
 
-try:
-    from base64 import decodebytes
-except ImportError:  # Python 2
-    from base64 import decodestring as decodebytes
+from base64 import decodebytes
 
 from quixote.publish import Publisher
 from quixote.errors import AccessError
@@ -20,11 +14,6 @@ from quixote.form import widget
 from quixote import (
     get_session, get_session_manager, get_path,
     redirect, get_request, get_response)
-
-try:
-    basestring
-except NameError:  # Python 3
-    basestring = str
 
 
 HOST = '127.0.0.1'
@@ -64,7 +53,7 @@ class UnauthorizedError(AccessError):
     def format(self):
         request = get_request()
         request.response.set_header(
-            'WWW-Authenticate', 'Basic realm="%s"' % self.realm)
+            'WWW-Authenticate', f'Basic realm="{self.realm}"')
         return AccessError.format(self)
 
 
@@ -76,7 +65,7 @@ def create_publisher():
 
 
 def message(session):
-    return """\
+    return f"""\
 <html>
 <head>
 <title>Hello, world!</title>
@@ -86,9 +75,9 @@ Hello, world!
 <p>
 These are the twill tests.
 <p>
-Your session ID is %s; this is visit #%d.
+Your session ID is {session.id}; this is visit #{session.n}.
 <p>
-You are logged in as "%s".
+You are logged in as "{session.user}".
 <p>
 <a href="./increment">increment</a> |
 <a href="./incrementfail">incrementfail</a>
@@ -99,7 +88,7 @@ You are logged in as "%s".
 <a href="test_spaces">test spaces2</a>)
 </body>
 </html>
-""" % (session.id, session.n, session.user)
+"""
 
 
 class TwillTest(Directory):
@@ -152,14 +141,14 @@ class TwillTest(Directory):
         s = ""
         request = get_request()
         for k, v in request.form.items():
-            s += "k: '''%s''' : '''%s'''<p>\n" % (k, v,)
+            s += f"k: '''{k}''' : '''{v}'''<p>\n"
         return s
 
     def display_environ(self):
         s = ""
         request = get_request()
         for k, v in request.environ.items():
-            s += "k: '''%s''' : '''%s'''<p>\n" % (k, v,)
+            s += f"k: '''{k}''' : '''{v}'''<p>\n"
         return s
 
     def exit(self):
@@ -219,9 +208,9 @@ class TwillTest(Directory):
    <h3>ARINC Direct Login</h3>
    <br/>
    <strong>User ID</strong><br/>
-   <input name="username" id="username" type="text" style="width:80%;"><br/>
+   <input name="username" id="username" type="text" style="width:80%"><br/>
    <strong>Password</strong><br/>
-   <input name="password" type="password" style="width:80%;"><br/>
+   <input name="password" type="password" style="width:80%"><br/>
    <div id="buttonbar">
    <input value="Login" name="login" class="button" type="submit">
    </div>
@@ -322,20 +311,22 @@ hello, world.
 
         image_submit = '''<input type=image name='submit you' src=DNE.gif>'''
 
-        return "<form method=POST>Log in: %s<p>%s<p>%s<p>%s</form>" % (
-            username_widget.render(), submit_widget2.render(),
-            submit_widget.render(), image_submit)
+        login = username_widget.render()
+        s, s2 = submit_widget.render(), submit_widget2.render()
+        img = image_submit
+        return f"<form method=POST>Log in: {login}<p>{s2}<p>{s}<p>{img}</form>"
 
     def simpleform(self):
         """No submit button..."""
         request = get_request()
 
-        w1 = widget.StringWidget(name='n', value='')
-        w2 = widget.StringWidget(name='n2', value='')
+        s1 = widget.StringWidget(name='n', value='').parse(request)
+        s2 = widget.StringWidget(name='n2', value='').parse(request)
 
-        return ("%s %s <form method=POST>"
-                "<input type=text name=n><input type=text name=n2></form>") % (
-                w1.parse(request), w2.parse(request))
+        return (f"{s1} {s2} "
+                "<form method=POST>"
+                "<input type=text name=n><input type=text name=n2>"
+                "</form>")
 
     def getform(self):
         """Get method..."""
@@ -364,10 +355,10 @@ hello, world.
             # print out the referer, too.
             referer = request.environ.get('HTTP_REFERER')
             if referer:
-                s += "<p>referer: %s" % (referer,)
+                s += f"<p>referer: {referer}"
 
-        return "<form method=POST>%s %s %s</form>" % (
-            s, submit1.render(), submit2.render())
+        s1, s2 = submit1.render(), submit2.render()
+        return f"<form method=POST>{s} {s1} {s2}</form>"
 
     def testformaction(self):
         request = get_request()
@@ -384,20 +375,22 @@ hello, world.
 
         if request.form and 'selecttest' in request.form:
             values = request.form['selecttest']
-            if isinstance(values, basestring):
+            if isinstance(values, str):
                 values = [values]
-            s += "SELECTTEST: ==%s==<p>" % " AND ".join(values)
+            values = ' AND '.join(values)
+            s += f"SELECTTEST: =={values}==<p>"
 
         if request.form:
             names = []
             for name in ('item', 'item_a', 'item_b', 'item_c'):
                 if request.form.get(name):
                     value = request.form[name]
-                    names.append('%s=%s' % (name, value))
-            s += "NAMETEST: ==%s==<p>" % " AND ".join(names)
+                    names.append(f'{name}={value}')
+            names = ' AND '.join(names)
+            s += f"NAMETEST: =={names}==<p>"
 
-        return """\
-%s
+        return f"""\
+{s}
 <form method=POST id=the_form>
 <select name=selecttest multiple>
 <option> val
@@ -417,7 +410,7 @@ hello, world.
 
 <input type=submit value=post id=submit_button>
 </form>
-""" % (s,)
+"""
 
     def test_checkbox(self):
         request = get_request()
@@ -425,13 +418,13 @@ hello, world.
         s = ""
         if request.form and 'checkboxtest' in request.form:
             value = request.form['checkboxtest']
-            if not isinstance(value, basestring):
+            if not isinstance(value, str):
                 value = value[0]
 
-            s += "CHECKBOXTEST: ==%s==<p>" % value
+            s += f"CHECKBOXTEST: =={value}==<p>"
 
-        return """\
-%s
+        return f"""\
+{s}
 <form method=POST>
 
 <input type="checkbox" name="checkboxtest" value="True">
@@ -439,7 +432,7 @@ hello, world.
 
 <input type=submit value=post>
 </form>
-""" % (s,)
+"""
 
     def test_checkboxes(self):
         request = get_request()
@@ -447,20 +440,20 @@ hello, world.
         s = ""
         if request.form and 'checkboxtest' in request.form:
             value = request.form['checkboxtest']
-            if not isinstance(value, basestring):
+            if not isinstance(value, str):
                 value = ','.join(value)
 
-            s += "CHECKBOXTEST: ==%s==<p>" % value
+            s += f"CHECKBOXTEST: =={value}==<p>"
 
-        return """\
-%s
+        return f"""\
+{s}
 <form method=POST>
 <input type="checkbox" name="checkboxtest" value="one">
 <input type="checkbox" name="checkboxtest" value="two">
 <input type="checkbox" name="checkboxtest" value="three">
 <input type=submit value=post>
 </form>
-""" % (s,)
+"""
 
     def test_simple_checkbox(self):
         request = get_request()
@@ -468,20 +461,20 @@ hello, world.
         s = ""
         if request.form and 'checkboxtest' in request.form:
             value = request.form['checkboxtest']
-            if not isinstance(value, basestring):
+            if not isinstance(value, str):
                 value = value[0]
 
-            s += "CHECKBOXTEST: ==%s==<p>" % value
+            s += f"CHECKBOXTEST: =={value}==<p>"
 
-        return """\
-%s
+        return f"""\
+{s}
 <form method=POST>
 
 <input type="checkbox" name="checkboxtest">
 
 <input type=submit value=post>
 </form>
-""" % (s,)
+"""
 
     def test_radiobuttons(self):
         request = get_request()
@@ -489,20 +482,20 @@ hello, world.
         s = ""
         if request.form and 'radiobuttontest' in request.form:
             value = request.form['radiobuttontest']
-            if not isinstance(value, basestring):
+            if not isinstance(value, str):
                 value = ','.join(value)
 
-            s += "RADIOBUTTONTEST: ==%s==<p>" % value
+            s += f"RADIOBUTTONTEST: =={value}==<p>"
 
-        return """\
-%s
+        return f"""\
+{s}
     <form method=POST>
     <input type="radio" name="radiobuttontest" value="one">
     <input type="radio" name="radiobuttontest" value="two">
     <input type="radio" name="radiobuttontest" value="three">
     <input type=submit value=post>
     </form>
-    """ % (s,)
+    """
 
     def formpostredirect(self):
         """Test redirect after a form POST."""
@@ -579,22 +572,17 @@ class HttpAuthRestricted(AccessControlled, Directory):
         if ha:
             auth_type, auth_string = ha.split(None, 1)
             if auth_type.lower() == 'basic':
-                if not isinstance(auth_string, bytes):  # Python 3
-                    auth_string = auth_string.encode('utf-8')
-                auth_string = decodebytes(auth_string)
+                auth_string = decodebytes(auth_string.encode('utf-8'))
                 login, passwd = auth_string.split(b':', 1)
-                if not isinstance(login, str):  # Python 3
-                    login = login.decode('utf-8')
-                if not isinstance(passwd, str):  # Python 3
-                    passwd = passwd.decode('utf-8')
-
+                login = login.decode('utf-8')
+                passwd = passwd.decode('utf-8')
                 if (login, passwd) != ('test', 'password'):
                     passwd = None
 
         if passwd:
-            print("Successful login as '%s'" % (login,))
+            print(f"Successful login as '{login}'")
         elif login:
-            print("Invalid login attempt as '%s'" % (login,))
+            print(f"Invalid login attempt as '{login}'")
         else:
             print("Access has been denied")
         print()
@@ -608,7 +596,7 @@ class HttpAuthRestricted(AccessControlled, Directory):
 if __name__ == '__main__':
     from quixote.server.simple_server import run
     port = int(os.environ.get('TWILL_TEST_PORT', PORT))
-    print('starting twill test server on port %d.' % (port,))
+    print(f'starting twill test server on port {port}.')
     try:
         run(create_publisher, host=HOST, port=port)
     except KeyboardInterrupt:

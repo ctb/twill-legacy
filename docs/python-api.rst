@@ -12,7 +12,7 @@ Interactive shell work and readline support is implemented via the `cmd`_
 module (from the standard Python library).
 
 .. _lxml: https://lxml.de/
-.. _requests: https://2.python-requests.org/
+.. _requests: https://requests.readthedocs.io/
 .. _pyparsing: https://github.com/pyparsing/pyparsing
 .. _cmd: https://docs.python.org/3/library/cmd.html
 

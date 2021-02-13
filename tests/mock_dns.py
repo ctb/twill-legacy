@@ -27,7 +27,7 @@ def activate():
     package = sys.modules[__name__]
     sys.modules['dns'] = package
     for module in 'ipv4 name resolver'.split():
-        sys.modules['dns.%s' % module] = package
+        sys.modules[f'dns.{module}'] = package
         setattr(package, module, package)
 
 
@@ -61,7 +61,7 @@ class Answer:
         elif qtype == 'MX':
             self.exchange = result
         else:
-            raise ValueError('unknown query type: %s' % qtype)
+            raise ValueError(f'unknown query type: {qtype}')
 
     def __str__(self):
         return str(self.result)
@@ -75,19 +75,19 @@ class Resolver:
 
     def query(self, qname, qtype='A'):
         if self.nameservers:
-            raise ValueError('unknown name servers: %s' % self.nameservers)
+            raise ValueError(f'unknown name servers: {self.nameservers}')
         if qtype == 1:
             qtype = 'A'
         try:
             records = mock_records[qtype]
         except KeyError:
-            raise ValueError('unknown query type: %s' % qtype)
+            raise ValueError(f'unknown query type: {qtype}')
         if qname.endswith('.'):
             qname = qname[:-1]
         try:
             results = records[qname]
         except KeyError:
-            raise ValueError('unknown query result: %s %s' % (qname, qtype))
+            raise ValueError(f'unknown query result: {qname} {qtype}')
         if not isinstance(results, list):
             results = [results]
         return [Answer(qtype, result) for result in results]

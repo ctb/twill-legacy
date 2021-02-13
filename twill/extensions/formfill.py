@@ -24,7 +24,7 @@ from twill import browser, commands, log, utils
 __all__ = ['fv_match', 'fv_multi_match', 'fv_multi', 'fv_multi_sub']
 
 
-def fv_match(formname, regex, value):
+def fv_match(form_name, regex, value):
     """>> fv_match <formname> <field regex> <value>
 
     Set value of *all* form fields with a name that matches the given
@@ -33,15 +33,15 @@ def fv_match(formname, regex, value):
     (Unlike 'formvalue' or 'fv', this will not complain about multiple
     matches!)
     """
-    form = browser.form(formname)
+    form = browser.form(form_name)
     if form is None:
-        log.error("no such form '%s'", formname)
+        log.error("no such form '%s'", form_name)
         return
 
     regex = re.compile(regex)
 
-    matches = [
-        ctl for ctl in form.inputs if regex.search(str(ctl.get('name')))]
+    matches = [ctl for ctl in form.inputs
+               if regex.search(str(ctl.get('name')))]
 
     if matches:
         log.info('-- matches %d', len(matches))
@@ -58,16 +58,16 @@ def fv_match(formname, regex, value):
         log.info('set %d values total', n)
 
 
-def fv_multi_match(formname, regex, *values):
+def fv_multi_match(form_name, regex, *values):
     """>> fv_multi_match <formname> <field regex> <value> [<value> [<value>..]]
 
     Set value of each consecutive matching form field with the next specified
     value.  If there are no more values, use the last for all remaining form
     fields
     """
-    form = browser.form(formname)
+    form = browser.form(form_name)
     if form is None:
-        log.error("no such form '%s'", formname)
+        log.error("no such form '%s'", form_name)
         return
 
     regex = re.compile(regex)
@@ -90,7 +90,7 @@ def fv_multi_match(formname, regex, *values):
         log.info('set %d values total', n)
 
 
-def fv_multi(formname, *pairs):
+def fv_multi(form_name, *pairs):
     """>> fv_multi <formname> [<pair1> [<pair2> [<pair3>]]]
 
     Set multiple form fields; each pair should be of the form
@@ -102,17 +102,17 @@ def fv_multi(formname, *pairs):
     pairs are given.
     """
     for p in pairs:
-        fieldname, value = p.split('=', 1)
-        commands.fv(formname, fieldname, value)
+        field_name, value = p.split('=', 1)
+        commands.fv(form_name, field_name, value)
 
 
-def fv_multi_sub(formname, *pairs):
+def fv_multi_sub(form_name, *pairs):
     """>> fv_multi_sub <formname> [<pair1> [<pair2> [<pair3>]]]
 
     Set multiple form fields (as with 'fv_multi') and then submit().
     """
     for p in pairs:
-        fieldname, value = p.split('=', 1)
-        commands.fv(formname, fieldname, value)
+        field_name, value = p.split('=', 1)
+        commands.fv(form_name, field_name, value)
 
     commands.submit()

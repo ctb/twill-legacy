@@ -22,7 +22,6 @@ _requirements = []      # what requirements to satisfy
 
 ignore_once = False     # reset after each hook call
 ignore_always = False   # never reset
-links_visited = {}      # list of known good links, for link checking.
 
 
 def skip_require():
@@ -76,8 +75,8 @@ def flush_visited():
 
     Flush the list of pages successfully visited already.
     """
-    global links_visited
-    links_visited.clear()
+    from check_links import good_urls
+    good_urls.clear()
 
 
 def _require_post_load_hook(action, *args, **kwargs):
@@ -102,14 +101,14 @@ def _require_post_load_hook(action, *args, **kwargs):
             commands.code(200)
 
         elif what == 'links_ok':
-            from check_links import check_links
+            from check_links import check_links, good_urls
 
             ignore_always = True
             log.debug('REQUIRING functioning links')
             log.debug('(already visited:)')
-            log.debug("\n\t".join(sorted(links_visited)))
+            log.debug("\n\t".join(sorted(good_urls)))
 
             try:
-                check_links(visited=links_visited)
+                check_links()
             finally:
                 ignore_always = False

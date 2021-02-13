@@ -4,7 +4,7 @@
 Developing twill
 ================
 
-twill is entirely written in Python. You will need Python 2.7, 3.5
+twill is entirely written in Python. You will need Python 3.6
 or newer to use and develop it.
 
 Package tests

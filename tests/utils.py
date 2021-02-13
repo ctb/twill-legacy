@@ -1,7 +1,5 @@
 """Utility functions for testing twill"""
 
-from __future__ import print_function
-
 import os
 import sys
 import getpass
@@ -61,8 +59,6 @@ def execute_script(filename, inp=None, initial_url=None):
 
     if inp:
         # use inp as the std input for the actual script commands
-        if isinstance(inp, bytes):  # Python 2
-            inp = inp.decode('utf-8')
         inp_fp = StringIO(inp)
         old_stdin, sys.stdin = sys.stdin, inp_fp
         old_getpass, getpass.getpass = getpass.getpass, mock_getpass
@@ -82,16 +78,12 @@ def execute_shell(filename, inp=None, initial_url=None,
         filename = os.path.join(test_dir, filename)
 
     cmd_inp = open(filename).read()
-    if isinstance(cmd_inp, bytes):  # Python 2
-        cmd_inp = cmd_inp.decode('utf-8')
     cmd_inp += u'\nquit\n'
     cmd_inp = StringIO(cmd_inp)
     cmd_loop = twill.shell.TwillCommandLoop
 
     if inp:
         # use inp as the std input for the actual script commands
-        if isinstance(inp, bytes):  # Python 2
-            inp = inp.decode('utf-8')
         inp_fp = StringIO(inp)
         old_stdin, sys.stdin = sys.stdin, inp_fp
         old_getpass, getpass.getpass = getpass.getpass, mock_getpass
@@ -129,7 +121,7 @@ def start_server(port=None):
             stderr=subprocess.STDOUT, stdout=out)
         time.sleep(SLEEP)  # wait until the server is up and running
 
-    _url = 'http://%s:%d/' % (HOST, port)
+    _url = f'http://{HOST}:{port}/'
 
 
 def stop_server():
@@ -139,7 +131,7 @@ def stop_server():
     if _url:
         if START:
             try:
-                requests.get('%sexit' % (_url,))
+                requests.get(f'{_url}exit')
             except Exception:
                 print('Could not stop the server')
         _url = None

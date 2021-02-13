@@ -33,13 +33,13 @@ def discard_all_messages():
     _formvalue_by_regex_setall('1', '^\\d+$', '3')
 
 
-def _formvalue_by_regex_setall(formname, fieldname, value):
-    form = browser.form(formname)
+def _formvalue_by_regex_setall(form_name, field_name, value):
+    form = browser.form(form_name)
     if not form:
-        log.error("no such form '%s'", formname)
+        log.error("no such form '%s'", form_name)
         return
 
-    regex = re.compile(fieldname)
+    regex = re.compile(field_name)
 
     matches = [ctl for ctl in form.controls if regex.search(str(ctl.name))]
 

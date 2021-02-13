@@ -26,7 +26,7 @@ from .errors import TwillException
 Link = namedtuple('Link', 'text, url')
 
 
-class Singleton(object):
+class Singleton:
     """A mixin class to create singleton objects."""
 
     def __new__(cls, *args, **kwargs):
@@ -41,7 +41,7 @@ class Singleton(object):
         cls.__it__ = None
 
 
-class ResultWrapper(object):
+class ResultWrapper:
     """Deal with request results, and present them in a unified form.
 
     These objects are returned by browser._journey()-wrapped functions.
@@ -108,7 +108,7 @@ class ResultWrapper(object):
         """Get the form with the given name on the result page"""
         forms = self.forms
 
-        if not isinstance(formname, int):
+        if isinstance(formname, str):
 
             # first, try ID
             for form in forms:
@@ -162,8 +162,7 @@ def trunc(s, length):
     """
     if s and len(s) > length:
         return s[:length - 4] + ' ...'
-    else:
-        return s
+    return s or ''
 
 
 def print_form(form, n):
@@ -182,20 +181,20 @@ def print_form(form, n):
         for n, field in enumerate(form.inputs, 1):
             value = field.value
             if hasattr(field, 'value_options'):
-                items = ', '.join("'%s'" % (
-                    opt.name if hasattr(opt, 'name') else opt,)
+                items = ', '.join(
+                    f"'{getattr(opt, 'name', opt)}'"
                     for opt in field.value_options)
-                value_displayed = '%s of %s' % (value, items)
+                value_displayed = f'{value} of {items}'
             else:
-                value_displayed = '%s' % (value,)
+                value_displayed = f'{value}'
             field_name = field.name
-            field_type = field.type if hasattr(field, 'type') else 'select'
+            field_type = getattr(field, 'type', 'select')
             field_id = field.get('id')
             strings = (
-                '%-2s' % (n,),
-                '%-24s %-9s' % (
-                    trunc(field_name, 24), trunc(field_type, 9)),
-                '%-12s' % (trunc(field_id, 12),),
+                f'{n:2}',
+                f'{trunc(field_name, 24):24}',
+                f'{trunc(field_type, 9):9}',
+                f'{trunc(field_id, 12):12}',
                 trunc(value_displayed, 40))
             info(' '.join(strings))
     info('')
@@ -225,7 +224,7 @@ def make_boolean(value):
     if value in ('on', 'off'):
         return value == 'on'
 
-    raise TwillException("unable to convert '%s' into true/false" % (value,))
+    raise TwillException(f"unable to convert '{value}' into true/false")
 
 
 def make_int(value):
@@ -237,7 +236,7 @@ def make_int(value):
     else:
         return ival
 
-    raise TwillException("unable to convert '%s' into an int" % (value,))
+    raise TwillException(f"unable to convert '{value}' into an int")
 
 
 def set_form_control_value(control, value):

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import re
 import sys
@@ -6,8 +6,8 @@ import sys
 from setuptools import setup
 
 python_version = sys.version_info[:2]
-if python_version != (2, 7) and python_version < (3, 5):
-    sys.exit("Python %s.%s is not supported by twill." % python_version)
+if python_version < (3, 6):
+    sys.exit("Python {}.{} is not supported by twill.".format(*python_version))
 
 with open("twill/__init__.py") as init_file:
     init = init_file.read()
@@ -19,15 +19,13 @@ with open("twill/__init__.py") as init_file:
 with open("README.md") as readme_file:
     readme = readme_file.read()
 
-require_twill = ['lxml>=4,<5', 'requests>=2,<3', 'pyparsing>=2,<3']
-require_docs = ['sphinx>=3,<4', 'sphinx_rtd_theme>=0.5,<1']
+require_twill = ['lxml>=4.6,<5', 'requests>=2.25,<3', 'pyparsing>=2.4,<3']
+require_docs = ['sphinx>=3.4,<4', 'sphinx_rtd_theme>=0.5,<1']
 require_tidy = ['pytidylib>=0.3,<0.4']
-require_quixote = [
-    'quixote>=2.9,<3' if python_version[0] < 3 else 'quixote>=3,<4']
+require_quixote = ['quixote>=3.3,<4']
 require_wsgi_intercept = ['wsgi_intercept>=1.9,<2']
 require_tests = [
-    'pytest>=4.6,<5' if python_version[0] < 3 else 'pytest>=6,<7'
-    ] + require_tidy + require_quixote + require_wsgi_intercept
+    'pytest>=6.2,<7'] + require_tidy + require_quixote + require_wsgi_intercept
 
 
 def main():
@@ -64,7 +62,7 @@ def main():
         },
 
         classifiers=[
-            'Development Status :: 4 - Beta',
+            'Development Status :: 6 - Mature',
             'Environment :: Console',
             'Intended Audience :: Developers',
             'Intended Audience :: System Administrators',
@@ -72,10 +70,7 @@ def main():
             'Natural Language :: English',
             'Operating System :: OS Independent',
             'Programming Language :: Python',
-            'Programming Language :: Python :: 2',
-            'Programming Language :: Python :: 2.7',
             'Programming Language :: Python :: 3',
-            'Programming Language :: Python :: 3.5',
             'Programming Language :: Python :: 3.6',
             'Programming Language :: Python :: 3.7',
             'Programming Language :: Python :: 3.8',

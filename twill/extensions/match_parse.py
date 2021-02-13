@@ -7,11 +7,6 @@ import re
 from twill import browser, log
 from twill.namespaces import get_twill_glocals
 
-try:
-    basestring
-except NameError:  # Python 3
-    basestring = str
-
 
 def showvar(which):
     """>> showvar var
@@ -72,7 +67,7 @@ def setmatch(what):
     global_dict, local_dict = get_twill_glocals()
 
     match = local_dict['__matchlist__']
-    if isinstance(match, basestring):
+    if isinstance(match, str):
         match = [match]
 
     new_match = [_do_eval(m, what) for m in match]

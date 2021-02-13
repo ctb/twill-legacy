@@ -1,9 +1,9 @@
 """Support functionality for using twill in unit tests."""
 
-import io
 import sys
 import time
 
+from io import StringIO
 from multiprocessing import Process
 
 from .parse import execute_file
@@ -11,8 +11,6 @@ from .parse import execute_file
 HOST = '127.0.0.1'  # interface to run the server on
 PORT = 8080  # default port to run the server on
 SLEEP = 0  # time to wait for the server to start
-
-StringIO = io.BytesIO if str is bytes else io.StringIO
 
 
 class TestInfo:
@@ -57,7 +55,7 @@ class TestInfo:
     @property
     def url(self):
         """"Get the test server URL."""
-        return "http://%s:%d/" % (HOST, self.port)
+        return f"http://{HOST}:{self.port}/"
 
 
 def run_test(test_info):

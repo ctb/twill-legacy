@@ -20,7 +20,7 @@ import re
 from twill import browser, commands, log, utils
 from twill.errors import TwillAssertionError
 
-__all__ = ['check_links', 'report_bad_links']
+__all__ = ['check_links', 'report_bad_links', 'good_urls', 'bad_urls']
 
 # first, set up config options & persistent 'bad links' memory...
 if commands.options.get('check_links.only_collection_bad_links') is None:
@@ -107,9 +107,9 @@ def check_links(pattern=''):
 
     if commands.options['check_links.only_collect_bad_links']:
         for url in failed:
-            referers = bad_urls.getdefault(url, set())
+            referrers = bad_urls.getdefault(url, set())
             info('*** %s', browser.url)
-            referers.add(browser.url)
+            referrers.add(browser.url)
     elif failed:
         info('\nCould not follow %d links:\n', len(failed))
         for url in failed:
@@ -142,8 +142,8 @@ def report_bad_links(fail_if_exist='true', flush_bad_links='true'):
 
     info('\nCould not follow %d links', len(bad_urls))
     for url in sorted(bad_urls):
-        referers = sorted(bad_urls[url])
-        info("\tlink '%s' (occurs on: %s)", url, ','.join(referers))
+        referrers = sorted(bad_urls[url])
+        info("\tlink '%s' (occurs on: %s)", url, ','.join(referrers))
 
     if flush_bad_links:
         bad_urls.clear()

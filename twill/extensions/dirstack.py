@@ -13,7 +13,7 @@ from twill import commands, log
 
 __all__ = ['chdir', 'popd']
 
-_dirstack = []
+_dir_stack = []
 
 
 def chdir(where):
@@ -23,7 +23,7 @@ def chdir(where):
     the directory stack.  The global variable __dir__ is set to the cwd.
     """
     cwd = os.getcwd()
-    _dirstack.append(cwd)
+    _dir_stack.append(cwd)
     log.debug('current directory: "%s"', cwd)
 
     os.chdir(where)
@@ -38,7 +38,7 @@ def popd():
     Change back to the last directory on the directory stack.  The global
     variable __dir__ is set to the cwd.
     """
-    where = _dirstack.pop()
+    where = _dir_stack.pop()
     os.chdir(where)
     log.info('popped back to directory "%s"', where)
 

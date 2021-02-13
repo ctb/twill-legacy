@@ -1,6 +1,6 @@
-These are unit tests that can be executed using 'py.test',
+These are unit tests that can be executed using 'pytest',
 
-      http://pytest.org/latest/
+      https://docs.pytest.org/
 
 You can either run the whole test suite at once or run the test_*.py scripts
-individually using py.test.  The server will only be started when necessary.
+individually using pytest.  The server will only be started when necessary.

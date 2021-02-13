@@ -24,13 +24,13 @@ def get_args(require=0):
 
     if len(shell.twillargs) < require:
         from twill.errors import TwillAssertionError
+        given = len(shell.twillargs)
         raise TwillAssertionError(
-            "too few arguments; %d rather than %d" %
-            (len(shell.twillargs), require))
+            f"too few arguments; {given} rather than {require}")
 
     if shell.twillargs:
         for n, arg in enumerate(shell.twillargs, 1):
-            global_dict["arg%d" % (n,)] = arg
+            global_dict[f"arg{n}"] = arg
         n = len(shell.twillargs)
         log.info("get_args: loaded %d args as $arg1..$arg%d.", n, n)
     else:

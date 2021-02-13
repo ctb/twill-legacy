@@ -1,6 +1,6 @@
 # Twill tests against the Quixote demo application
 
-# You need to start the Quicote demo first on your local host with
+# You need to start the Quixote demo first on your local host with
 # python quixote/server/simple_server.py --factory quixote.demo.create_publisher
 
 go http://127.0.0.1:8080/

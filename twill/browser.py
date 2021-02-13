@@ -3,12 +3,10 @@
 import pickle
 import re
 
-try:
-    from urllib.parse import urljoin
-except ImportError:  # Python 2
-    from urlparse import urljoin
+from urllib.parse import urljoin
 
 import requests
+import requests.auth
 from lxml import html
 from requests.exceptions import InvalidSchema, ConnectionError
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -21,10 +19,10 @@ from .errors import TwillException
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
-class TwillBrowser(object):
+class TwillBrowser:
     """A simple, stateful browser"""
 
-    user_agent = 'TwillBrowser/%s' % (__version__,)
+    user_agent = f'TwillBrowser/{__version__}'
 
     def __init__(self):
         self.result = None
@@ -84,8 +82,8 @@ class TwillBrowser(object):
             # if this is an absolute URL, it may be just missing the 'http://'
             # at the beginning, try fixing that (mimic browser behavior)
             if not url.startswith(('.', '/', '?')):
-                try_urls.append('http://%s' % (url,))
-                try_urls.append('https://%s' % (url,))
+                try_urls.append(f'http://{url}')
+                try_urls.append(f'https://{url}')
         for try_url in try_urls:
             try:
                 self._journey('open', try_url)
@@ -95,7 +93,7 @@ class TwillBrowser(object):
             else:
                 break
         else:
-            raise TwillException("cannot go to '%s'" % (url,))
+            raise TwillException(f"cannot go to '{url}'")
         log.info('==> at %s', self.url)
 
     def reload(self):
@@ -232,7 +230,7 @@ class TwillBrowser(object):
         inputs = form.inputs
         found_multiple = False
 
-        if not isinstance(fieldname, int):
+        if isinstance(fieldname, str):
 
             if fieldname in form.fields:
                 match_name = [c for c in inputs if c.name == fieldname]
@@ -265,7 +263,7 @@ class TwillBrowser(object):
         except (IndexError, ValueError):
             pass
 
-        if not isinstance(fieldname, int):
+        if isinstance(fieldname, str):
 
             # test regex match
             regex = re.compile(fieldname)
@@ -285,8 +283,8 @@ class TwillBrowser(object):
 
         # error out
         if found_multiple:
-            raise TwillException('multiple matches to "%s"' % (fieldname,))
-        raise TwillException('no field matches "%s"' % (fieldname,))
+            raise TwillException(f'multiple matches to "{fieldname}"')
+        raise TwillException(f'no field matches "{fieldname}"')
 
     def add_form_file(self, fieldname, fp):
         self._form_files[fieldname] = fp

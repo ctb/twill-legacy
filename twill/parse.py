@@ -12,12 +12,6 @@ from pyparsing import (
 from . import browser, commands, log, namespaces
 from .errors import TwillNameError
 
-try:
-    basestring
-except NameError:  # Python 3
-    basestring = str
-
-
 # pyparsing stuff
 
 # basically, a valid Python identifier:
@@ -84,7 +78,7 @@ def process_args(args, globals_dict, locals_dict):
 
             log.info('VAL IS %s FOR %s', val, arg)
 
-            if isinstance(val, basestring):
+            if isinstance(val, str):
                 newargs.append(val)
             else:
                 newargs.extend(val)
@@ -115,9 +109,9 @@ def execute_command(cmd, args, globals_dict, locals_dict, cmdinfo):
     locals_dict['__cmd__'] = cmd
     locals_dict['__args__'] = args
     if cmd not in command_list:
-        raise TwillNameError("unknown twill command: '%s'" % (cmd,))
+        raise TwillNameError(f"unknown twill command: '{cmd}'")
 
-    eval_str = "%s(*__args__)" % (cmd,)
+    eval_str = f"{cmd}(*__args__)"
 
     # compile the code object so that we can get 'cmdinfo' into the
     # error tracebacks
@@ -151,12 +145,6 @@ def parse_command(line, globals_dict, locals_dict):
 
 def execute_string(buf, **kw):
     """Execute commands from a string buffer."""
-    if isinstance(buf, bytes):  # Python 2
-        try:
-            buf = buf.decode('utf-8')
-        except UnicodeDecodeError:
-            buf = buf.decode('latin-1')
-
     fp = StringIO(buf)
 
     kw['source'] = ['<string buffer>']
@@ -168,9 +156,7 @@ def execute_string(buf, **kw):
 
 def execute_file(filename, **kw):
     """Execute commands from a file."""
-    inp = sys.stdin if filename == '-' else (
-        open(filename) if str is bytes else  # Python 2
-        open(filename, encoding='utf-8'))  # Python 3
+    inp = sys.stdin if filename == '-' else open(filename, encoding='utf-8')
 
     log.info('\n>> Running twill file %s', filename)
 
@@ -199,8 +185,8 @@ def _execute_script(inp, **kw):
     # should we catch exceptions on failure?
     catch_errors = kw.get('never_fail')
 
-    # sourceinfo stuff
-    sourceinfo = kw.get('source', "<input>")
+    # source_info stuff
+    source_info = kw.get('source', "<input>")
 
     try:
 
@@ -209,24 +195,23 @@ def _execute_script(inp, **kw):
             if not line:  # skip empty lines
                 continue
 
-            cmdinfo = '%s:%d' % (sourceinfo, n)
-            log.info('AT LINE: %s', cmdinfo)
+            cmd_info = f'{source_info}:{n}'
+            log.info('AT LINE: %s', cmd_info)
 
             cmd, args = parse_command(line, globals_dict, locals_dict)
             if cmd is None:
                 continue
 
             try:
-                execute_command(cmd, args, globals_dict, locals_dict, cmdinfo)
+                execute_command(cmd, args, globals_dict, locals_dict, cmd_info)
             except SystemExit:
                 # abort script execution if a SystemExit is raised
                 return
             except Exception as e:
                 error_type = e.__class__.__name__ or 'Error'
-                error = "%s raised on line %d of '%s'" % (
-                    error_type, n, sourceinfo)
+                error = f"{error_type} raised on line {n} of '{source_info}'"
                 if line:
-                    error += " while executing\n>> %s" % (line,)
+                    error += f" while executing\n>> {line}"
                 log.error("\nOops! %s", error)
                 if not browser.first_error:
                     browser.first_error = error
@@ -242,8 +227,7 @@ def _execute_script(inp, **kw):
             for filename in reversed(cleanups):
                 log.info('\n>> Running twill cleanup file %s', filename)
                 try:
-                    inp = (open(filename) if str is bytes else  # Python 2
-                           open(filename, encoding='utf-8'))  # Python 3
+                    inp = open(filename, encoding='utf-8')
                     _execute_script(inp, source=filename, no_reset=True)
                 except Exception as e:
                     log.error('>> Cannot run cleanup file %s: %s', filename, e)
@@ -261,7 +245,7 @@ def log_commands(flag):
     return old_flag
 
 
-_re_variable = re.compile("\\${(.*?)}")
+_re_variable = re.compile(r"\${(.*?)}")
 
 
 def variable_substitution(raw_str, globals_dict, locals_dict):

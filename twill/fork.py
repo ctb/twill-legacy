@@ -12,20 +12,15 @@
 # please see the included LICENSE.txt file for more information, or
 # go to http://www.opensource.org/licenses/mit-license.php.
 
-from __future__ import print_function
-
 import sys
 import os
 import time
 
 from optparse import OptionParser
 
-from . import execute_file, set_loglevel
+from . import execute_file, set_log_level
 
-try:
-    from cPickle import load, dump
-except ImportError:  # Python 3
-    from pickle import load, dump
+from pickle import load, dump
 
 # make sure that the current working directory is in the path
 if '' not in sys.path:
@@ -59,6 +54,7 @@ def main():
     last_number = average_number + options.number % options.processes
     child_pids = []
     is_parent = True
+    repeat = 0
 
     # start a bunch of child processes and record their pids in the parent
     for i in range(options.processes):
@@ -84,8 +80,8 @@ def main():
         for child_pid in child_pids[:]:
             child_pid, status = os.waitpid(child_pid, 0)
             if status:  # failure
-                print('[twill-fork parent: process %d FAILED: exit status %d]'
-                      % (child_pid, status,))
+                print(f'[twill-fork parent: process {child_pid} FAILED:'
+                      f' exit status {status}]')
                 print('[twill-fork parent:'
                       ' (not counting stats for this process)]')
                 failed = True
@@ -99,23 +95,24 @@ def main():
 
         # summarize
         print('\n----\n')
-        print('number of processes:', options.processes)
-        print('total executed:', total_exec)
-        print('total time to execute: %.2f s' % (total_time,))
+        print(f'number of processes: {options.processes}')
+        print(f'total executed: {total_exec}')
+        print(f'total time to execute: {total_time:.2f} s')
         if total_exec:
-            print('average time: %.2f ms' % (1000 * total_time / total_exec,))
+            avg_time = 1000 * total_time / total_exec
+            print(f'average time: {avg_time:.2f} ms')
         else:
             print('(nothing completed, no average!)')
         print()
 
     else:
 
-        print('[twill-fork: pid %d : executing %d times]'
-              % (os.getpid(), repeat))
+        pid = os.getpid()
+        print(f'[twill-fork: pid {pid} : executing {repeat} times]')
 
         start_time = time.time()
 
-        set_loglevel('warning')
+        set_log_level('warning')
         for i in range(repeat):
             for filename in args:
                 execute_file(filename, initial_url=options.url)
@@ -124,7 +121,7 @@ def main():
         this_time = end_time - start_time
 
         # write statistics
-        filename = '.status.%d' % (os.getpid(),)
+        filename = f'.status.{pid}'
         with open(filename, 'w') as fp:
             info = (this_time, repeat)
             dump(info, fp)

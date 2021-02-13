@@ -54,8 +54,6 @@ class IteratorApp:
     def __next__(self):
         return next(self._iter)
 
-    next = __next__  # for Python 2
-
 
 def test_intercept():
     app_was_hit.clear()

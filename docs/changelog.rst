@@ -4,14 +4,21 @@
 ChangeLog
 =========
 
+3.0 (to be released)
+--------------------
+
+* In this version we require Python 3.6 to 3.9.
+  If you still need support for Python 2 or Python 3.5,
+  then please use the latest version from the 2.x branch.
+* The code has been optimized for Python 3 now.
+
 2.0.2 (released 2021-02-13)
 ---------------------------
 
-* Also support Python 3.9
+* This version now also supports Python 3.9.
 * 'tidy_should_exist' has been renamed ot 'require_tidy'.
 * Support for setting options to be used with HTML Tidy.
 * Cleanup scripts are now also read as UTF-8 in Python 3.
-
 
 2.0.1 (released 2020-07-12)
 ---------------------------
@@ -78,7 +85,7 @@ The following improvements and changes were made in this version:
 * Fixed a lot of smaller and larger bugs and problems.
 
 .. _lxml: https://lxml.de/
-.. _requests: https://2.python-requests.org/
+.. _requests: https://requests.readthedocs.io/
 .. _mechanize: https://mechanize.readthedocs.io/
 .. _cssselect: https://github.com/scrapy/cssselect
 .. _Beautiful Soup: https://www.crummy.com/software/BeautifulSoup/
