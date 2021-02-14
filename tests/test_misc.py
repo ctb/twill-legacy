@@ -25,12 +25,12 @@ def test():
     with raises(TwillException):
         browser.submit()
 
-    old_err, sys.stderr = sys.stderr, StringIO()
+    stderr, sys.stderr = sys.stderr, StringIO()
     try:
         with raises(TwillException):
             browser.go('http://0.0.0.0')  # URL parses, but is invalid
     finally:
-        sys.stderr = old_err
+        sys.stderr = stderr
 
     with raises(SystemExit):
         commands.exit()

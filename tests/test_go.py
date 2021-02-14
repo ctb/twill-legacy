@@ -39,18 +39,18 @@ def test(url):
 
     # from stdin
     filename = os.path.join(test_dir, 'test_go.twill')
-    old_in, sys.stdin = sys.stdin, open(filename)
+    stdin, sys.stdin = sys.stdin, open(filename)
     try:
         execute_script('-', initial_url=url)
     finally:
-        sys.stdin = old_in
+        sys.stdin = stdin
 
     # from parse.execute_file
     twill.parse.execute_file('test_go_exit.twill', initial_url=url)
 
     # also test some failures
 
-    old_err, sys.stderr = sys.stderr, StringIO()
+    stderr, sys.stderr = sys.stderr, StringIO()
     try:
         twill.set_err_out(sys.stderr)
         # failed assert in a script
@@ -65,7 +65,7 @@ def test(url):
         with raises(TwillNameError):
             twill.parse.execute_file('test_go_fail2.twill', initial_url=url)
     finally:
-        sys.stderr = old_err
+        sys.stderr = stderr
 
     namespaces.new_local_dict()
     gd, ld = namespaces.get_twill_glocals()

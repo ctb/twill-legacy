@@ -59,15 +59,14 @@ def execute_script(filename, inp=None, initial_url=None):
 
     if inp:
         # use inp as the std input for the actual script commands
-        inp_fp = StringIO(inp)
-        old_stdin, sys.stdin = sys.stdin, inp_fp
-        old_getpass, getpass.getpass = getpass.getpass, mock_getpass
+        stdin, sys.stdin = sys.stdin, StringIO(inp)
+        real_getpass, getpass.getpass = getpass.getpass, mock_getpass
     try:
         twill.execute_file(filename, initial_url=initial_url)
     finally:
         if inp:
-            sys.stdin = old_stdin
-            getpass.getpass = old_getpass
+            sys.stdin = stdin
+            getpass.getpass = real_getpass
 
 
 def execute_shell(filename, inp=None, initial_url=None,
@@ -84,9 +83,8 @@ def execute_shell(filename, inp=None, initial_url=None,
 
     if inp:
         # use inp as the std input for the actual script commands
-        inp_fp = StringIO(inp)
-        old_stdin, sys.stdin = sys.stdin, inp_fp
-        old_getpass, getpass.getpass = getpass.getpass, mock_getpass
+        stdin, sys.stdin = sys.stdin, StringIO(inp)
+        real_getpass, getpass.getpass = getpass.getpass, mock_getpass
     try:
         s = cmd_loop(initial_url=initial_url, stdin=cmd_inp,
                      fail_on_unknown=fail_on_unknown)
@@ -95,8 +93,8 @@ def execute_shell(filename, inp=None, initial_url=None,
         pass
     finally:
         if inp:
-            sys.stdin = old_stdin
-            getpass.getpass = old_getpass
+            sys.stdin = stdin
+            getpass.getpass = real_getpass
         cmd_loop.reset()  # do not keep as singleton
 
 

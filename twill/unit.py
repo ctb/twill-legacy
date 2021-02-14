@@ -34,7 +34,7 @@ class TestInfo:
 
     def start_server(self):
         # save old stdout/stderr
-        old_out, old_err = sys.stdout, sys.stderr
+        stdout, stderr = sys.stdout, sys.stderr
 
         # create new stdout/stderr
         self.stdout = sys.stdout = StringIO()
@@ -44,7 +44,7 @@ class TestInfo:
             self.server_fn()
         finally:
             # restore stdout/stderr
-            sys.stdout, sys.stderr = old_out, old_err
+            sys.stdout, sys.stderr = stdout, stderr
 
     def run_script(self):
         """Run the given twill script on the given server."""

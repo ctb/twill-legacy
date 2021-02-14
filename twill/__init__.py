@@ -51,6 +51,8 @@ log_levels = dict(
 log = logging.getLogger()
 handler = None
 
+stdout, stderr = sys.stdout, sys.stderr
+
 
 def set_log_level(level=None):
     """Set the logging level.
@@ -71,7 +73,7 @@ def set_output(stream=None):
     """
     global handler
     if stream is None:
-        stream = sys.__stdout__
+        stream = stdout
     if handler:
         log.removeHandler(handler)
     handler = logging.StreamHandler(stream)
@@ -85,7 +87,7 @@ def set_err_out(stream=None):
     If no stream is passed, use standard error.
     """
     if stream is None:
-        stream = sys.__stderr__
+        stream = stderr
     sys.stderr = stream
 
 
