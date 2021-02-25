@@ -20,7 +20,7 @@ import logging
 import sys
 import os.path
 
-__version__ = '3.0a0'
+__version__ = '3.0'
 
 __url__ = 'https://github.com/twill-tools/twill'
 __download_url__ = 'https://pypi.org/project/twill/'

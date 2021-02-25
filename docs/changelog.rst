@@ -4,13 +4,19 @@
 ChangeLog
 =========
 
-3.0 (to be released)
---------------------
+3.0 (released 2021-02-25)
+-------------------------
 
 * In this version we require Python 3.6 to 3.9.
   If you still need support for Python 2 or Python 3.5,
   then please use the latest version from the 2.x branch.
 * The code has been optimized for Python 3 now.
+* Some minor fixes.
+
+2.0.3 (released 2021-02-25)
+---------------------------
+
+* Backported the fixes in version 3.0.
 
 2.0.2 (released 2021-02-13)
 ---------------------------
