@@ -6,13 +6,18 @@ import sys
 from io import StringIO
 
 from pyparsing import (
-    alphas, alphanums, CharsNotIn, Combine, Group, Literal, Optional,
-    ParseException, printables, removeQuotes, restOfLine, Word, ZeroOrMore)
+    CharsNotIn, Combine, Group, Literal, Optional, ParseException,
+    pyparsing_unicode, removeQuotes, restOfLine, Word, ZeroOrMore)
 
 from . import browser, commands, log, namespaces
 from .errors import TwillNameError
 
 # pyparsing stuff
+
+# allow characters in full 8bit range
+char_range = pyparsing_unicode.Latin1
+alphas, alphanums = char_range.alphas, char_range.alphanums
+printables = char_range.printables
 
 # basically, a valid Python identifier:
 command = Word(alphas + '_', alphanums + '_')

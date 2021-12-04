@@ -1,6 +1,9 @@
 setglobal init __url__
 code 200
 
+find session
+echo found __match__
+
 find "session ID is None"
 echo found __match__
 
@@ -11,6 +14,13 @@ find "//a[@href='logout']" x
 echo found __match__
 
 notfind "//a[@href='inexistent']" x
+echo notfound
+
+notfind "sässion"
+echo notfound
+
+# this also checks the parsing of 8bit chars
+notfind sässion
 echo notfound
 
 go ./login
