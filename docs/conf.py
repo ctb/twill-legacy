@@ -22,7 +22,7 @@ copyright = '2021, C. Titus Brown, Ben R. Taylor et al'
 author = 'C. Titus Brown, Ben R. Taylor et al'
 
 # The full version, including alpha/beta/rc tags
-version = release = '3.0'
+version = release = '3.0.1'
 
 
 # -- General configuration ---------------------------------------------------
@@ -30,8 +30,7 @@ version = release = '3.0'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = [
-]
+extensions = []
 
 # Add any paths that contain templates here, relative to this directory.
 # templates_path = ['_templates']

@@ -19,8 +19,8 @@ with open("twill/__init__.py") as init_file:
 with open("README.md") as readme_file:
     readme = readme_file.read()
 
-require_twill = ['lxml>=4.6,<5', 'requests>=2.25,<3', 'pyparsing>=2.4,<3']
-require_docs = ['sphinx>=3.4,<4', 'sphinx_rtd_theme>=0.5,<1']
+require_twill = ['lxml>=4.6,<5', 'requests>=2.25,<3', 'pyparsing>=2.4,<4']
+require_docs = ['sphinx>=3.4,<5', 'sphinx_rtd_theme>=0.5,<2']
 require_tidy = ['pytidylib>=0.3,<0.4']
 require_quixote = ['quixote>=3.3,<4']
 require_wsgi_intercept = ['wsgi_intercept>=1.9,<2']
@@ -75,6 +75,7 @@ def main():
             'Programming Language :: Python :: 3.7',
             'Programming Language :: Python :: 3.8',
             'Programming Language :: Python :: 3.9',
+            'Programming Language :: Python :: 3.10',
             'Programming Language :: Other Scripting Engines',
             'Topic :: Internet :: WWW/HTTP',
             'Topic :: Software Development :: Testing'

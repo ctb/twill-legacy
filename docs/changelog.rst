@@ -4,6 +4,12 @@
 ChangeLog
 =========
 
+3.0.1 (released YYYY-MM-DD)
+---------------------------
+
+* This version now officially supports Python 3.6 to 3.10.
+* The twill language now allows 8-bit letters to appear in strings unquoted.
+
 3.0 (released 2021-02-25)
 -------------------------
 
