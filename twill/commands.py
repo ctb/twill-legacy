@@ -250,7 +250,7 @@ def save_html(filename=None):
             filename = 'index.html'
         log.info("Using filename '%s'", filename)
 
-    f = open(filename, 'w')
+    f = open(filename, 'w', encoding="utf-8")
     f.write(html)
     f.close()
 
