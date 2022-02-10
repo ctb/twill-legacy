@@ -250,9 +250,15 @@ def save_html(filename=None):
             filename = 'index.html'
         log.info("Using filename '%s'", filename)
 
-    f = open(filename, 'w', encoding="utf-8")
-    f.write(html)
-    f.close()
+    encoding = browser.encoding or 'utf-8'
+    try:
+        with open(filename, 'w', encoding=encoding) as f:
+            f.write(html)
+    except UnicodeEncodeError:
+        if encoding == 'utf-8':
+            raise
+        with open(filename, 'w', encoding='utf-8') as f:
+            f.write(html)
 
 
 def sleep(interval=1):
