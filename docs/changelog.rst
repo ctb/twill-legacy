@@ -4,6 +4,12 @@
 ChangeLog
 =========
 
+3.0.2 (released 2022-04-10)
+---------------------------
+
+* Save HTML file with browser encoding or as UTF-8 (#9).
+* Do not modify root logger any more (#10).
+
 3.0.1 (released 2021-12-04)
 ---------------------------
 
