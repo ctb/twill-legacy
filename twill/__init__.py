@@ -48,7 +48,7 @@ log_levels = dict(
     DEBUG=logging.DEBUG,
     NOTSET=logging.NOTSET)
 
-log = logging.getLogger()
+log = logging.getLogger(__name__)
 handler = None
 
 stdout, stderr = sys.stdout, sys.stderr
