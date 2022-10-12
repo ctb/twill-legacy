@@ -4,6 +4,11 @@
 ChangeLog
 =========
 
+3.0.3 (released 2022-10-12)
+---------------------------
+
+* Form numbers are now printed correctly with 'showforms' (#12).
+
 3.0.2 (released 2022-04-10)
 ---------------------------
 
