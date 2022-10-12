@@ -170,7 +170,7 @@ class TwillBrowser:
     @agent_string.setter
     def agent_string(self, agent):
         """Set the agent string to the given value."""
-        self.headers['User-agent'] = agent
+        self.headers['User-Agent'] = agent
 
     def showforms(self):
         """Pretty-print all of the forms.
