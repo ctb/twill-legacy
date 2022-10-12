@@ -169,10 +169,7 @@ def print_form(form, n):
     """Pretty-print the given form, with the assigned number."""
     info = log.info
     name = form.get('name')
-    if name:
-        info('\nForm name=%s (#%d)', name, n + 1)
-    else:
-        info('\nForm #%d', n + 1)
+    info('\nForm name=%s (#%d)', name, n) if name else info('\nForm #%d', n)
 
     if form.inputs is not None:
         info('## __Name__________________'
