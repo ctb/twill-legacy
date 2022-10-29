@@ -10,18 +10,22 @@ import sys
 import traceback
 
 from cmd import Cmd
+from io import TextIOWrapper
 from optparse import OptionParser
+from typing import Any, Callable, List, Optional
 
 try:
-    import readline
+    from readline import read_history_file, write_history_file  # type: ignore
 except ImportError:
-    readline = None
-
+    read_history_file = write_history_file = None  # type: ignore
 from . import (
-    browser, commands, execute_file,
+    commands, execute_file,
     log, log_levels, set_log_level, set_output,
     namespaces, parse, shutdown, __url__, __version__)
+from .browser import browser
 from .utils import gather_filenames, Singleton
+
+__all__ = ['main']
 
 python_version = sys.version.split(None, 1)[0]
 
@@ -33,7 +37,7 @@ See {__url__} for more info.
 """
 
 
-def make_cmd_fn(cmd):
+def make_cmd_fn(cmd: str) -> Callable[[str], None]:
     """Make a command function.
 
     Dynamically define a twill shell command function based on an imported
@@ -41,7 +45,7 @@ def make_cmd_fn(cmd):
     get executed.)
     """
 
-    def do_cmd(rest_of_line, cmd=cmd):
+    def do_cmd(rest_of_line: str, cmd: str = cmd) -> None:
         global_dict, local_dict = namespaces.get_twill_glocals()
 
         args = []
@@ -65,13 +69,13 @@ def make_cmd_fn(cmd):
     return do_cmd
 
 
-def make_help_cmd(cmd, docstring):
+def make_help_cmd(cmd: str, docstring: str) -> Callable[[str], None]:
     """Make a help command function.
 
     Dynamically define a twill shell help function for the given
     command/docstring.
     """
-    def help_cmd(message=docstring, cmd=cmd):
+    def help_cmd(message: str = docstring, cmd: str = cmd) -> None:
         message = message.strip()
         width = 7 + len(cmd)
         for line in message.splitlines():
@@ -87,16 +91,11 @@ def make_help_cmd(cmd, docstring):
     return help_cmd
 
 
-def add_command(cmd, docstring):
+def add_command(cmd: str, docstring: str) -> None:
     """Add a command with given docstring to the shell."""
     shell = get_command_shell()
     if shell:
         shell.add_command(cmd, docstring)
-
-
-def get_command_shell():
-    """Get the command shell."""
-    return getattr(TwillCommandLoop, '__it__', None)
 
 
 class TwillCommandLoop(Singleton, Cmd):
@@ -109,7 +108,10 @@ class TwillCommandLoop(Singleton, Cmd):
     by the metaclass.
     """
 
-    def __init__(self,  stdin=None, initial_url=None, fail_on_unknown=False):
+    def __init__(
+            self,  stdin: Optional[TextIOWrapper] = None,
+            initial_url: Optional[str] = None,
+            fail_on_unknown: bool = False) -> None:
         Cmd.__init__(self, stdin=stdin)
 
         self.use_rawinput = stdin is None
@@ -117,10 +119,10 @@ class TwillCommandLoop(Singleton, Cmd):
         # initialize a new local namespace.
         namespaces.new_local_dict()
 
-        # import readline history, if available.
-        if readline:
+        # import readline history, if available/possible.
+        if read_history_file:
             try:
-                readline.read_history_file('.twill-history')
+                read_history_file('.twill-history')
             except IOError:
                 pass
 
@@ -133,7 +135,7 @@ class TwillCommandLoop(Singleton, Cmd):
 
         self._set_prompt()
 
-        self.names = []
+        self.names: List[str] = []
 
         global_dict, local_dict = namespaces.get_twill_glocals()
 
@@ -142,7 +144,7 @@ class TwillCommandLoop(Singleton, Cmd):
             fn = global_dict.get(command)
             self.add_command(command, fn.__doc__)
 
-    def add_command(self, command, docstring):
+    def add_command(self, command: str, docstring: str) -> None:
         """Add the given command into the lexicon of all commands."""
         do_name = f'do_{command}'
         do_cmd = make_cmd_fn(command)
@@ -155,11 +157,12 @@ class TwillCommandLoop(Singleton, Cmd):
 
         self.names.append(do_name)
 
-    def get_names(self):
+    def get_names(self) -> List[str]:
         """Return the list of commands."""
         return self.names
 
-    def complete_formvalue(self, text, line, begin, end):
+    def complete_formvalue(
+            self, text: str, line: str, _begin: int, _end: int) -> List[str]:
         """Command arg completion for the formvalue command.
 
         The twill command has the following syntax:
@@ -177,21 +180,21 @@ class TwillCommandLoop(Singleton, Cmd):
 
     complete_fv = complete_formvalue  # alias
 
-    def provide_formname(self, prefix):
+    def provide_formname(self, prefix: str) -> List[str]:
         """Provide the list of form names on the given page."""
         names = []
         forms = browser.forms
         for form in forms:
-            id = form.attrib.get('id')
-            if id and id.startswith(prefix):
-                names.append(id)
+            form_id = form.attrib.get('id')
+            if form_id and form_id.startswith(prefix):
+                names.append(form_id)
                 continue
             name = form.attrib.get('name')
             if name and name.startswith(prefix):
                 names.append(name)
         return names
 
-    def provide_field(self, formname, prefix):
+    def provide_field(self, formname: str, prefix: str) -> List[str]:
         """Provide the list of fields for the given formname or number."""
         names = []
         form = browser.form(formname)
@@ -206,23 +209,23 @@ class TwillCommandLoop(Singleton, Cmd):
                     names.append(name)
         return names
 
-    def _set_prompt(self):
+    def _set_prompt(self) -> None:
         """"Set the prompt to the current page."""
         url = browser.url
         if url is None:
             url = " *empty page* "
         self.prompt = f"current page: {url}\n>> "
 
-    def precmd(self, line):
+    def precmd(self, line: str) -> str:
         """Run before each command; save."""
         return line
 
-    def postcmd(self, stop, line):
+    def postcmd(self, stop: bool, line: str) -> bool:
         """"Run after each command; set prompt."""
         self._set_prompt()
         return stop
 
-    def default(self, line):
+    def default(self, line: str) -> None:
         """"Called when an unknown command is executed."""
 
         # empty lines ==> emptyline(); here we just want to remove
@@ -247,33 +250,33 @@ class TwillCommandLoop(Singleton, Cmd):
             if self.fail_on_unknown:
                 raise
 
-    def emptyline(self):
+    def emptyline(self) -> Any:
         """Handle empty lines (by ignoring them)."""
         pass
 
-    def do_EOF(self, *args):
+    def do_EOF(self, *_args: str) -> None:
         """Exit on CTRL-D"""
-        if readline:
-            readline.write_history_file('.twill-history')
+        if write_history_file:
+            write_history_file('.twill-history')
         raise SystemExit()
 
-    def help_help(self):
+    def help_help(self) -> None:
         """Show help for the help command."""
         log.info("\nWhat do YOU think the command 'help' does?!?\n")
 
-    def do_version(self, *args):
+    def do_version(self, *_args: str) -> None:
         """Show the version number of twill."""
         log.info(version_info)
 
-    def help_version(self):
+    def help_version(self) -> None:
         """Show help for the version command."""
         log.info("\nPrint version information.\n")
 
-    def do_exit(self, *args):
+    def do_exit(self, *_args: str) -> None:
         """Exit the twill shell."""
         raise SystemExit()
 
-    def help_exit(self):
+    def help_exit(self) -> None:
         """Show help for the exit command."""
         log.info("\nExit twill.\n")
 
@@ -281,12 +284,17 @@ class TwillCommandLoop(Singleton, Cmd):
     help_quit = help_exit
 
 
-twillargs = []       # contains sys.argv *after* last '--'
+def get_command_shell() -> Optional[TwillCommandLoop]:
+    """Get the command shell."""
+    return getattr(TwillCommandLoop, '__it__', None)
+
+
+twill_args: List[str] = []  # contains sys.argv *after* last '--'
 interactive = False  # 'True' if interacting with user
 
 
 def main():
-    global twillargs, interactive
+    global twill_args, interactive
 
     # show the shorthand name for usage
     if sys.argv[0].endswith('-script.py'):
@@ -321,15 +329,15 @@ def main():
         dest='show_browser', help="show dumped HTML in a web browser ")
 
     # parse arguments
-    sysargs = sys.argv[1:]
-    if '--' in sysargs:
-        for last in range(len(sysargs) - 1, -1, -1):
-            if sysargs[last] == '--':
-                twillargs = sysargs[last + 1:]
-                sysargs = sysargs[:last]
+    sys_args = sys.argv[1:]
+    if '--' in sys_args:
+        for last in range(len(sys_args) - 1, -1, -1):
+            if sys_args[last] == '--':
+                twill_args = sys_args[last + 1:]
+                sys_args = sys_args[:last]
                 break
 
-    options, args = parser.parse_args(sysargs)
+    options, args = parser.parse_args(sys_args)
 
     if options.show_version:
         log.info(version_info)

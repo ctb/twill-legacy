@@ -2,21 +2,36 @@
 
 import pickle
 import re
-
+from typing import (
+    cast, Callable, Dict, IO, List, Optional, Sequence, Tuple, Union)
 from urllib.parse import urljoin
 
-import requests
-import requests.auth
-from lxml import html
+from requests import Session
+from requests.auth import HTTPBasicAuth
 from requests.exceptions import InvalidSchema, ConnectionError
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
+from requests.structures import CaseInsensitiveDict
 
 from . import log, __version__
 from .utils import (
-    print_form, trunc, unique_match, ResultWrapper, _equiv_refresh_interval)
+    get_equiv_refresh_interval, html_to_tree, print_form, trunc, unique_match,
+    BrowserCreds, CheckboxGroup, FieldElement, FormElement, HtmlElement,
+    InputElement, Link, UrlWithRealm, RadioGroup, Response, ResultWrapper)
 from .errors import TwillException
 
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+__all__ = ['browser']
+
+
+def _disable_insecure_request_warnings():
+    """Disable insecure request warnings."""
+    try:
+        from requests.packages import urllib3  # type: ignore
+    except ImportError:
+        import urllib3  # type: ignore
+    try:
+        urllib3.disable_warnings(
+            urllib3.exceptions.InsecureRequestWarning)  # type:ignore
+    except AttributeError:
+        pass
 
 
 class TwillBrowser:
@@ -25,9 +40,9 @@ class TwillBrowser:
     user_agent = f'TwillBrowser/{__version__}'
 
     def __init__(self):
-        self.result = None
-        self.last_submit_button = None
-        self.first_error = None
+        self.result: Optional[ResultWrapper] = None
+        self.last_submit_button: Optional[InputElement] = None
+        self.first_error: Optional[str] = None
 
         # whether meta refresh will be displayed
         self.show_refresh = False
@@ -36,41 +51,46 @@ class TwillBrowser:
         self.verify = False
 
         # Session stores cookies
-        self._session = requests.Session()
+        self._session = Session()
 
-        # An lxml FormElement, none until a form is selected
+        # A lxml FormElement, None until a form is selected
         # replaces self._browser.form from mechanize
-        self._form = None
-        self._form_files = {}
+        self._form: Optional[FormElement] = None
+        self._form_files: Dict[str, IO] = {}
 
         # A dict of HTTPBasicAuth from requests, keyed off URL
-        self._auth = {}
+        self._auth: Dict[UrlWithRealm, HTTPBasicAuth] = {}
 
         # callables to be called after each page load.
-        self._post_load_hooks = []
+        self._post_load_hooks: List[Callable] = []
 
-        self._history = []
+        self._history: List[ResultWrapper] = []
 
         # set default headers
         self.reset_headers()
+
+    def _assert_result_for(self, what: str) -> ResultWrapper:
+        if not self.result:
+            raise TwillException(f"Cannot get {what} since there is no page.")
+        return self.result
 
     def reset(self):
         """Reset the browser"""
         self.__init__()
 
     @property
-    def creds(self):
+    def creds(self) -> Dict[UrlWithRealm, HTTPBasicAuth]:
         """Get the credentials for basic authentication."""
         return self._auth
 
     @creds.setter
-    def creds(self, creds):
+    def creds(self, creds: BrowserCreds) -> None:
         """Set the credentials for basic authentication."""
-        self._auth[creds[0]] = requests.auth.HTTPBasicAuth(*creds[1])
+        self._auth[creds[0]] = HTTPBasicAuth(*creds[1])
 
-    def go(self, url):
+    def go(self, url: str) -> None:
         """Visit given URL."""
-        try_urls = []
+        try_urls: List[str] = []
         if '://' in url:
             try_urls.append(url)
         else:  # URL does not have a schema
@@ -82,6 +102,7 @@ class TwillBrowser:
             # if this is an absolute URL, it may be just missing the 'http://'
             # at the beginning, try fixing that (mimic browser behavior)
             if not url.startswith(('.', '/', '?')):
+                # noinspection HttpUrlsUsage
                 try_urls.append(f'http://{url}')
                 try_urls.append(f'https://{url}')
         for try_url in try_urls:
@@ -96,12 +117,12 @@ class TwillBrowser:
             raise TwillException(f"cannot go to '{url}'")
         log.info('==> at %s', self.url)
 
-    def reload(self):
+    def reload(self) -> None:
         """Tell the browser to reload the current page."""
         self._journey('reload')
         log.info('==> reloaded')
 
-    def back(self):
+    def back(self) -> None:
         """Return to previous page, if possible."""
         try:
             self._journey('back')
@@ -110,79 +131,79 @@ class TwillBrowser:
             log.warning('==> back at empty page')
 
     @property
-    def code(self):
+    def code(self) -> int:
         """Get the HTTP status code received for the current page."""
-        return self.result.http_code if self.result else None
+        return self._assert_result_for('status code').http_code
 
     @property
-    def encoding(self):
+    def encoding(self) -> Optional[str]:
         """Get the encoding used by the server for the current page."""
-        return self.result.encoding if self.result else None
+        return None if self.result is None else self.result.encoding
 
     @property
-    def html(self):
+    def html(self) -> str:
         """Get the HTML for the current page."""
-        return self.result.text if self.result else None
+        return self._assert_result_for('HTML').text
 
     @property
-    def dump(self):
+    def dump(self) -> bytes:
         """Get the binary content of the current page."""
-        return self.result.content if self.result else None
+        return self._assert_result_for('content dump').content
 
     @property
-    def title(self):
-        if self.result is None:
-            raise TwillException("Error: Getting title with no page")
-        return self.result.title
+    def title(self) -> Optional[str]:
+        return self._assert_result_for('title').title
 
     @property
     def url(self):
         """Get the URL of the current page."""
         return self.result.url if self.result else None
 
-    def find_link(self, pattern):
-        """Find the first link matching the given pattern.
+    def find_link(self, pattern: str) -> Optional[Link]:
+        """Find the first link matching the given regular expression pattern.
 
-        The pattern is searched in the URL, link text, or name.
+        The pattern is searched in the URL and in the link text.
         """
-        return self.result.find_link(pattern) if self.result else None
+        return self._assert_result_for('links').find_link(pattern)
 
-    def follow_link(self, link):
+    def follow_link(self, link: str) -> None:
         """Follow the given link."""
         self._journey('follow_link', link)
         log.info('==> at %s', self.url)
 
     @property
-    def headers(self):
+    def headers(self) -> CaseInsensitiveDict:
+        """Return the request headers currently used by the browser."""
         return self._session.headers
 
     def reset_headers(self):
+        """Reset the request headers currently used by the browser."""
         self.headers.clear()
         self.headers.update({
             'Accept': 'text/html; */*',
             'User-Agent': self.user_agent})
 
     @property
-    def agent_string(self):
-        """Get the agent string."""
+    def agent_string(self) -> Optional[str]:
+        """Get the user agent string."""
         return self.headers.get('User-Agent')
 
     @agent_string.setter
-    def agent_string(self, agent):
-        """Set the agent string to the given value."""
+    def agent_string(self, agent: str) -> None:
+        """Set the user agent string to the given value."""
         self.headers['User-Agent'] = agent
 
-    def showforms(self):
-        """Pretty-print all of the forms.
+    def showforms(self) -> None:
+        """Pretty-print all forms on the page.
 
-        Include the global form (form elements outside of <form> pairs)
+        Include the global form (form elements outside <form> pairs)
         as forms[0] if present.
         """
         for n, form in enumerate(self.forms, 1):
             print_form(form, n)
 
-    def showlinks(self):
-        """Pretty-print all of the links."""
+    def showlinks(self) -> None:
+        """Pretty-print all links on the page."""
         info = log.info
         links = self.links
         if links:
@@ -193,7 +214,7 @@ class TwillBrowser:
         else:
             info('\n** no links **\n')
 
-    def showhistory(self):
+    def showhistory(self) -> None:
         """Pretty-print the history of links visited."""
         info = log.info
         history = self._history
@@ -206,46 +227,62 @@ class TwillBrowser:
             info('\n** no history **\n')
 
     @property
-    def links(self):
-        """Return a list of all of the links on the page."""
-        return [] if self.result is None else self.result.links
+    def links(self) -> List[Link]:
+        """Return a list of all links on the page."""
+        return self._assert_result_for('links').links
 
     @property
-    def forms(self):
-        """Return a list of all of the forms.
+    def history(self) -> List[ResultWrapper]:
+        """Return a list of all pages visited by the browser."""
+        return self._history
 
-        Include the global form at index 0 if present.
+    @property
+    def forms(self) -> List[FormElement]:
+        """Return a list of forms on the page.
+
+        This includes the global form at index 0 if present.
         """
-        return [] if self.result is None else self.result.forms
+        return self._assert_result_for('forms').forms
 
-    def form(self, formname=1):
+    def form(self, name: Union[str, int] = 1) -> Optional[FormElement]:
         """Return the first form that matches the given form name."""
-        return None if self.result is None else self.result.form(formname)
+        return self._assert_result_for('form').form(name)
 
-    def form_field(self, form, fieldname=1):
+    def form_field(self, form: FormElement = None,
+                   name_or_num: Union[str, int] = 1) -> FieldElement:
         """Return the control that matches the given field name.
 
-        Must be a *unique* regex/exact string match.
+        Must be a *unique* regex/exact string match, but the returned
+        control can also be a CheckboxGroup or RadioGroup list.
+
+        Raises a TwillException if no such field or multiple fields are found.
         """
+        if form is None:
+            form = self._form
+            if form is None:
+                raise TwillException("Must specify a form for the field")
         inputs = form.inputs
         found_multiple = False
 
-        if isinstance(fieldname, str):
+        name = name_or_num if isinstance(name_or_num, str) else None
 
-            if fieldname in form.fields:
-                match_name = [c for c in inputs if c.name == fieldname]
+        if name:
+
+            if name in form.fields:
+                match_name = [c for c in inputs if c.name == name]
                 if len(match_name) > 1:
-                    if all(hasattr(c, 'type') and c.type == 'checkbox'
-                           for c in match_name):
-                        return html.CheckboxGroup(match_name)
-                    if all(hasattr(c, 'type') and c.type == 'radio'
-                           for c in match_name):
-                        return html.RadioGroup(match_name)
+                    if all(getattr(c, 'type', None) == 'checkbox'
+                            for c in match_name):
+                        return CheckboxGroup(
+                            cast(List[InputElement], match_name))
+                    if all(getattr(c, 'type', None) == 'radio'
+                            for c in match_name):
+                        return RadioGroup(cast(List[InputElement], match_name))
             else:
                 match_name = None
 
             # test exact match to id
-            match_id = [c for c in inputs if c.get('id') == fieldname]
+            match_id = [c for c in inputs if c.get('id') == name]
             if match_id:
                 if unique_match(match_id):
                     return match_id[0]
@@ -257,16 +294,24 @@ class TwillBrowser:
                     return match_name[0]
                 found_multiple = True
 
-        # test field index
-        try:
-            return list(inputs)[int(fieldname) - 1]
-        except (IndexError, ValueError):
-            pass
+        num = name_or_num if isinstance(name_or_num, int) else None
+        if num is None and name and name.isdigit():
+            try:
+                num = int(name)
+            except ValueError:
+                pass
 
-        if isinstance(fieldname, str):
+        # test field index
+        if num is not None:
+            try:
+                return list(inputs)[num - 1]
+            except IndexError:
+                pass
+
+        if name:
 
             # test regex match
-            regex = re.compile(fieldname)
+            regex = re.compile(name)
             match_name = [c for c in inputs
                           if c.name and regex.search(c.name)]
             if match_name:
@@ -275,7 +320,7 @@ class TwillBrowser:
                 found_multiple = True
 
             # test field values
-            match_value = [c for c in inputs if c.value == fieldname]
+            match_value = [c for c in inputs if c.value == name]
             if match_value:
                 if len(match_value) == 1:
                     return match_value[0]
@@ -283,13 +328,13 @@ class TwillBrowser:
 
         # error out
         if found_multiple:
-            raise TwillException(f'multiple matches to "{fieldname}"')
-        raise TwillException(f'no field matches "{fieldname}"')
+            raise TwillException(f'multiple matches to "{name_or_num}"')
+        raise TwillException(f'no field matches "{name_or_num}"')
 
-    def add_form_file(self, fieldname, fp):
-        self._form_files[fieldname] = fp
+    def add_form_file(self, field_name: str, fp: IO) -> None:
+        self._form_files[field_name] = fp
 
-    def clicked(self, form, control):
+    def clicked(self, form: FormElement, control: FieldElement) -> None:
         """Record a 'click' in a specific form."""
         if self._form != form:
             # construct a function to choose a particular form;
@@ -297,19 +342,16 @@ class TwillBrowser:
             self._form = form
             self.last_submit_button = None
         # record the last submit button clicked.
-        if hasattr(control, 'type') and control.type in ('submit', 'image'):
-            self.last_submit_button = control
+        if getattr(control, 'type', None) in ('submit', 'image'):
+            self.last_submit_button = cast(InputElement, control)
 
-    def submit(self, fieldname=None):
+    def submit(self, field_name: Optional[Union[str, int]] = None) -> None:
         """Submit the currently clicked form using the given field."""
-        if fieldname is not None:
-            fieldname = str(fieldname)
-
         forms = self.forms
         if not forms:
-            raise TwillException("no forms on this page!")
+            raise TwillException("There are no forms on this page.")
 
-        ctl = None
+        ctl: Optional[InputElement] = None
 
         form = self._form
         if form is None:
@@ -317,27 +359,26 @@ class TwillBrowser:
                 form = forms[0]
             else:
                 raise TwillException(
-                    "more than one form;"
-                    " you must select one (use 'fv') before submitting")
+                    "There is more than one form on this page;"
+                    " you must select one (use 'fv') before submitting.")
 
         action = form.action or ''
         if '://' not in action:
             form.action = urljoin(self.url, action)
 
-        # no fieldname?  see if we can use the last submit button clicked...
-        if fieldname is None:
+        # no field name?  see if we can use the last submit button clicked...
+        if field_name is None:
             if self.last_submit_button is None:
                 # get first submit button in form.
                 submits = [c for c in form.inputs
-                           if hasattr(c, 'type') and
-                           c.type in ('submit', 'image')]
+                           if getattr(c, 'type', None) in ('submit', 'image')]
                 if submits:
-                    ctl = submits[0]
+                    ctl = cast(InputElement, submits[0])
             else:
                 ctl = self.last_submit_button
         else:
-            # fieldname given; find it
-            ctl = self.form_field(form, fieldname)
+            # field name given; find it
+            ctl = cast(InputElement, self.form_field(form, field_name))
 
         # now set up the submission by building the request object that
         # will be sent in the form submission.
@@ -357,44 +398,48 @@ class TwillBrowser:
         headers = {'Referer': self.url}
 
         payload = form.form_values()
-        if ctl is not None and ctl.get('name') is not None:
-            payload.append((ctl.get('name'), ctl.value))
-        payload = self._encode_payload(payload)
+        if ctl is not None:
+            name = ctl.get('name')
+            if name:
+                payload.append((name, ctl.value or ''))
+        encoded_payload = self._encode_payload(payload)
 
         # now actually GO
         if form.method == 'POST':
             if self._form_files:
                 r = self._session.post(
-                    form.action, data=payload, headers=headers,
+                    form.action, data=encoded_payload, headers=headers,
                     files=self._form_files)
             else:
                 r = self._session.post(
-                    form.action, data=payload, headers=headers)
+                    form.action, data=encoded_payload, headers=headers)
         else:
-            r = self._session.get(form.action, params=payload, headers=headers)
+            r = self._session.get(
+                form.action, params=encoded_payload, headers=headers)
 
         self._form = None
         self._form_files.clear()
         self.last_submit_button = None
-        self._history.append(self.result)
+        if self.result is not None:
+            self._history.append(self.result)
         self.result = ResultWrapper(r)
 
-    def save_cookies(self, filename):
+    def save_cookies(self, filename: str) -> None:
         """Save cookies into the given file."""
         with open(filename, 'wb') as f:
             pickle.dump(self._session.cookies, f)
 
-    def load_cookies(self, filename):
+    def load_cookies(self, filename: str) -> None:
         """Load cookies from the given file."""
         with open(filename, 'rb') as f:
             self._session.cookies = pickle.load(f)
 
-    def clear_cookies(self):
-        """Delete all of the cookies."""
+    def clear_cookies(self) -> None:
+        """Delete all the cookies."""
         self._session.cookies.clear()
 
-    def show_cookies(self):
-        """Pretty-print all of the cookies."""
+    def show_cookies(self) -> None:
+        """Pretty-print all the cookies."""
         info = log.info
         cookies = self._session.cookies
         n = len(cookies)
@@ -406,36 +451,35 @@ class TwillBrowser:
         else:
             log.info('\nThere are no cookies in the cookie jar.\n', n)
 
-    def decode(self, value):
+    def decode(self, value: Union[bytes, str]):
         """Decode a value using the current encoding."""
         if isinstance(value, bytes) and self.encoding:
             value = value.decode(self.encoding)
         return value
 
-    def xpath(self, path):
+    def xpath(self, path: str) -> List[HtmlElement]:
         """Evaluate an xpath expression."""
-        return self.result.xpath(path) if self.result else []
+        return self._assert_result_for('xpath').xpath(path)
 
-    def _encode_payload(self, payload):
-        """Encode a payload with the current encoding."""
+    def _encode_payload(
+            self, payload: Sequence[Tuple[str, Union[str, bytes]]]
+            ) -> List[Tuple[str, Union[str, bytes]]]:
+        """Encode a payload with the current encoding if not utf-8."""
         encoding = self.encoding
         if not encoding or encoding.lower() in ('utf8', 'utf-8'):
-            return payload
-        new_payload = []
-        for name, val in payload:
-            if not isinstance(val, bytes):
-                val = val.encode(encoding)
-            new_payload.append((name, val))
-        return new_payload
+            return list(payload)
+        return [(name, val if isinstance(val, bytes) else val.encode(encoding))
+                for name, val in payload]
 
     @staticmethod
-    def _get_meta_refresh(response):
+    def _get_meta_refresh(
+            response: Response) -> Tuple[Optional[int], Optional[str]]:
         """Get meta refresh interval and url from a response."""
         try:
-            tree = html.fromstring(response.text)
+            tree = html_to_tree(response.text)
         except ValueError:
             # may happen when there is an XML encoding declaration
-            tree = html.fromstring(response.content)
+            tree = html_to_tree(response.content)
         try:
             content = tree.xpath(  # "refresh" is case insensitive
                 "//meta[translate(@http-equiv,'REFSH','refsh')="
@@ -458,7 +502,7 @@ class TwillBrowser:
 
     _re_basic_auth = re.compile('Basic realm="(.*)"', re.I)
 
-    def _journey(self, func_name, *args, **kwargs):
+    def _journey(self, func_name, *args, **_kwargs):
         """Execute the function with the given name and arguments.
 
         The name should be one of 'open', 'reload', 'back', or 'follow_link'.
@@ -493,6 +537,8 @@ class TwillBrowser:
                 return
             except IndexError:
                 raise TwillException
+        else:
+            raise TwillException(f"Unknown function {func_name!r}")
 
         r = self._session.get(url, verify=self.verify)
         if r.status_code == 401:
@@ -505,7 +551,7 @@ class TwillBrowser:
                     r = self._session.get(url, auth=auth, verify=self.verify)
 
         # handle redirection via meta refresh (not handled in requests)
-        refresh_interval = _equiv_refresh_interval()
+        refresh_interval = get_equiv_refresh_interval()
         if refresh_interval:
             visited = set()  # break circular refresh chains
             while True:
@@ -533,3 +579,5 @@ class TwillBrowser:
 
 
 browser = TwillBrowser()  # the global twill browser instance
+
+_disable_insecure_request_warnings()  # should not warn for HTTP requests

@@ -11,10 +11,15 @@ if python_version < (3, 6):
 
 with open("twill/__init__.py") as init_file:
     init = init_file.read()
-    description = re.search('"""(.*)', init).group(1)
-    version = re.search("__version__ = '(.*)'", init).group(1)
-    url = re.search("__url__ = '(.*)'", init).group(1)
-    download_url = re.search("__download_url__ = '(.*)'", init).group(1)
+
+    def find(pattern):
+        match = re.search(pattern, init)
+        return match.group(1) if match else None
+
+    description = find('"""(.*)')
+    version = find("__version__ = '(.*)'")
+    url = find("__url__ = '(.*)'")
+    download_url = find("__download_url__ = '(.*)'")
 
 with open("README.md") as readme_file:
     readme = readme_file.read()

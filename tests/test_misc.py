@@ -7,22 +7,24 @@ from io import StringIO
 from pytest import raises
 
 from twill import browser, commands
-from twill.browser import TwillBrowser
-from twill.errors import TwillAssertionError, TwillException
+from twill.errors import TwillException
 
 
 def test():
-    assert isinstance(browser, TwillBrowser)
+    assert browser is not None
+    for attr in ('go', 'reset', 'submit'):
+        assert hasattr(browser, attr)
 
     # reset
     commands.reset_browser()
-    assert isinstance(browser, TwillBrowser)
+    assert browser is not None
+    for attr in ('go', 'reset', 'submit'):
+        assert hasattr(browser, attr)
 
-    # check the 'None' value of return code
-    assert browser.code is None
+    with raises(TwillException):  # no page and thus no status code yet
+        assert browser.code
 
-    # no forms, right?
-    with raises(TwillException):
+    with raises(TwillException):  # no page and thus no form yet
         browser.submit()
 
     stderr, sys.stderr = sys.stderr, StringIO()
@@ -35,10 +37,13 @@ def test():
     with raises(SystemExit):
         commands.exit()
 
-    with raises(TwillAssertionError):
-        commands.reset_browser()
-        commands.showhistory()
+    commands.reset_browser()
+    commands.showhistory()
+
+    with raises(TwillException):   # no page, cannot tidy yet
         commands.tidy_ok()
+
+    with raises(TwillException):  # no page, cannot show yet
         commands.show()
 
     commands.debug('http', '1')

@@ -75,11 +75,11 @@ def flush_visited():
 
     Flush the list of pages successfully visited already.
     """
-    from check_links import good_urls
+    from .check_links import good_urls  # type: ignore
     good_urls.clear()
 
 
-def _require_post_load_hook(action, *args, **kwargs):
+def _require_post_load_hook(action, *_args, **_kwargs):
     """Post load hook function to be called after each page is loaded.
 
     See TwillBrowser._journey() for more information.
@@ -101,7 +101,7 @@ def _require_post_load_hook(action, *args, **kwargs):
             commands.code(200)
 
         elif what == 'links_ok':
-            from check_links import check_links, good_urls
+            from check_links import check_links, good_urls  # type: ignore
 
             ignore_always = True
             log.debug('REQUIRING functioning links')

@@ -4,12 +4,14 @@ import re
 import sys
 
 from io import StringIO
+from typing import List
 
 from pyparsing import (
     CharsNotIn, Combine, Group, Literal, Optional, ParseException,
     pyparsing_unicode, removeQuotes, restOfLine, Word, ZeroOrMore)
 
-from . import browser, commands, log, namespaces
+from . import commands, log, namespaces
+from .browser import browser
 from .errors import TwillNameError
 
 # pyparsing stuff
@@ -20,8 +22,8 @@ alphas, alphanums = char_range.alphas, char_range.alphanums
 printables = char_range.printables
 
 # basically, a valid Python identifier:
-command = Word(alphas + '_', alphanums + '_')
-command = command.setResultsName('command')
+command_word = Word(alphas + '_', alphanums + '_')
+command = command_word.setResultsName('command')
 command.setName('command')
 
 # arguments to it.
@@ -48,8 +50,8 @@ plainArgChars = printables.replace('#', '').replace('"', '').replace("'", "")
 plainArg = Word(plainArgChars)
 plainArg.setName('plainArg')
 
-arguments = Group(ZeroOrMore(quotedArg | plainArg))
-arguments = arguments.setResultsName('arguments')
+arguments_group = Group(ZeroOrMore(quotedArg | plainArg))
+arguments = arguments_group.setResultsName('arguments')
 arguments.setName('arguments')
 
 # comment line.
@@ -61,7 +63,7 @@ full_command = comment | (command + arguments + Optional(comment))
 full_command.setName('full_command')
 
 
-command_list = []  # filled in by namespaces.init_global_dict().
+command_list: List[str] = []  # filled in by namespaces.init_global_dict().
 
 
 def process_args(args, globals_dict, locals_dict):
@@ -72,7 +74,7 @@ def process_args(args, globals_dict, locals_dict):
 
     Return a new list.
     """
-    newargs = []
+    new_args: List[str] = []
     for arg in args:
         # __variable substitution
         if arg.startswith('__'):
@@ -84,9 +86,9 @@ def process_args(args, globals_dict, locals_dict):
             log.info('VAL IS %s FOR %s', val, arg)
 
             if isinstance(val, str):
-                newargs.append(val)
+                new_args.append(val)
             else:
-                newargs.extend(val)
+                new_args.extend(val)
 
         # $variable substitution
         elif arg.startswith('$') and not arg.startswith('${'):
@@ -94,13 +96,13 @@ def process_args(args, globals_dict, locals_dict):
                 val = str(eval(arg[1:], globals_dict, locals_dict))
             except NameError:  # not in dictionary; don't interpret
                 val = arg
-            newargs.append(val)
+            new_args.append(val)
         else:
-            newargs.append(variable_substitution(
+            new_args.append(variable_substitution(
                 arg, globals_dict, locals_dict))
 
-    newargs = [arg.replace('\\n', '\n') for arg in newargs]
-    return newargs
+    new_args = [arg.replace('\\n', '\n') for arg in new_args]
+    return new_args
 
 
 def execute_command(cmd, args, globals_dict, locals_dict, cmdinfo):
@@ -131,7 +133,7 @@ def execute_command(cmd, args, globals_dict, locals_dict, cmdinfo):
     return result
 
 
-_log_commands = log.debug
+_log_commands = log.debug  # type: ignore
 
 
 def parse_command(line, globals_dict, locals_dict):

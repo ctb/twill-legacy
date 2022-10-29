@@ -9,7 +9,7 @@ import twill.unit
 from .utils import test_dir
 from .server import create_publisher
 
-from quixote.server.simple_server import run as quixote_run
+from quixote.server.simple_server import run as quixote_run  # type: ignore
 
 PORT = 8081  # default port to run the server on
 SLEEP = 0.5  # time to wait for the server to start

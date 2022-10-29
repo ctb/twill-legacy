@@ -2,7 +2,7 @@
 
 from twill import commands
 
-from wsgi_intercept import (
+from wsgi_intercept import (  # type: ignore
     requests_intercept, add_wsgi_intercept, remove_wsgi_intercept)
 
 

@@ -7,7 +7,7 @@ def init_global_dict():
     """Initialize the global dictionary with twill commands.
 
     This must be done after all the other modules are loaded, so that all
-    of the commands are already defined.
+    the commands are already defined.
     """
     from . import commands, parse
 

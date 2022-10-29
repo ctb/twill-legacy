@@ -6,12 +6,12 @@ import os
 
 from base64 import decodebytes
 
-from quixote.publish import Publisher
-from quixote.errors import AccessError
-from quixote.session import Session, SessionManager
-from quixote.directory import Directory, AccessControlled
-from quixote.form import widget
-from quixote import (
+from quixote.publish import Publisher  # type: ignore
+from quixote.errors import AccessError  # type: ignore
+from quixote.session import Session, SessionManager  # type: ignore
+from quixote.directory import Directory, AccessControlled  # type: ignore
+from quixote.form import widget  # type: ignore
+from quixote import (  # type: ignore
     get_session, get_session_manager, get_path,
     redirect, get_request, get_response)
 
@@ -594,7 +594,7 @@ class HttpAuthRestricted(AccessControlled, Directory):
 
 
 if __name__ == '__main__':
-    from quixote.server.simple_server import run
+    from quixote.server.simple_server import run  # type: ignore
     port = int(os.environ.get('TWILL_TEST_PORT', PORT))
     print(f'starting twill test server on port {port}.')
     try:
