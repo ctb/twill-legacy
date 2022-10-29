@@ -32,7 +32,7 @@ def dns_a(host, ipaddress, server=None):
         raise Exception(
             "<ipaddress> parameter must be an IP address, not a hostname")
 
-    for answer in _query(host, 'A', server):
+    for answer in _resolve(host, 'A', server):
         if ipaddress == answer.address:
             return True
 
@@ -51,7 +51,7 @@ def dns_cname(host, cname, server=None):
 
     cname = from_text(cname)
 
-    for answer in _query(host, 'CNAME', server):
+    for answer in _resolve(host, 'CNAME', server):
         if cname == answer.target:
             return True
 
@@ -68,7 +68,7 @@ def dns_resolves(host, ipaddress, server=None):
     if not is_ip_addr(ipaddress):
         ipaddress = _resolve_name(ipaddress, server)
 
-    for answer in _query(host, 1, server):
+    for answer in _resolve(host, 1, server):
         if ipaddress == answer.address:
             return True
 
@@ -82,7 +82,7 @@ def dns_mx(host, mailserver, server=None):
     """
     mailserver = from_text(mailserver)
 
-    for rdata in _query(host, 'MX', server):
+    for rdata in _resolve(host, 'MX', server):
         if mailserver == rdata.exchange:
             return True
 
@@ -96,7 +96,7 @@ def dns_ns(host, query_ns, server=None):
     """
     query_ns = from_text(query_ns)
 
-    for answer in _query(host, 'NS', server):
+    for answer in _resolve(host, 'NS', server):
         if query_ns == answer.target:
             return True
 
@@ -117,19 +117,19 @@ def _resolve_name(name, server):
     if is_ip_addr(name):
         return name
 
-    r = Resolver()
+    resolver = Resolver()
     if server:
-        r.nameservers = [_resolve_name(server, None)]
+        resolver.nameservers = [_resolve_name(server, None)]
 
-    answers = r.query(name)
+    answers = resolver.resolve(name)
 
     return str(answers[0])
 
 
-def _query(query, query_type, server):
-    """Query, perhaps via the given name server (None to use default)."""
-    r = Resolver()
+def _resolve(query, query_type, server):
+    """Resolve, perhaps via the given name server (None to use default)."""
+    resolver = Resolver()
     if server:
-        r.nameservers = [_resolve_name(server, None)]
+        resolver.nameservers = [_resolve_name(server, None)]
 
-    return r.query(query, query_type)
+    return resolver.resolve(query, query_type)

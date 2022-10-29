@@ -29,8 +29,8 @@ require_docs = ['sphinx>=5.2,<6', 'sphinx_rtd_theme>=1,<2']
 require_tidy = ['pytidylib>=0.3,<0.4']
 require_quixote = ['quixote>=3.6,<4']
 require_wsgi_intercept = ['wsgi_intercept>=1.10,<2']
-require_tests = [
-    'pytest>=7,<8'] + require_tidy + require_quixote + require_wsgi_intercept
+require_tests = ['pytest>=7,<8'] + (
+    require_tidy + require_quixote + require_wsgi_intercept)
 
 
 def main():
@@ -43,7 +43,7 @@ def main():
         download_url=download_url,
         description=description,
 
-        author='C. Titus Brown, Ben R. Taylor et al.',
+        author='C. Titus Brown, Ben R. Taylor, Christoph Zwerschke et al.',
         author_email='titus@idyll.org',
 
         license='MIT',
@@ -53,8 +53,8 @@ def main():
         entry_points=dict(console_scripts=[
             'twill=twill.shell:main', 'twill-fork=twill.fork:main']),
 
-        maintainer='C. Titus Brown',
-        maintainer_email='titus@idyll.org',
+        maintainer='Christoph Zwerschke',
+        maintainer_email='cito@online.de',
 
         long_description=readme,
         long_description_content_type='text/markdown',

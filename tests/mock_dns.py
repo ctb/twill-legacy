@@ -73,7 +73,7 @@ class Resolver:
     def __init__(self):
         self.nameservers = None
 
-    def query(self, qname, qtype='A'):
+    def resolve(self, qname, qtype='A'):
         if self.nameservers:
             raise ValueError(f'unknown name servers: {self.nameservers}')
         if qtype == 1:

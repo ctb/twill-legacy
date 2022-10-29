@@ -110,7 +110,7 @@ def check_links(pattern=''):
 
     if commands.options['check_links.only_collect_bad_links']:
         for url in failed:
-            referrers = bad_urls.getdefault(url, set())
+            referrers = bad_urls.setdefault(url, set())
             info('*** %s', browser.url)
             referrers.add(browser.url)
     elif failed:

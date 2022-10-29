@@ -46,6 +46,7 @@ def require(what):
     global _requirements
 
     # install the post-load hook function.
+    # noinspection PyProtectedMember
     hooks = browser._post_load_hooks
     if _require_post_load_hook not in hooks:
         log.debug('INSTALLING POST-LOAD HOOK')
@@ -62,6 +63,7 @@ def no_require():
 
     Remove all post-load requirements.
     """
+    # noinspection PyProtectedMember
     hooks = browser._post_load_hooks
     hooks = [fn for fn in hooks if fn != _require_post_load_hook]
     browser._post_load_hooks = hooks
@@ -98,7 +100,7 @@ def _require_post_load_hook(action, *_args, **_kwargs):
 
         if what == 'success':
             log.debug('REQUIRING success')
-            commands.code(200)
+            commands.code("200")
 
         elif what == 'links_ok':
             from check_links import check_links, good_urls  # type: ignore

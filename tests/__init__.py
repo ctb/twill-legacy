@@ -1,1 +1,1 @@
-# twill test suite
+"""twill test suite"""

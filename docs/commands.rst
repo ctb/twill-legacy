@@ -91,27 +91,27 @@ otherwise submit via the last submission button clicked; if nothing
 clicked, use the first submit button on the form. See `details on
 form handling`_ for more information.
 
-**formvalue** *<formnum> <fieldname> <value>* --- set the given field in
-the given form to the given value. For read-only form controls,
+**form_value** *<form_name> <field_name> <value>* --- set the given field
+in the given form to the given value. For read-only form controls,
 the click may be recorded for use by **submit**, but the value is not
 changed unless the 'config' command has changed the default behavior.
 See 'config' and `details on form handling`_ for more information on
-the 'formvalue' command.
+the 'form_value' command.
 
-For list controls, you can use 'formvalue <formnum> <fieldname> +value'
-or 'formvalue <formnum> <fieldname> -value' to select or deselect a
+For list controls, you can use 'form_value <form_name> <field_name> +value'
+or 'form_value <form_name> <field_name> -value' to select or deselect a
 particular value.
 
-**fv** -- abbreviation for 'formvalue'.
+**fv** -- abbreviation for 'form_value'.
 
-**formaction** *<formnum> <action>* -- change the form action URL to the
+**formaction** *<form_name> <action>* -- change the form action URL to the
 given URL.
 
 **fa** -- abbreviation for 'formaction'.
 
-**formclear** -- clear all values in the form.
+**form_clear** -- clear all values in the form.
 
-**formfile** *<formspec> <fieldspec> <filename> [ <content_type> ]* --
+**form_file** *<form_name> <field_name> <filename> [ <content_type> ]* --
 attach a file to a file upload button by filename.
 
 Cookies
@@ -233,13 +233,13 @@ Details on form handling
 
 .. _details on form handling:
 
-Both the `formvalue` (or `fv`) and `submit` commands rely on a certain
+Both the `form_value` (or `fv`) and `submit` commands rely on a certain
 amount of implicit cleverness to do their work. In odd situations, it
-can be annoying to determine exactly what form field `formvalue` is
+can be annoying to determine exactly what form field `form_value` is
 going to pick based on your field name, or what form & field `submit`
 is going to "click" on.
 
-Here is the pseudocode for how `formvalue` and `submit` figure out
+Here is the pseudocode for how `form_value` and `submit` figure out
 what form to use (function `twill.browser.form`)::
 
    for each form on page:
@@ -249,32 +249,32 @@ what form to use (function `twill.browser.form`)::
    an index into the list or forms on the page (i.e. form 1 is the
    first form on the page).
 
-Here is the pseudocode for how `formvalue` and `submit` figure out
+Here is the pseudocode for how `form_value` and `submit` figure out
 what form field to use (function `twill.browser.form_field`)::
 
-   search current form for control name with exact match to fieldname;
+   search current form for control name with exact match to field_name;
    if single (unique) match, select.
 
-   if no match, convert fieldname into a number and use as an index, if
+   if no match, convert field_name into a number and use as an index, if
    possible.
 
    if no match, search current form for control name with regex match to
-   fieldname; if single (unique) match, select.
+   field_name; if single (unique) match, select.
 
    if *still* no match, look for exact matches to submit-button values.
    if single (unique) match, select.
 
 Here is the pseudocode for `submit`::
 
-   if a form was _not_ previously selected by formvalue:
+   if a form was _not_ previously selected by form_value:
       if there's only one form on the page, select it.
       otherwise, fail.
 
    if a field is not explicitly named:
-      if a submit button was "clicked" with formvalue, use it.
+      if a submit button was "clicked" with form_value, use it.
       otherwise, use the first submit button on the form, if any.
    otherwise:
-      find the field using the same rules as formvalue
+      find the field using the same rules as form_value
 
    finally, if a button has been picked, submit using it;
    otherwise, submit without using a button

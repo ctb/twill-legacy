@@ -18,6 +18,7 @@ try:
     from readline import read_history_file, write_history_file  # type: ignore
 except ImportError:
     read_history_file = write_history_file = None  # type: ignore
+# noinspection PyCompatibility
 from . import (
     commands, execute_file,
     log, log_levels, set_log_level, set_output,
@@ -161,26 +162,27 @@ class TwillCommandLoop(Singleton, Cmd):
         """Return the list of commands."""
         return self.names
 
-    def complete_formvalue(
+    def complete_form_value(
             self, text: str, line: str, _begin: int, _end: int) -> List[str]:
-        """Command arg completion for the formvalue command.
+        """Command arg completion for the form_value command.
 
         The twill command has the following syntax:
 
-        formvalue <formname> <field> <value>
+        form_value <form_name> <field_name> <value>
         """
         cmd, args = parse.parse_command(line + '.', {}, {})
         place = len(args)
         if place == 1:
-            return self.provide_formname(text)
-        elif place == 2:
-            formname = args[0]
-            return self.provide_field(formname, text)
+            return self.provide_form_name(text)
+        if place == 2:
+            form_name = args[0]
+            return self.provide_field_name(form_name, text)
         return []
 
-    complete_fv = complete_formvalue  # alias
+    complete_fv = complete_form_value  # alias
 
-    def provide_formname(self, prefix: str) -> List[str]:
+    @staticmethod
+    def provide_form_name(prefix: str) -> List[str]:
         """Provide the list of form names on the given page."""
         names = []
         forms = browser.forms
@@ -194,15 +196,16 @@ class TwillCommandLoop(Singleton, Cmd):
                 names.append(name)
         return names
 
-    def provide_field(self, formname: str, prefix: str) -> List[str]:
-        """Provide the list of fields for the given formname or number."""
+    @staticmethod
+    def provide_field_name(form_name: str, prefix: str) -> List[str]:
+        """Provide the list of fields for the given form_name or number."""
         names = []
-        form = browser.form(formname)
+        form = browser.form(form_name)
         if form is not None:
             for field in form.inputs:
-                id = field.attrib.get('id')
-                if id and id.startswith(prefix):
-                    names.append(id)
+                field_id = field.attrib.get('id')
+                if field_id and field_id.startswith(prefix):
+                    names.append(field_id)
                     continue
                 name = field.name
                 if name and name.startswith(prefix):
@@ -254,21 +257,25 @@ class TwillCommandLoop(Singleton, Cmd):
         """Handle empty lines (by ignoring them)."""
         pass
 
-    def do_EOF(self, *_args: str) -> None:
+    @staticmethod
+    def do_EOF(*_args: str) -> None:
         """Exit on CTRL-D"""
         if write_history_file:
             write_history_file('.twill-history')
         raise SystemExit()
 
-    def help_help(self) -> None:
+    @staticmethod
+    def help_help() -> None:
         """Show help for the help command."""
         log.info("\nWhat do YOU think the command 'help' does?!?\n")
 
-    def do_version(self, *_args: str) -> None:
+    @staticmethod
+    def do_version(*_args: str) -> None:
         """Show the version number of twill."""
         log.info(version_info)
 
-    def help_version(self) -> None:
+    @staticmethod
+    def help_version() -> None:
         """Show help for the version command."""
         log.info("\nPrint version information.\n")
 
@@ -276,7 +283,8 @@ class TwillCommandLoop(Singleton, Cmd):
         """Exit the twill shell."""
         raise SystemExit()
 
-    def help_exit(self) -> None:
+    @staticmethod
+    def help_exit() -> None:
         """Show help for the exit command."""
         log.info("\nExit twill.\n")
 

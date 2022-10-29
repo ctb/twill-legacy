@@ -55,6 +55,7 @@ class TestInfo:
     @property
     def url(self):
         """"Get the test server URL."""
+        # noinspection HttpUrlsUsage
         return f"http://{HOST}:{self.port}/"
 
 

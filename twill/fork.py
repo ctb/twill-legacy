@@ -1,16 +1,16 @@
-"""twill multiprocess execution system."""
-
 # This file is part of the twill source distribution.
 #
-# twill is a extensible scriptlet language for testing Web apps,
-# available at http://twill.idyll.org/.
+# twill is an extensible scriptlet language for testing Web apps,
+# available at https://github.com/twill-tools/twill.
 #
 # Contact author: C. Titus Brown, titus@idyll.org.
 #
 # This program and all associated source code files are Copyright (C)
 # 2005-2007 by C. Titus Brown.  It is released under the MIT license;
 # please see the included LICENSE.txt file for more information, or
-# go to http://www.opensource.org/licenses/mit-license.php.
+# go to https://opensource.org/licenses/mit-license.php.
+
+"""twill multiprocess execution system."""
 
 import sys
 import os

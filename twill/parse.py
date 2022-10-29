@@ -10,6 +10,7 @@ from pyparsing import (
     CharsNotIn, Combine, Group, Literal, Optional, ParseException,
     pyparsing_unicode, removeQuotes, restOfLine, Word, ZeroOrMore)
 
+# noinspection PyCompatibility
 from . import commands, log, namespaces
 from .browser import browser
 from .errors import TwillNameError

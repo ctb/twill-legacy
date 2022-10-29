@@ -28,6 +28,7 @@ def _disable_insecure_request_warnings() -> None:
         from requests.packages import urllib3  # type: ignore
     except ImportError:
         import urllib3  # type: ignore
+    # noinspection PyUnresolvedReferences
     insecure_request_warning = urllib3.exceptions.InsecureRequestWarning
     urllib3.disable_warnings(insecure_request_warning)
 

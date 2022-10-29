@@ -283,6 +283,7 @@ def sleep(interval: str = "1") -> None:
     time.sleep(float(interval))
 
 
+# noinspection HttpUrlsUsage
 _agent_map: Dict[str, str] = dict(
     chrome40='Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36'
              ' (KHTML, like Gecko) Chrome/40.0.2214.93 Safari/537.36',
@@ -430,7 +431,7 @@ formclear = form_clear  # backward compatibility and convenience
 
 
 def form_value(form_name: str, field_name: str, value: str) -> None:
-    """>> form_value <form_name> <field> <value>
+    """>> form_value <form_name> <field_name> <value>
 
     Set value of a form field.
 
@@ -503,7 +504,7 @@ fa = formaction = form_action  # backward compatibility and convenience
 
 def form_file(form_name: str, field_name: str, filename: str,
               content_type: Optional[str] = None) -> None:
-    """>> form_file <form> <field> <filename> [<content_type>]
+    """>> form_file <form_name> <field_name> <filename> [<content_type>]
 
     Upload a file via an "upload file" form field.
     """
@@ -531,7 +532,7 @@ formfile = form_file  # backward compatibility and convenience
 
 
 def extend_with(module_name: str) -> None:
-    """>> extend_with <module>
+    """>> extend_with <module_name>
 
     Import contents of given module.
     """
