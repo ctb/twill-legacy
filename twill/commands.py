@@ -1,22 +1,22 @@
 """
-Implementation of all of the individual 'twill' commands available through
-twill-sh.
+Implementation of all the individual 'twill' commands available
+through twill-sh.
 """
 
 import getpass
 import re
 import time
 import sys
+from typing import Any, Dict, Optional
 
 from os.path import sep
-
-import requests
 
 from . import log, set_output, set_err_out, utils
 from .browser import browser
 from .errors import TwillException, TwillAssertionError
 from .namespaces import get_twill_glocals
 
+# noinspection SpellCheckingInspection
 __all__ = [
     'add_auth', 'add_cleanup', 'add_extra_header', 'agent',
     'back', 'browser',
@@ -24,16 +24,19 @@ __all__ = [
     'code', 'config',
     'debug', 'echo', 'exit', 'extend_with',
     'find', 'follow',
-    'formaction', 'fa', 'formclear', 'formfile', 'formvalue', 'fv',
-    'getinput', 'getpassword',
-    'go', 'info', 'load_cookies', 'notfind', 'options',
+    'form_action', 'formaction', 'fa',
+    'form_clear', 'formclear', 'form_file', 'formfile',
+    'form_value', 'formvalue', 'fv',
+    'get_input', 'getinput', 'get_password', 'getpassword',
+    'go', 'info', 'load_cookies', 'not_find', 'notfind', 'options',
     'redirect_error', 'redirect_output',
     'reload', 'reset_browser', 'reset_error', 'reset_output',
-    'run', 'runfile', 'rf',
+    'run', 'run_file', 'runfile', 'rf',
     'save_cookies', 'save_html',
-    'setglobal', 'setlocal',
+    'setglobal', 'set_global', 'setlocal', 'set_local',
     'show', 'show_cookies', 'show_extra_headers',
-    'showforms', 'showhistory', 'showlinks',
+    'showforms', 'show_forms', 'showhistory', 'show_history',
+    'showlinks', 'show_links',
     'sleep', 'submit',
     'tidy_ok', 'title', 'url']
 
@@ -48,7 +51,8 @@ def reset_browser():
     options.update(default_options)
 
 
-def exit(code='0'):
+# noinspection PyShadowingBuiltins
+def exit(code: str = '0') -> None:
     """twill command: exit [<code>]
 
     Exit twill, with the given exit code (defaults to 0, "no error").
@@ -56,39 +60,36 @@ def exit(code='0'):
     raise SystemExit(int(code))
 
 
-def go(url):
+def go(url: str) -> None:
     """>> go <url>
 
     Visit the URL given.
     """
     browser.go(url)
-    return browser.url
 
 
-def reload():
+def reload() -> None:
     """>> reload
 
     Reload the current URL.
     """
     browser.reload()
-    return browser.url
 
 
-def code(should_be):
+def code(should_be: str) -> None:
     """>> code <int>
 
     Check to make sure the response code for the last page is as given.
     """
-    should_be = int(should_be)
-    if browser.code != should_be:
+    if browser.code != int(should_be):
         raise TwillAssertionError(f"code is {browser.code} != {should_be}")
 
 
-def tidy_ok():
+def tidy_ok() -> None:
     """>> tidy_ok
 
-    Assert that 'tidy' produces no warnings or errors when run on the current
-    page.
+    Assert that 'tidy' does not produce any warnings or errors when run on
+    the current page.
 
     If 'tidy' cannot be run, will fail silently (unless 'require_tidy' option
     is true; see 'config' command).
@@ -105,20 +106,20 @@ def tidy_ok():
         raise TwillAssertionError(f"tidy errors:\n====\n{errors}\n====\n")
 
 
-def url(should_be):
+def url(should_be: str) -> str:
     """>> url <regex>
 
-    Check to make sure that the current URL matches the regex.  The local
-    variable __match__ is set to the matching part of the URL.
+    Check to make sure that the current URL matches the regex.
+    The local variable __match__ is set to the matching part of the URL.
     """
     regex = re.compile(should_be)
     current_url = browser.url
 
-    m = None
-    if current_url is not None:
-        m = regex.search(current_url)
-    else:
+    if current_url is None:
         current_url = ''
+        m = None
+    else:
+        m = regex.search(current_url)
 
     if not m:
         raise TwillAssertionError(
@@ -131,10 +132,10 @@ def url(should_be):
     return match_str
 
 
-def follow(what):
+def follow(what: str) -> str:
     """>> follow <regex>
 
-    Find the first matching link on the page & visit it.
+    Find the first matching link on the page and visit it.
     """
     link = browser.find_link(what)
     if link:
@@ -147,7 +148,7 @@ def follow(what):
 _find_flags = dict(i=re.IGNORECASE, m=re.MULTILINE, s=re.DOTALL)
 
 
-def _parse_find_flags(flags):
+def _parse_find_flags(flags: str) -> int:
     """Helper function to parse the find flags."""
     re_flags = 0
     for char in flags:
@@ -158,7 +159,7 @@ def _parse_find_flags(flags):
     return re_flags
 
 
-def find(what, flags=''):
+def find(what: str, flags='') -> str:
     """>> find <regex> [<flags>]
 
     Succeed if the regular expression is on the page.  Sets the local
@@ -180,17 +181,18 @@ def find(what, flags=''):
         elements = browser.xpath(what)
         if not elements:
             raise TwillAssertionError(f"no element to path '{what}'")
-        match_str = browser.decode(elements[0])
+        match_str = elements[0].text or ''
     else:
         match = re.search(what, page, flags=_parse_find_flags(flags))
         if not match:
             raise TwillAssertionError(f"no match to '{what}'")
         match_str = match.group(1 if match.groups() else 0)
     local_dict['__match__'] = match_str
+    return match_str
 
 
-def notfind(what, flags=''):
-    """>> notfind <regex> [<flags>]
+def not_find(what: str, flags='') -> None:
+    """>> not_find <regex> [<flags>]
 
     Fail if the regular expression is on the page.
     """
@@ -202,28 +204,39 @@ def notfind(what, flags=''):
         raise TwillAssertionError(f"match to '{what}'")
 
 
-def back():
+# noinspection SpellCheckingInspection
+notfind = not_find  # backward compatibility and convenience
+
+
+def back() -> None:
     """>> back
 
     Return to the previous page.
     """
     browser.back()
-    return browser.url
 
 
-def show():
-    """>> show
+def show(what: Optional[str] = None):
+    """>> show [<objects>]
 
-    Show the HTML for the current page.
+    Show the HTML for the current page or show the specified objects
+    (which can be cookies, forms, history or links).
+
+    Note: Use browser.html to get the HTML programmatically.
     """
-    html = browser.html.strip()
-    log.info('')
-    log.info(html)
-    log.info('')
-    return html
+    if not what or what == 'html':
+        html = browser.html.strip()
+        log.info('')
+        log.info(html)
+        log.info('')
+    else:
+        command = globals().get('show_{what}') if what.isalpha() else None
+        if not command:
+            raise TwillException(f'Cannot show "{what}".')
+        command()
 
 
-def echo(*strs):
+def echo(*strs: str) -> None:
     """>> echo <list> <of> <strings>
 
     Echo the arguments to the screen.
@@ -231,11 +244,11 @@ def echo(*strs):
     log.info(' '.join(map(str, strs)))
 
 
-def save_html(filename=None):
+def save_html(filename: Optional[str] = None) -> None:
     """>> save_html [<filename>]
 
-    Save the HTML for the current page into <filename>.  If no filename
-    given, construct the filename from the URL.
+    Save the HTML for the current page into <filename>.
+    If no filename given, construct the filename from the URL.
     """
     html = browser.html
     if html is None:
@@ -248,7 +261,7 @@ def save_html(filename=None):
         filename = url.rsplit('/', 1)[-1]
         if not filename:
             filename = 'index.html'
-        log.info("Using filename '%s'", filename)
+        log.info("Using filename '%s'.", filename)
 
     encoding = browser.encoding or 'utf-8'
     try:
@@ -261,7 +274,7 @@ def save_html(filename=None):
             f.write(html)
 
 
-def sleep(interval=1):
+def sleep(interval: str = "1") -> None:
     """>> sleep [<interval>]
 
     Sleep for the specified amount of time.
@@ -270,7 +283,7 @@ def sleep(interval=1):
     time.sleep(float(interval))
 
 
-_agent_map = dict(
+_agent_map: Dict[str, str] = dict(
     chrome40='Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36'
              ' (KHTML, like Gecko) Chrome/40.0.2214.93 Safari/537.36',
     googlebot2='Mozilla/5.0 (compatible; Googlebot/2.1;'
@@ -315,13 +328,14 @@ _agent_map = dict(
             ' AppleWebKit/534.1+ (KHTML, like Gecko)'
             ' Version/5.0 Safari/533.16',
     safari6='Mozilla/5.0 (iPad; CPU OS 6_0 like Mac OS X) AppleWebKit/536'
-        '.26 (KHTML, like Gecko) Version/6.0 Mobile/10A5355d Safari/8536.25',
+            '.26 (KHTML, like Gecko)'
+            ' Version/6.0 Mobile/10A5355d Safari/8536.25',
     safari7='Mozilla/5.0 (iPad; CPU OS 7_1_2 like Mac OS X) AppleWebKit/537'
-        '.51.2 (KHTML, like Gecko) Version/7.0 Mobile/11D257 Safari/9537.53',
-)
+            '.51.2 (KHTML, like Gecko)'
+            ' Version/7.0 Mobile/11D257 Safari/9537.53')
 
 
-def agent(what):
+def agent(what: str) -> None:
     """>> agent <agent>
 
     Set the agent string (identifying the browser brand).
@@ -334,157 +348,189 @@ def agent(what):
     browser.agent_string = agent
 
 
-def submit(submit_button=None):
-    """>> submit [<buttonspec>]
+def submit(submit_button: Optional[str] = None) -> None:
+    """>> submit [<button_spec>]
 
     Submit the current form (the one last clicked on) by clicking on the
-    n'th submission button.  If no "buttonspec" is given, submit the current
+    n'th submission button.  If no "button_spec" is given, submit the current
     form by using the last clicked submit button.
 
-    The form to submit is the last form clicked on with a 'formvalue' command.
+    The form to submit is the last form clicked on with a 'form_value' command.
 
-    The button used to submit is chosen based on 'buttonspec'.  If 'buttonspec'
-    is given, it's matched against buttons using the same rules that
-    'formvalue' uses.  If 'buttonspec' is not given, submit uses the last
-    submit button clicked on by 'formvalue'.  If none can be found,
-    submit submits the form with no submit button clicked.
+    The button used to submit is chosen based on 'button_spec'.
+    If 'button_spec' is given, it's matched against buttons using
+    the same rules that 'form_value' uses.  If 'button_spec' is not given,
+    this function uses the last submit button clicked on by 'form_value'.
+    If none can be found, it submits the form with no submit button clicked.
     """
     browser.submit(submit_button)
 
 
-def showforms():
-    """>> showforms
+def show_forms() -> None:
+    """>> show_forms
 
-    Show all of the forms on the current page.
+    Show all the forms on the current page.
+
+    Note: Use browser.forms to get the forms programmatically.
     """
-    browser.showforms()
-    return browser.forms
+    browser.show_forms()
 
 
-def showlinks():
-    """>> showlinks
+# noinspection SpellCheckingInspection
+showforms = show_forms  # backward compatibility and convenience
 
-    Show all of the links on the current page.
+
+def show_links() -> None:
+    """>> show_links
+
+    Show all the links on the current page.
+
+    Note: Use browser.links to get the links programmatically.
     """
-    browser.showlinks()
-    return browser.links
+    browser.show_links()
 
 
-def showhistory():
-    """>> showhistory
+# noinspection SpellCheckingInspection
+showlinks = show_links  # backward compatibility and convenience
+
+
+def show_history() -> None:
+    """>> show_history
 
     Show the browser history (what URLs were visited).
+
+    Note: Use browser.history to get the history programmatically.
     """
-    browser.showhistory()
-    return browser._history
+    browser.show_history()
 
 
-def formclear(formname):
-    """>> formclear <formname>
+# noinspection SpellCheckingInspection
+showhistory = show_history  # backward compatibility and convenience
 
-    Run 'clear' on all of the controls in this form.
+
+def form_clear(form_name: str) -> None:
+    """>> form_clear <form_name>
+
+    Run 'clear' on all the controls in this form.
     """
-    form = browser.form(formname)
+    form = browser.form(form_name)
+    if form is None:
+        raise TwillAssertionError("Form not found")
     for control in form.inputs:
-        if 'readonly' in control.attrib or 'disabled' in control.attrib or (
-                hasattr(control, 'type') and
-                control.type in ('submit', 'image', 'hidden')):
-            continue
-        else:
+        if not ('readonly' in control.attrib
+                or 'disabled' in control.attrib
+                or getattr(control, 'type', None)
+                in ('submit', 'image', 'hidden')):
             del control.value
     browser.last_submit_button = None
 
 
-def formvalue(formname, fieldname, value):
-    """>> formvalue <formname> <field> <value>
+# noinspection SpellCheckingInspection
+formclear = form_clear  # backward compatibility and convenience
+
+
+def form_value(form_name: str, field_name: str, value: str) -> None:
+    """>> form_value <form_name> <field> <value>
 
     Set value of a form field.
 
-    There are some ambiguities in the way 'formvalue' deals with lists:
-    'formvalue' will *add* the given value to a list of multiple selection,
+    There are some ambiguities in the way 'form_value' deals with lists:
+    'form_value' will *add* the given value to a list of multiple selection,
     for lists that allow it.
 
-    Forms are matched against 'formname' as follows:
+    Forms are matched against 'form_name' as follows:
       1. regex match to actual form name;
-      2. if 'formname' is an integer, it's tried as an index.
+      2. if 'form_name' is an integer, it's tried as an index.
 
-    Form controls are matched against 'fieldname' as follows:
+    Form controls are matched against 'field_name' as follows:
       1. unique exact match to control name;
       2. unique regex match to control name;
-      3. if fieldname is an integer, it's tried as an index;
+      3. if field_name is an integer, it's tried as an index;
       4. unique & exact match to submit-button values.
 
-    'formvalue' ignores read-only fields completely; if they're readonly,
+    'form_value' ignores read-only fields completely; if they're readonly,
     nothing is done, unless the config options ('config' command) are
     changed.
 
-    'formvalue' is available as 'fv' as well.
+    'form_value' is available as 'fv' as well.
     """
-    form = browser.form(formname)
+    form = browser.form(form_name)
     if form is None:
-        raise TwillAssertionError("no matching forms!")
+        raise TwillAssertionError("Form not found")
 
-    control = browser.form_field(form, fieldname)
+    control = browser.form_field(form, field_name)
 
     browser.clicked(form, control)
 
-    if hasattr(control, 'attrib') and 'readonly' in control.attrib:
+    attrib = getattr(control, 'attrib', {})
+    if 'readonly' in attrib:
         if options['readonly_controls_writeable']:
-            log.info('forcing read-only form field to writeable')
-            del control.attrib['readonly']
+            log.info('Forcing read-only form field to writeable.')
+            del attrib['readonly']
         else:
-            log.info('form field is read-only or ignorable; nothing done.')
+            log.info('Form field is read-only or ignorable; nothing done.')
             return
 
-    if hasattr(control, 'type') and control.type == 'file':
+    if getattr(control, 'type', None) == 'file':
         raise TwillException(
-            'form field is for file upload; use "formfile" instead')
+            'form field is for file upload; use "form_file" instead')
 
     value = browser.decode(value)
     utils.set_form_control_value(control, value)
 
 
-fv = formvalue  # alias
+# noinspection SpellCheckingInspection
+fv = formvalue = form_value  # backward compatibility and convenience
 
 
-def formaction(formname, action):
-    """>> formaction <formname> <action_url>
+def form_action(form_name: str, action_url: str) -> None:
+    """>> form_action <form_name> <action_url>
 
     Sets action parameter on form to action_url.
 
-    'formaction' is available as 'fa' as well.
+    'form_action' is available as 'fa' as well.
     """
-    form = browser.form(formname)
-    log.info("Setting action for form %s to %s", form, action)
-    form.action = action
+    form = browser.form(form_name)
+    if form is None:
+        raise TwillAssertionError("Form not found")
+    log.info("Setting action for form %s to %s.", form, action_url)
+    form.action = action_url
 
 
-fa = formaction  # alias
+# noinspection SpellCheckingInspection
+fa = formaction = form_action  # backward compatibility and convenience
 
 
-def formfile(formname, fieldname, filename, content_type=None):
-    """>> formfile <form> <field> <filename> [<content_type>]
+def form_file(form_name: str, field_name: str, filename: str,
+              content_type: Optional[str] = None) -> None:
+    """>> form_file <form> <field> <filename> [<content_type>]
 
     Upload a file via an "upload file" form field.
     """
     filename = filename.replace('/', sep)
 
-    form = browser.form(formname)
-    control = browser.form_field(form, fieldname)
+    form = browser.form(form_name)
+    if form is None:
+        raise TwillAssertionError("Form not found")
+    control = browser.form_field(form, field_name)
 
-    if not (hasattr(control, 'type') and control.type == 'file'):
+    if getattr(control, 'type', None) != 'file':
         raise TwillException('ERROR: field is not a file upload field!')
 
     browser.clicked(form, control)
     plain = content_type and content_type.startswith(('plain/', 'html/'))
     fp = open(filename, 'r' if plain else 'rb')
-    browser.add_form_file(fieldname, fp)
+    browser.add_form_file(field_name, fp)
 
     log.info(
-        'Added file "%s" to file upload field "%s"', filename, control.name)
+        'Added file "%s" to file upload field "%s".', filename, field_name)
 
 
-def extend_with(module_name):
+# noinspection SpellCheckingInspection
+formfile = form_file  # backward compatibility and convenience
+
+
+def extend_with(module_name: str) -> None:
     """>> extend_with <module>
 
     Import contents of given module.
@@ -496,15 +542,15 @@ def extend_with(module_name):
     # now add the commands into the commands available for the shell,
     # and print out some nice stuff about what the extension module does.
 
-    mod = sys.modules.get(module_name)
+    mod = sys.modules[module_name]
 
     from . import parse, shell
 
-    fnlist = getattr(mod, '__all__', None)
-    if fnlist is None:
-        fnlist = [fn for fn in dir(mod) if callable(getattr(mod, fn))]
+    fn_list = getattr(mod, '__all__', None)
+    if fn_list is None:
+        fn_list = [fn for fn in dir(mod) if callable(getattr(mod, fn))]
 
-    for command in fnlist:
+    for command in fn_list:
         fn = getattr(mod, command)
         shell.add_command(command, fn.__doc__)
         parse.command_list.append(command)
@@ -517,15 +563,15 @@ def extend_with(module_name):
         if mod.__doc__:
             info("\nDescription:\n\n%s\n", mod.__doc__.strip())
         else:
-            if fnlist:
+            if fn_list:
                 info('New commands:\n')
-                for name in fnlist:
+                for name in fn_list:
                     info('\t%s', name)
                 info('')
 
 
-def getinput(prompt):
-    """>> getinput <prompt>
+def get_input(prompt: str) -> str:
+    """>> get_input <prompt>
 
     Get input, store it in '__input__'.
     """
@@ -537,8 +583,12 @@ def getinput(prompt):
     return inp
 
 
-def getpassword(prompt):
-    """>> getpassword <prompt>
+# noinspection SpellCheckingInspection
+getinput = get_input  # backward compatibility and convenience
+
+
+def get_password(prompt: str) -> str:
+    """>> get_password <prompt>
 
     Get a password ("invisible input"), store it in '__password__'.
     """
@@ -552,15 +602,19 @@ def getpassword(prompt):
     return inp
 
 
-def save_cookies(filename):
+# noinspection SpellCheckingInspection
+getpassword = get_password  # backward compatibility and convenience
+
+
+def save_cookies(filename: str) -> None:
     """>> save_cookies <filename>
 
-    Save all of the current cookies to the given file.
+    Save all the current cookies to the given file.
     """
     browser.save_cookies(filename)
 
 
-def load_cookies(filename):
+def load_cookies(filename: str) -> None:
     """>> load_cookies <filename>
 
     Clear the cookie jar and load cookies from the given file.
@@ -568,7 +622,7 @@ def load_cookies(filename):
     browser.load_cookies(filename)
 
 
-def clear_cookies():
+def clear_cookies() -> None:
     """>> clear_cookies
 
     Clear the cookie jar.
@@ -576,29 +630,37 @@ def clear_cookies():
     browser.clear_cookies()
 
 
-def show_cookies():
+def show_cookies() -> None:
     """>> show_cookies
 
-    Show all of the cookies in the cookie jar.
+    Show all the cookies in the cookie jar.
+
+    Note: Use browser.cookies to get the cookies programmatically.
     """
     browser.show_cookies()
 
 
-def add_auth(realm, uri, user, passwd):
+# noinspection SpellCheckingInspection
+showcookies = show_cookies  # backward compatibility and convenience
+
+
+def add_auth(realm: str, uri: str, user: str, passwd: str) -> None:
     """>> add_auth <realm> <uri> <user> <passwd>
 
     Add HTTP Basic Authentication information for the given realm/uri.
     """
-    browser.creds = ((uri, realm), (user, passwd))
+    if realm is not None:
+        browser.add_creds((uri, realm), user, passwd)
+        log.info(
+            "Added auth info: realm '%s' / URI '%s' / user '%s'.",
+            realm, uri, user)
+    if realm is None or options['with_default_realm']:
+        browser.add_creds(uri, user, passwd)
+        if realm is None:
+            log.info("Added auth info: URI '%s' / user '%s'.", uri, user)
 
-    log.info(
-        "Added auth info: realm '%s' / URI '%s' / user '%s'", realm, uri, user)
 
-    if options['with_default_realm']:
-        browser.creds = (uri, (user, passwd))
-
-
-def debug(what, level):
+def debug(what: str, level: str) -> None:
     """>> debug <what> <level>
 
     <what> can be:
@@ -609,23 +671,23 @@ def debug(what, level):
     from . import parse
 
     try:
-        level = int(level)
+        num_level = int(level)
     except ValueError:
-        level = 1 if utils.make_boolean(level) else 0
+        num_level = 1 if utils.make_boolean(level) else 0
 
-    log.info('DEBUG: setting %s debugging to level %d', what, level)
+    log.info('DEBUG: Setting %s debugging to level %d.', what, num_level)
 
     if what == 'http':
-        requests.packages.urllib3.connectionpool.debuglevel = level
+        browser.debug_level = num_level
     elif what == 'equiv-refresh':
-        browser.show_refresh = level > 0
+        browser.show_refresh = num_level > 0
     elif what == 'commands':
-        parse.log_commands(level > 0)
+        parse.log_commands(num_level > 0)
     else:
-        raise TwillException(f'unknown debugging type: "{what}"')
+        raise TwillException(f'Unknown debugging type: "{what}"')
 
 
-def run(cmd):
+def run(cmd: str) -> None:
     """>> run <command>
 
     <command> can be any valid Python command; 'exec' is used to run it.
@@ -642,12 +704,12 @@ def run(cmd):
     exec(cmd, global_dict, local_dict)
 
 
-def runfile(*args):
-    """>> runfile <file1> [<file2> ...]
+def run_file(*args: str) -> None:
+    """>> run_file <file1> [<file2> ...]
 
     Execute the given twill scripts or directories of twill scripts.
 
-    'runfile' is available as 'rf' as well.
+    'run_file' is available as 'rf' as well.
     """
     from . import parse
 
@@ -656,10 +718,11 @@ def runfile(*args):
         parse.execute_file(filename, no_reset=True)
 
 
-rf = runfile  # alias
+# noinspection SpellCheckingInspection
+rf = runfile = run_file  # backward compatibility and convenience
 
 
-def add_cleanup(*args):
+def add_cleanup(*args: str) -> None:
     """>> add_cleanup <file1> [<file2> ...]
 
     Execute the given twill scripts after the current twill script.
@@ -672,8 +735,8 @@ def add_cleanup(*args):
     cleanups.extend(reversed(filenames))
 
 
-def setglobal(name, value):
-    """setglobal <name> <value>
+def set_global(name: str, value: str) -> None:
+    """set_global <name> <value>
 
     Sets the variable <name> to the value <value> in the global namespace.
     """
@@ -681,8 +744,12 @@ def setglobal(name, value):
     global_dict[name] = value
 
 
-def setlocal(name, value):
-    """setlocal <name> <value>
+# noinspection SpellCheckingInspection
+setglobal = set_global  # backward compatibility and convenience
+
+
+def set_local(name: str, value: str) -> None:
+    """set_local <name> <value>
 
     Sets the variable <name> to the value <value> in the local namespace.
     """
@@ -690,7 +757,11 @@ def setlocal(name, value):
     local_dict[name] = value
 
 
-def title(what):
+# noinspection SpellCheckingInspection
+setlocal = set_local  # backward compatibility and convenience
+
+
+def title(what: str) -> str:
     """>> title <regex>
 
     Succeed if the regular expression is in the page title.
@@ -698,11 +769,14 @@ def title(what):
     regex = re.compile(what)
     title = browser.title
 
-    log.info("title is '%s'", title)
+    if title is None:
+        log.info("The page has no title.")
+    else:
+        log.info("The title is '%s'.", title)
 
-    m = regex.search(title)
-    if not m:
-        raise TwillAssertionError(f"title does not contain '{what}'")
+    m = regex.search(title) if title else None
+    if m is None:
+        raise TwillAssertionError(f"The title does not contain '{what}'.")
 
     if m.groups():
         match_str = m.group(1)
@@ -714,7 +788,7 @@ def title(what):
     return match_str
 
 
-def redirect_output(filename):
+def redirect_output(filename: str) -> None:
     """>> redirect_output <filename>
 
     Append all twill output to the given file.
@@ -723,7 +797,7 @@ def redirect_output(filename):
     set_output(fp)
 
 
-def reset_output():
+def reset_output() -> None:
     """>> reset_output
 
     Reset twill output to go to the screen.
@@ -731,7 +805,7 @@ def reset_output():
     set_output(None)
 
 
-def redirect_error(filename):
+def redirect_error(filename: str) -> None:
     """>> redirect_error <filename>
 
     Append all twill error output to the given file.
@@ -740,7 +814,7 @@ def redirect_error(filename):
     set_err_out(fp)
 
 
-def reset_error():
+def reset_error() -> None:
     """>> reset_error
 
     Reset twill error output to go to the screen.
@@ -748,7 +822,7 @@ def reset_error():
     set_err_out(None)
 
 
-def add_extra_header(header_key, header_value):
+def add_extra_header(header_key: str, header_value: str) -> None:
     """>> add_header <name> <value>
 
     Add an HTTP header to each HTTP request.  See 'show_extra_headers' and
@@ -757,7 +831,7 @@ def add_extra_header(header_key, header_value):
     browser.headers[header_key] = header_value
 
 
-def show_extra_headers():
+def show_extra_headers() -> None:
     """>> show_extra_headers
 
     Show any extra headers being added to each HTTP request.
@@ -773,7 +847,7 @@ def show_extra_headers():
         info('** no extra HTTP headers **')
 
 
-def clear_extra_headers():
+def clear_extra_headers() -> None:
     """>> clear_extra_headers
 
     Remove all user-defined HTTP headers.  See 'add_extra_header' and
@@ -782,7 +856,7 @@ def clear_extra_headers():
     browser.reset_headers()
 
 
-default_options = dict(
+default_options: Dict[str, Any] = dict(
     equiv_refresh_interval=2,
     readonly_controls_writeable=False,
     require_tidy=False,
@@ -791,7 +865,7 @@ default_options = dict(
 options = default_options.copy()  # the global options dictionary
 
 
-def config(key=None, value=None):
+def config(key: Optional[str] = None, value: Any = None) -> None:
     """>> config [<key> [<int value>]]
 
     Configure/report various options.  If no <value> is given, report
@@ -829,7 +903,7 @@ def config(key=None, value=None):
             options[key] = value
 
 
-def info():
+def info() -> None:
     """>> info
 
     Report information on current page.
@@ -839,7 +913,7 @@ def info():
         log.warning("We're not on a page!")
         return
 
-    content_type = browser.result.headers['content-type']
+    content_type = browser.response_headers['content-type']
     is_html = content_type and content_type.split(';', 1)[0] == 'text/html'
     code = browser.code
 

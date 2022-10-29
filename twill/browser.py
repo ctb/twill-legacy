@@ -8,30 +8,34 @@ from urllib.parse import urljoin
 
 from requests import Session
 from requests.auth import HTTPBasicAuth
+from requests.cookies import RequestsCookieJar
 from requests.exceptions import InvalidSchema, ConnectionError
 from requests.structures import CaseInsensitiveDict
 
 from . import log, __version__
 from .utils import (
     get_equiv_refresh_interval, html_to_tree, print_form, trunc, unique_match,
-    BrowserCreds, CheckboxGroup, FieldElement, FormElement, HtmlElement,
+    CheckboxGroup, FieldElement, FormElement, HtmlElement,
     InputElement, Link, UrlWithRealm, RadioGroup, Response, ResultWrapper)
 from .errors import TwillException
 
 __all__ = ['browser']
 
 
-def _disable_insecure_request_warnings():
+def _disable_insecure_request_warnings() -> None:
     """Disable insecure request warnings."""
     try:
         from requests.packages import urllib3  # type: ignore
     except ImportError:
         import urllib3  # type: ignore
-    try:
-        urllib3.disable_warnings(
-            urllib3.exceptions.InsecureRequestWarning)  # type:ignore
-    except AttributeError:
-        pass
+    insecure_request_warning = urllib3.exceptions.InsecureRequestWarning
+    urllib3.disable_warnings(insecure_request_warning)
+
+
+def _set_http_connection_debuglevel(level: int) -> None:
+    """Set the debug level for the connection pool."""
+    from http.client import HTTPConnection
+    HTTPConnection.debuglevel = level
 
 
 class TwillBrowser:
@@ -46,6 +50,9 @@ class TwillBrowser:
 
         # whether meta refresh will be displayed
         self.show_refresh = False
+
+        # debug level to be used for the connection pool
+        self._debug_level = 0
 
         # whether the SSL cert will be verified, or can be a ca bundle path
         self.verify = False
@@ -74,6 +81,15 @@ class TwillBrowser:
             raise TwillException(f"Cannot get {what} since there is no page.")
         return self.result
 
+    @property
+    def debug_level(self) -> int:
+        return self._debug_level
+
+    @debug_level.setter
+    def debug_level(self, level: int) -> None:
+        _set_http_connection_debuglevel(level)
+        self._debug_level = level
+
     def reset(self):
         """Reset the browser"""
         self.__init__()
@@ -83,10 +99,9 @@ class TwillBrowser:
         """Get the credentials for basic authentication."""
         return self._auth
 
-    @creds.setter
-    def creds(self, creds: BrowserCreds) -> None:
+    def add_creds(self, url: UrlWithRealm, user: str, password: str) -> None:
         """Set the credentials for basic authentication."""
-        self._auth[creds[0]] = HTTPBasicAuth(*creds[1])
+        self._auth[url] = HTTPBasicAuth(user, password)
 
     def go(self, url: str) -> None:
         """Visit given URL."""
@@ -166,7 +181,7 @@ class TwillBrowser:
         """
         return self._assert_result_for('links').find_link(pattern)
 
-    def follow_link(self, link: str) -> None:
+    def follow_link(self, link: Union[str, Link]) -> None:
         """Follow the given link."""
         self._journey('follow_link', link)
         log.info('==> at %s', self.url)
@@ -184,6 +199,11 @@ class TwillBrowser:
             'User-Agent': self.user_agent})
 
     @property
+    def response_headers(self):
+        """Get the headers returned with the current page."""
+        return self._assert_result_for('headers').headers
+
+    @property
     def agent_string(self) -> Optional[str]:
         """Get the user agent string."""
         return self.headers.get('User-Agent')
@@ -193,7 +213,7 @@ class TwillBrowser:
         """Set the user agent string to the given value."""
         self.headers['User-Agent'] = agent
 
-    def showforms(self) -> None:
+    def show_forms(self) -> None:
         """Pretty-print all forms on the page.
 
         Include the global form (form elements outside <form> pairs)
@@ -202,7 +222,7 @@ class TwillBrowser:
         for n, form in enumerate(self.forms, 1):
             print_form(form, n)
 
-    def showlinks(self) -> None:
+    def show_links(self) -> None:
         """Pretty-print all links on the page."""
         info = log.info
         links = self.links
@@ -214,7 +234,7 @@ class TwillBrowser:
         else:
             info('\n** no links **\n')
 
-    def showhistory(self) -> None:
+    def show_history(self) -> None:
         """Pretty-print the history of links visited."""
         info = log.info
         history = self._history
@@ -423,6 +443,10 @@ class TwillBrowser:
         if self.result is not None:
             self._history.append(self.result)
         self.result = ResultWrapper(r)
+
+    def cookies(self) -> RequestsCookieJar:
+        """Get all cookies from the current session."""
+        return self._session.cookies
 
     def save_cookies(self, filename: str) -> None:
         """Save cookies into the given file."""

@@ -32,8 +32,8 @@ __all__ = [
     'is_hidden_filename', 'is_twill_filename', 'print_form',
     'make_boolean', 'make_int', 'make_twill_filename',
     'run_tidy', 'tree_to_html',  'trunc', 'unique_match',
-    'BrowserCreds', 'CheckboxGroup', 'Creds', 'FieldElement',
-    'FormElement', 'HtmlElement', 'InputElement', 'Link', 'RadioGroup',
+    'CheckboxGroup', 'FieldElement', 'FormElement',
+    'HtmlElement', 'InputElement', 'Link', 'RadioGroup',
     'ResultWrapper', 'SelectElement', 'Singleton', 'TextareaElement',
     'UrlWithRealm', 'Response']
 
@@ -47,18 +47,8 @@ class Link(NamedTuple):
     url: str
 
 
-class Creds(NamedTuple):
-    user: str
-    password: str
-
-
 # Depending on the configuration, realms can be ignored
 UrlWithRealm = Union[str, Tuple[str, str]]
-
-
-class BrowserCreds(NamedTuple):
-    url: UrlWithRealm
-    creds: Creds
 
 
 class Singleton:
@@ -429,27 +419,27 @@ def is_twill_filename(filename: str) -> bool:
 def make_twill_filename(name: str) -> str:
     """Add the twill extension to the name of a script if necessary."""
     if name not in ('.', '..'):
-        twillname, ext = os.path.splitext(name)
+        twill_name, ext = os.path.splitext(name)
         if not ext:
-            twillname += twill_ext
-            if os.path.exists(twillname):
-                name = twillname
+            twill_name += twill_ext
+            if os.path.exists(twill_name):
+                name = twill_name
     return name
 
 
-def gather_filenames(arglist: List[str]) -> List[str]:
+def gather_filenames(args: Sequence[str]) -> List[str]:
     """Collect script files from within directories."""
-    names = []
-    for arg in arglist:
+    names: List[str] = []
+    for arg in args:
         name = make_twill_filename(arg)
         if os.path.isdir(name):
-            for dirpath, dirnames, filenames in os.walk(arg):
-                dirnames[:] = [
-                    d for d in dirnames if not is_hidden_filename(d)]
+            for dir_path, dir_names, filenames in os.walk(arg):
+                dir_names[:] = [
+                    d for d in dir_names if not is_hidden_filename(d)]
                 for filename in filenames:
                     if not is_twill_filename(filename):
                         continue
-                    filename = os.path.join(dirpath, filename)
+                    filename = os.path.join(dir_path, filename)
                     names.append(filename)
         else:
             names.append(name)

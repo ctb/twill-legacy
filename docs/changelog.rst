@@ -4,6 +4,18 @@
 ChangeLog
 =========
 
+3.1.0 (to be released)
+----------------------
+* Commands like 'show_forms' do not return values any more; you need to use
+  'browser.forms' to get the forms programmatically (#13, #14).
+* Two-word commands now consistently have underscores in their names,
+  (e.g. 'form_action', 'get_input', 'show_links'). However, for convenience
+  and backward compatibility, you can still use the names without underscores
+  (e.g. 'formaction', 'getinput', 'showlinks'), and the old two-letter
+  abbreviations (e.g. 'fa' for 'form_action') (#13, #14).
+* Added type hints (#15).
+* Many minor fixes and improvements.
+
 3.0.3 (released 2022-10-12)
 ---------------------------
 

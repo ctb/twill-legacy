@@ -119,6 +119,7 @@ def start_server(port=None):
             stderr=subprocess.STDOUT, stdout=out)
         time.sleep(SLEEP)  # wait until the server is up and running
 
+    # noinspection HttpUrlsUsage
     _url = f'http://{HOST}:{port}/'
 
 
