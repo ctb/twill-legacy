@@ -12,6 +12,7 @@ from typing import Any, Dict, Optional
 from os.path import sep
 
 from . import log, set_output, set_err_out, utils
+from .agents import agents
 from .browser import browser
 from .errors import TwillException, TwillAssertionError
 from .namespaces import get_twill_glocals
@@ -299,69 +300,18 @@ def sleep(interval: str = "1") -> None:
     time.sleep(float(interval))
 
 
-# noinspection HttpUrlsUsage
-_agent_map: Dict[str, str] = dict(
-    chrome40='Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36'
-             ' (KHTML, like Gecko) Chrome/40.0.2214.93 Safari/537.36',
-    googlebot2='Mozilla/5.0 (compatible; Googlebot/2.1;'
-               ' +http://www.google.com/bot.html)',
-    edge12='Mozilla/5.0 (Windows NT 10.0)'
-           ' AppleWebKit/537.36 (KHTML, like Gecko)'
-           ' Chrome/42.0.2311.135 Safari/537.36 Edge/12.10136',
-    firefox40='Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0)'
-              ' Gecko/20100101 Firefox/40.1',
-    ie6='Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)',
-    ie7='Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)',
-    ie8='Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.0; Trident/4.0)',
-    ie9='Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.0; Trident/5.0)',
-    ie10='Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)',
-    ie11='Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko',
-    iemobile9='Mozilla/5.0 (compatible; MSIE 9.0; Windows Phone OS 7.5;'
-              ' Trident/5.0; IEMobile/9.0)',
-    opera7='Opera/7.0 (Windows NT 5.1; U) [en]',
-    opera8='Opera/8.00 (Windows NT 5.1; U; en)',
-    opera9='Opera/9.00 (Windows NT 5.2; U; en)',
-    opera10='Opera/9.80 (Windows NT 6.1; U; en) Presto/2.2.15 Version/10.00',
-    opera11='Opera/9.80 (Windows NT 6.1; U; en) Presto/2.7.62 Version/11.00',
-    opera12='Opera/12.0 (Windows NT 5.1; U; en) Presto/22.9.168 Version/12.00',
-    operamini7='Opera/9.80 (Android; Opera Mini/7.0.29952/28.2075; en)'
-               ' Presto/2.8.119 Version/11.10',
-    operamini9='Opera/9.80 (J2ME/MIDP; Opera Mini/9 (Compatible; MSIE:9.0;'
-               ' iPhone; BlackBerry9700; AppleWebKit/24.746; en)'
-               ' Presto/2.5.25 Version/10.54',
-    konqueror3='Mozilla/5.0 (compatible; Konqueror/3.0; Linux)',
-    konqueror4='Mozilla/5.0 (compatible; Konqueror/4.0; Linux)'
-               ' KHTML/4.0.3 (like Gecko)',
-    safari1='Mozilla/5.0 (Macintosh; PPC Mac OS X; en)'
-            ' AppleWebKit/85.7 (KHTML, like Gecko) Safari/85.6',
-    safari2='Mozilla/5.0 (Macintosh; PPC Mac OS; en)'
-            ' AppleWebKit/412 (KHTML, like Gecko) Safari/412',
-    safari3='Mozilla/5.0 (Macintosh; Intel Mac OS X; en)'
-            ' AppleWebKit/522.7 (KHTML, like Gecko) Version/3.0 Safari/522.7',
-    safari4='Mozilla/5.0 (Macintosh; U; PPC Mac OS X 10_5_6; en)'
-            ' AppleWebKit/530.9+ (KHTML, like Gecko)'
-            'Version/4.0 Safari/528.16',
-    safari5='Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en)'
-            ' AppleWebKit/534.1+ (KHTML, like Gecko)'
-            ' Version/5.0 Safari/533.16',
-    safari6='Mozilla/5.0 (iPad; CPU OS 6_0 like Mac OS X) AppleWebKit/536'
-            '.26 (KHTML, like Gecko)'
-            ' Version/6.0 Mobile/10A5355d Safari/8536.25',
-    safari7='Mozilla/5.0 (iPad; CPU OS 7_1_2 like Mac OS X) AppleWebKit/537'
-            '.51.2 (KHTML, like Gecko)'
-            ' Version/7.0 Mobile/11D257 Safari/9537.53')
-
-
 def agent(what: str) -> None:
     """>> agent <agent>
 
     Set the agent string (identifying the browser brand).
 
     Some convenient shortcuts:
-      ie5, ie55, ie6, moz17, opera7, konq32, saf11, aol9.
+    chrome_107, firefox_106, safari_605, edge_107, ie_11.
+
+    See twill.agents for a list of all available shortcuts.
     """
     what = what.strip()
-    agent = _agent_map.get(what, what)
+    agent = agents.get(what, what)
     browser.agent_string = agent
 
 

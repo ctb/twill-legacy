@@ -5,6 +5,9 @@
 *.log
 *.patch
 
+*.cookies
+*.out
+
 __pycache__
 
 .cache
