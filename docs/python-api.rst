@@ -35,15 +35,16 @@ directly to the documented set of commands in
 :ref:`the commands reference <commands>`.
 
 However, the functions in ``commands.py`` are too simple for some situations.
-In particular, they do not have any return values, so in order to e.g. get
-the HTML for a particular page, you will need to talk to the actual "Web
-browser" object that twill uses.
+In particular, most of them do not have any return values, so in order to
+e.g. get the HTML for a particular page, you will need to ask the actual
+"Web browser" object that twill uses.
 
-To talk to the Web browser directly, import the ``browser`` object::
+To make use of to the Web browser directly, import the ``browser`` object::
 
    from twill import browser
 
    browser.go("https://www.python.org/")
+   assert 'Python' in browser.html
    browser.showforms()
 
 This is the second way to use twill from Python, and it is much more flexible.
@@ -54,12 +55,19 @@ you can mix and match: ::
 
    from twill.commands import *
    go("https://www.python.org/")
+   assert 'Python' in browser.html
+   find("Documentation")
    browser.showforms()
 
 The basic difference is that functions available through the browser object
 are intended for use from Python, while ``commands.py`` functions define
 the twill *language*. In fact, all of the functions in ``commands.py``
 are small snippets of code wrapped around the browser object.
+
+Most importantly, the browser object also provides several properties that
+can be used to introspect the current state of the browser and evaluated
+programmatically in Python, such as ``url``, ``code``, ``html``, ``title``,
+``links``, ``forms``, ``cookies``, ``response_headers`` or ``history``.
 
 For more information on the functions exposed by the browser object,
 see the code of the **TwillBrowser** class in twill.browser.

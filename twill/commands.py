@@ -36,7 +36,7 @@ __all__ = [
     'setglobal', 'set_global', 'setlocal', 'set_local',
     'show', 'showcookies', 'show_cookies', 'show_extra_headers',
     'showforms', 'show_forms', 'showhistory', 'show_history',
-    'showlinks', 'show_links',
+    'showhtml', 'show_html', 'showlinks', 'show_links',
     'sleep', 'submit',
     'tidy_ok', 'title', 'url']
 
@@ -107,9 +107,9 @@ def tidy_ok() -> None:
 
 
 def url(should_be: str) -> str:
-    """>> url <regex>
+    """>> url <pattern>
 
-    Check to make sure that the current URL matches the regex.
+    Check to make sure that the current URL matches the regex pattern.
     The local variable __match__ is set to the matching part of the URL.
     """
     regex = re.compile(should_be)
@@ -133,9 +133,10 @@ def url(should_be: str) -> str:
 
 
 def follow(what: str) -> str:
-    """>> follow <regex>
+    """>> follow <pattern>
 
-    Find the first matching link on the page and visit it.
+    Find the first link on the page matching the given regex pattern and
+    then visit it.
     """
     link = browser.find_link(what)
     if link:
@@ -160,10 +161,10 @@ def _parse_find_flags(flags: str) -> int:
 
 
 def find(what: str, flags='') -> str:
-    """>> find <regex> [<flags>]
+    """>> find <pattern> [<flags>]
 
-    Succeed if the regular expression is on the page.  Sets the local
-    variable __match__ to the matching text.
+    Succeed if the regular expression pattern can be found on the page.
+    Sets the local variable __match__ to the matching text.
 
     Flags is a string consisting of the following characters:
 
@@ -172,7 +173,7 @@ def find(what: str, flags='') -> str:
     * s: dot matches all
     * x: use XPath expressions instead of regular expression
 
-    For explanations of these, please see the Python re module
+    For explanations of regular expressions, please see the Python re module
     documentation.
     """
     page = browser.html
@@ -192,9 +193,9 @@ def find(what: str, flags='') -> str:
 
 
 def not_find(what: str, flags='') -> None:
-    """>> not_find <regex> [<flags>]
+    """>> not_find <pattern> [<flags>]
 
-    Fail if the regular expression is on the page.
+    Fail if the regular expression pattern can be found on the page.
     """
     try:
         find(what, flags)
@@ -216,28 +217,39 @@ def back() -> None:
     browser.back()
 
 
-def show(what: Optional[str] = None):
+def show(what: Optional[str] = None) -> None:
     """>> show [<objects>]
+
+    Show the specified objects (html, cookies, forms, links, history).
+    """
+    if not what:
+        what = 'html'
+    command = None
+    if what.isalpha():
+        command_name = f'show_{what}'
+        if command_name in __all__:
+            command = globals().get(command_name)
+    if not command:
+        raise TwillException(f'Cannot show "{what}".')
+    command()
+
+
+def show_html() -> None:
+    """>> show_html
 
     Show the HTML for the current page or show the specified objects
     (which can be cookies, forms, history or links).
 
     Note: Use browser.html to get the HTML programmatically.
     """
-    if not what or what == 'html':
-        html = browser.html.strip()
-        log.info('')
-        log.info(html)
-        log.info('')
-    else:
-        command = None
-        if what.isalpha():
-            command_name = f'show_{what}'
-            if command_name in __all__:
-                command = globals().get(command_name)
-        if not command:
-            raise TwillException(f'Cannot show "{what}".')
-        command()
+    html = browser.html.strip()
+    log.info('')
+    log.info(html)
+    log.info('')
+
+
+# noinspection SpellCheckingInspection
+showhtml = show_html  # backward compatibility and consistency
 
 
 def echo(*strs: str) -> None:
@@ -769,9 +781,9 @@ setlocal = set_local  # backward compatibility and convenience
 
 
 def title(what: str) -> str:
-    """>> title <regex>
+    """>> title <pattern>
 
-    Succeed if the regular expression is in the page title.
+    Succeed if the regular expression pattern is in the page title.
     """
     regex = re.compile(what)
     title = browser.title

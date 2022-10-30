@@ -1,16 +1,38 @@
 ### html
 
+echo "Testing variations of the 'show' command."
+
 find "Hello, world!"
 
+echo "GOT: HELLO WORLD"
+
+echo "TEST: show"
+
 show
+
+echo "TEST: show_html"
+
+show_html
+
+echo "TEST: showhtml"
+
+showhtml
+
+echo "TEST: show html"
 
 show html
 
 ### links
 
+echo "TEST: show_links"
+
 show_links
 
+echo "TEST: showlinks"
+
 showlinks
+
+echo "TEST: show links"
 
 show links
 
@@ -20,32 +42,53 @@ go two_forms
 
 find "Two Forms"
 
+echo "GOT: TWO FORMS"
+
 fv 1 item value
 submit
 
+echo "TEST: show"
+
 show
 
-show html
+echo "TEST: show_forms"
 
 show_forms
 
+echo "TEST: showforms"
+
 showforms
+
+echo "TEST: show forms"
 
 show forms
 
 ### cookies
 
+echo "TEST: show_cookies"
+
 show_cookies
 
+echo "TEST: showcookies"
+
 showcookies
+
+echo "TEST: show cookies"
 
 show cookies
 
 ### history
 
+echo "TEST: show_history"
+
 show_history
+
+echo "TEST: showhistory"
 
 showhistory
 
+echo "TEST: show history"
+
 show history
 
+echo "That's all, folks."

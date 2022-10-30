@@ -8,14 +8,18 @@ ChangeLog
 ----------------------
 * The submit command now takes an additional parameter to specify a form
   that can be used in rare cases when there are no form fields (#7).
-* Commands like 'show_forms' do not return values any more; you need to use
-  'browser.forms' to get the forms programmatically (#13, #14).
+* Most commands do not return values any more, they are just commands.
+  If you are using twill from Python, you should check browser properties
+  like 'forms' or 'url' instead of using the return values of commands
+  like 'show_forms' or 'back' (see #13, #14).
 * Two-word commands now consistently have underscores in their names,
   (e.g. 'form_action', 'get_input', 'show_links'). However, for convenience
   and backward compatibility, you can still use the names without underscores
   (e.g. 'formaction', 'getinput', 'showlinks'), and the old two-letter
   abbreviations (e.g. 'fa' for 'form_action') (#13, #14).
-* Instead of 'showforms' or 'show_forms' you can now also write 'show forms'.
+* Instead of 'showforms' or 'show_forms' you can now also write 'show forms',
+  and similarly for 'cookies', 'links', 'history' and 'html'. The command
+  'show html' does the same as 'show' without any arguments.
 * Added type hints (#15).
 * Many minor fixes and improvements.
 

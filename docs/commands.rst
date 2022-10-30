@@ -10,18 +10,16 @@ a '#' is ignored as a comment, unless it's in a quoted string.
 Browsing
 ========
 
-**go** *<url>* -- visit the given URL. The Python function returns the
-final URL visited, after all redirects.
+**go** *<url>* -- visit the given URL.
 
-**back** -- return to the previous URL. The Python function returns that
-URL, if any.
+**back** -- return to the previous URL.
 
-**reload** -- reload the current URL. The Python function returns that URL,
-if any.
+**reload** -- reload the current URL.
 
-**follow** *<link name>* -- follow the given link. The Python function
-returns the final URL visited, after all redirects.
+**follow** *<link name>* -- follow the given link.
 
+Note: When used from Python, you get the new URL after executing
+these commands (after possible redirects) with ``browser.url``.
 
 Assertions
 ==========
@@ -29,30 +27,35 @@ Assertions
 **code** *<code>* -- assert that the last page loaded had this HTTP status,
 e.g. ``code 200`` asserts that the page loaded fine.
 
-**find** *<regex>* [*<flags>*] -- assert that the page contains this
-regular expression. The variable ``__match__`` is set to the first matching
-subgroup (or the entire matching string, if no subgroups are specified).
-When called from Python, the matching string is returned. It also accepts
-some flags: **i**, for case-insensitive matching, **m** for multi-line mode
-and **s** for dotall matching. The flag **x** uses XPath expressions instead
-of regular expressions (see below).
+**find** *<pattern>* [*<flags>*] -- assert that the page contains the
+specified regular expression pattern. The variable ``__match__`` is set to
+the first matching subgroup (or the entire matching string, if no subgroups
+are specified). When called from Python, the matching string is also returned.
+
+Fhe command also accepts some flags: **i**, for case-insensitive matching,
+**m** for multi-line mode and **s** for dotall matching. The flag **x** uses
+XPath expressions instead of regular expressions (see below).
 
 **find** *<xpath>* **x** -- assert that the page contains the element
 matched by the XPath expression. The variable ``__match__`` is set to
-the first matching element's string representation.
+the first matching element's text content. When called from Python, the
+matching text is also returned.
 
-**notfind** *<regex>* [*<flags>*] -- assert that the page *does not* contain
-this regular expression. It accepts the same flags as **find**.
+**not_find** *<pattern>* [*<flags>*] -- assert that the page *does not*
+contain the specified regular expression pattern. This command accepts the
+same flags as **find**.
 
-**notfind** *<xpath>* **x** -- assert that the page *does not* contain this
+Alternative spelling: "notfind"
+
+**not_find** *<xpath>* **x** -- assert that the page *does not* contain the
 element pointed by the XPath expression.
 
-**url** *<regex>* -- assert that the current URL matches the given regex.
-The variable ``__match__`` is set to the first matching subgroup
+**url** *<pattern>* -- assert that the current URL matches the given regex
+pattern. The variable ``__match__`` is set to the first matching subgroup
 (or the entire matching string, if no subgroups are specified).
 When called from Python, the matching string is returned.
 
-**title** *<regex>* -- assert that the title of this page matches this
+**title** *<pattern>* -- assert that the title of this page matches this
 regular expression. The variable ``__match__`` is set to the first matching
 subgroup (or the entire matching string, if no subgroups are specified).
 When called from Python, the matching string is returned.
@@ -71,25 +74,41 @@ Display
 **save_html** *[<filename>]* -- save the current page's HTML into a file.
 If no filename is given, derive the filename from the URL.
 
-**show** -- show the current page's HTML. When called from Python,
-this function will also return a string containing the HTML.
+**show** -- show the current page's HTML.
 
-**showlinks** -- show all of the links on the current page.
-When called from Python, this function returns a list of the link objects.
+Alternative spelling: "showhtml" or "show html"
 
-**showforms** -- show all of the forms on the current page.
-When called from Python, this function returns a list of the forms.
+**show_links** -- show all of the links on the current page.
 
-**showhistory** -- show the browser history.
-When called from Python, this function returns the history.
+Alternative spellings: "showlinks" or "show links"
+
+**show_forms** -- show all of the forms on the current page.
+
+Alternative spellings: "showforms" or "show forms"
+
+**show_history** -- show the browser history.
+
+Alternative spellings: "showhistory" or "show history"
+
+**show_cookies** -- show the current cookies.
+
+Alternative spellings: "showcookies" or "show cookies"
+
+Note: When used from Python, you get these objects using the properties
+of the browser with the same names, e.g. ``browser.html``, ``browser.links``,
+``browser.forms``, ``browser.history`` and ``browser.cookies``.
 
 Forms
 =====
 
-**submit** *[<n>]* -- click the n'th submit button, if given;
-otherwise submit via the last submission button clicked; if nothing
-clicked, use the first submit button on the form. See `details on
-form handling`_ for more information.
+**submit** *[<button_name>]* -- click the submit button with the given name.
+Instead of the name of the button you can also specify the number of the form
+element that shall be used as the submit button. If you do not specify a
+button name or number, the form is submitted via the last submission button
+clicked; if nothing had been clicked, use the first submit button on the form.
+See `details on form handling`_ for more information. In rare cases you may
+need to specify the form explicitly, you can do so by adding the form name
+or number as an additional parameter to the button name or number.
 
 **form_value** *<form_name> <field_name> <value>* --- set the given field
 in the given form to the given value. For read-only form controls,
@@ -102,17 +121,29 @@ For list controls, you can use 'form_value <form_name> <field_name> +value'
 or 'form_value <form_name> <field_name> -value' to select or deselect a
 particular value.
 
+Alternative spellings: "formvalue" or "fv"
+
 **fv** -- abbreviation for 'form_value'.
 
-**formaction** *<form_name> <action>* -- change the form action URL to the
+**form_action** *<form_name> <action>* -- change the form action URL to the
 given URL.
 
-**fa** -- abbreviation for 'formaction'.
+Alternative spellings: "formaction" or "fa"
+
+**fa** -- abbreviation for 'form_action'.
 
 **form_clear** -- clear all values in the form.
 
+Alternative spelling: "formclear"
+
 **form_file** *<form_name> <field_name> <filename> [ <content_type> ]* --
 attach a file to a file upload button by filename.
+
+Alternative spelling: 'formfile'.
+
+**show_forms** -- show all of the forms on the current page.
+
+Alternative spellings: "showforms" or "show forms"
 
 Cookies
 =======
@@ -126,6 +157,8 @@ with file contents.
 
 **show_cookies** -- show all of the current cookies.
 
+Alternative spellings: "showcookies" or "show cookies"
+
 Debugging
 =========
 
@@ -137,11 +170,15 @@ to show twill commands. The second argument is '0' for off, '1' for on.
 Variable handling
 =================
 
-**setglobal** *<name> <value>* -- set variable <name> to value <value> in
+**set_global** *<name> <value>* -- set variable <name> to value <value> in
 global dictionary. The value can be retrieved with '$value'.
 
-**setlocal** *<name> <value>* -- set variable <name> to value <value> in
+Alternative spelling: "setglobal"
+
+**set_local** *<name> <value>* -- set variable <name> to value <value> in
 local dictionary. The value can be retrieved with '$value'.
+
+Alternative spelling: "setlocal"
 
 The local dictionary is file-specific, while the global module is general
 to all the commands. Local variables will override global variables if
@@ -166,9 +203,11 @@ default configuration by setting ``tidy_*`` configuration options.
 
 **run** *<command>* -- execute the given Python command.
 
-**runfile** *<file1> [ <file2> ... ]* -- execute the given file(s).
+**run_file** *<file1> [ <file2> ... ]* -- execute the given file(s).
 
-**rf** -- abbreviation for 'runfile'.
+Alternative spellings: "runfile" or "rf"
+
+**rf** -- abbreviation for 'run_file'.
 
 **add_cleanup** *<file1> [ <file2> ... ]* -- add the given cleanup file(s).
 These will be run after the current file has executed (successfully or not).
@@ -185,12 +224,16 @@ like ``from <module> import *`` does in Python, so e.g. a function
 ``fn`` in ``extmodule`` would be available as ``fn``.
 See *extras/examples/extend_example.py* for an example.
 
-**getinput** *<prompt>* -- get keyboard input and store it in ``__input__``.
+**get_input** *<prompt>* -- get keyboard input and store it in ``__input__``.
 When called from Python, this function returns the input value.
 
-**getpassword** *<prompt>* -- get *silent* keyboard input and store
+Alternative spelling: "getinput"
+
+**get_password** *<prompt>* -- get *silent* keyboard input and store
 it in ``__password__``. When called from Python, this function returns
 the input value.
+
+Alternative spelling: "getpassword"
 
 **add_auth** *<realm> <uri> <user> <password>* -- add HTTP Basic
 Authentication information for the given realm/URI combination.
@@ -236,7 +279,7 @@ Details on form handling
 Both the `form_value` (or `fv`) and `submit` commands rely on a certain
 amount of implicit cleverness to do their work. In odd situations, it
 can be annoying to determine exactly what form field `form_value` is
-going to pick based on your field name, or what form & field `submit`
+going to pick based on your field name, or what form and field `submit`
 is going to "click" on.
 
 Here is the pseudocode for how `form_value` and `submit` figure out
