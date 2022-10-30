@@ -4,8 +4,8 @@
 ChangeLog
 =========
 
-3.1.0 (to be released)
-----------------------
+3.1 (released 2022-10-30)
+-------------------------
 * The submit command now takes an additional parameter to specify a form
   that can be used in rare cases when there are no form fields (#7).
 * Most commands do not return values any more, they are just commands.
