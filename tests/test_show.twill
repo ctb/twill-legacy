@@ -1,0 +1,51 @@
+### html
+
+find "Hello, world!"
+
+show
+
+show html
+
+### links
+
+show_links
+
+showlinks
+
+show links
+
+### forms
+
+go two_forms
+
+find "Two Forms"
+
+fv 1 item value
+submit
+
+show
+
+show html
+
+show_forms
+
+showforms
+
+show forms
+
+### cookies
+
+show_cookies
+
+showcookies
+
+show cookies
+
+### history
+
+show_history
+
+showhistory
+
+show history
+

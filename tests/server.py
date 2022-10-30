@@ -105,7 +105,7 @@ class TwillTest(Directory):
         "test_refresh", "test_refresh2",
         "test_refresh3", "test_refresh4", "test_refresh5",
         "test_checkbox", "test_simple_checkbox", "echo",
-        "test_checkboxes", 'test_global_form',
+        "test_checkboxes", 'test_global_form', "two_forms",
         'broken_form_1', 'broken_form_2', 'broken_form_3',
         'broken_form_4', 'broken_form_5', 'broken_linktext',
         'exit', 'display_post', 'display_environ']
@@ -409,6 +409,31 @@ hello, world.
 <input type=text id=some_id>
 
 <input type=submit value=post id=submit_button>
+</form>
+"""
+
+    def two_forms(self):
+        request = get_request()
+
+        if request.form:
+            form = request.form.get('form')
+            item = request.form.get('item')
+            s = f'FORM={form} ITEM={item}'
+        else:
+            s = "NO FORM"
+
+        return f"""\
+<h1>Two Forms</h1>
+<p>== {s} ==</p>
+<form method=POST id=form1>
+<input type=text name=item>
+<input type=hidden name=form value=1>
+<input type=submit value=post>
+</form>
+<form method=POST id=form2>
+<input type=text name=item>
+<input type=hidden name=form value=2>
+<input type=submit value=post>
 </form>
 """
 

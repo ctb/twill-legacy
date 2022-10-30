@@ -366,22 +366,23 @@ class TwillBrowser:
         if getattr(control, 'type', None) in ('submit', 'image'):
             self.last_submit_button = cast(InputElement, control)
 
-    def submit(self, field_name: Optional[Union[str, int]] = None) -> None:
-        """Submit the currently clicked form using the given field."""
+    def submit(self, field_name: Optional[Union[str, int]] = None,
+               form_name: Optional[Union[str, int]] = None) -> None:
+        """Submit the last or specified form using the given field."""
         forms = self.forms
         if not forms:
             raise TwillException("There are no forms on this page.")
 
         ctl: Optional[InputElement] = None
 
-        form = self._form
+        form = self._form if form_name is None else self.form(form_name)
         if form is None:
-            if len(forms) == 1:
-                form = forms[0]
-            else:
+            if len(forms) > 1:
                 raise TwillException(
                     "There is more than one form on this page;"
-                    " you must select one (use 'fv') before submitting.")
+                    " therefore you must specify a form explicitly"
+                    " or select one (use 'fv') before submitting.")
+            form = forms[0]
 
         action = form.action or ''
         if '://' not in action:
@@ -389,7 +390,7 @@ class TwillBrowser:
 
         # no field name?  see if we can use the last submit button clicked...
         if field_name is None:
-            if self.last_submit_button is None:
+            if form is not self._form or self.last_submit_button is None:
                 # get first submit button in form.
                 submits = [c for c in form.inputs
                            if getattr(c, 'type', None) in ('submit', 'image')]

@@ -6,6 +6,8 @@ ChangeLog
 
 3.1.0 (to be released)
 ----------------------
+* The submit command now takes an additional parameter to specify a form
+  that can be used in rare cases when there are no form fields (#7).
 * Commands like 'show_forms' do not return values any more; you need to use
   'browser.forms' to get the forms programmatically (#13, #14).
 * Two-word commands now consistently have underscores in their names,
@@ -13,6 +15,7 @@ ChangeLog
   and backward compatibility, you can still use the names without underscores
   (e.g. 'formaction', 'getinput', 'showlinks'), and the old two-letter
   abbreviations (e.g. 'fa' for 'form_action') (#13, #14).
+* Instead of 'showforms' or 'show_forms' you can now also write 'show forms'.
 * Added type hints (#15).
 * Many minor fixes and improvements.
 

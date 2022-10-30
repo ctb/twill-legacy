@@ -34,7 +34,7 @@ __all__ = [
     'run', 'run_file', 'runfile', 'rf',
     'save_cookies', 'save_html',
     'setglobal', 'set_global', 'setlocal', 'set_local',
-    'show', 'show_cookies', 'show_extra_headers',
+    'show', 'showcookies', 'show_cookies', 'show_extra_headers',
     'showforms', 'show_forms', 'showhistory', 'show_history',
     'showlinks', 'show_links',
     'sleep', 'submit',
@@ -230,7 +230,11 @@ def show(what: Optional[str] = None):
         log.info(html)
         log.info('')
     else:
-        command = globals().get('show_{what}') if what.isalpha() else None
+        command = None
+        if what.isalpha():
+            command_name = f'show_{what}'
+            if command_name in __all__:
+                command = globals().get(command_name)
         if not command:
             raise TwillException(f'Cannot show "{what}".')
         command()
@@ -349,22 +353,24 @@ def agent(what: str) -> None:
     browser.agent_string = agent
 
 
-def submit(submit_button: Optional[str] = None) -> None:
-    """>> submit [<button_spec>]
+def submit(submit_button: Optional[str] = None,
+           form_name: Optional[str] = None) -> None:
+    """>> submit [<submit_button> [<form_name>]]
 
     Submit the current form (the one last clicked on) by clicking on the
-    n'th submission button.  If no "button_spec" is given, submit the current
-    form by using the last clicked submit button.
+    given submission button.  If no 'submit_button' is given, submit the
+    current form by using the last clicked submit button.
 
-    The form to submit is the last form clicked on with a 'form_value' command.
+    The form to submit is the last form clicked on with a 'form_value' command
+    unless explicitly specified given the
 
-    The button used to submit is chosen based on 'button_spec'.
-    If 'button_spec' is given, it's matched against buttons using
-    the same rules that 'form_value' uses.  If 'button_spec' is not given,
+    The button used to submit is chosen based on 'submit_button'.
+    If 'submit_button' is given, it's matched against buttons using
+    the same rules that 'form_value' uses.  If 'button_name' is not given,
     this function uses the last submit button clicked on by 'form_value'.
     If none can be found, it submits the form with no submit button clicked.
     """
-    browser.submit(submit_button)
+    browser.submit(submit_button, form_name)
 
 
 def show_forms() -> None:
