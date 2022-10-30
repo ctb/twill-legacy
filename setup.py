@@ -29,7 +29,7 @@ require_docs = ['sphinx>=5.2,<6', 'sphinx_rtd_theme>=1,<2']
 require_tidy = ['pytidylib>=0.3,<0.4']
 require_quixote = ['quixote>=3.6,<4']
 require_wsgi_intercept = ['wsgi_intercept>=1.10,<2']
-require_tests = ['pytest>=7,<8'] + (
+require_tests = ['pytest>=7,<7.1'] + (
     require_tidy + require_quixote + require_wsgi_intercept)
 
 
@@ -81,6 +81,7 @@ def main():
             'Programming Language :: Python :: 3.8',
             'Programming Language :: Python :: 3.9',
             'Programming Language :: Python :: 3.10',
+            'Programming Language :: Python :: 3.11',
             'Programming Language :: Other Scripting Engines',
             'Topic :: Internet :: WWW/HTTP',
             'Topic :: Software Development :: Testing'

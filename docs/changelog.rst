@@ -20,7 +20,9 @@ ChangeLog
 * Instead of 'showforms' or 'show_forms' you can now also write 'show forms',
   and similarly for 'cookies', 'links', 'history' and 'html'. The command
   'show html' does the same as 'show' without any arguments.
+* Renamed shortcuts for user agent strings, and added some more existing ones.
 * Added type hints (#15).
+* Support Python 3.11.
 * Many minor fixes and improvements.
 
 3.0.3 (released 2022-10-12)

@@ -3,12 +3,12 @@
 # twill is an extensible scriptlet language for testing Web apps,
 # available at https://github.com/twill-tools/twill.
 #
-# Contact author: C. Titus Brown, titus@idyll.org.
+# Copyright (c) 2005-2022
+# by C. Titus Brown, Ben R. Taylor, Christoph Zwerschke et al.
 #
-# This program and all associated source code files are Copyright (C)
-# 2005-2007 by C. Titus Brown.  It is released under the MIT license;
-# please see the included LICENSE.txt file for more information, or
-# go to https://opensource.org/licenses/mit-license.php.
+# This program and all associated source code files are released under the
+# terms of the MIT license; please see the included LICENSE file for more
+# information, or go to https://opensource.org/licenses/mit-license.php.
 
 """twill web browsing and testing language and associated utilities.
 
@@ -20,7 +20,7 @@ import logging
 import sys
 import os.path
 
-__version__ = '3.0.3'
+__version__ = '3.1.0'
 
 __url__ = 'https://github.com/twill-tools/twill'
 __download_url__ = 'https://pypi.org/project/twill/'
