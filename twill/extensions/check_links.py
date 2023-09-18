@@ -32,7 +32,7 @@ good_urls: Set[str] = set()
 bad_urls: Dict[str, Set[str]] = dict()
 
 
-def check_links(pattern=''):
+def check_links(pattern: str  = '') -> None:
     """>> check_links [<pattern>]
 
     Make sure that all the HTTP links on the current page can be visited
@@ -111,8 +111,10 @@ def check_links(pattern=''):
     if commands.options['check_links.only_collect_bad_links']:
         for url in failed:
             referrers = bad_urls.setdefault(url, set())
-            info('*** %s', browser.url)
-            referrers.add(browser.url)
+            referrer = browser.url
+            if referrer:
+                info('*** %s', referrer)
+                referrers.add(referrer)
     elif failed:
         info('\nCould not follow %d links:\n', len(failed))
         for url in failed:

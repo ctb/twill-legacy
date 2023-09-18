@@ -142,6 +142,8 @@ def follow(what: str) -> str:
     link = browser.find_link(what)
     if link:
         browser.follow_link(link)
+        if not browser.url:
+            raise TwillAssertionError(f"Cannot follow link '{link}'")
         return browser.url
 
     raise TwillAssertionError(f"no links match to '{what}'")
@@ -274,8 +276,9 @@ def save_html(filename: Optional[str] = None) -> None:
 
     if filename is None:
         url = browser.url
-        url = url.split('?', 1)[0]
-        filename = url.rsplit('/', 1)[-1]
+        if url:
+            url = url.split('?', 1)[0]
+            filename = url.rsplit('/', 1)[-1]
         if not filename:
             filename = 'index.html'
         log.info("Using filename '%s'.", filename)
@@ -883,6 +886,8 @@ def info() -> None:
         return
 
     content_type = browser.response_headers['content-type']
+    if isinstance(content_type, bytes):
+        content_type = content_type.decode()
     is_html = content_type and content_type.split(';', 1)[0] == 'text/html'
     code = browser.code
 

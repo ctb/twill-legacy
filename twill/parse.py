@@ -4,7 +4,7 @@ import re
 import sys
 
 from io import StringIO
-from typing import List
+from typing import Any, Dict, List
 
 from pyparsing import (
     CharsNotIn, Combine, Group, Literal, Optional, ParseException,
@@ -67,7 +67,8 @@ full_command.setName('full_command')
 command_list: List[str] = []  # filled in by namespaces.init_global_dict().
 
 
-def process_args(args, globals_dict, locals_dict):
+def process_args(args: List[str],
+        globals_dict: Dict[str, Any], locals_dict: Dict[str, Any]):
     """Process string arguments.
 
     Take a list of string arguments parsed via pyparsing and evaluate

@@ -3,14 +3,14 @@
 import pickle
 import re
 from typing import (
-    cast, Callable, Dict, IO, List, Optional, Sequence, Tuple, Union)
+    cast, Callable, Dict, IO, List, MutableMapping,
+    Optional, Sequence, Tuple, Union)
 from urllib.parse import urljoin
 
 from requests import Session
 from requests.auth import HTTPBasicAuth
 from requests.cookies import RequestsCookieJar
 from requests.exceptions import InvalidSchema, ConnectionError
-from requests.structures import CaseInsensitiveDict
 
 from . import log, __version__
 from .utils import (
@@ -44,7 +44,25 @@ class TwillBrowser:
 
     user_agent = f'TwillBrowser/{__version__}'
 
-    def __init__(self):
+    def __init__(self) -> None:
+        self.reset()
+
+    def _assert_result_for(self, what: str) -> ResultWrapper:
+        if not self.result:
+            raise TwillException(f"Cannot get {what} since there is no page.")
+        return self.result
+
+    @property
+    def debug_level(self) -> int:
+        return self._debug_level
+
+    @debug_level.setter
+    def debug_level(self, level: int) -> None:
+        _set_http_connection_debuglevel(level)
+        self._debug_level = level
+
+    def reset(self) -> None:
+        """Reset the browser"""
         self.result: Optional[ResultWrapper] = None
         self.last_submit_button: Optional[InputElement] = None
         self.first_error: Optional[str] = None
@@ -76,24 +94,6 @@ class TwillBrowser:
 
         # set default headers
         self.reset_headers()
-
-    def _assert_result_for(self, what: str) -> ResultWrapper:
-        if not self.result:
-            raise TwillException(f"Cannot get {what} since there is no page.")
-        return self.result
-
-    @property
-    def debug_level(self) -> int:
-        return self._debug_level
-
-    @debug_level.setter
-    def debug_level(self, level: int) -> None:
-        _set_http_connection_debuglevel(level)
-        self._debug_level = level
-
-    def reset(self):
-        """Reset the browser"""
-        self.__init__()
 
     @property
     def creds(self) -> Dict[UrlWithRealm, HTTPBasicAuth]:
@@ -171,7 +171,7 @@ class TwillBrowser:
         return self._assert_result_for('title').title
 
     @property
-    def url(self):
+    def url(self) -> Optional[str]:
         """Get the URL of the current page."""
         return self.result.url if self.result else None
 
@@ -195,11 +195,11 @@ class TwillBrowser:
         log.info('==> at %s', self.url)
 
     @property
-    def headers(self) -> CaseInsensitiveDict:
+    def headers(self) -> MutableMapping[str, Union[str, bytes]]:
         """Return the request headers currently used by the browser."""
         return self._session.headers
 
-    def reset_headers(self):
+    def reset_headers(self) -> None:
         """Reset the request headers currently used by the browser."""
         self.headers.clear()
         self.headers.update({
@@ -207,14 +207,17 @@ class TwillBrowser:
             'User-Agent': self.user_agent})
 
     @property
-    def response_headers(self):
+    def response_headers(self) -> MutableMapping[str, Union[str, bytes]]:
         """Get the headers returned with the current page."""
         return self._assert_result_for('headers').headers
 
     @property
     def agent_string(self) -> Optional[str]:
         """Get the user agent string."""
-        return self.headers.get('User-Agent')
+        agent = self.headers.get('User-Agent')
+        if isinstance(agent, bytes):
+            agent = agent.decode()
+        return agent
 
     @agent_string.setter
     def agent_string(self, agent: str) -> None:
@@ -276,7 +279,7 @@ class TwillBrowser:
         """Return the first form that matches the given form name."""
         return self._assert_result_for('form').form(name)
 
-    def form_field(self, form: FormElement = None,
+    def form_field(self, form: Optional[FormElement] = None,
                    name_or_num: Union[str, int] = 1) -> FieldElement:
         """Return the control that matches the given field name.
 
@@ -393,7 +396,7 @@ class TwillBrowser:
 
         action = form.action or ''
         if '://' not in action:
-            form.action = urljoin(self.url, action)
+            form.action = urljoin(self.url, action)  # type: ignore
 
         # no field name?  see if we can use the last submit button clicked...
         if field_name is None:

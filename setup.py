@@ -24,7 +24,7 @@ with open("twill/__init__.py") as init_file:
 with open("README.md") as readme_file:
     readme = readme_file.read()
 
-require_twill = ['lxml>=4.9,<5', 'requests>=2.27,<3', 'pyparsing>=3.0,<4']
+require_twill = ['lxml>=4.9,<5', 'requests>=2.31,<3', 'pyparsing>=3.0,<4']
 require_docs = ['sphinx>=5.2,<6', 'sphinx_rtd_theme>=1,<2']
 require_tidy = ['pytidylib>=0.3,<0.4']
 require_quixote = ['quixote>=3.6,<4']
