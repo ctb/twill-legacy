@@ -6,7 +6,7 @@ import sys
 from setuptools import setup
 
 python_version = sys.version_info[:2]
-if python_version < (3, 6):
+if python_version < (3, 7):
     sys.exit("Python {}.{} is not supported by twill.".format(*python_version))
 
 with open("twill/__init__.py") as init_file:
@@ -29,7 +29,7 @@ require_docs = ['sphinx>=5.2,<6', 'sphinx_rtd_theme>=1,<2']
 require_tidy = ['pytidylib>=0.3,<0.4']
 require_quixote = ['quixote>=3.6,<4']
 require_wsgi_intercept = ['wsgi_intercept>=1.10,<2']
-require_tests = ['pytest>=7,<7.1'] + (
+require_tests = ['pytest>=7.4,<8'] + (
     require_tidy + require_quixote + require_wsgi_intercept)
 
 
@@ -76,12 +76,12 @@ def main():
             'Operating System :: OS Independent',
             'Programming Language :: Python',
             'Programming Language :: Python :: 3',
-            'Programming Language :: Python :: 3.6',
             'Programming Language :: Python :: 3.7',
             'Programming Language :: Python :: 3.8',
             'Programming Language :: Python :: 3.9',
             'Programming Language :: Python :: 3.10',
             'Programming Language :: Python :: 3.11',
+            'Programming Language :: Python :: 3.12',
             'Programming Language :: Other Scripting Engines',
             'Topic :: Internet :: WWW/HTTP',
             'Topic :: Software Development :: Testing'

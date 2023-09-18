@@ -67,8 +67,10 @@ full_command.setName('full_command')
 command_list: List[str] = []  # filled in by namespaces.init_global_dict().
 
 
-def process_args(args: List[str],
-        globals_dict: Dict[str, Any], locals_dict: Dict[str, Any]):
+def process_args(
+        args: List[str],
+        globals_dict: Dict[str, Any],
+        locals_dict: Dict[str, Any]):
     """Process string arguments.
 
     Take a list of string arguments parsed via pyparsing and evaluate

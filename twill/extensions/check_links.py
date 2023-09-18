@@ -32,7 +32,7 @@ good_urls: Set[str] = set()
 bad_urls: Dict[str, Set[str]] = dict()
 
 
-def check_links(pattern: str  = '') -> None:
+def check_links(pattern: str = '') -> None:
     """>> check_links [<pattern>]
 
     Make sure that all the HTTP links on the current page can be visited
