@@ -181,6 +181,13 @@ class TwillBrowser:
         The pattern is searched in the URL and in the link text.
         """
         return self._assert_result_for('links').find_link(pattern)
+    
+    def find_links(self, pattern: str) -> Optional[List[Link]]:
+        """Find all links matching the given regular expression pattern.
+
+        The pattern is searched in the URL and in the link text.
+        """
+        return self._assert_result_for('links').find_links(pattern)
 
     def follow_link(self, link: Union[str, Link]) -> None:
         """Follow the given link."""
