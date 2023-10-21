@@ -1,6 +1,8 @@
 """Global and local dictionaries, and initialization/utility functions."""
 
-global_dict = {}  # the global dictionary
+from typing import Any, Dict
+
+global_dict: Dict[str, Any] = {}  # the global dictionary
 
 
 def init_global_dict():
@@ -21,10 +23,10 @@ _local_dict_stack = []  # local dictionaries
 
 
 def new_local_dict():
-    """Initialize a new local dictionary & push it onto the stack."""
-    d = {}
-    _local_dict_stack.append(d)
-    return d
+    """Initialize a new local dictionary and push it onto the stack."""
+    local_dict: Dict[str, Any] = {}
+    _local_dict_stack.append(local_dict)
+    return local_dict
 
 
 def pop_local_dict():

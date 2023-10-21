@@ -77,12 +77,14 @@ def reload() -> None:
     browser.reload()
 
 
-def code(should_be: str) -> None:
+def code(should_be: int) -> None:
     """>> code <int>
 
     Check to make sure the response code for the last page is as given.
     """
-    if browser.code != int(should_be):
+    if not isinstance(should_be, int):
+        should_be = int(should_be)
+    if browser.code != should_be:
         raise TwillAssertionError(f"code is {browser.code} != {should_be}")
 
 

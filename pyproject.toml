@@ -1,0 +1,90 @@
+[project]
+name = "twill"
+version = "3.2"
+
+description = "A web browsing and testing language"
+keywords = ["web", "testing",  "browsing", "automation"]
+
+readme = "README.md"
+license = {file = "LICENSE.txt"}
+
+authors = [
+  {name = "C. Titus Brown"},
+  {name = "Ben R. Taylor"},
+  {name = "Christoph Zwerschke"}
+]
+maintainers = [
+  {name = "Christoph Zwerschke", email="cito@online.de"}
+]
+
+classifiers = [
+  'Development Status :: 6 - Mature',
+  'Environment :: Console',
+  'Intended Audience :: Developers',
+  'Intended Audience :: System Administrators',
+  'License :: OSI Approved :: MIT License',
+  'Natural Language :: English',
+  'Operating System :: OS Independent',
+  'Programming Language :: Python',
+  'Programming Language :: Python :: 3',
+  'Programming Language :: Python :: 3.8',
+  'Programming Language :: Python :: 3.9',
+  'Programming Language :: Python :: 3.10',
+  'Programming Language :: Python :: 3.11',
+  'Programming Language :: Python :: 3.12',
+  'Programming Language :: Other Scripting Engines',
+  'Topic :: Internet :: WWW/HTTP',
+  'Topic :: Software Development :: Testing'
+]
+
+requires-python = ">=3.8"
+dependencies = [
+  "lxml >=4.9, <5",
+  "requests >=2.31, <3",
+  "pyparsing >=3.0, <4",
+]
+
+[project.optional-dependencies]
+docs = [
+  "sphinx >=5.2, <6",
+  "sphinx_rtd_theme >=1, <2"
+]
+tidy = [
+  "pytidylib >=0.3, <0.4"
+]
+tests = [
+  "tox >=4, <5",
+  "pytest >=7.4, <8",
+  "pytidylib >=0.3, <0.4",
+  "quixote >=3.6, <4",
+  "wsgi_intercept >=1.10, <2"
+]
+
+[project.scripts]
+twill = "twill.shell:main"
+twill-fork = "twill.fork:main"
+
+[project.urls]
+Homepage = "https://github.com/twill-tools/twill"
+Issues = "https://github.com/twill-tools/twill/issues"
+Documentation = "https://twill-tools.github.io/twill/"
+Source = "https://github.com/twill-tools/twill"
+ChangeLog = "https://twill-tools.github.io/twill/changelog.html"
+Download = "https://pypi.org/project/twill/"
+
+[tool.mypy]
+python_version = 3.11
+check_untyped_defs = true
+no_implicit_optional = true
+strict_optional = false
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+minversion = "7.4"
+testpaths = [ "tests" ]
+
+[build-system]
+requires = ["setuptools >=68"]
+build-backend = "setuptools.build_meta"

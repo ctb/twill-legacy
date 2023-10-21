@@ -18,6 +18,8 @@ if '' not in sys.path:
 def main():
 
     try:
+        if sys.platform == 'win32':
+            raise AttributeError
         fork = os.fork
     except AttributeError:
         sys.exit('Error: Must use Unix to be able to fork processes.')
@@ -75,7 +77,7 @@ def main():
                 failed = True
             else:  # record statistics, otherwise
                 filename = '.status.%d' % (child_pid,)
-                with open(filename) as fp:
+                with open(filename, 'rb') as fp:
                     this_time, n_executed = load(fp)
                 os.unlink(filename)
                 total_time += this_time
@@ -110,7 +112,7 @@ def main():
 
         # write statistics
         filename = f'.status.{pid}'
-        with open(filename, 'w') as fp:
+        with open(filename, 'wb') as fp:
             info = (this_time, repeat)
             dump(info, fp)
 

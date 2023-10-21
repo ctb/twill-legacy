@@ -27,7 +27,7 @@ def _disable_insecure_request_warnings() -> None:
     try:
         from requests.packages import urllib3  # type: ignore
     except ImportError:
-        import urllib3  # type: ignore
+        import urllib3
     # noinspection PyUnresolvedReferences
     insecure_request_warning = urllib3.exceptions.InsecureRequestWarning
     urllib3.disable_warnings(insecure_request_warning)
@@ -396,7 +396,7 @@ class TwillBrowser:
 
         action = form.action or ''
         if '://' not in action:
-            form.action = urljoin(self.url, action)  # type: ignore
+            form.action = urljoin(self.url, action)
 
         # no field name?  see if we can use the last submit button clicked...
         if field_name is None:
@@ -579,9 +579,9 @@ class TwillBrowser:
         r = self._session.get(url, verify=self.verify)
         if r.status_code == 401:
             header = r.headers.get('WWW-Authenticate')
-            realm = self._re_basic_auth.match(header)
-            if realm:
-                realm = realm.group(1)
+            match_realm = self._re_basic_auth.match(header)
+            if match_realm:
+                realm = match_realm.group(1)
                 auth = self._auth.get((url, realm)) or self._auth.get(url)
                 if auth:
                     r = self._session.get(url, auth=auth, verify=self.verify)

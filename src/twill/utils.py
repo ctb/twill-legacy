@@ -314,7 +314,7 @@ def set_form_control_value(control: FieldElement, value: str) -> None:
 
         # now, select the value.
         option_values = [val.strip() for val in control.value_options]
-        options = control.getchildren()  # type: ignore
+        options = control.getchildren()
         option_names = [(c.text or '').strip() for c in options]
         for name, opt in zip(option_names, option_values):
             if value not in (name, opt):

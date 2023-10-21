@@ -89,5 +89,5 @@ class Resolver:
         except KeyError:
             raise ValueError(f'unknown query result: {qname} {qtype}')
         if not isinstance(results, list):
-            results = [results]
+            results = [results]  # type: ignore
         return [Answer(qtype, result) for result in results]

@@ -20,16 +20,18 @@ import logging
 import sys
 import os.path
 
-__version__ = '3.1'
+import importlib.metadata
 
-__url__ = 'https://github.com/twill-tools/twill'
-__download_url__ = 'https://pypi.org/project/twill/'
+metadata = importlib.metadata.metadata(__package__)
+
+__version__: str = metadata['Version']
+
+__url__: str = metadata['Project-URL'].rsplit(None, 1)[-1]
 
 __all__ = [
     'browser', 'execute_file', 'execute_string',
     'log', 'set_log_level', 'set_output', 'set_err_out',
     'twill_ext', 'TwillCommandLoop']
-
 
 this_dir = os.path.dirname(__file__)
 # Add extensions directory at the *end* of sys.path.

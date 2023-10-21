@@ -41,7 +41,7 @@ def _form_value_by_regex_setall(form_name, field_name, value):
 
     regex = re.compile(field_name)
 
-    matches = [ctl for ctl in form.controls if regex.search(str(ctl.name))]
+    matches = [ctl for ctl in form.inputs if regex.search(str(ctl.name))]
 
     if matches:
         log.info('-- matches %d', len(matches))
@@ -49,7 +49,7 @@ def _form_value_by_regex_setall(form_name, field_name, value):
         n = 0
         for control in matches:
             browser.clicked(form, control)
-            if not control.readonly:
+            if 'readonly' not in control.attrib:
                 utils.set_form_control_value(control, value)
                 n += 1
 

@@ -17,7 +17,7 @@ from typing import Any, Callable, List, Optional
 try:
     from readline import read_history_file, write_history_file  # type: ignore
 except ImportError:
-    read_history_file = write_history_file = None  # type: ignore
+    read_history_file = write_history_file = None
 # noinspection PyCompatibility
 from . import (
     commands, execute_file,

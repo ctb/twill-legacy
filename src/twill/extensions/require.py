@@ -77,7 +77,7 @@ def flush_visited():
 
     Flush the list of pages successfully visited already.
     """
-    from .check_links import good_urls  # type: ignore
+    from .check_links import good_urls
     good_urls.clear()
 
 
@@ -100,7 +100,7 @@ def _require_post_load_hook(action, *_args, **_kwargs):
 
         if what == 'success':
             log.debug('REQUIRING success')
-            commands.code("200")
+            commands.code(200)
 
         elif what == 'links_ok':
             from check_links import check_links, good_urls  # type: ignore

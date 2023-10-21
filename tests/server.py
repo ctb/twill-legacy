@@ -4,6 +4,8 @@
 
 import os
 
+from typing import List, Union
+
 from base64 import decodebytes
 
 from quixote.publish import Publisher  # type: ignore
@@ -386,7 +388,7 @@ hello, world.
                 if request.form.get(name):
                     value = request.form[name]
                     names.append(f'{name}={value}')
-            names = ' AND '.join(names)
+            names = ' AND '.join(names)  # type: ignore
             s += f"NAMETEST: =={names}==<p>"
 
         return f"""\
