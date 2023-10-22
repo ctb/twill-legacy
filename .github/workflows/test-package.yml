@@ -1,31 +1,25 @@
-name: Test twill package
+name: Test twill package using tox
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 5
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12-dev']
+        python: ['3.8', '3.9', '3.10', '3.11', '3.12']
 
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python ${{ matrix.python }}
       uses: actions/setup-python@v4
       with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install .[tests]
-    - name: Lint with flake8
-      if: ${{ matrix.python-version == '3.11' }}
-      run: |
-        pip install "flake8>=6,<7"
-        flake8 twill tests extras setup.py --count --exit-zero --statistics
-    - name: Run all unit tests
-      run: |
-        pytest tests
+        python-version: ${{ matrix.python }}
+    - name: Install test runner
+      run: pip install tox
+    - name: Run twill tests
+      run: toy -e py
+    - name: Run software quality checks
+      if: matrix.python == '3.11'
+      run: TOXENV=ruff,mypy,docs,manifest tox

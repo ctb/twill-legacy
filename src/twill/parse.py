@@ -2,13 +2,24 @@
 
 import re
 import sys
-
+from contextlib import nullcontext
 from io import StringIO
-from typing import Any, Dict, List
+from typing import Any, Callable, Dict, List, Optional, Sequence, TextIO, Tuple
 
 from pyparsing import (
-    CharsNotIn, Combine, Group, Literal, Optional, ParseException,
-    pyparsing_unicode, removeQuotes, restOfLine, Word, ZeroOrMore)
+    CharsNotIn,
+    Combine,
+    Group,
+    Literal,
+    Opt,
+    ParseException,
+    ParseResults,
+    Word,
+    ZeroOrMore,
+    pyparsing_unicode,
+    remove_quotes,
+    rest_of_line,
+)
 
 # noinspection PyCompatibility
 from . import commands, log, namespaces
@@ -17,15 +28,15 @@ from .errors import TwillNameError
 
 # pyparsing stuff
 
-# allow characters in full 8bit range
+# allow characters in full 8-bit range
 char_range = pyparsing_unicode.Latin1
 alphas, alphanums = char_range.alphas, char_range.alphanums
 printables = char_range.printables
 
 # basically, a valid Python identifier:
 command_word = Word(alphas + '_', alphanums + '_')
-command = command_word.setResultsName('command')
-command.setName('command')
+command = command_word.set_results_name('command')
+command.set_name('command')
 
 # arguments to it.
 
@@ -33,44 +44,44 @@ command.setName('command')
 # idea of escapable characters contains a lot more than the C-like
 # thing pyparsing implements
 _bslash = '\\'
-_sglQuote = Literal("'")
-_dblQuote = Literal('"')
+_sgl_quote = Literal("'")
+_dbl_quote = Literal('"')
 _escapables = printables
-_escapedChar = Word(_bslash, _escapables, exact=2)
-dblQuotedString = Combine(
-    _dblQuote + ZeroOrMore(CharsNotIn('\\"\n\r') | _escapedChar | '""') +
-    _dblQuote).streamline().setName("string enclosed in double quotes")
-sglQuotedString = Combine(
-    _sglQuote + ZeroOrMore(CharsNotIn("\\'\n\r") | _escapedChar | "''") +
-    _sglQuote).streamline().setName('string enclosed in single quotes')
-quotedArg = (dblQuotedString | sglQuotedString)
-quotedArg.setParseAction(removeQuotes)
-quotedArg.setName('quotedArg')
+_escaped_char = Word(_bslash, _escapables, exact=2)
+dbl_quoted_string = Combine(
+    _dbl_quote + ZeroOrMore(CharsNotIn('\\"\n\r') | _escaped_char | '""') +
+    _dbl_quote).streamline().set_name('string enclosed in double quotes')
+sgl_quoted_string = Combine(
+    _sgl_quote + ZeroOrMore(CharsNotIn("\\'\n\r") | _escaped_char | "''") +
+    _sgl_quote).streamline().set_name('string enclosed in single quotes')
+quoted_arg = (dbl_quoted_string | sgl_quoted_string)
+quoted_arg.set_parse_action(remove_quotes)
+quoted_arg.set_name('quoted_arg')
 
-plainArgChars = printables.replace('#', '').replace('"', '').replace("'", "")
-plainArg = Word(plainArgChars)
-plainArg.setName('plainArg')
+plain_arg_chars = printables.replace('#', '').replace('"', '').replace("'", '')
+plain_arg = Word(plain_arg_chars)
+plain_arg.set_name('plain_arg')
 
-arguments_group = Group(ZeroOrMore(quotedArg | plainArg))
-arguments = arguments_group.setResultsName('arguments')
-arguments.setName('arguments')
+arguments_group = Group(ZeroOrMore(quoted_arg | plain_arg))
+arguments = arguments_group.set_results_name('arguments')
+arguments.set_name('arguments')
 
 # comment line.
-comment = Literal('#') + restOfLine
+comment = Literal('#') + rest_of_line
 comment = comment.suppress()
-comment.setName('comment')
+comment.set_name('comment')
 
-full_command = comment | (command + arguments + Optional(comment))
-full_command.setName('full_command')
+full_command = comment | (command + arguments + Opt(comment))
+full_command.set_name('full_command')
 
 
 command_list: List[str] = []  # filled in by namespaces.init_global_dict().
 
 
 def process_args(
-        args: List[str],
+        args: Sequence[str],
         globals_dict: Dict[str, Any],
-        locals_dict: Dict[str, Any]):
+        locals_dict: Dict[str, Any]) -> List[str]:
     """Process string arguments.
 
     Take a list of string arguments parsed via pyparsing and evaluate
@@ -105,31 +116,33 @@ def process_args(
             new_args.append(variable_substitution(
                 arg, globals_dict, locals_dict))
 
-    new_args = [arg.replace('\\n', '\n') for arg in new_args]
-    return new_args
+    return [arg.replace('\\n', '\n') for arg in new_args]
 
 
-def execute_command(cmd, args, globals_dict, locals_dict, cmdinfo):
+def execute_command(cmd: str, args: Sequence[str],
+        globals_dict: Dict[str, Any], locals_dict: Dict[str, Any],
+        cmd_info: str) -> None:
     """Actually execute the command.
 
-    Side effects: __args__ is set to the argument tuple, __cmd__ is set to
-    the command.
+    Side effects:
+     - __args__ is set to the arguments
+     - __cmd__ is set to the command, and
+     - __url__ is set to the browser URL.
     """
-    global command_list  # all supported commands
     # execute command
     locals_dict['__cmd__'] = cmd
     locals_dict['__args__'] = args
     if cmd not in command_list:
         raise TwillNameError(f"unknown twill command: '{cmd}'")
 
-    eval_str = f"{cmd}(*__args__)"
+    eval_str = f'{cmd}(*__args__)'
 
-    # compile the code object so that we can get 'cmdinfo' into the
+    # compile the code object so that we can get 'cmd_info' into the
     # error tracebacks
-    codeobj = compile(eval_str, cmdinfo, 'eval')
+    code_obj = compile(eval_str, cmd_info, 'eval')
 
-    # eval the codeobj in the appropriate dictionary
-    result = eval(codeobj, globals_dict, locals_dict)
+    # evaluate the code object in the appropriate dictionary
+    result = eval(code_obj, globals_dict, locals_dict)
 
     # set __url__
     locals_dict['__url__'] = browser.url
@@ -137,24 +150,30 @@ def execute_command(cmd, args, globals_dict, locals_dict, cmdinfo):
     return result
 
 
-_log_commands = log.debug  # type: ignore
+_log_commands: Callable = log.debug  # type: ignore[has-type]
 
 
-def parse_command(line, globals_dict, locals_dict):
-    """Parse command."""
+def parse_command(line: str,
+        globals_dict: Dict[str, Any], locals_dict: Dict[str, Any],
+    ) -> Tuple[Optional[str], Optional[List[str]]]:
+    """Parse command.
+
+    Returns a tuple with the command and its arguments.
+    """
     try:
-        res = full_command.parseString(line)
+        results: Optional[ParseResults] = full_command.parse_string(line)
     except ParseException as e:
         log.error('PARSE ERROR: %s', e)
-        res = None
-    if res:
+        results = None
+    if results:
         _log_commands("twill: executing cmd '%s'", line.strip())
-        args = process_args(res.arguments.asList(), globals_dict, locals_dict)
-        return res.command, args
+        args = process_args(results.arguments.as_list(),
+                            globals_dict, locals_dict)
+        return results.command, args
     return None, None  # e.g. a comment
 
 
-def execute_string(buf, **kw):
+def execute_string(buf: str, **kw) -> None:
     """Execute commands from a string buffer."""
     fp = StringIO(buf)
 
@@ -165,17 +184,18 @@ def execute_string(buf, **kw):
     _execute_script(fp, **kw)
 
 
-def execute_file(filename, **kw):
+def execute_file(filename: str, **kw) -> None:
     """Execute commands from a file."""
-    inp = sys.stdin if filename == '-' else open(filename, encoding='utf-8')
+    with (nullcontext(sys.stdin)  # type: ignore[attr-defined]
+            if filename == '-' else open(filename, encoding='utf-8')) as inp:
 
-    log.info('\n>> Running twill file %s', filename)
+        log.info('\n>> Running twill file %s', filename)
 
-    kw['source'] = filename
-    _execute_script(inp, **kw)
+        kw['source'] = filename
+        _execute_script(inp, **kw)
 
 
-def _execute_script(inp, **kw):
+def _execute_script(inp: TextIO, **kw) -> None:
     """Execute lines taken from a file-like iterator."""
     # initialize new local dictionary and get global and current local
     namespaces.new_local_dict()
@@ -197,16 +217,16 @@ def _execute_script(inp, **kw):
     catch_errors = kw.get('never_fail')
 
     # source_info stuff
-    source_info = kw.get('source', "<input>")
+    source_info = kw.get('source', '<input>')
 
     try:
 
-        for n, line in enumerate(inp, 1):
-            line = line.strip()
+        for line_no, line_raw in enumerate(inp, 1):
+            line = line_raw.strip()
             if not line:  # skip empty lines
                 continue
 
-            cmd_info = f'{source_info}:{n}'
+            cmd_info = f'{source_info}:{line_no}'
             log.info('AT LINE: %s', cmd_info)
 
             cmd, args = parse_command(line, globals_dict, locals_dict)
@@ -218,56 +238,62 @@ def _execute_script(inp, **kw):
             except SystemExit:
                 # abort script execution if a SystemExit is raised
                 return
-            except Exception as e:
-                error_type = e.__class__.__name__ or 'Error'
-                error = f"{error_type} raised on line {n} of '{source_info}'"
+            except Exception as error:  # noqa: BLE001
+                error_type = error.__class__.__name__ or 'Error'
+                error_context = (f'{error_type} raised on line {line_no}'
+                       f"of '{source_info}'")
                 if line:
-                    error += f" while executing\n>> {line}"
-                log.error("\nOops! %s", error)
+                    error_context += f' while executing\n>> {line}'
                 if not browser.first_error:
-                    browser.first_error = error
-                log.error("\nError: %s", str(e).strip())
+                    browser.first_error = error_context
+                log.error('\nOops! %s', error_context)
+                error_msg = str(error).strip()
+                log.error('\nError: %s', error_msg)
                 if not catch_errors:
                     raise
 
     finally:
         cleanups = locals_dict.get('__cleanups__')
         if cleanups:
-            error = browser.first_error
-            result = browser.result
+            first_error, result = browser.first_error, browser.result
             for filename in reversed(cleanups):
                 log.info('\n>> Running twill cleanup file %s', filename)
                 try:
-                    inp = open(filename, encoding='utf-8')
-                    _execute_script(inp, source=filename, no_reset=True)
-                except Exception as e:
-                    log.error('>> Cannot run cleanup file %s: %s', filename, e)
+                    with open(filename, encoding='utf-8') as inp:
+                        _execute_script(inp, source=filename, no_reset=True)
+                except Exception as error:  # noqa: BLE001
+                    log.error('>> Cannot run cleanup file %s: %s',
+                              filename, error)
             browser.reset()
-            browser.first_error = error
-            browser.result = result
+            browser.first_error, browser.result = first_error, result
         namespaces.pop_local_dict()
 
 
-def log_commands(flag):
+def log_commands(flag: bool) -> bool:  # noqa: FBT001
     """Turn printing of commands as they are executed on or off."""
-    global _log_commands
+    global _log_commands  # noqa: PLW0603
     old_flag = _log_commands is log.info
     _log_commands = log.info if flag else log.debug
     return old_flag
 
 
-_re_variable = re.compile(r"\${(.*?)}")
+_re_variable = re.compile(r'\${(.*?)}')
 
 
-def variable_substitution(raw_str, globals_dict, locals_dict):
-    s = []
-    pos = 0
-    for m in _re_variable.finditer(raw_str):
-        s.append(raw_str[pos:m.start()])
+def variable_substitution(raw_str: str,
+        globals_dict: Dict[str, Any], locals_dict: Dict[str, Any]) -> str:
+    """Substitute the variables in the given string."""
+    parts: List[str] = []
+    append = parts.append
+    position = 0
+    for match in _re_variable.finditer(raw_str):
+        append(raw_str[position:match.start()])
         try:
-            s.append(str(eval(m.group(1), globals_dict, locals_dict)))
+            variable = match.group(1)
+            value = eval(variable, globals_dict, locals_dict)
+            append(str(value))
         except NameError:
-            s.append(m.group())
-        pos = m.end()
-    s.append(raw_str[pos:])
-    return ''.join(s)
+            append(match.group())
+        position = match.end()
+    append(raw_str[position:])
+    return ''.join(parts)

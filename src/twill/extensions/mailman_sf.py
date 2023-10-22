@@ -1,9 +1,8 @@
-"""
-Extension functions to discard all moderated messages in a SourceForge-based
-mailman queue.
+"""Extension functions for managing a SourceForge-based mailman queue.
 
-(Currently there is no way to do this without manually selecting 'discard'
-for each and every message.)
+The extension can discard all moderated messages in a mailman queue.
+This is useful since currently there is no way to do this without manually
+selecting 'discard' for each and every message.
 """
 
 import re
@@ -13,7 +12,7 @@ from twill import browser, log, utils
 __all__ = ['discard_all_messages', 'exit_if_empty']
 
 
-def exit_if_empty():
+def exit_if_empty() -> None:
     """>> exit_if_empty
 
     Exit the script currently running, if there are no deferred messages
@@ -21,11 +20,11 @@ def exit_if_empty():
     """
     form = browser.form()
     if not form:
-        log.error("No messages; exiting.")
+        log.error('No messages; exiting.')
         raise SystemExit
 
 
-def discard_all_messages():
+def discard_all_messages() -> None:
     """>> discard_all_messages
 
     Set all buttons to "discard".
@@ -33,7 +32,8 @@ def discard_all_messages():
     _form_value_by_regex_setall('1', '^\\d+$', '3')
 
 
-def _form_value_by_regex_setall(form_name, field_name, value):
+def _form_value_by_regex_setall(
+        form_name: str, field_name: str, value: str) -> None:
     form = browser.form(form_name)
     if not form:
         log.error("no such form '%s'", form_name)

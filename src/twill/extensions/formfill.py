@@ -1,5 +1,4 @@
-"""
-Extension functions for easier form filling.
+"""Extension functions for easier form filling.
 
 (This module is a dumping ground for features that may ultimately get
 added into the main twill command set.)

@@ -1,5 +1,4 @@
-"""
-Extension functions to help query/assert name service information.
+"""Extension functions to help query/assert name service information.
 
 Functions:
 
@@ -10,109 +9,115 @@ Functions:
   * dns_ns -- assert that a given hostname is a name server for the given name.
 """
 
-import socket
+from typing import Optional
+
 from twill.errors import TwillAssertionError
 
 try:
     from dns.ipv4 import inet_aton
     from dns.name import from_text
-    from dns.resolver import Resolver
-except ImportError:
-    raise Exception(
-        "ERROR: must have dnspython installed to use the DNS extension module")
+    from dns.rdatatype import RdataType
+    from dns.resolver import Answer, Resolver
+except ImportError as error:
+    msg = str(error)
+    msg += '\nMust have dnspython installed to use the DNS extension module.'
+    raise ImportError(msg) from error
 
 
-def dns_a(host, ipaddress, server=None):
+def dns_a(host: str, ipaddress: str,
+        server: Optional[str] = None) -> None:
     """>> dns_a <name> <ipaddress> [<name server>]
 
     Assert that <name> resolves to <ipaddress> (and is an A record).
     Optionally use the given name server.
     """
     if not is_ip_addr(ipaddress):
-        raise Exception(
-            "<ipaddress> parameter must be an IP address, not a hostname")
+        raise ValueError(
+            '<ipaddress> parameter must be an IP address, not a hostname')
 
-    for answer in _resolve(host, 'A', server):
-        if ipaddress == answer.address:
-            return True
+    for answer in _resolve(host, RdataType.A, server):
+        if answer.address == ipaddress:
+            return
 
     raise TwillAssertionError
 
 
-def dns_cname(host, cname, server=None):
+def dns_cname(host: str, cname: str,
+        server: Optional[str] = None) -> None:
     """>> dns_cname <name> <alias_for> [<name server>]
 
-    Assert that <name> is a CNAME alias for <alias_for>  Optionally use
-    <name server>.
+    Assert that <name> is a CNAME alias for <alias_for>.
+    Optionally use the given <name server>.
     """
     if is_ip_addr(cname):
-        raise Exception(
-            "<alias_for> parameter must be a hostname, not an IP address")
+        raise ValueError(
+            '<alias_for> parameter must be a hostname, not an IP address')
 
-    cname = from_text(cname)
+    cname_name = from_text(cname)
 
-    for answer in _resolve(host, 'CNAME', server):
-        if cname == answer.target:
-            return True
+    for answer in _resolve(host, RdataType.CNAME, server):
+        if answer.target == cname_name:
+            return
 
     raise TwillAssertionError
 
 
-def dns_resolves(host, ipaddress, server=None):
+def dns_resolves(host: str, ipaddress: str,
+        server: Optional[str] = None) -> None:
     """>> dns_resolves <name> <name2/ipaddress> [<name server>]
 
     Assert that <name> ultimately resolves to the given IP address (or
-    the same IP address that 'name2' resolves to).  Optionally use the
-    given name server.
+    the same IP address that 'name2' resolves to).
+    Optionally use the given name server.
     """
     if not is_ip_addr(ipaddress):
         ipaddress = _resolve_name(ipaddress, server)
 
-    for answer in _resolve(host, 1, server):
-        if ipaddress == answer.address:
-            return True
+    for answer in _resolve(host, RdataType.A, server):
+        if answer.address == ipaddress:
+            return
 
     raise TwillAssertionError
 
 
-def dns_mx(host, mailserver, server=None):
+def dns_mx(host: str, mailserver: str, server: Optional[str] = None) -> None:
     """>> dns_mx <name> <mailserver> [<name server>]
 
     Assert that <mailserver> is a mailserver for <name>.
     """
-    mailserver = from_text(mailserver)
+    mailserver_name = from_text(mailserver)
 
-    for rdata in _resolve(host, 'MX', server):
-        if mailserver == rdata.exchange:
-            return True
+    for rdata in _resolve(host, RdataType.MX, server):
+        if rdata.exchange == mailserver_name:
+            return
 
     raise TwillAssertionError
 
 
-def dns_ns(host, query_ns, server=None):
+def dns_ns(host: str, query_ns: str, server: Optional[str] = None) -> None:
     """>> dns_ns <domain> <nameserver> [<name server to use>]
 
     Assert that <nameserver> is a mailserver for <domain>.
     """
-    query_ns = from_text(query_ns)
+    query_ns_name = from_text(query_ns)
 
-    for answer in _resolve(host, 'NS', server):
-        if query_ns == answer.target:
-            return True
+    for answer in _resolve(host, RdataType.NS, server):
+        if answer.target == query_ns_name:
+            return
 
     raise TwillAssertionError
 
 
-def is_ip_addr(text):
+def is_ip_addr(text: str) -> bool:
     """Check the 'name' to see if it's just an IP address."""
     try:
         inet_aton(text)
-        return True
-    except socket.error:
+    except OSError:
         return False
+    return True
 
 
-def _resolve_name(name, server):
+def _resolve_name(name: str, server: Optional[str] = None) -> str:
     """Resolve the given name to an IP address."""
     if is_ip_addr(name):
         return name
@@ -126,8 +131,9 @@ def _resolve_name(name, server):
     return str(answers[0])
 
 
-def _resolve(query, query_type, server):
-    """Resolve, perhaps via the given name server (None to use default)."""
+def _resolve(query: str, query_type: RdataType,
+        server: Optional[str] = None) -> Answer:
+    """Resolve, perhaps via the given name server."""
     resolver = Resolver()
     if server:
         resolver.nameservers = [_resolve_name(server, None)]

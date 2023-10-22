@@ -1,16 +1,15 @@
-from pytest import raises
-
+import pytest
 from twill import commands
 from twill.errors import TwillException
 
 
-def test(url):
+def test(url: str):  # noqa: ARG001
     commands.go('/two_forms')
     commands.find(' NO FORM ')
 
-    with raises(TwillException):
+    with pytest.raises(TwillException):
         commands.submit()
-    with raises(TwillException):
+    with pytest.raises(TwillException):
         commands.submit('1')
 
     commands.fv('1', 'item', 'foo')
@@ -21,7 +20,7 @@ def test(url):
     commands.submit()
     commands.find(' FORM=2 ITEM=bar ')
 
-    with raises(TwillException):
+    with pytest.raises(TwillException):
         commands.submit()
 
     commands.submit('1', '1')
@@ -30,7 +29,7 @@ def test(url):
     commands.submit('1', '2')
     commands.find(' FORM=2 ITEM= ')
 
-    with raises(TwillException):
+    with pytest.raises(TwillException):
         commands.submit('1', '3')
 
     commands.fv('1', 'item', 'foo')

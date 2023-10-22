@@ -1,5 +1,4 @@
-"""
-Various ugly utility functions for twill.
+"""Various ugly utility functions for twill.
 
 Apart from various simple utility functions, twill's robust parsing
 code is implemented in the ConfigurableParsingFactory class.
@@ -7,20 +6,29 @@ code is implemented in the ConfigurableParsingFactory class.
 
 import os
 import re
+from contextlib import suppress
+from pathlib import Path
+from typing import Any, List, NamedTuple, Optional, Sequence, Tuple, Union
 
-from typing import Any, List, NamedTuple, Optional, Union, Sequence, Tuple
-
+from lxml.html import (
+    CheckboxGroup,
+    FormElement,
+    HtmlElement,
+    InputElement,
+    MultipleSelectOptions,
+    RadioGroup,
+    SelectElement,
+    TextareaElement,
+)
+from lxml.html import fromstring as html_to_tree
+from lxml.html import tostring as tree_to_html
 from requests import Response
 from requests.structures import CaseInsensitiveDict
-from lxml.html import (
-    fromstring as html_to_tree, tostring as tree_to_html,
-    CheckboxGroup, FormElement, HtmlElement, InputElement,
-    MultipleSelectOptions, RadioGroup, SelectElement, TextareaElement)
 
 try:
-    import tidylib  # type: ignore
+    import tidylib  # type: ignore[import-untyped]
 except (ImportError, OSError):
-    # ImportError can be raised when PyTidyLib package is not installed
+    # ImportError can be raised when PyTidyLib package is not installed and
     # OSError can be raised when the HTML Tidy shared library is not installed
     tidylib = None
 
@@ -43,6 +51,8 @@ FieldElement = Union[
 
 
 class Link(NamedTuple):
+    """A link with some text and a URL."""
+
     text: str
     url: str
 
@@ -54,7 +64,8 @@ UrlWithRealm = Union[str, Tuple[str, str]]
 class Singleton:
     """A mixin class to create singleton objects."""
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *_args, **_kw) -> 'Singleton':
+        """Create a new instance."""
         it = cls.__dict__.get('__it__')
         if it is not None:
             return it
@@ -62,7 +73,8 @@ class Singleton:
         return it
 
     @classmethod
-    def reset(cls):
+    def reset(cls) -> None:
+        """Reset the singleton."""
         cls.__it__ = None
 
 
@@ -71,7 +83,9 @@ class ResultWrapper:
 
     These objects are returned by browser._journey()-wrapped functions.
     """
+
     def __init__(self, response: Response) -> None:
+        """Initialize the result wrapper."""
         self.response = response
         self.encoding = response.encoding
         try:
@@ -260,16 +274,14 @@ def make_int(value: Any) -> int:
     """Convert the input value into an int."""
     try:
         ival = int(value)
-    except Exception:
-        pass
-    else:
-        return ival
-
-    raise TwillException(f"unable to convert '{value}' into an int")
+    except Exception as error:  # noqa: BLE001
+        raise TwillException(
+            f"unable to convert '{value}' into an int") from error
+    return ival
 
 
 def set_form_control_value(control: FieldElement, value: str) -> None:
-    """Set the given control to the given value
+    """Set the given control to the given value.
 
     The controls can be checkboxes, select elements etc.
     """
@@ -292,10 +304,8 @@ def set_form_control_value(control: FieldElement, value: str) -> None:
     elif isinstance(control, CheckboxGroup):
         if value.startswith('-'):
             value = value[1:]
-            try:
+            with suppress(KeyError):
                 control.value.remove(value)
-            except KeyError:
-                pass
         else:
             if value.startswith('+'):
                 value = value[1:]
@@ -325,7 +335,7 @@ def set_form_control_value(control: FieldElement, value: str) -> None:
                 elif opt in control.value:
                     control.value.remove(opt)
             else:
-                control.value = opt if add else ""
+                control.value = opt if add else ''
             break
         else:
             raise TwillException('Attempt to set an invalid value')
@@ -369,14 +379,13 @@ def _all_the_same_checkbox(matches: Sequence[FieldElement]) -> bool:
             return False
         if name is None:
             name = match.name
-        else:
-            if match.name != name:
-                return False
+        elif match.name != name:
+            return False
     return True
 
 
 def unique_match(matches: Sequence[FieldElement]) -> bool:
-    """Check whether a match is unique"""
+    """Check whether a match is unique."""
     return (len(matches) == 1 or
             _all_the_same_checkbox(matches) or _all_the_same_submit(matches))
 
@@ -413,8 +422,7 @@ def get_equiv_refresh_interval() -> Optional[int]:
 
 def is_hidden_filename(filename: str) -> bool:
     """Check if this is a hidden file (starting with a dot)."""
-    return filename not in (
-        '.', '..') and os.path.basename(filename).startswith('.')
+    return filename not in ('.', '..') and Path(filename).name.startswith('.')
 
 
 def is_twill_filename(filename: str) -> bool:
@@ -425,28 +433,30 @@ def is_twill_filename(filename: str) -> bool:
 def make_twill_filename(name: str) -> str:
     """Add the twill extension to the name of a script if necessary."""
     if name not in ('.', '..'):
-        twill_name, ext = os.path.splitext(name)
+        path = Path(name)
+        twill_name = path.stem
+        ext = path.suffix
         if not ext:
             twill_name += twill_ext
-            if os.path.exists(twill_name):
+            if Path(twill_name).exists():
                 name = twill_name
     return name
 
 
 def gather_filenames(args: Sequence[str]) -> List[str]:
     """Collect script files from within directories."""
-    names: List[str] = []
+    collected_names: List[str] = []
+    append, extend = collected_names.append, collected_names.extend
+    is_dir, walk, sep = os.path.isdir, os.walk, os.sep
     for arg in args:
         name = make_twill_filename(arg)
-        if os.path.isdir(name):
-            for dir_path, dir_names, filenames in os.walk(arg):
-                dir_names[:] = [
-                    d for d in dir_names if not is_hidden_filename(d)]
-                for filename in filenames:
-                    if not is_twill_filename(filename):
-                        continue
-                    filename = os.path.join(dir_path, filename)
-                    names.append(filename)
+        if is_dir(name):
+            for dir_path, dir_names, names in walk(name):
+                dir_names[:] = [name for name in dir_names
+                    if not is_hidden_filename(name)]
+                path = dir_path + sep
+                extend(path + name for name in names
+                       if is_twill_filename(name))
         else:
-            names.append(name)
-    return names
+            append(name)
+    return collected_names

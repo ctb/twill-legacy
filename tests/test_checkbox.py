@@ -1,16 +1,15 @@
-from pytest import raises
-
+import pytest
 import twill
 from twill import browser, commands, namespaces
 from twill.errors import TwillException
 
 
-def test_select_multiple(url):
+def test_select_multiple(url: str):
     namespaces.new_local_dict()
     twill.commands.reset_browser()
 
-    with raises(TwillException):
-        browser.title
+    with pytest.raises(TwillException):
+        browser.title  # noqa: B018
 
     commands.go(url)
     commands.go('/test_checkboxes')
@@ -41,12 +40,12 @@ def test_select_multiple(url):
     assert 'CHECKBOXTEST' not in browser.html
 
 
-def test_select_single(url):
+def test_select_single(url: str):
     namespaces.new_local_dict()
     twill.commands.reset_browser()
     browser = twill.browser
-    with raises(TwillException):
-        browser.title
+    with pytest.raises(TwillException):
+        browser.title  # noqa: B018s
 
     commands.go(url)
     commands.go('/test_checkboxes')
@@ -54,5 +53,5 @@ def test_select_single(url):
     # Should not be able to use a bool style for when
     # there are multiple checkboxes
     for x in ('1', '0', 'True', 'False'):
-        with raises(KeyError):
+        with pytest.raises(KeyError):
             commands.fv('1', 'checkboxtest', x)

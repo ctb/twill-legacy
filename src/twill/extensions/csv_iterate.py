@@ -1,5 +1,4 @@
-"""
-An extension function to iterate over a list of comma-separated values.
+"""An extension function to iterate over a list of comma-separated values.
 
 Function 'csv_iterate' reads a file containing one or more rows of
 comma-separated columns, assigns them to col1...colN, and, for each row,
@@ -13,7 +12,7 @@ from twill import execute_file, log, namespaces
 __all__ = ['csv_iterate']
 
 
-def csv_iterate(file_name, script_name):
+def csv_iterate(file_name: str, script_name: str) -> None:
     """>> csv_iterate <csv_file> <script>
 
     For each line in <csv_file>, read in a list of comma-separated values,
@@ -21,10 +20,11 @@ def csv_iterate(file_name, script_name):
     """
     global_dict, local_dict = namespaces.get_twill_glocals()
 
-    reader = csv.reader(open(file_name))
-    for i, row in enumerate(reader, 1):
-        log.debug('csv_iterate: on row %d of %s', i, file_name)
-        for j, col in enumerate(row, 1):
-            global_dict[f"col{j}"] = col
+    with open(file_name, encoding='utf-8') as csv_file:
+        reader = csv.reader(csv_file)
+        for i, row in enumerate(reader, 1):
+            log.debug('csv_iterate: on row %d of %s', i, file_name)
+            for j, col in enumerate(row, 1):
+                global_dict[f'col{j}'] = col
 
-        execute_file(script_name, no_reset=True)
+    execute_file(script_name, no_reset=True)

@@ -1,14 +1,14 @@
 from twill import browser, commands
 
 
-def test_links_parsing(url):
+def test_links_parsing(url: str):  # noqa: ARG001
     """Test parsing a link text inside a span."""
     commands.go('/broken_linktext')
     # make sure link text is found even if it is nested
     commands.follow('some text')
 
 
-def test_fixing_forms(url):
+def test_fixing_forms(url: str):
     """Test parsing of broken HTML forms."""
     commands.go(url)
 

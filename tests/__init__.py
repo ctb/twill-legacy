@@ -1,1 +1,1 @@
-"""twill test suite"""
+"""The twill test suite."""

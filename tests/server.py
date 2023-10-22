@@ -3,70 +3,85 @@
 """Quixote test app for twill."""
 
 import os
-
-from typing import List, Union
-
 from base64 import decodebytes
+from typing import Optional
 
-from quixote.publish import Publisher  # type: ignore
-from quixote.errors import AccessError  # type: ignore
-from quixote.session import Session, SessionManager  # type: ignore
-from quixote.directory import Directory, AccessControlled  # type: ignore
-from quixote.form import widget  # type: ignore
-from quixote import (  # type: ignore
-    get_session, get_session_manager, get_path,
-    redirect, get_request, get_response)
-
+from quixote import (  # type: ignore[import-untyped]
+    get_path,
+    get_request,
+    get_response,
+    get_session,
+    get_session_manager,
+    redirect,
+)
+from quixote.directory import (  # type: ignore[import-untyped]
+    AccessControlled,
+    Directory,
+)
+from quixote.errors import AccessError  # type: ignore[import-untyped]
+from quixote.form import widget  # type: ignore[import-untyped]
+from quixote.publish import Publisher  # type: ignore[import-untyped]
+from quixote.session import (  # type: ignore[import-untyped]
+    Session,
+    SessionManager,
+)
 
 HOST = '127.0.0.1'
 PORT = 8080
 
 
 class AlwaysSession(Session):
+    """Session that always saves."""
 
-    def __init__(self, session_id):
+    def __init__(self, session_id: str) -> None:
+        """Initialize the session."""
         Session.__init__(self, session_id)
-        self.n = 0
+        self.visit = 0
 
-    def has_info(self):
-        """Always save."""
+    def has_info(self) -> bool:
+        """Return true to indicate that it should always save."""
         return True
 
     is_dirty = has_info
 
 
 class UnauthorizedError(AccessError):
-    """The request requires user authentication.
+    """Error used for Basic Authentication.
 
+    The request requires user authentication.
     This subclass of AccessError sends a 401 instead of a 403,
     hinting that the client should try again with authentication.
-
     (from http://quixote.ca/qx/HttpBasicAuthentication)
     """
 
     status_code = 401
-    title = "Unauthorized"
-    description = "You are not authorized to access this resource."
+    title = 'Unauthorized'
+    description = 'You are not authorized to access this resource.'
 
-    def __init__(self, realm='Protected', public_msg=None, private_msg=None):
+    def __init__(self, realm: str = 'Protected',
+            public_msg: Optional[str] = None,
+            private_msg: Optional[str] = None) -> None:
+        """Initialize the error."""
         self.realm = realm
         AccessError.__init__(self, public_msg, private_msg)
 
-    def format(self):
+    def format(self) -> str:  # noqa: A003
+        """Format the error."""
         request = get_request()
         request.response.set_header(
             'WWW-Authenticate', f'Basic realm="{self.realm}"')
         return AccessError.format(self)
 
 
-def create_publisher():
+def create_publisher() -> None:
     """Create a publisher for TwillTest, with session management added on."""
     session_manager = SessionManager(session_class=AlwaysSession)
     return Publisher(TwillTest(), session_manager=session_manager,
                      display_exceptions='plain')
 
 
-def message(session):
+def message(session: AlwaysSession) -> str:
+    """Create a message with session information."""
     return f"""\
 <html>
 <head>
@@ -77,7 +92,7 @@ Hello, world!
 <p>
 These are the twill tests.
 <p>
-Your session ID is {session.id}; this is visit #{session.n}.
+Your session ID is {session.id}; this is visit #{session.visit}.
 <p>
 You are logged in as "{session.user}".
 <p>
@@ -96,23 +111,33 @@ You are logged in as "{session.user}".
 class TwillTest(Directory):
     """The actual test app."""
 
-    _q_exports = [
-        'logout', 'increment', 'incrementfail', "", 'restricted',
+    _q_exports = (
+        '', 'logout', 'increment', 'incrementfail', 'restricted',
         'login', ('test spaces', 'test_spaces'), 'test_spaces',
         'simpleform', 'getform',
         'upload_file', 'http_auth', 'formpostredirect',
-        'exit', 'multisubmitform', "exception",
-        "plaintext", "xml",
-        "testform", "testformaction", "test_radiobuttons",
-        "test_refresh", "test_refresh2",
-        "test_refresh3", "test_refresh4", "test_refresh5",
-        "test_checkbox", "test_simple_checkbox", "echo",
-        "test_checkboxes", 'test_global_form', "two_forms",
+        'exit', 'multisubmitform', 'exception',
+        'plaintext', 'xml',
+        'testform', 'testformaction', 'test_radiobuttons',
+        'test_refresh', 'test_refresh2',
+        'test_refresh3', 'test_refresh4', 'test_refresh5',
+        'test_checkbox', 'test_simple_checkbox', 'echo',
+        'test_checkboxes', 'test_global_form', 'two_forms',
         'broken_form_1', 'broken_form_2', 'broken_form_3',
         'broken_form_4', 'broken_form_5', 'broken_linktext',
-        'exit', 'display_post', 'display_environ']
+        'exit', 'display_post', 'display_environ')
 
-    def test_global_form(self):
+    def __init__(self) -> None:
+        """Initialize the application."""
+        self.restricted = Restricted()
+        self.http_auth = HttpAuthRestricted()
+
+    def exit(self) -> None:  # noqa: A003
+        """Exit the application."""
+        raise SystemExit
+
+    def test_global_form(self) -> str:
+        """Test the global form."""
         return """
 <html>
  <head>
@@ -139,38 +164,31 @@ class TwillTest(Directory):
 </html>
 """
 
-    def display_post(self):
-        s = ""
-        request = get_request()
-        for k, v in request.form.items():
-            s += f"k: '''{k}''' : '''{v}'''<p>\n"
-        return s
+    def display_post(self) -> str:
+        """Show the form items."""
+        return ''.join(
+            f"k: '''{k}''' : '''{v}'''<p>\n"
+            for k, v in get_request().form.items())
 
-    def display_environ(self):
-        s = ""
-        request = get_request()
-        for k, v in request.environ.items():
-            s += f"k: '''{k}''' : '''{v}'''<p>\n"
-        return s
+    def display_environ(self) -> str:
+        """Show the environment variables."""
+        return ''.join(
+            f"k: '''{k}''' : '''{v}'''<p>\n"
+            for k, v in get_request().environ.items())
 
-    def exit(self):
-        raise SystemExit
+    def _q_index(self) -> str:
+        """Show index page."""
+        return message(get_session())
 
-    def __init__(self):
-        self.restricted = Restricted()
-        self.http_auth = HttpAuthRestricted()
-
-    def _q_index(self):
-        session = get_session()
-        return message(session)
-
-    def broken_form_1(self):
+    def broken_form_1(self) -> str:
+        """Get broken form 1."""
         return """\
 <form>
 <input type=text name=blah value=thus>
 """
 
-    def broken_form_2(self):
+    def broken_form_2(self) -> str:
+        """Get broken form 2."""
         return """\
 <form>
 <table>
@@ -182,7 +200,8 @@ class TwillTest(Directory):
 </form>
 """
 
-    def broken_form_3(self):
+    def broken_form_3(self) -> str:
+        """Get broken form 3."""
         return """\
 <table>
 <tr><td>
@@ -193,7 +212,8 @@ class TwillTest(Directory):
 </form>
 """
 
-    def broken_form_4(self):
+    def broken_form_4(self) -> str:
+        """Get broken form 4."""
         return """\
 <font>
 <INPUT>
@@ -203,7 +223,8 @@ class TwillTest(Directory):
 </form>
 """
 
-    def broken_form_5(self):
+    def broken_form_5(self) -> str:
+        """Get broken form 5."""
         return """\
 <div id="loginform">
    <form method="post" name="loginform" action="ChkLogin">
@@ -220,36 +241,37 @@ class TwillTest(Directory):
 </div>
 """
 
-    def broken_linktext(self):
+    def broken_linktext(self) -> str:
+        """Get broken link text."""
         return """
 <a href="/">
 <span>some text</span>
 </a>
 """
 
-    def test_refresh(self):
-        """test simple refresh"""
+    def test_refresh(self) -> str:
+        """Test simple refresh."""
         return """\
 <meta http-equiv="refresh" content="2; url=./login">
 hello, world.
 """
 
-    def test_refresh2(self):
-        """test refresh with upper case"""
+    def test_refresh2(self) -> str:
+        """Test refresh with upper case."""
         return """\
     <META HTTP-EQUIV="REFRESH" CONTENT="2; URL=./login">
     hello, world.
     """
 
-    def test_refresh3(self):
-        """test circular refresh"""
+    def test_refresh3(self) -> str:
+        """Test circular refresh."""
         return """\
     <meta http-equiv="refresh" content="2; url=./test_refresh3">
     hello, world.
     """
 
-    def test_refresh4(self):
-        """test refresh together with similar meta tags"""
+    def test_refresh4(self) -> str:
+        """Test refresh together with similar meta tags."""
         return """\
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
@@ -264,8 +286,8 @@ hello, world.
 hello, world.
 """
 
-    def test_refresh5(self):
-        """check for situation where given URL is quoted."""
+    def test_refresh5(self) -> str:
+        """Check for situation where given URL is quoted."""
         return """\
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
@@ -280,23 +302,28 @@ hello, world.
 hello, world.
 """
 
-    def exception(self):
-        raise Exception("500 error -- fail out!")
+    def exception(self) -> None:
+        """Raise a server error."""
+        raise RuntimeError('500 error -- fail out!')
 
-    def test_spaces(self):
-        return "success"
+    def test_spaces(self) -> str:
+        """Test spaces."""
+        return 'success'
 
-    def increment(self):
+    def increment(self) -> str:
+        """Visit session."""
         session = get_session()
-        session.n += 1
+        session.visit += 1
         return message(session)
 
-    def incrementfail(self):
+    def incrementfail(self) -> str:
+        """Visit session with failure."""
         session = get_session()
-        session.n += 1
-        raise Exception(message(session))
+        session.visit += 1
+        raise RuntimeError(message(session))
 
-    def login(self):
+    def login(self) -> str:
+        """Test login."""
         request = get_request()
         username_widget = widget.StringWidget(name='username', value='')
         submit_widget = widget.SubmitWidget(name='submit', value='submit me')
@@ -304,92 +331,95 @@ hello, world.
             name='nosubmit2', value="don't submit")
 
         if request.form:
-            assert not submit_widget2.parse(request)
+            if submit_widget2.parse(request):
+                raise RuntimeError('Cannot parse request.')
             username = username_widget.parse(request)
             if username:
                 session = get_session()
                 session.set_user(username)
                 return redirect('./')
 
-        image_submit = '''<input type=image name='submit you' src=DNE.gif>'''
+        image_submit = """<input type=image name='submit you' src=DNE.gif>"""
 
         login = username_widget.render()
         s, s2 = submit_widget.render(), submit_widget2.render()
         img = image_submit
-        return f"<form method=POST>Log in: {login}<p>{s2}<p>{s}<p>{img}</form>"
+        return f'<form method=POST>Log in: {login}<p>{s2}<p>{s}<p>{img}</form>'
 
-    def simpleform(self):
-        """No submit button..."""
+    def simpleform(self) -> str:
+        """Test non-existing submit button."""
         request = get_request()
 
         s1 = widget.StringWidget(name='n', value='').parse(request)
         s2 = widget.StringWidget(name='n2', value='').parse(request)
 
-        return (f"{s1} {s2} "
-                "<form method=POST>"
-                "<input type=text name=n><input type=text name=n2>"
-                "</form>")
+        return (f'{s1} {s2} '
+                '<form method=POST>'
+                '<input type=text name=n><input type=text name=n2>'
+                '</form>')
 
-    def getform(self):
-        """Get method..."""
-        return ("<form method=GET><input type=hidden name=n value=v>"
-                "<input type=submit value=send></form>")
+    def getform(self) -> str:
+        """Test form with get method."""
+        return ('<form method=GET><input type=hidden name=n value=v>'
+                '<input type=submit value=send></form>')
 
-    def multisubmitform(self):
+    def multisubmitform(self) -> str:
+        """Test form with multiple submit buttons."""
         request = get_request()
 
         submit1 = widget.SubmitWidget('sub_a', value='sub_a')
         submit2 = widget.SubmitWidget('sub_b', value='sub_b')
 
-        s = ""
+        s = ''
         if request.form:
             used = False
             if submit1.parse(request):
                 used = True
-                s += "used_sub_a"
+                s += 'used_sub_a'
             if submit2.parse(request):
                 used = True
-                s += "used_sub_b"
+                s += 'used_sub_b'
 
             if not used:
-                assert False
+                raise RuntimeError('Not button was used.')
 
             # print out the referer, too.
             referer = request.environ.get('HTTP_REFERER')
             if referer:
-                s += f"<p>referer: {referer}"
+                s += f'<p>referer: {referer}'
 
         s1, s2 = submit1.render(), submit2.render()
-        return f"<form method=POST>{s} {s1} {s2}</form>"
+        return f'<form method=POST>{s} {s1} {s2}</form>'
 
-    def testformaction(self):
+    def testformaction(self) -> str:
+        """Test form actions."""
         request = get_request()
-        keys = [k for k in request.form if request.form[k]]
-        keys.sort()
-        return "==" + " AND ".join(keys) + "=="
+        keys = sorted(k for k in request.form if request.form[k])
+        return '==' + ' AND '.join(keys) + '=='
 
-    def testform(self):
+    def testform(self) -> str:
+        """Test form."""
         request = get_request()
 
-        s = ""
+        s = ''
         if not request.form:
-            s = "NO FORM"
+            s = 'NO FORM'
 
         if request.form and 'selecttest' in request.form:
             values = request.form['selecttest']
             if isinstance(values, str):
                 values = [values]
             values = ' AND '.join(values)
-            s += f"SELECTTEST: =={values}==<p>"
+            s += f'SELECTTEST: =={values}==<p>'
 
         if request.form:
-            names = []
+            items = []
             for name in ('item', 'item_a', 'item_b', 'item_c'):
                 if request.form.get(name):
                     value = request.form[name]
-                    names.append(f'{name}={value}')
-            names = ' AND '.join(names)  # type: ignore
-            s += f"NAMETEST: =={names}==<p>"
+                    items.append(f'{name}={value}')
+            values = ' AND '.join(items)
+            s += f'NAMETEST: =={values}==<p>'
 
         return f"""\
 {s}
@@ -414,7 +444,8 @@ hello, world.
 </form>
 """
 
-    def two_forms(self):
+    def two_forms(self) -> str:
+        """Test two forms."""
         request = get_request()
 
         if request.form:
@@ -422,7 +453,7 @@ hello, world.
             item = request.form.get('item')
             s = f'FORM={form} ITEM={item}'
         else:
-            s = "NO FORM"
+            s = 'NO FORM'
 
         return f"""\
 <h1>Two Forms</h1>
@@ -439,16 +470,17 @@ hello, world.
 </form>
 """
 
-    def test_checkbox(self):
+    def test_checkbox(self) -> str:
+        """Test single checkbox."""
         request = get_request()
 
-        s = ""
+        s = ''
         if request.form and 'checkboxtest' in request.form:
             value = request.form['checkboxtest']
             if not isinstance(value, str):
                 value = value[0]
 
-            s += f"CHECKBOXTEST: =={value}==<p>"
+            s += f'CHECKBOXTEST: =={value}==<p>'
 
         return f"""\
 {s}
@@ -461,16 +493,17 @@ hello, world.
 </form>
 """
 
-    def test_checkboxes(self):
+    def test_checkboxes(self) -> str:
+        """Test multiple checkboxes."""
         request = get_request()
 
-        s = ""
+        s = ''
         if request.form and 'checkboxtest' in request.form:
             value = request.form['checkboxtest']
             if not isinstance(value, str):
                 value = ','.join(value)
 
-            s += f"CHECKBOXTEST: =={value}==<p>"
+            s += f'CHECKBOXTEST: =={value}==<p>'
 
         return f"""\
 {s}
@@ -482,16 +515,17 @@ hello, world.
 </form>
 """
 
-    def test_simple_checkbox(self):
+    def test_simple_checkbox(self) -> str:
+        """Test simple checkbox."""
         request = get_request()
 
-        s = ""
+        s = ''
         if request.form and 'checkboxtest' in request.form:
             value = request.form['checkboxtest']
             if not isinstance(value, str):
                 value = value[0]
 
-            s += f"CHECKBOXTEST: =={value}==<p>"
+            s += f'CHECKBOXTEST: =={value}==<p>'
 
         return f"""\
 {s}
@@ -503,16 +537,17 @@ hello, world.
 </form>
 """
 
-    def test_radiobuttons(self):
+    def test_radiobuttons(self) -> str:
+        """Test radio buttons."""
         request = get_request()
 
-        s = ""
+        s = ''
         if request.form and 'radiobuttontest' in request.form:
             value = request.form['radiobuttontest']
             if not isinstance(value, str):
                 value = ','.join(value)
 
-            s += f"RADIOBUTTONTEST: =={value}==<p>"
+            s += f'RADIOBUTTONTEST: =={value}==<p>'
 
         return f"""\
 {s}
@@ -524,7 +559,7 @@ hello, world.
     </form>
     """
 
-    def formpostredirect(self):
+    def formpostredirect(self) -> str:
         """Test redirect after a form POST."""
         request = get_request()
 
@@ -537,37 +572,36 @@ hello, world.
 """
         return redirect(get_path(1) + '/')
 
-    def logout(self):
-        # expire session
-        session_manager = get_session_manager()
-        session_manager.expire_session()
+    def logout(self) -> str:
+        """Test logout."""
+        get_session_manager().expire_session()
+        return redirect(get_path(1) + '/')  # back to index page
 
-        # redirect to index page.
-        return redirect(get_path(1) + '/')
-
-    def plaintext(self):
+    def plaintext(self) -> str:
+        """Test plain text response."""
         response = get_response()
-        response.set_content_type("text/plain")
-        return "hello, world"
+        response.set_content_type('text/plain')
+        return 'hello, world'
 
-    def xml(self):
+    def xml(self) -> str:
+        """Test XML response."""
         response = get_response()
-        response.set_content_type("text/xml")
+        response.set_content_type('text/xml')
         return '<?xml version="1.0" encoding="utf-8" ?><foo>bår</foo>'
 
-    def echo(self):
+    def echo(self) -> str:
+        """Show form content."""
         request = get_request()
         if request.form and 'q' in request.form:
             return request.form['q']
-        return "<html><body>No Content</body></html>"
+        return '<html><body>No Content</body></html>'
 
-    def upload_file(self):
+    def upload_file(self) -> str:
+        """Test file upload."""
         request = get_request()
         if request.form:
-            contents = request.form['upload'].fp.read()
-            return contents
-        else:
-            return """"\
+            return request.form['upload'].fp.read()
+        return """"\
 <form enctype=multipart/form-data method=POST>
 <input type=file name=upload>
 <input type=submit value=submit>
@@ -575,23 +609,28 @@ hello, world.
 
 
 class Restricted(AccessControlled, Directory):
+    """A directory with restricted access."""
 
-    _q_exports = [""]
+    _q_exports = ('',)
 
-    def _q_access(self):
+    def _q_access(self) -> None:
+        """Check access."""
         session = get_session()
         if not session.user:
-            raise AccessError("you must have a username")
+            raise AccessError('you must have a username')
 
-    def _q_index(self):
-        return "you made it!"
+    def _q_index(self) -> str:
+        """Show index page."""
+        return 'you made it!'
 
 
 class HttpAuthRestricted(AccessControlled, Directory):
+    """A directory with restricted access using Basic Authentication."""
 
-    _q_exports = [""]
+    _q_exports = ('',)
 
-    def _q_access(self):
+    def _q_access(self) -> None:
+        """Check access."""
         r = get_request()
 
         login = passwd = None
@@ -611,20 +650,23 @@ class HttpAuthRestricted(AccessControlled, Directory):
         elif login:
             print(f"Invalid login attempt as '{login}'")
         else:
-            print("Access has been denied")
+            print('Access has been denied')
         print()
         if not passwd:
             raise UnauthorizedError
 
-    def _q_index(self):
-        return "you made it!"
+    def _q_index(self) -> str:
+        """"Show index page."""
+        return 'you made it!'
 
 
 if __name__ == '__main__':
-    from quixote.server.simple_server import run  # type: ignore
+    from quixote.server.simple_server import (  # type: ignore[import-untyped]
+        run,
+    )
     port = int(os.environ.get('TWILL_TEST_PORT', PORT))
     print(f'starting twill test server on port {port}.')
     try:
         run(create_publisher, host=HOST, port=port)
     except KeyboardInterrupt:
-        pass
+        print('Keyboard interrupt ignored.')

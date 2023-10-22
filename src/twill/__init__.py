@@ -10,17 +10,17 @@
 # terms of the MIT license; please see the included LICENSE file for more
 # information, or go to https://opensource.org/licenses/mit-license.php.
 
-"""twill web browsing and testing language and associated utilities.
+"""The twill web browsing and testing language and associated utilities.
 
 A scripting system for automating web browsing.  Useful for testing
 web pages or grabbing data from password-protected sites automatically.
 """
 
+import importlib.metadata
 import logging
 import sys
-import os.path
-
-import importlib.metadata
+from pathlib import Path
+from typing import Optional, TextIO, Union
 
 metadata = importlib.metadata.metadata(__package__)
 
@@ -31,24 +31,25 @@ __url__: str = metadata['Project-URL'].rsplit(None, 1)[-1]
 __all__ = [
     'browser', 'execute_file', 'execute_string',
     'log', 'set_log_level', 'set_output', 'set_err_out',
-    'twill_ext', 'TwillCommandLoop']
+    'twill_ext', 'TwillCommandLoop',
+    '__url__', '__version__']
 
-this_dir = os.path.dirname(__file__)
+this_dir = Path(__file__).parent
 # Add extensions directory at the *end* of sys.path.
 # This means that user extensions will take priority over twill extensions.
-extensions = os.path.join(this_dir, 'extensions')
-sys.path.append(extensions)
+extensions = this_dir / 'extensions'
+sys.path.append(str(extensions))
 
 twill_ext = '.twill'  # file extension for twill scripts
 
 
-log_levels = dict(
-    CRITICAL=logging.CRITICAL,
-    ERROR=logging.ERROR,
-    WARNING=logging.WARNING,
-    INFO=logging.INFO,
-    DEBUG=logging.DEBUG,
-    NOTSET=logging.NOTSET)
+log_levels = {
+    'CRITICAL': logging.CRITICAL,
+    'ERROR': logging.ERROR,
+    'WARNING': logging.WARNING,
+    'INFO': logging.INFO,
+    'DEBUG': logging.DEBUG,
+    'NOTSET': logging.NOTSET}
 
 log = logging.getLogger(__name__)
 handler = None
@@ -56,7 +57,7 @@ handler = None
 stdout, stderr = sys.stdout, sys.stderr
 
 
-def set_log_level(level=None):
+def set_log_level(level: Optional[Union[int, str]]=None) -> None:
     """Set the logging level.
 
     If no level is passed, use INFO as logging level.
@@ -68,12 +69,12 @@ def set_log_level(level=None):
     log.setLevel(level)
 
 
-def set_output(stream=None):
+def set_output(stream: Optional[TextIO]=None) -> None:
     """Set the standard output.
 
     If no stream is passed, use standard output.
     """
-    global handler
+    global handler  # noqa: PLW0603
     if stream is None:
         stream = stdout
     if handler:
@@ -83,7 +84,7 @@ def set_output(stream=None):
     sys.stdout = stream
 
 
-def set_err_out(stream=None):
+def set_err_out(stream: Optional[TextIO]=None) -> None:
     """Set the error output.
 
     If no stream is passed, use standard error.
@@ -93,7 +94,7 @@ def set_err_out(stream=None):
     sys.stderr = stream
 
 
-def shutdown():
+def shutdown() -> None:
     """Shut down and flush the logging system."""
     sys.stdout.flush()
     sys.stderr.flush()
@@ -104,13 +105,12 @@ set_log_level()
 set_output()
 
 
-# a convenience function:
-from .browser import browser  # noqa: ignore=E402
-
-# the two core components of twill:
-from .parse import execute_file, execute_string  # noqa: ignore=E402
-from .shell import TwillCommandLoop  # noqa: ignore=E402
-
 # initialize global dict
-from . import namespaces  # noqa: ignore=E402
+from . import namespaces  # noqa: E402, I001
+# a convenience function:
+from .browser import browser  # noqa: E402
+# the two core components of twill:
+from .parse import execute_file, execute_string  # noqa: E402
+from .shell import TwillCommandLoop  # noqa: E402
+
 namespaces.init_global_dict()

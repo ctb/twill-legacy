@@ -2,9 +2,9 @@
 
 import sys
 import time
-
 from io import StringIO
 from multiprocessing import Process
+from typing import Callable, Optional, TextIO
 
 from .parse import execute_file
 
@@ -24,15 +24,18 @@ class TestInfo:
     server to set itself up.  Default is 0.
     """
 
-    def __init__(self, script, server_fn, port=PORT, sleep=SLEEP):
+    def __init__(self, script: str, server_fn: Callable[[], None],
+            port: int = PORT, sleep: float = SLEEP) -> None:
+        """Initialize the test info container."""
         self.script = script
         self.server_fn = server_fn
         self.port = port
-        self.stdout = None
-        self.stderr = None
+        self.stdout: Optional[TextIO] = None
+        self.stderr: Optional[TextIO] = None
         self.sleep = sleep
 
-    def start_server(self):
+    def start_server(self) -> None:
+        """Start the server."""
         # save old stdout/stderr
         stdout, stderr = sys.stdout, sys.stderr
 
@@ -46,28 +49,28 @@ class TestInfo:
             # restore stdout/stderr
             sys.stdout, sys.stderr = stdout, stderr
 
-    def run_script(self):
+    def run_script(self) -> None:
         """Run the given twill script on the given server."""
         time.sleep(self.sleep)
         url = self.url
         execute_file(self.script, initial_url=url)
 
     @property
-    def url(self):
+    def url(self) -> str:
         """"Get the test server URL."""
         # noinspection HttpUrlsUsage
-        return f"http://{HOST}:{self.port}/"
+        return f'http://{HOST}:{self.port}/'
 
 
-def run_test(test_info):
-    """Run test on a web site where the site is running in a sub process."""
+def run_test(test_info: TestInfo) -> None:
+    """Run test on a website where the site is running in a sub process."""
     # run server
     server_process = Process(target=test_info.start_server)
     server_process.start()
     # wait for server process to spin up
     timeout = max(1, test_info.sleep)
     wait = min(0.125, 0.125 * timeout)
-    waited = 0
+    waited: float = 0
     while not server_process.is_alive() and waited < timeout:
         time.sleep(wait)
         waited += wait

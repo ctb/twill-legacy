@@ -1,5 +1,4 @@
-"""
-Extension functions to check all of the links on a page.
+"""Extension functions to check all of the links on a page.
 
 Usage:
 
@@ -16,7 +15,7 @@ together with their referring pages.
 """
 
 import re
-
+from http import HTTPStatus
 from typing import Dict, List, Set
 
 from twill import browser, commands, log, utils
@@ -29,22 +28,21 @@ if commands.options.get('check_links.only_collection_bad_links') is None:
     commands.options['check_links.only_collect_bad_links'] = False
 
 good_urls: Set[str] = set()
-bad_urls: Dict[str, Set[str]] = dict()
+bad_urls: Dict[str, Set[str]] = {}
 
 
 def check_links(pattern: str = '') -> None:
-    """>> check_links [<pattern>]
+    r""">> check_links [<pattern>]
 
     Make sure that all the HTTP links on the current page can be visited
     with an HTTP response 200 (success).  If 'pattern' is given, interpret
     it as a regular expression that link URLs must contain in order to be
     tested, e.g.
 
-        check_links https://.*\\.google\\.com
+        check_links https://.*\.google\.com
 
-    would check only links to google URLs.  Note that because 'follow'
-    is used to visit the pages, the referrer URL is properly set on the
-    visit.
+    would check only links to google URLs.  Note that because 'follow' is
+    used to visit the pages, the referrer URL is properly set on the visit.
     """
     debug, info = log.debug, log.info
 
@@ -62,7 +60,7 @@ def check_links(pattern: str = '') -> None:
 
     links = browser.links
     if not links:
-        debug("no links to check!?")
+        debug('no links to check!?')
         return
 
     for link in links:
@@ -77,18 +75,18 @@ def check_links(pattern: str = '') -> None:
         if regex:
             if regex.search(url):
                 collected_urls.add(url)
-                debug("Gathered URL %s -- matched pattern", url)
+                debug('Gathered URL %s -- matched pattern', url)
             else:
                 debug("URL %s doesn't match pattern", url)
         else:
             collected_urls.add(url)
-            debug("Gathered URL %s.", url)
+            debug('Gathered URL %s.', url)
 
     # now, for each unique and unchecked URL, follow the link
 
     failed: List[str] = []
     for url in sorted(collected_urls):
-        debug("Checking %s", url)
+        debug('Checking %s', url)
         if url in good_urls:
             debug('... already known as good')
         elif url in bad_urls:
@@ -96,12 +94,13 @@ def check_links(pattern: str = '') -> None:
         else:
             try:
                 browser.follow_link(url)
-            except Exception:  # count as failure
-                code = 404
+            except Exception:  # noqa: BLE001
+                # count as failure
+                code = int(HTTPStatus.NOT_FOUND)
             else:
                 code = browser.code
                 browser.back()
-            if code == 200:
+            if code == int(HTTPStatus.OK):
                 debug('...success!')
                 good_urls.add(url)
             else:
@@ -119,12 +118,13 @@ def check_links(pattern: str = '') -> None:
         info('\nCould not follow %d links:\n', len(failed))
         for url in failed:
             info('* %s', url)
-        raise TwillAssertionError("broken links on page")
+        raise TwillAssertionError('broken links on page')
     else:
         info('\nNo broken links were detected.\n')
 
 
-def report_bad_links(fail_if_exist='true', flush_bad_links='true'):
+def report_bad_links(fail_if_exist: str ='true',
+                     flush_bad_links: str ='true') -> None:
     """>> report_bad_links [<fail-if-exist> [<flush-bad-links>]]
 
     Report all the links collected across check_links runs (collected
@@ -137,9 +137,6 @@ def report_bad_links(fail_if_exist='true', flush_bad_links='true'):
     If <flush-bad-links> is false (true by default) then the list of
     bad links will be retained across the function call.
     """
-    fail_if_exist = utils.make_boolean(fail_if_exist)
-    flush_bad_links = utils.make_boolean(flush_bad_links)
-
     info = log.info
     if not bad_urls:
         info('\nNo bad links to report.\n')
@@ -150,8 +147,8 @@ def report_bad_links(fail_if_exist='true', flush_bad_links='true'):
         referrers = sorted(bad_urls[url])
         info("\tlink '%s' (occurs on: %s)", url, ','.join(referrers))
 
-    if flush_bad_links:
+    if utils.make_boolean(flush_bad_links):
         bad_urls.clear()
 
-    if fail_if_exist:
-        raise TwillAssertionError("broken links encountered")
+    if utils.make_boolean(fail_if_exist):
+        raise TwillAssertionError('broken links encountered')

@@ -57,7 +57,7 @@ tests = [
   "pytest >=7.4, <8",
   "pytidylib >=0.3, <0.4",
   "quixote >=3.6, <4",
-  "wsgi_intercept >=1.10, <2"
+  "wsgi_intercept >=1.10, <2",
 ]
 
 [project.scripts]
@@ -72,6 +72,10 @@ Source = "https://github.com/twill-tools/twill"
 ChangeLog = "https://twill-tools.github.io/twill/changelog.html"
 Download = "https://pypi.org/project/twill/"
 
+[tool.pytest.ini_options]
+minversion = "7.4"
+testpaths = [ "tests" ]
+
 [tool.mypy]
 python_version = 3.11
 check_untyped_defs = true
@@ -81,9 +85,112 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 disallow_untyped_defs = false
 
-[tool.pytest.ini_options]
-minversion = "7.4"
-testpaths = [ "tests" ]
+[tool.ruff]
+select = [
+  "A",      # flake8-builtins
+  "ANN",    # flake8-annotations
+  "ARG",    # flake8-unused-arguments
+  "B",      # flake8-bugbear
+  "BLE",    # flake8-blind-except
+  "C4",     # flake8-comprehensions
+  "C90",    # McCabe cyclomatic complexity
+  "COM",    # flake8-commas
+  "D",      # pydocstyle
+  "DTZ",    # flake8-datetimez
+  "E",      # pycodestyle
+  "EM",     # flake8-errmsg
+  "ERA",    # eradicate
+  "EXE",    # flake8-executable
+  "F",      # Pyflakes
+  "FBT",    # flake8-boolean-trap
+  "G",      # flake8-logging-format
+  "I",      # isort
+  "ICN",    # flake8-import-conventions
+  "INP",    # flake8-no-pep420
+  "INT",    # flake8-gettext
+  "ISC",    # flake8-implicit-str-concat
+  "N",      # pep8-naming
+  "PGH",    # pygrep-hooks
+  "PIE",    # flake8-pie
+  "PL",     # Pylint
+  "PT",     # flake8-pytest-style
+  "PTH",    # flake8-use-pathlib
+  "PYI",    # flake8-pyi
+  "Q",      # flake8-quotes
+  "RET",    # flake8-return
+  "RSE",    # flake8-raise
+  "RUF",    # Ruff-specific rules
+  "S",      # flake8-bandit
+  "SLF",    # flake8-self
+  "SIM",    # flake8-simplify
+  "T10",    # flake8-debugger
+  "T20",    # flake8-print
+  "TCH",    # flake8-type-checking
+  "TID",    # flake8-tidy-imports
+  "TRY",    # tryceratops
+  "UP",     # pyupgrade
+  "W",      # pycodestyle
+  "YTT",    # flake8-2020
+]
+ignore = [
+  "ANN002", "ANN003",  # no type annotations needed for args and kwargs
+  "ANN101", "ANN102",  # no type annotation for self and cls needed
+  "ANN401",  # allow explicit Any
+  "D203",  # no blank line before class docstring
+  "D213",  # multi-line docstrings should not start at second line
+  "EM101", "EM102",  # allows exceptions with literal and f-strings
+  "PTH123",  # allow builtin-open
+  "TRY003",  # allow specific messages outside the exception class
+  "TRY301",  # allow raise
+]
+line-length = 79
+target-version = "py38"
+
+[tool.ruff.flake8-quotes]
+inline-quotes = "single"
+
+[tool.ruff.mccabe]
+max-complexity = 25
+
+[tool.ruff.pylint]
+# max-args = 12
+max-branches = 25
+max-returns = 7
+max-statements = 75
+
+[tool.ruff.per-file-ignores]
+"src/twill/commands.py" = [
+  "A001",  # may shadow builtins
+  "D400", "D401", "D415",  # allow more flexible docstrings
+  "S102"  # allow use of exec
+]
+"src/twill/fork.py" = [
+  "T201"  # allow using print()
+]
+"src/twill/parse.py" = [
+  "PGH001", "S307"  # allow evaluation of expressions
+]
+"src/twill/extensions/*" = [
+  "D400", "D401", "D415",  # allow more flexible docstrings
+]
+"docs/*" = [
+  "A001",  # may shadow builtins
+  "INP001",  # allow stand-alone scripts
+  "ERA001",  # allow commented-out code
+]
+"extras/*" = [
+  "ANN",  # no annotations needed
+  "INP001",  # allow stand-alone scripts
+]
+"tests/server.py" = [
+  "T201",  # allow using print()
+]
+"tests/test_*" = [
+  "D",  # do not require docstrings
+  "ANN201",  # do no trequre return types
+  "S101",  # allow assert statements
+  "PLR2004",  # allow magic values
+]
 
 [build-system]
 requires = ["setuptools >=68"]

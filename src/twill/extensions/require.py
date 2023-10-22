@@ -1,5 +1,4 @@
-"""
-A simple set of extensions to manage post-load requirements for pages.
+"""A simple set of extensions to manage post-load requirements for pages.
 
 Commands:
 
@@ -20,34 +19,32 @@ __all__ = ['require', 'skip_require', 'flush_visited', 'no_require']
 
 _requirements = []      # what requirements to satisfy
 
-ignore_once = False     # reset after each hook call
-ignore_always = False   # never reset
+
+class Ignore:
+    once: bool = False  # reset after each hook call
+    always: bool  = False  # never reset
 
 
-def skip_require():
-    """
-    >> skip_require
+def skip_require() -> None:
+    """>> skip_require
 
     Skip the post-page-load requirements.
     """
-    global ignore_once
-    ignore_once = True
+    Ignore.once = True
 
 
-def require(what):
+def require(what: str) -> None:
     """>> require <what>
 
     After each page is loaded, require that 'what' be satisfied.  'what'
     can be:
       * 'success' -- HTTP return code is 200
-      * 'links_ok' -- all of the links on the page load OK (see 'check_links'
+      * 'links_ok' -- all the links on the page load OK (see 'check_links'
                       extension module)
     """
-    global _requirements
-
     # install the post-load hook function.
     # noinspection PyProtectedMember
-    hooks = browser._post_load_hooks
+    hooks = browser._post_load_hooks  # noqa: SLF001
     if _require_post_load_hook not in hooks:
         log.debug('INSTALLING POST-LOAD HOOK')
         hooks.append(_require_post_load_hook)
@@ -58,21 +55,20 @@ def require(what):
         _requirements.append(what)
 
 
-def no_require():
+def no_require() -> None:
     """>> no_require
 
     Remove all post-load requirements.
     """
     # noinspection PyProtectedMember
-    hooks = browser._post_load_hooks
+    hooks = browser._post_load_hooks  # noqa: SLF001
     hooks = [fn for fn in hooks if fn != _require_post_load_hook]
-    browser._post_load_hooks = hooks
+    browser._post_load_hooks = hooks  # noqa: SLF001
 
-    global _requirements
-    _requirements = []
+    _requirements.clear()
 
 
-def flush_visited():
+def flush_visited() -> None:
     """>> flush_visited
 
     Flush the list of pages successfully visited already.
@@ -81,7 +77,7 @@ def flush_visited():
     good_urls.clear()
 
 
-def _require_post_load_hook(action, *_args, **_kwargs):
+def _require_post_load_hook(action: str, *_args, **_kwargs) -> None:
     """Post load hook function to be called after each page is loaded.
 
     See TwillBrowser._journey() for more information.
@@ -89,11 +85,8 @@ def _require_post_load_hook(action, *_args, **_kwargs):
     if action == 'back':  # do nothing on a 'back'
         return
 
-    global ignore_once
-    global ignore_always
-
-    if ignore_once or ignore_always:
-        ignore_once = False
+    if Ignore.once or Ignore.always:
+        Ignore.once = False
         return
 
     for what in _requirements:
@@ -103,14 +96,14 @@ def _require_post_load_hook(action, *_args, **_kwargs):
             commands.code(200)
 
         elif what == 'links_ok':
-            from check_links import check_links, good_urls  # type: ignore
+            from .check_links import check_links, good_urls
 
-            ignore_always = True
+            Ignore.always = True
             log.debug('REQUIRING functioning links')
             log.debug('(already visited:)')
-            log.debug("\n\t".join(sorted(good_urls)))
+            log.debug('\n\t'.join(sorted(good_urls)))
 
             try:
                 check_links()
             finally:
-                ignore_always = False
+                Ignore.always = False

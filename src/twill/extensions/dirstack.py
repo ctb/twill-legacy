@@ -1,5 +1,4 @@
-"""
-Extension functions for manipulating the current working directory (cwd).
+"""Extension functions for manipulating the current working directory (cwd).
 
 Commands:
 
@@ -16,13 +15,13 @@ __all__ = ['chdir', 'popd']
 _dir_stack = []
 
 
-def chdir(where):
+def chdir(where: str) -> None:
     """>> chdir <where>
 
     Change to the new location, after saving the current directory onto
     the directory stack.  The global variable __dir__ is set to the cwd.
     """
-    cwd = os.getcwd()
+    cwd = os.getcwd()  # noqa: PTH109
     _dir_stack.append(cwd)
     log.debug('current directory: "%s"', cwd)
 
@@ -32,7 +31,7 @@ def chdir(where):
     commands.setglobal('__dir__', where)
 
 
-def popd():
+def popd() -> None:
     """>> popd
 
     Change back to the last directory on the directory stack.  The global

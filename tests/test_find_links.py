@@ -3,7 +3,7 @@ from twill import commands
 from twill.utils import Link
 
 
-def test(url):
+def test(url: str):
     twill.commands.reset_browser()
     browser = twill.browser
     commands.go(url)

@@ -1,23 +1,47 @@
-"""This module implements the TwillBrowser."""
+"""Implementation of the TwillBrowser."""
 
 import pickle
 import re
+from contextlib import suppress
+from http import HTTPStatus
 from typing import (
-    cast, Callable, Dict, IO, List, MutableMapping,
-    Optional, Sequence, Tuple, Union)
+    IO,
+    Callable,
+    Dict,
+    List,
+    MutableMapping,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+    cast,
+)
 from urllib.parse import urljoin
 
 from requests import Session
 from requests.auth import HTTPBasicAuth
 from requests.cookies import RequestsCookieJar
-from requests.exceptions import InvalidSchema, ConnectionError
+from requests.exceptions import ConnectionError, InvalidSchema
 
-from . import log, __version__
-from .utils import (
-    get_equiv_refresh_interval, html_to_tree, print_form, trunc, unique_match,
-    CheckboxGroup, FieldElement, FormElement, HtmlElement,
-    InputElement, Link, UrlWithRealm, RadioGroup, Response, ResultWrapper)
+from . import __version__, log
 from .errors import TwillException
+from .utils import (
+    CheckboxGroup,
+    FieldElement,
+    FormElement,
+    HtmlElement,
+    InputElement,
+    Link,
+    RadioGroup,
+    Response,
+    ResultWrapper,
+    UrlWithRealm,
+    get_equiv_refresh_interval,
+    html_to_tree,
+    print_form,
+    trunc,
+    unique_match,
+)
 
 __all__ = ['browser']
 
@@ -25,7 +49,7 @@ __all__ = ['browser']
 def _disable_insecure_request_warnings() -> None:
     """Disable insecure request warnings."""
     try:
-        from requests.packages import urllib3  # type: ignore
+        from requests.packages import urllib3  # type: ignore[attr-defined]
     except ImportError:
         import urllib3
     # noinspection PyUnresolvedReferences
@@ -40,7 +64,7 @@ def _set_http_connection_debuglevel(level: int) -> None:
 
 
 class TwillBrowser:
-    """A simple, stateful browser"""
+    """A simple, stateful browser."""
 
     user_agent = f'TwillBrowser/{__version__}'
 
@@ -49,7 +73,7 @@ class TwillBrowser:
 
     def _assert_result_for(self, what: str) -> ResultWrapper:
         if not self.result:
-            raise TwillException(f"Cannot get {what} since there is no page.")
+            raise TwillException(f'Cannot get {what} since there is no page.')
         return self.result
 
     @property
@@ -62,7 +86,7 @@ class TwillBrowser:
         self._debug_level = level
 
     def reset(self) -> None:
-        """Reset the browser"""
+        """Reset the browser."""
         self.result: Optional[ResultWrapper] = None
         self.last_submit_button: Optional[InputElement] = None
         self.first_error: Optional[str] = None
@@ -124,8 +148,8 @@ class TwillBrowser:
         for try_url in try_urls:
             try:
                 self._journey('open', try_url)
-            except (IOError,
-                    ConnectionError, InvalidSchema, UnicodeError) as error:
+            except (OSError, ConnectionError,
+                    InvalidSchema, UnicodeError) as error:
                 log.info("cannot go to '%s': %s", try_url, error)
             else:
                 break
@@ -291,7 +315,7 @@ class TwillBrowser:
         if form is None:
             form = self._form
             if form is None:
-                raise TwillException("Must specify a form for the field")
+                raise TwillException('Must specify a form for the field')
         inputs = form.inputs
         found_multiple = False
 
@@ -327,17 +351,13 @@ class TwillBrowser:
 
         num = name_or_num if isinstance(name_or_num, int) else None
         if num is None and name and name.isdigit():
-            try:
+            with suppress(ValueError):
                 num = int(name)
-            except ValueError:
-                pass
 
         # test field index
         if num is not None:
-            try:
+            with suppress(IndexError):
                 return list(inputs)[num - 1]
-            except IndexError:
-                pass
 
         if name:
 
@@ -381,7 +401,7 @@ class TwillBrowser:
         """Submit the last or specified form using the given field."""
         forms = self.forms
         if not forms:
-            raise TwillException("There are no forms on this page.")
+            raise TwillException('There are no forms on this page.')
 
         ctl: Optional[InputElement] = None
 
@@ -439,6 +459,7 @@ class TwillBrowser:
         # now actually GO
         if form.method == 'POST':
             if self._form_files:
+                log.debug('Submitting files: %r', self._form_files)
                 r = self._session.post(
                     form.action, data=encoded_payload, headers=headers,
                     files=self._form_files)
@@ -468,7 +489,7 @@ class TwillBrowser:
     def load_cookies(self, filename: str) -> None:
         """Load cookies from the given file."""
         with open(filename, 'rb') as f:
-            self._session.cookies = pickle.load(f)
+            self._session.cookies = pickle.load(f)  # noqa: S301
 
     def clear_cookies(self) -> None:
         """Delete all the cookies."""
@@ -487,10 +508,10 @@ class TwillBrowser:
         else:
             log.info('\nThere are no cookies in the cookie jar.\n', n)
 
-    def decode(self, value: Union[bytes, str]):
+    def decode(self, value: Union[bytes, str]) -> str:
         """Decode a value using the current encoding."""
-        if isinstance(value, bytes) and self.encoding:
-            value = value.decode(self.encoding)
+        if isinstance(value, bytes):
+            value = value.decode(self.encoding or 'utf-8')
         return value
 
     def xpath(self, path: str) -> List[HtmlElement]:
@@ -498,7 +519,7 @@ class TwillBrowser:
         return self._assert_result_for('xpath').xpath(path)
 
     def _encode_payload(
-            self, payload: Sequence[Tuple[str, Union[str, bytes]]]
+            self, payload: Sequence[Tuple[str, Union[str, bytes]]],
             ) -> List[Tuple[str, Union[str, bytes]]]:
         """Encode a payload with the current encoding if not utf-8."""
         encoding = self.encoding
@@ -517,7 +538,7 @@ class TwillBrowser:
             # may happen when there is an XML encoding declaration
             tree = html_to_tree(response.content)
         try:
-            content = tree.xpath(  # "refresh" is case insensitive
+            content = tree.xpath(  # "refresh" is case-insensitive
                 "//meta[translate(@http-equiv,'REFSH','refsh')="
                 "'refresh'][1]/@content")[0]
             interval, url = content.split(';', 1)
@@ -538,7 +559,7 @@ class TwillBrowser:
 
     _re_basic_auth = re.compile('Basic realm="(.*)"', re.I)
 
-    def _journey(self, func_name, *args, **_kwargs):
+    def _journey(self, func_name: str, *args, **_kwargs) -> None:
         """Execute the function with the given name and arguments.
 
         The name should be one of 'open', 'reload', 'back', or 'follow_link'.
@@ -557,10 +578,8 @@ class TwillBrowser:
 
         elif func_name == 'follow_link':
             url = args[0]
-            try:
+            with suppress(AttributeError):  # may be already a url
                 url = url.url
-            except AttributeError:
-                pass  # this is already a url
             if '://' not in url and self.url:
                 url = urljoin(self.url, url)
 
@@ -570,14 +589,14 @@ class TwillBrowser:
         elif func_name == 'back':
             try:
                 self.result = self._history.pop()
-                return
-            except IndexError:
-                raise TwillException
+            except IndexError as error:
+                raise TwillException('Cannot go further back') from error
+            return
         else:
-            raise TwillException(f"Unknown function {func_name!r}")
+            raise TwillException(f'Unknown function {func_name!r}')
 
         r = self._session.get(url, verify=self.verify)
-        if r.status_code == 401:
+        if r.status_code == HTTPStatus.UNAUTHORIZED:
             header = r.headers.get('WWW-Authenticate')
             match_realm = self._re_basic_auth.match(header)
             if match_realm:
@@ -606,10 +625,10 @@ class TwillBrowser:
                 r = self._session.get(url)
                 visited.add(url)
 
-        if func_name in ('follow_link', 'open'):
-            # If we're really reloading and just didn't say so, don't store
-            if self.result is not None and self.result.url != r.url:
-                self._history.append(self.result)
+        if func_name in ('follow_link', 'open') and (
+            # if we're really reloading and just didn't say so, don't store
+                self.result is not None and self.result.url != r.url):
+            self._history.append(self.result)
 
         self.result = ResultWrapper(r)
 

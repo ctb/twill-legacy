@@ -1,20 +1,20 @@
-"""
-Implementation of all the individual 'twill' commands available
-through twill-sh.
+"""The twill shell commands.
+
+Implementation of all the individual twill commands that are available
+through the twill command line script.
 """
 
 import getpass
 import re
-import time
 import sys
+import time
+from os.path import sep
 from typing import Any, Dict, Optional
 
-from os.path import sep
-
-from . import log, set_output, set_err_out, utils
+from . import log, set_err_out, set_output, utils
 from .agents import agents
 from .browser import browser
-from .errors import TwillException, TwillAssertionError
+from .errors import TwillAssertionError, TwillException
 from .namespaces import get_twill_glocals
 
 # noinspection SpellCheckingInspection
@@ -42,7 +42,7 @@ __all__ = [
     'tidy_ok', 'title', 'url']
 
 
-def reset_browser():
+def reset_browser() -> None:
     """>> reset_browser
 
     Reset the browser completely.
@@ -54,7 +54,7 @@ def reset_browser():
 
 # noinspection PyShadowingBuiltins
 def exit(code: str = '0') -> None:
-    """twill command: exit [<code>]
+    """>> exit [<code>]
 
     Exit twill, with the given exit code (defaults to 0, "no error").
     """
@@ -85,7 +85,7 @@ def code(should_be: int) -> None:
     if not isinstance(should_be, int):
         should_be = int(should_be)
     if browser.code != should_be:
-        raise TwillAssertionError(f"code is {browser.code} != {should_be}")
+        raise TwillAssertionError(f'code is {browser.code} != {should_be}')
 
 
 def tidy_ok() -> None:
@@ -99,14 +99,14 @@ def tidy_ok() -> None:
     """
     page = browser.html
     if page is None:
-        raise TwillAssertionError("not viewing HTML!")
+        raise TwillAssertionError('not viewing HTML!')
 
     clean_page, errors = utils.run_tidy(page)
     if clean_page is None:  # tidy doesn't exist...
         if options.get('require_tidy'):
             raise TwillAssertionError("cannot run 'tidy'")
     elif errors:
-        raise TwillAssertionError(f"tidy errors:\n====\n{errors}\n====\n")
+        raise TwillAssertionError(f'tidy errors:\n====\n{errors}\n====\n')
 
 
 def url(should_be: str) -> str:
@@ -151,7 +151,7 @@ def follow(what: str) -> str:
     raise TwillAssertionError(f"no links match to '{what}'")
 
 
-_find_flags = dict(i=re.IGNORECASE, m=re.MULTILINE, s=re.DOTALL)
+_find_flags = {'i': re.IGNORECASE, 'm': re.MULTILINE, 's': re.DOTALL}
 
 
 def _parse_find_flags(flags: str) -> int:
@@ -160,12 +160,13 @@ def _parse_find_flags(flags: str) -> int:
     for char in flags:
         try:
             re_flags |= _find_flags[char]
-        except IndexError:
-            raise TwillAssertionError(f"unknown 'find' flag {char!r}")
+        except IndexError as error:
+            raise TwillAssertionError(
+                f"unknown 'find' flag {char!r}") from error
     return re_flags
 
 
-def find(what: str, flags='') -> str:
+def find(what: str, flags: str ='') -> str:
     """>> find <pattern> [<flags>]
 
     Succeed if the regular expression pattern can be found on the page.
@@ -197,7 +198,7 @@ def find(what: str, flags='') -> str:
     return match_str
 
 
-def not_find(what: str, flags='') -> None:
+def not_find(what: str, flags: str ='') -> None:
     """>> not_find <pattern> [<flags>]
 
     Fail if the regular expression pattern can be found on the page.
@@ -273,7 +274,7 @@ def save_html(filename: Optional[str] = None) -> None:
     """
     html = browser.html
     if html is None:
-        log.warning("No page to save.")
+        log.warning('No page to save.')
         return
 
     if filename is None:
@@ -296,7 +297,7 @@ def save_html(filename: Optional[str] = None) -> None:
             f.write(html)
 
 
-def sleep(interval: str = "1") -> None:
+def sleep(interval: str = '1') -> None:
     """>> sleep [<interval>]
 
     Sleep for the specified amount of time.
@@ -389,7 +390,7 @@ def form_clear(form_name: str) -> None:
     """
     form = browser.form(form_name)
     if form is None:
-        raise TwillAssertionError("Form not found")
+        raise TwillAssertionError('Form not found')
     for control in form.inputs:
         if not ('readonly' in control.attrib
                 or 'disabled' in control.attrib
@@ -430,7 +431,7 @@ def form_value(form_name: str, field_name: str, value: str) -> None:
     """
     form = browser.form(form_name)
     if form is None:
-        raise TwillAssertionError("Form not found")
+        raise TwillAssertionError('Form not found')
 
     control = browser.form_field(form, field_name)
 
@@ -466,8 +467,8 @@ def form_action(form_name: str, action_url: str) -> None:
     """
     form = browser.form(form_name)
     if form is None:
-        raise TwillAssertionError("Form not found")
-    log.info("Setting action for form %s to %s.", form, action_url)
+        raise TwillAssertionError('Form not found')
+    log.info('Setting action for form %s to %s.', form, action_url)
     form.action = action_url
 
 
@@ -485,7 +486,7 @@ def form_file(form_name: str, field_name: str, filename: str,
 
     form = browser.form(form_name)
     if form is None:
-        raise TwillAssertionError("Form not found")
+        raise TwillAssertionError('Form not found')
     control = browser.form_field(form, field_name)
 
     if getattr(control, 'type', None) != 'file':
@@ -493,11 +494,11 @@ def form_file(form_name: str, field_name: str, filename: str,
 
     browser.clicked(form, control)
     plain = content_type and content_type.startswith(('plain/', 'html/'))
-    fp = open(filename, 'r' if plain else 'rb')
+    fp = open(filename, 'r' if plain else 'rb')  # noqa: SIM115
     browser.add_form_file(field_name, fp)
 
-    log.info(
-        'Added file "%s" to file upload field "%s".', filename, field_name)
+    log.info('Added file "%s" to file upload field "%s".',
+             filename, field_name)
 
 
 # noinspection SpellCheckingInspection
@@ -511,7 +512,7 @@ def extend_with(module_name: str) -> None:
     """
     global_dict, local_dict = get_twill_glocals()
 
-    exec(f"from {module_name} import *", global_dict)
+    exec(f'from {module_name} import *', global_dict)
 
     # now add the commands into the commands available for the shell,
     # and print out some nice stuff about what the extension module does.
@@ -531,17 +532,16 @@ def extend_with(module_name: str) -> None:
 
     info, debug = log.info, log.debug
     info("Imported extension module '%s'.", module_name)
-    debug("(at %s)", mod.__file__)
+    debug('(at %s)', mod.__file__)
 
     if shell.interactive:
         if mod.__doc__:
-            info("\nDescription:\n\n%s\n", mod.__doc__.strip())
-        else:
-            if fn_list:
-                info('New commands:\n')
-                for name in fn_list:
-                    info('\t%s', name)
-                info('')
+            info('\nDescription:\n\n%s\n', mod.__doc__.strip())
+        elif fn_list:
+            info('New commands:\n')
+            for name in fn_list:
+                info('\t%s', name)
+            info('')
 
 
 def get_input(prompt: str) -> str:
@@ -701,7 +701,6 @@ def add_cleanup(*args: str) -> None:
 
     Execute the given twill scripts after the current twill script.
     """
-
     local_dict = get_twill_glocals()[1]
     cleanups = local_dict.setdefault('__cleanups__', [])
     filenames = utils.gather_filenames(args)
@@ -744,7 +743,7 @@ def title(what: str) -> str:
     title = browser.title
 
     if title is None:
-        log.info("The page has no title.")
+        log.info('The page has no title.')
     else:
         log.info("The title is '%s'.", title)
 
@@ -752,10 +751,7 @@ def title(what: str) -> str:
     if m is None:
         raise TwillAssertionError(f"The title does not contain '{what}'.")
 
-    if m.groups():
-        match_str = m.group(1)
-    else:
-        match_str = m.group(0)
+    match_str = m.group(1 if m.groups() else 0)
 
     global_dict, local_dict = get_twill_glocals()
     local_dict['__match__'] = match_str
@@ -767,7 +763,7 @@ def redirect_output(filename: str) -> None:
 
     Append all twill output to the given file.
     """
-    fp = open(filename, 'a')
+    fp = open(filename, 'a', encoding='utf-8')  # noqa: SIM115
     set_output(fp)
 
 
@@ -784,7 +780,7 @@ def redirect_error(filename: str) -> None:
 
     Append all twill error output to the given file.
     """
-    fp = open(filename, 'a')
+    fp = open(filename, 'a', encoding='utf-8')  # noqa: SIM115
     set_err_out(fp)
 
 
@@ -830,11 +826,11 @@ def clear_extra_headers() -> None:
     browser.reset_headers()
 
 
-default_options: Dict[str, Any] = dict(
-    equiv_refresh_interval=2,
-    readonly_controls_writeable=False,
-    require_tidy=False,
-    with_default_realm=False)
+default_options: Dict[str, Any] = {
+    'equiv_refresh_interval': 2,
+    'readonly_controls_writeable': False,
+    'require_tidy': False,
+    'with_default_realm': False}
 
 options = default_options.copy()  # the global options dictionary
 
@@ -865,9 +861,9 @@ def config(key: Optional[str] = None, value: Any = None) -> None:
         v = options.get(key)
         if v is None and not key.startswith('tidy_'):
             log.error("no such configuration key '%s'", key)
-            info("valid keys are: %s", ', '.join(sorted(options)))
-            raise TwillException("no such configuration key: '%s'" % (key,))
-        elif value is None:
+            info('valid keys are: %s', sorted(options))
+            raise TwillException(f'no such configuration key: {key!r}')
+        if value is None:
             info('\nkey %s: value %s\n', key, v)
         else:
             if isinstance(v, bool):

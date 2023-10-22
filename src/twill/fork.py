@@ -1,22 +1,16 @@
-"""twill multiprocess execution system."""
+"""The twill multiprocess execution system."""
 
-import sys
 import os
+import sys
 import time
-
 from optparse import OptionParser
+from pickle import dump, load
 
 from . import execute_file, set_log_level
 
-from pickle import load, dump
 
-# make sure that the current working directory is in the path
-if '' not in sys.path:
-    sys.path.append('')
-
-
-def main():
-
+def main() -> None:
+    """Run twill scripts in parallel."""
     try:
         if sys.platform == 'win32':
             raise AttributeError
@@ -26,19 +20,23 @@ def main():
 
     parser = OptionParser()
     add = parser.add_option
-    add('-u', '--url', nargs=1, action="store", dest="url",
-        help="start at the given URL before each script")
-    add('-n', '--number', nargs=1, action="store", dest="number",
-        default=1, type="int",
-        help="number of times to run the given script(s)")
-    add('-p', '--processes', nargs=1, action="store",
-        dest="processes", default=1, type="int",
-        help="number of processes to execute in parallel")
+    add('-u', '--url', nargs=1, action='store', dest='url',
+        help='start at the given URL before each script')
+    add('-n', '--number', nargs=1, action='store', dest='number',
+        default=1, type='int',
+        help='number of times to run the given script(s)')
+    add('-p', '--processes', nargs=1, action='store',
+        dest='processes', default=1, type='int',
+        help='number of processes to execute in parallel')
 
     options, args = parser.parse_args()
 
     if not args:
         sys.exit('Error: Must specify one or more scripts to execute.')
+
+    # make sure that the current working directory is in the path
+    if '' not in sys.path:
+        sys.path.append('')
 
     average_number = options.number // options.processes
     last_number = average_number + options.number % options.processes
@@ -68,8 +66,8 @@ def main():
         # iterate over all the child pids, wait until they finish,
         # and then sum statistics
         for child_pid in child_pids[:]:
-            child_pid, status = os.waitpid(child_pid, 0)
-            if status:  # failure
+            pid, status = os.waitpid(child_pid, 0)
+            if status or pid != child_pid:  # failure
                 print(f'[twill-fork parent: process {child_pid} FAILED:'
                       f' exit status {status}]')
                 print('[twill-fork parent:'
@@ -78,8 +76,8 @@ def main():
             else:  # record statistics, otherwise
                 filename = '.status.%d' % (child_pid,)
                 with open(filename, 'rb') as fp:
-                    this_time, n_executed = load(fp)
-                os.unlink(filename)
+                    this_time, n_executed = load(fp)  # noqa: S301
+                os.unlink(filename)  # noqa: PTH108
                 total_time += this_time
                 total_exec += n_executed
 
@@ -103,7 +101,7 @@ def main():
         start_time = time.time()
 
         set_log_level('warning')
-        for i in range(repeat):
+        for _i in range(repeat):
             for filename in args:
                 execute_file(filename, initial_url=options.url)
 

@@ -4,9 +4,10 @@ This doesn't test to see if tidy was actually run; all it does is make sure
 that the function runs without error...
 """
 
+import pytest
 from twill import utils
 from twill.commands import config
-
+from twill.errors import TwillException
 
 bad_html = """<a href="test">you</a> <b>hello."""
 
@@ -20,21 +21,17 @@ def teardown_module():
 
 
 def test_bad_html():
-    (output, errors) = utils.run_tidy(bad_html)
+    output, errors = utils.run_tidy(bad_html)
     assert errors
-    (output, errors) = utils.run_tidy(output)
+    output, errors = utils.run_tidy(output)
     assert not errors
 
 
 def test_no_tidylib():
     tidylib, utils.tidylib = utils.tidylib, None
     try:
-        try:
+        with pytest.raises(TwillException, match='PyTidyLib is not installed'):
             utils.run_tidy(bad_html)
-        except Exception:
-            pass
-        else:
-            assert False, 'bad HTML should raise error'
     finally:
         utils.tidylib = tidylib
 
@@ -54,13 +51,13 @@ def test_no_tidylib_but_not_required():
 
 def test_tidy_options():
     good_content = '<h1>Hello, World!</h1>'
-    (output, errors) = utils.run_tidy(good_content)
+    output, errors = utils.run_tidy(good_content)
     assert errors
     config('tidy_show_body_only', 1)
-    (output, errors) = utils.run_tidy(good_content)
+    output, errors = utils.run_tidy(good_content)
     assert not errors
     config('tidy_show_body_only', 0)
-    (output, errors) = utils.run_tidy(good_content)
+    output, errors = utils.run_tidy(good_content)
     assert errors
 
 

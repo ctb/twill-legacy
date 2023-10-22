@@ -1,16 +1,13 @@
-"""twill exceptions"""
+"""The twill exceptions."""
 
 
-class TwillException(Exception):
+class TwillException(Exception):  # noqa: N818
     """General twill exception."""
-    pass
 
 
 class TwillAssertionError(TwillException):
     """AssertionError to raise upon failure of some twill command."""
-    pass
 
 
 class TwillNameError(TwillException):
     """Error to raise when an unknown command is called."""
-    pass
