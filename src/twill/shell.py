@@ -14,14 +14,13 @@ from optparse import OptionParser
 from pathlib import Path
 from typing import Any, Callable, List, Optional
 
+readline: Any
 try:
-    from readline import (  # type: ignore[attr-defined]
-        read_history_file,
-        write_history_file,
-    )
+    import readline
 except ImportError:
     # may not exist on some operating systems
-    read_history_file = write_history_file = None
+    readline = None
+
 # noinspection PyCompatibility
 from . import (
     __url__,
@@ -132,9 +131,9 @@ class TwillCommandLoop(Singleton, Cmd):
         namespaces.new_local_dict()
 
         # import readline history, if available/possible.
-        if read_history_file:
+        if readline is not None:
             with suppress(OSError):
-                read_history_file('.twill-history')
+                readline.read_history_file('.twill-history')
 
         # fail on unknown commands? for test-shell, primarily.
         self.fail_on_unknown = fail_on_unknown
@@ -267,8 +266,9 @@ class TwillCommandLoop(Singleton, Cmd):
     @staticmethod
     def do_EOF(*_args: str) -> None:  # noqa: N802
         """Exit on CTRL-D."""
-        if write_history_file:
-            write_history_file('.twill-history')
+        if readline is not None:
+            with suppress(OSError):
+                readline.write_history_file('.twill-history')
         raise SystemExit
 
     @staticmethod
