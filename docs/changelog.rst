@@ -4,6 +4,10 @@
 ChangeLog
 =========
 
+3.2 (released ...)
+------------------
+...
+
 3.1 (released 2022-10-30)
 -------------------------
 * The submit command now takes an additional parameter to specify a form

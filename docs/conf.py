@@ -19,11 +19,12 @@ https://www.sphinx-doc.org/en/master/usage/configuration.html
 # -- Project information -----------------------------------------------------
 
 project = 'twill'
-copyright = '2022, C. Titus Brown, Ben R. Taylor, Christoph Zwerschke et al'
+copyright = '2023, C. Titus Brown, Ben R. Taylor, Christoph Zwerschke et al'
 author = 'C. Titus Brown, Ben R. Taylor, Christoph Zwerschke et al'
 
 # The full version, including alpha/beta/rc tags
-version = release = '3.1'
+from twill import __version__
+version = release = __version__
 
 
 # -- General configuration ---------------------------------------------------

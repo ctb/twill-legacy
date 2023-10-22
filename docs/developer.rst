@@ -30,8 +30,8 @@ In plain English: C. Titus Brown owns the original code, but you're
 welcome to use it, update it, subsume it into other projects, and
 distribute it freely. However, you must retain copyright attribution.
 
-Newer versions 1.x, 2.x and 3.x are also Copyright (C) 2007-2022
-Ben R. Taylor , Adam V. Brandizzi, Christoph Zwerschke et al.
+Newer versions 1.x, 2.x and 3.x are also Copyright (C) 2007-2023
+Ben R. Taylor, Adam V. Brandizzi, Christoph Zwerschke et al.
 
 The newer versions are released under the same `MIT license`_.
 
