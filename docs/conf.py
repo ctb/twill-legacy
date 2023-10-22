@@ -18,12 +18,13 @@ https://www.sphinx-doc.org/en/master/usage/configuration.html
 
 # -- Project information -----------------------------------------------------
 
+from twill import __version__
+
 project = 'twill'
 copyright = '2023, C. Titus Brown, Ben R. Taylor, Christoph Zwerschke et al'
 author = 'C. Titus Brown, Ben R. Taylor, Christoph Zwerschke et al'
 
 # The full version, including alpha/beta/rc tags
-from twill import __version__
 version = release = __version__
 
 

@@ -14,13 +14,6 @@ from optparse import OptionParser
 from pathlib import Path
 from typing import Any, Callable, List, Optional
 
-readline: Any
-try:
-    import readline
-except ImportError:
-    # may not exist on some operating systems
-    readline = None
-
 # noinspection PyCompatibility
 from . import (
     __url__,
@@ -37,6 +30,13 @@ from . import (
 )
 from .browser import browser
 from .utils import Singleton, gather_filenames
+
+readline: Any
+try:
+    import readline
+except ImportError:
+    # may not exist on some operating systems
+    readline = None
 
 __all__ = ['main']
 
