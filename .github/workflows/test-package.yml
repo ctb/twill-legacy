@@ -19,7 +19,7 @@ jobs:
     - name: Install test runner
       run: pip install tox
     - name: Run twill tests
-      run: toy -e py
+      run: tox -e py
     - name: Run software quality checks
       if: matrix.python == '3.11'
       run: TOXENV=ruff,mypy,docs,manifest tox
