@@ -72,6 +72,9 @@ Source = "https://github.com/twill-tools/twill"
 ChangeLog = "https://twill-tools.github.io/twill/changelog.html"
 Download = "https://pypi.org/project/twill/"
 
+[tool.setuptools.package-data]
+"twill" = ["py.typed"]
+
 [tool.pytest.ini_options]
 minversion = "7.4"
 testpaths = [ "tests" ]
