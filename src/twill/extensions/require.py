@@ -15,14 +15,14 @@ Commands:
 
 from twill import browser, commands, log
 
-__all__ = ['require', 'skip_require', 'flush_visited', 'no_require']
+__all__ = ["require", "skip_require", "flush_visited", "no_require"]
 
-_requirements = []      # what requirements to satisfy
+_requirements = []  # what requirements to satisfy
 
 
 class Ignore:
     once: bool = False  # reset after each hook call
-    always: bool  = False  # never reset
+    always: bool = False  # never reset
 
 
 def skip_require() -> None:
@@ -46,12 +46,12 @@ def require(what: str) -> None:
     # noinspection PyProtectedMember
     hooks = browser._post_load_hooks  # noqa: SLF001
     if _require_post_load_hook not in hooks:
-        log.debug('INSTALLING POST-LOAD HOOK')
+        log.debug("INSTALLING POST-LOAD HOOK")
         hooks.append(_require_post_load_hook)
 
     # add the requirement.
     if what not in _requirements:
-        log.debug('Adding requirement: %s', what)
+        log.debug("Adding requirement: %s", what)
         _requirements.append(what)
 
 
@@ -74,6 +74,7 @@ def flush_visited() -> None:
     Flush the list of pages successfully visited already.
     """
     from .check_links import good_urls
+
     good_urls.clear()
 
 
@@ -82,7 +83,7 @@ def _require_post_load_hook(action: str, *_args, **_kwargs) -> None:
 
     See TwillBrowser._journey() for more information.
     """
-    if action == 'back':  # do nothing on a 'back'
+    if action == "back":  # do nothing on a 'back'
         return
 
     if Ignore.once or Ignore.always:
@@ -90,18 +91,17 @@ def _require_post_load_hook(action: str, *_args, **_kwargs) -> None:
         return
 
     for what in _requirements:
-
-        if what == 'success':
-            log.debug('REQUIRING success')
+        if what == "success":
+            log.debug("REQUIRING success")
             commands.code(200)
 
-        elif what == 'links_ok':
+        elif what == "links_ok":
             from .check_links import check_links, good_urls
 
             Ignore.always = True
-            log.debug('REQUIRING functioning links')
-            log.debug('(already visited:)')
-            log.debug('\n\t'.join(sorted(good_urls)))
+            log.debug("REQUIRING functioning links")
+            log.debug("(already visited:)")
+            log.debug("\n\t".join(sorted(good_urls)))
 
             try:
                 check_links()

@@ -20,7 +20,7 @@ import re
 
 from twill import browser, commands, log, utils
 
-__all__ = ['fv_match', 'fv_multi_match', 'fv_multi', 'fv_multi_sub']
+__all__ = ["fv_match", "fv_multi_match", "fv_multi", "fv_multi_sub"]
 
 
 def fv_match(form_name: str, field_pattern: str, value: str) -> None:
@@ -39,22 +39,23 @@ def fv_match(form_name: str, field_pattern: str, value: str) -> None:
 
     regex = re.compile(field_pattern)
 
-    matches = [ctl for ctl in form.inputs
-               if regex.search(str(ctl.get('name')))]
+    matches = [
+        ctl for ctl in form.inputs if regex.search(str(ctl.get("name")))
+    ]
 
     if matches:
-        log.info('-- matches %d', len(matches))
+        log.info("-- matches %d", len(matches))
 
         n = 0
         for control in matches:
             browser.clicked(form, control)
-            if 'readonly' in control.attrib:
+            if "readonly" in control.attrib:
                 continue
 
             n += 1
             utils.set_form_control_value(control, value)
 
-        log.info('set %d values total', n)
+        log.info("set %d values total", n)
 
 
 def fv_multi_match(form_name: str, field_pattern: str, *values: str) -> None:
@@ -72,21 +73,22 @@ def fv_multi_match(form_name: str, field_pattern: str, *values: str) -> None:
     regex = re.compile(field_pattern)
 
     matches = [
-        ctl for ctl in form.inputs if regex.search(str(ctl.get('name')))]
+        ctl for ctl in form.inputs if regex.search(str(ctl.get("name")))
+    ]
 
     if matches:
-        log.info('-- matches %d, values %d', len(matches), len(values))
+        log.info("-- matches %d, values %d", len(matches), len(values))
 
         for n, control in enumerate(matches):
             browser.clicked(form, control)
-            if 'readonly' in control.attrib:
+            if "readonly" in control.attrib:
                 continue
             try:
                 utils.set_form_control_value(control, values[n])
             except IndexError:
                 utils.set_form_control_value(control, values[-1])
 
-        log.info('set %d values total', n)
+        log.info("set %d values total", n)
 
 
 def fv_multi(form_name: str, *pairs: str) -> None:
@@ -101,7 +103,7 @@ def fv_multi(form_name: str, *pairs: str) -> None:
     pairs are given.
     """
     for pair in pairs:
-        field_name, value = pair.split('=', 1)
+        field_name, value = pair.split("=", 1)
         commands.fv(form_name, field_name, value)
 
 
@@ -111,7 +113,7 @@ def fv_multi_sub(form_name: str, *pairs: str) -> None:
     Set multiple form fields (as with 'fv_multi') and then submit().
     """
     for pair in pairs:
-        field_name, value = pair.split('=', 1)
+        field_name, value = pair.split("=", 1)
         commands.fv(form_name, field_name, value)
 
     commands.submit()

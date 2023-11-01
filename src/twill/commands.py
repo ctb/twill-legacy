@@ -19,27 +19,76 @@ from .namespaces import get_twill_glocals
 
 # noinspection SpellCheckingInspection
 __all__ = [
-    'add_auth', 'add_cleanup', 'add_extra_header', 'agent',
-    'back', 'browser',
-    'clear_cookies', 'clear_extra_headers',
-    'code', 'config',
-    'debug', 'echo', 'exit', 'extend_with',
-    'find', 'follow',
-    'form_action', 'formaction', 'fa',
-    'form_clear', 'formclear', 'form_file', 'formfile',
-    'form_value', 'formvalue', 'fv',
-    'get_input', 'getinput', 'get_password', 'getpassword',
-    'go', 'info', 'load_cookies', 'not_find', 'notfind', 'options',
-    'redirect_error', 'redirect_output',
-    'reload', 'reset_browser', 'reset_error', 'reset_output',
-    'run', 'run_file', 'runfile', 'rf',
-    'save_cookies', 'save_html',
-    'setglobal', 'set_global', 'setlocal', 'set_local',
-    'show', 'showcookies', 'show_cookies', 'show_extra_headers',
-    'showforms', 'show_forms', 'showhistory', 'show_history',
-    'showhtml', 'show_html', 'showlinks', 'show_links',
-    'sleep', 'submit',
-    'tidy_ok', 'title', 'url']
+    "add_auth",
+    "add_cleanup",
+    "add_extra_header",
+    "agent",
+    "back",
+    "browser",
+    "clear_cookies",
+    "clear_extra_headers",
+    "code",
+    "config",
+    "debug",
+    "echo",
+    "exit",
+    "extend_with",
+    "find",
+    "follow",
+    "form_action",
+    "formaction",
+    "fa",
+    "form_clear",
+    "formclear",
+    "form_file",
+    "formfile",
+    "form_value",
+    "formvalue",
+    "fv",
+    "get_input",
+    "getinput",
+    "get_password",
+    "getpassword",
+    "go",
+    "info",
+    "load_cookies",
+    "not_find",
+    "notfind",
+    "options",
+    "redirect_error",
+    "redirect_output",
+    "reload",
+    "reset_browser",
+    "reset_error",
+    "reset_output",
+    "run",
+    "run_file",
+    "runfile",
+    "rf",
+    "save_cookies",
+    "save_html",
+    "setglobal",
+    "set_global",
+    "setlocal",
+    "set_local",
+    "show",
+    "showcookies",
+    "show_cookies",
+    "show_extra_headers",
+    "showforms",
+    "show_forms",
+    "showhistory",
+    "show_history",
+    "showhtml",
+    "show_html",
+    "showlinks",
+    "show_links",
+    "sleep",
+    "submit",
+    "tidy_ok",
+    "title",
+    "url",
+]
 
 
 def reset_browser() -> None:
@@ -53,10 +102,10 @@ def reset_browser() -> None:
 
 
 # noinspection PyShadowingBuiltins
-def exit(code: str = '0') -> None:
+def exit(code: str = "0") -> None:
     """>> exit [<code>]
 
-    Exit twill, with the given exit code (defaults to 0, "no error").
+    Exit twill with given exit code (default 0, "no error").
     """
     raise SystemExit(int(code))
 
@@ -85,7 +134,7 @@ def code(should_be: int) -> None:
     if not isinstance(should_be, int):
         should_be = int(should_be)
     if browser.code != should_be:
-        raise TwillAssertionError(f'code is {browser.code} != {should_be}')
+        raise TwillAssertionError(f"code is {browser.code} != {should_be}")
 
 
 def tidy_ok() -> None:
@@ -99,14 +148,14 @@ def tidy_ok() -> None:
     """
     page = browser.html
     if page is None:
-        raise TwillAssertionError('not viewing HTML!')
+        raise TwillAssertionError("not viewing HTML!")
 
     clean_page, errors = utils.run_tidy(page)
     if clean_page is None:  # tidy doesn't exist...
-        if options.get('require_tidy'):
+        if options.get("require_tidy"):
             raise TwillAssertionError("cannot run 'tidy'")
     elif errors:
-        raise TwillAssertionError(f'tidy errors:\n====\n{errors}\n====\n')
+        raise TwillAssertionError(f"tidy errors:\n====\n{errors}\n====\n")
 
 
 def url(should_be: str) -> str:
@@ -119,7 +168,7 @@ def url(should_be: str) -> str:
     current_url = browser.url
 
     if current_url is None:
-        current_url = ''
+        current_url = ""
         m = None
     else:
         m = regex.search(current_url)
@@ -127,11 +176,12 @@ def url(should_be: str) -> str:
     if not m:
         raise TwillAssertionError(
             f"current url is '{current_url}';\n"
-            f"does not match '{should_be}'\n")
+            f"does not match '{should_be}'\n"
+        )
 
     match_str = m.group(1 if m.groups() else 0)
     global_dict, local_dict = get_twill_glocals()
-    local_dict['__match__'] = match_str
+    local_dict["__match__"] = match_str
     return match_str
 
 
@@ -151,7 +201,7 @@ def follow(what: str) -> str:
     raise TwillAssertionError(f"no links match to '{what}'")
 
 
-_find_flags = {'i': re.IGNORECASE, 'm': re.MULTILINE, 's': re.DOTALL}
+_find_flags = {"i": re.IGNORECASE, "m": re.MULTILINE, "s": re.DOTALL}
 
 
 def _parse_find_flags(flags: str) -> int:
@@ -162,11 +212,12 @@ def _parse_find_flags(flags: str) -> int:
             re_flags |= _find_flags[char]
         except IndexError as error:
             raise TwillAssertionError(
-                f"unknown 'find' flag {char!r}") from error
+                f"unknown 'find' flag {char!r}"
+            ) from error
     return re_flags
 
 
-def find(what: str, flags: str ='') -> str:
+def find(what: str, flags: str = "") -> str:
     """>> find <pattern> [<flags>]
 
     Succeed if the regular expression pattern can be found on the page.
@@ -184,21 +235,21 @@ def find(what: str, flags: str ='') -> str:
     """
     page = browser.html
     local_dict = get_twill_glocals()[1]
-    if 'x' in flags:
+    if "x" in flags:
         elements = browser.xpath(what)
         if not elements:
             raise TwillAssertionError(f"no element to path '{what}'")
-        match_str = elements[0].text or ''
+        match_str = elements[0].text or ""
     else:
         match = re.search(what, page, flags=_parse_find_flags(flags))
         if not match:
             raise TwillAssertionError(f"no match to '{what}'")
         match_str = match.group(1 if match.groups() else 0)
-    local_dict['__match__'] = match_str
+    local_dict["__match__"] = match_str
     return match_str
 
 
-def not_find(what: str, flags: str ='') -> None:
+def not_find(what: str, flags: str = "") -> None:
     """>> not_find <pattern> [<flags>]
 
     Fail if the regular expression pattern can be found on the page.
@@ -229,10 +280,10 @@ def show(what: Optional[str] = None) -> None:
     Show the specified objects (html, cookies, forms, links, history).
     """
     if not what:
-        what = 'html'
+        what = "html"
     command = None
     if what.isalpha():
-        command_name = f'show_{what}'
+        command_name = f"show_{what}"
         if command_name in __all__:
             command = globals().get(command_name)
     if not command:
@@ -249,9 +300,9 @@ def show_html() -> None:
     Note: Use browser.html to get the HTML programmatically.
     """
     html = browser.html.strip()
-    log.info('')
+    log.info("")
     log.info(html)
-    log.info('')
+    log.info("")
 
 
 # noinspection SpellCheckingInspection
@@ -263,7 +314,7 @@ def echo(*strs: str) -> None:
 
     Echo the arguments to the screen.
     """
-    log.info(' '.join(map(str, strs)))
+    log.info(" ".join(map(str, strs)))
 
 
 def save_html(filename: Optional[str] = None) -> None:
@@ -274,30 +325,30 @@ def save_html(filename: Optional[str] = None) -> None:
     """
     html = browser.html
     if html is None:
-        log.warning('No page to save.')
+        log.warning("No page to save.")
         return
 
     if filename is None:
         url = browser.url
         if url:
-            url = url.split('?', 1)[0]
-            filename = url.rsplit('/', 1)[-1]
+            url = url.split("?", 1)[0]
+            filename = url.rsplit("/", 1)[-1]
         if not filename:
-            filename = 'index.html'
+            filename = "index.html"
         log.info("Using filename '%s'.", filename)
 
-    encoding = browser.encoding or 'utf-8'
+    encoding = browser.encoding or "utf-8"
     try:
-        with open(filename, 'w', encoding=encoding) as f:
+        with open(filename, "w", encoding=encoding) as f:
             f.write(html)
     except UnicodeEncodeError:
-        if encoding == 'utf-8':
+        if encoding == "utf-8":
             raise
-        with open(filename, 'w', encoding='utf-8') as f:
+        with open(filename, "w", encoding="utf-8") as f:
             f.write(html)
 
 
-def sleep(interval: str = '1') -> None:
+def sleep(interval: str = "1") -> None:
     """>> sleep [<interval>]
 
     Sleep for the specified amount of time.
@@ -321,8 +372,9 @@ def agent(what: str) -> None:
     browser.agent_string = agent
 
 
-def submit(submit_button: Optional[str] = None,
-           form_name: Optional[str] = None) -> None:
+def submit(
+    submit_button: Optional[str] = None, form_name: Optional[str] = None
+) -> None:
     """>> submit [<submit_button> [<form_name>]]
 
     Submit the current form (the one last clicked on) by clicking on the
@@ -390,12 +442,13 @@ def form_clear(form_name: str) -> None:
     """
     form = browser.form(form_name)
     if form is None:
-        raise TwillAssertionError('Form not found')
+        raise TwillAssertionError("Form not found")
     for control in form.inputs:
-        if not ('readonly' in control.attrib
-                or 'disabled' in control.attrib
-                or getattr(control, 'type', None)
-                in ('submit', 'image', 'hidden')):
+        if not (
+            "readonly" in control.attrib
+            or "disabled" in control.attrib
+            or getattr(control, "type", None) in ("submit", "image", "hidden")
+        ):
             del control.value
     browser.last_submit_button = None
 
@@ -431,24 +484,25 @@ def form_value(form_name: str, field_name: str, value: str) -> None:
     """
     form = browser.form(form_name)
     if form is None:
-        raise TwillAssertionError('Form not found')
+        raise TwillAssertionError("Form not found")
 
     control = browser.form_field(form, field_name)
 
     browser.clicked(form, control)
 
-    attrib = getattr(control, 'attrib', {})
-    if 'readonly' in attrib:
-        if options['readonly_controls_writeable']:
-            log.info('Forcing read-only form field to writeable.')
-            del attrib['readonly']
+    attrib = getattr(control, "attrib", {})
+    if "readonly" in attrib:
+        if options["readonly_controls_writeable"]:
+            log.info("Forcing read-only form field to writeable.")
+            del attrib["readonly"]
         else:
-            log.info('Form field is read-only or ignorable; nothing done.')
+            log.info("Form field is read-only or ignorable; nothing done.")
             return
 
-    if getattr(control, 'type', None) == 'file':
+    if getattr(control, "type", None) == "file":
         raise TwillException(
-            'form field is for file upload; use "form_file" instead')
+            'form field is for file upload; use "form_file" instead'
+        )
 
     value = browser.decode(value)
     utils.set_form_control_value(control, value)
@@ -467,8 +521,8 @@ def form_action(form_name: str, action_url: str) -> None:
     """
     form = browser.form(form_name)
     if form is None:
-        raise TwillAssertionError('Form not found')
-    log.info('Setting action for form %s to %s.', form, action_url)
+        raise TwillAssertionError("Form not found")
+    log.info("Setting action for form %s to %s.", form, action_url)
     form.action = action_url
 
 
@@ -476,29 +530,34 @@ def form_action(form_name: str, action_url: str) -> None:
 fa = formaction = form_action  # backward compatibility and convenience
 
 
-def form_file(form_name: str, field_name: str, filename: str,
-              content_type: Optional[str] = None) -> None:
+def form_file(
+    form_name: str,
+    field_name: str,
+    filename: str,
+    content_type: Optional[str] = None,
+) -> None:
     """>> form_file <form_name> <field_name> <filename> [<content_type>]
 
     Upload a file via an "upload file" form field.
     """
-    filename = filename.replace('/', sep)
+    filename = filename.replace("/", sep)
 
     form = browser.form(form_name)
     if form is None:
-        raise TwillAssertionError('Form not found')
+        raise TwillAssertionError("Form not found")
     control = browser.form_field(form, field_name)
 
-    if getattr(control, 'type', None) != 'file':
-        raise TwillException('ERROR: field is not a file upload field!')
+    if getattr(control, "type", None) != "file":
+        raise TwillException("ERROR: field is not a file upload field!")
 
     browser.clicked(form, control)
-    plain = content_type and content_type.startswith(('plain/', 'html/'))
-    fp = open(filename, 'r' if plain else 'rb')  # noqa: SIM115
+    plain = content_type and content_type.startswith(("plain/", "html/"))
+    fp = open(filename, "r" if plain else "rb")  # noqa: SIM115
     browser.add_form_file(field_name, fp)
 
-    log.info('Added file "%s" to file upload field "%s".',
-             filename, field_name)
+    log.info(
+        'Added file "%s" to file upload field "%s".', filename, field_name
+    )
 
 
 # noinspection SpellCheckingInspection
@@ -512,7 +571,7 @@ def extend_with(module_name: str) -> None:
     """
     global_dict, local_dict = get_twill_glocals()
 
-    exec(f'from {module_name} import *', global_dict)
+    exec(f"from {module_name} import *", global_dict)
 
     # now add the commands into the commands available for the shell,
     # and print out some nice stuff about what the extension module does.
@@ -521,7 +580,7 @@ def extend_with(module_name: str) -> None:
 
     from . import parse, shell
 
-    fn_list = getattr(mod, '__all__', None)
+    fn_list = getattr(mod, "__all__", None)
     if fn_list is None:
         fn_list = [fn for fn in dir(mod) if callable(getattr(mod, fn))]
 
@@ -532,16 +591,16 @@ def extend_with(module_name: str) -> None:
 
     info, debug = log.info, log.debug
     info("Imported extension module '%s'.", module_name)
-    debug('(at %s)', mod.__file__)
+    debug("(at %s)", mod.__file__)
 
     if shell.interactive:
         if mod.__doc__:
-            info('\nDescription:\n\n%s\n', mod.__doc__.strip())
+            info("\nDescription:\n\n%s\n", mod.__doc__.strip())
         elif fn_list:
-            info('New commands:\n')
+            info("New commands:\n")
             for name in fn_list:
-                info('\t%s', name)
-            info('')
+                info("\t%s", name)
+            info("")
 
 
 def get_input(prompt: str) -> str:
@@ -553,7 +612,7 @@ def get_input(prompt: str) -> str:
 
     inp = input(prompt)
 
-    local_dict['__input__'] = inp
+    local_dict["__input__"] = inp
     return inp
 
 
@@ -572,7 +631,7 @@ def get_password(prompt: str) -> str:
     # as on other platforms and for better testability of this function
     inp = getpass.getpass(prompt, sys.stdin)
 
-    local_dict['__password__'] = inp
+    local_dict["__password__"] = inp
     return inp
 
 
@@ -627,8 +686,11 @@ def add_auth(realm: str, uri: str, user: str, passwd: str) -> None:
         browser.add_creds((uri, realm), user, passwd)
         log.info(
             "Added auth info: realm '%s' / URI '%s' / user '%s'.",
-            realm, uri, user)
-    if realm is None or options['with_default_realm']:
+            realm,
+            uri,
+            user,
+        )
+    if realm is None or options["with_default_realm"]:
         browser.add_creds(uri, user, passwd)
         if realm is None:
             log.info("Added auth info: URI '%s' / user '%s'.", uri, user)
@@ -649,13 +711,13 @@ def debug(what: str, level: str) -> None:
     except ValueError:
         num_level = 1 if utils.make_boolean(level) else 0
 
-    log.info('DEBUG: Setting %s debugging to level %d.', what, num_level)
+    log.info("DEBUG: Setting %s debugging to level %d.", what, num_level)
 
-    if what == 'http':
+    if what == "http":
         browser.debug_level = num_level
-    elif what == 'equiv-refresh':
+    elif what == "equiv-refresh":
         browser.show_refresh = num_level > 0
-    elif what == 'commands':
+    elif what == "commands":
         parse.log_commands(num_level > 0)
     else:
         raise TwillException(f'Unknown debugging type: "{what}"')
@@ -672,8 +734,8 @@ def run(cmd: str) -> None:
     global_dict, local_dict = get_twill_glocals()
 
     # set __url__
-    local_dict['__cmd__'] = cmd
-    local_dict['__url__'] = browser.url
+    local_dict["__cmd__"] = cmd
+    local_dict["__url__"] = browser.url
 
     exec(cmd, global_dict, local_dict)
 
@@ -702,9 +764,9 @@ def add_cleanup(*args: str) -> None:
     Execute the given twill scripts after the current twill script.
     """
     local_dict = get_twill_glocals()[1]
-    cleanups = local_dict.setdefault('__cleanups__', [])
+    cleanups = local_dict.setdefault("__cleanups__", [])
     filenames = utils.gather_filenames(args)
-    log.debug('Adding cleanup scripts: %s', ', '.join(filenames))
+    log.debug("Adding cleanup scripts: %s", ", ".join(filenames))
     cleanups.extend(reversed(filenames))
 
 
@@ -743,7 +805,7 @@ def title(what: str) -> str:
     title = browser.title
 
     if title is None:
-        log.info('The page has no title.')
+        log.info("The page has no title.")
     else:
         log.info("The title is '%s'.", title)
 
@@ -754,7 +816,7 @@ def title(what: str) -> str:
     match_str = m.group(1 if m.groups() else 0)
 
     global_dict, local_dict = get_twill_glocals()
-    local_dict['__match__'] = match_str
+    local_dict["__match__"] = match_str
     return match_str
 
 
@@ -763,7 +825,7 @@ def redirect_output(filename: str) -> None:
 
     Append all twill output to the given file.
     """
-    fp = open(filename, 'a', encoding='utf-8')  # noqa: SIM115
+    fp = open(filename, "a", encoding="utf-8")  # noqa: SIM115
     set_output(fp)
 
 
@@ -780,7 +842,7 @@ def redirect_error(filename: str) -> None:
 
     Append all twill error output to the given file.
     """
-    fp = open(filename, 'a', encoding='utf-8')  # noqa: SIM115
+    fp = open(filename, "a", encoding="utf-8")  # noqa: SIM115
     set_err_out(fp)
 
 
@@ -809,12 +871,12 @@ def show_extra_headers() -> None:
     info = log.info
     headers = browser.headers
     if headers:
-        info('\nThe following HTTP headers are added to each request:\n')
+        info("\nThe following HTTP headers are added to each request:\n")
         for key, value in headers.items():
             info('\t"%s" = "%s"', key, value)
-        info('')
+        info("")
     else:
-        info('** no extra HTTP headers **')
+        info("** no extra HTTP headers **")
 
 
 def clear_extra_headers() -> None:
@@ -827,10 +889,11 @@ def clear_extra_headers() -> None:
 
 
 default_options: Dict[str, Any] = {
-    'equiv_refresh_interval': 2,
-    'readonly_controls_writeable': False,
-    'require_tidy': False,
-    'with_default_realm': False}
+    "equiv_refresh_interval": 2,
+    "readonly_controls_writeable": False,
+    "require_tidy": False,
+    "with_default_realm": False,
+}
 
 options = default_options.copy()  # the global options dictionary
 
@@ -853,18 +916,18 @@ def config(key: Optional[str] = None, value: Any = None) -> None:
     info = log.info
     if key is None:
         keys = sorted(options)
-        info('\nCurrent configuration:\n')
+        info("\nCurrent configuration:\n")
         for k in keys:
-            info('\t%s : %s', k, options[k])
-        info('')
+            info("\t%s : %s", k, options[k])
+        info("")
     else:
         v = options.get(key)
-        if v is None and not key.startswith('tidy_'):
+        if v is None and not key.startswith("tidy_"):
             log.error("no such configuration key '%s'", key)
-            info('valid keys are: %s', sorted(options))
-            raise TwillException(f'no such configuration key: {key!r}')
+            info("valid keys are: %s", sorted(options))
+            raise TwillException(f"no such configuration key: {key!r}")
         if value is None:
-            info('\nkey %s: value %s\n', key, v)
+            info("\nkey %s: value %s\n", key, v)
         else:
             if isinstance(v, bool):
                 value = utils.make_boolean(value)
@@ -883,20 +946,20 @@ def info() -> None:
         log.warning("We're not on a page!")
         return
 
-    content_type = browser.response_headers['content-type']
+    content_type = browser.response_headers["content-type"]
     if isinstance(content_type, bytes):
         content_type = content_type.decode()
-    is_html = content_type and content_type.split(';', 1)[0] == 'text/html'
+    is_html = content_type and content_type.split(";", 1)[0] == "text/html"
     code = browser.code
 
     info = log.info
-    info('\tURL: %s', current_url)
-    info('\tHTTP code: %s', code)
-    info('\tContent type: %s%s', content_type, ' (HTML)' if is_html else '')
+    info("\tURL: %s", current_url)
+    info("\tHTTP code: %s", code)
+    info("\tContent type: %s%s", content_type, " (HTML)" if is_html else "")
     if is_html:
         title = browser.title
-        info('\tPage title: %s', title)
+        info("\tPage title: %s", title)
         forms = browser.forms
         if len(forms):
-            info('\tThis page contains %d form(s)', len(forms))
-    info('')
+            info("\tThis page contains %d form(s)", len(forms))
+    info("")

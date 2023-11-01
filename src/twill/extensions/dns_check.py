@@ -20,12 +20,11 @@ try:
     from dns.resolver import Answer, Resolver
 except ImportError as error:
     msg = str(error)
-    msg += '\nMust have dnspython installed to use the DNS extension module.'
+    msg += "\nMust have dnspython installed to use the DNS extension module."
     raise ImportError(msg) from error
 
 
-def dns_a(host: str, ipaddress: str,
-        server: Optional[str] = None) -> None:
+def dns_a(host: str, ipaddress: str, server: Optional[str] = None) -> None:
     """>> dns_a <name> <ipaddress> [<name server>]
 
     Assert that <name> resolves to <ipaddress> (and is an A record).
@@ -33,7 +32,8 @@ def dns_a(host: str, ipaddress: str,
     """
     if not is_ip_addr(ipaddress):
         raise ValueError(
-            '<ipaddress> parameter must be an IP address, not a hostname')
+            "<ipaddress> parameter must be an IP address, not a hostname"
+        )
 
     for answer in _resolve(host, RdataType.A, server):
         if answer.address == ipaddress:
@@ -42,8 +42,7 @@ def dns_a(host: str, ipaddress: str,
     raise TwillAssertionError
 
 
-def dns_cname(host: str, cname: str,
-        server: Optional[str] = None) -> None:
+def dns_cname(host: str, cname: str, server: Optional[str] = None) -> None:
     """>> dns_cname <name> <alias_for> [<name server>]
 
     Assert that <name> is a CNAME alias for <alias_for>.
@@ -51,7 +50,8 @@ def dns_cname(host: str, cname: str,
     """
     if is_ip_addr(cname):
         raise ValueError(
-            '<alias_for> parameter must be a hostname, not an IP address')
+            "<alias_for> parameter must be a hostname, not an IP address"
+        )
 
     cname_name = from_text(cname)
 
@@ -62,8 +62,9 @@ def dns_cname(host: str, cname: str,
     raise TwillAssertionError
 
 
-def dns_resolves(host: str, ipaddress: str,
-        server: Optional[str] = None) -> None:
+def dns_resolves(
+    host: str, ipaddress: str, server: Optional[str] = None
+) -> None:
     """>> dns_resolves <name> <name2/ipaddress> [<name server>]
 
     Assert that <name> ultimately resolves to the given IP address (or
@@ -131,8 +132,9 @@ def _resolve_name(name: str, server: Optional[str] = None) -> str:
     return str(answers[0])
 
 
-def _resolve(query: str, query_type: RdataType,
-        server: Optional[str] = None) -> Answer:
+def _resolve(
+    query: str, query_type: RdataType, server: Optional[str] = None
+) -> Answer:
     """Resolve, perhaps via the given name server."""
     resolver = Resolver()
     if server:

@@ -26,24 +26,24 @@ def test(url: str):
     fp = StringIO()
     twill.set_output(fp)
 
-    twill.parse.execute_string('code 200', initial_url=url)
+    twill.parse.execute_string("code 200", initial_url=url)
 
     # from file
-    execute_script('test_go.twill', initial_url=url)
+    execute_script("test_go.twill", initial_url=url)
 
     twill.set_output(None)
     assert fp.getvalue()
 
-    path = Path(test_dir, 'test_go.twill')
+    path = Path(test_dir, "test_go.twill")
     with open(path) as inp:
         stdin, sys.stdin = sys.stdin, inp
         try:
-            execute_script('-', initial_url=url)  # from stdin
+            execute_script("-", initial_url=url)  # from stdin
         finally:
             sys.stdin = stdin
 
     # from parse.execute_file
-    twill.parse.execute_file('test_go_exit.twill', initial_url=url)
+    twill.parse.execute_file("test_go_exit.twill", initial_url=url)
 
     # also test some failures
 
@@ -52,7 +52,7 @@ def test(url: str):
         twill.set_err_out(sys.stderr)
         # failed assert in a script
         with pytest.raises(TwillAssertionError):
-            twill.parse.execute_file('test_go_fail.twill', initial_url=url)
+            twill.parse.execute_file("test_go_fail.twill", initial_url=url)
 
         commands.go(url)
         with pytest.raises(TwillAssertionError):
@@ -60,7 +60,7 @@ def test(url: str):
 
         # no such command (NameError)
         with pytest.raises(TwillNameError):
-            twill.parse.execute_file('test_go_fail2.twill', initial_url=url)
+            twill.parse.execute_file("test_go_fail2.twill", initial_url=url)
     finally:
         sys.stderr = stderr
 
@@ -70,16 +70,16 @@ def test(url: str):
     commands.go(url)
 
     with pytest.raises(TwillAssertionError):
-        twill.parse.execute_command('url', ('not this',), gd, ld, 'anony')
+        twill.parse.execute_command("url", ("not this",), gd, ld, "anony")
 
     with pytest.raises(TwillAssertionError):
-        commands.follow('no such link')
+        commands.follow("no such link")
 
     with pytest.raises(TwillAssertionError):
-        commands.find('no such link')
+        commands.find("no such link")
 
     with pytest.raises(TwillAssertionError):
-        commands.notfind('Hello')
+        commands.notfind("Hello")
 
     with pytest.raises(SystemExit):
-        twill.parse.execute_command('exit', ('0',), gd, ld, 'anony')
+        twill.parse.execute_command("exit", ("0",), gd, ld, "anony")

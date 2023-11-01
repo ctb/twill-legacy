@@ -9,7 +9,7 @@ import re
 
 from twill import browser, log, utils
 
-__all__ = ['discard_all_messages', 'exit_if_empty']
+__all__ = ["discard_all_messages", "exit_if_empty"]
 
 
 def exit_if_empty() -> None:
@@ -20,7 +20,7 @@ def exit_if_empty() -> None:
     """
     form = browser.form()
     if not form:
-        log.error('No messages; exiting.')
+        log.error("No messages; exiting.")
         raise SystemExit
 
 
@@ -29,11 +29,12 @@ def discard_all_messages() -> None:
 
     Set all buttons to "discard".
     """
-    _form_value_by_regex_setall('1', '^\\d+$', '3')
+    _form_value_by_regex_setall("1", "^\\d+$", "3")
 
 
 def _form_value_by_regex_setall(
-        form_name: str, field_name: str, value: str) -> None:
+    form_name: str, field_name: str, value: str
+) -> None:
     form = browser.form(form_name)
     if not form:
         log.error("no such form '%s'", form_name)
@@ -44,13 +45,13 @@ def _form_value_by_regex_setall(
     matches = [ctl for ctl in form.inputs if regex.search(str(ctl.name))]
 
     if matches:
-        log.info('-- matches %d', len(matches))
+        log.info("-- matches %d", len(matches))
 
         n = 0
         for control in matches:
             browser.clicked(form, control)
-            if 'readonly' not in control.attrib:
+            if "readonly" not in control.attrib:
                 utils.set_form_control_value(control, value)
                 n += 1
 
-        log.info('set %d values total', n)
+        log.info("set %d values total", n)

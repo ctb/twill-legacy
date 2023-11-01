@@ -88,6 +88,9 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 disallow_untyped_defs = false
 
+[tool.black]
+line-length = 79
+
 [tool.ruff]
 select = [
   "A",      # flake8-builtins
@@ -139,9 +142,11 @@ ignore = [
   "ANN002", "ANN003",  # no type annotations needed for args and kwargs
   "ANN101", "ANN102",  # no type annotation for self and cls needed
   "ANN401",  # allow explicit Any
+  "COM812",  # allow trailing commas for auto-formatting
   "D203",  # no blank line before class docstring
   "D213",  # multi-line docstrings should not start at second line
   "EM101", "EM102",  # allows exceptions with literal and f-strings
+  "ISC001",  # allow string literal concatenatin for auto-formatting
   "PTH123",  # allow builtin-open
   "TRY003",  # allow specific messages outside the exception class
   "TRY301",  # allow raise
@@ -150,7 +155,7 @@ line-length = 79
 target-version = "py38"
 
 [tool.ruff.flake8-quotes]
-inline-quotes = "single"
+inline-quotes = "double"
 
 [tool.ruff.mccabe]
 max-complexity = 25

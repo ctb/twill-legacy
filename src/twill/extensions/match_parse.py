@@ -30,7 +30,7 @@ def split(what: str) -> None:
     m = re.split(what, page)
 
     global_dict, local_dict = get_twill_glocals()
-    local_dict['__matchlist__'] = m
+    local_dict["__matchlist__"] = m
 
 
 def findall(what: str) -> None:
@@ -44,7 +44,7 @@ def findall(what: str) -> None:
     m = regex.findall(page)
 
     global_dict, local_dict = get_twill_glocals()
-    local_dict['__matchlist__'] = m
+    local_dict["__matchlist__"] = m
 
 
 def getmatch(where: str, what: str) -> None:
@@ -53,7 +53,7 @@ def getmatch(where: str, what: str) -> None:
     Evaluates an expression against __match__ and puts it into 'into_var'.
     """
     global_dict, local_dict = get_twill_glocals()
-    match = local_dict['__match__']
+    match = local_dict["__match__"]
     local_dict[where] = _eval(match, what)
 
 
@@ -65,17 +65,17 @@ def setmatch(what: str) -> None:
     """
     global_dict, local_dict = get_twill_glocals()
 
-    match = local_dict['__matchlist__']
+    match = local_dict["__matchlist__"]
     if isinstance(match, str):
         match = [match]
 
     new_match = [_eval(m, what) for m in match]
-    local_dict['__matchlist__'] = new_match
+    local_dict["__matchlist__"] = new_match
 
 
 def _eval(match: str, exp: str) -> Any:
     """Evaluate an expression."""
-    return eval(exp, globals(), {'m': match})  # noqa: PGH001, S307
+    return eval(exp, globals(), {"m": match})  # noqa: PGH001, S307
 
 
 def popmatch(which: str) -> None:
@@ -85,6 +85,6 @@ def popmatch(which: str) -> None:
     """
     global_dict, local_dict = get_twill_glocals()
 
-    matchlist = local_dict['__matchlist__']
+    matchlist = local_dict["__matchlist__"]
     match = matchlist.pop(int(which))
-    local_dict['__match__'] = match
+    local_dict["__match__"] = match

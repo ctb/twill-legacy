@@ -8,7 +8,7 @@ from typing import Callable, Optional, TextIO
 
 from .parse import execute_file
 
-HOST = '127.0.0.1'  # interface to run the server on
+HOST = "127.0.0.1"  # interface to run the server on
 PORT = 8080  # default port to run the server on
 SLEEP = 0  # time to wait for the server to start
 
@@ -24,8 +24,13 @@ class TestInfo:
     server to set itself up.  Default is 0.
     """
 
-    def __init__(self, script: str, server_fn: Callable[[], None],
-            port: int = PORT, sleep: float = SLEEP) -> None:
+    def __init__(
+        self,
+        script: str,
+        server_fn: Callable[[], None],
+        port: int = PORT,
+        sleep: float = SLEEP,
+    ) -> None:
         """Initialize the test info container."""
         self.script = script
         self.server_fn = server_fn
@@ -57,9 +62,9 @@ class TestInfo:
 
     @property
     def url(self) -> str:
-        """"Get the test server URL."""
+        """Get the test server URL."""
         # noinspection HttpUrlsUsage
-        return f'http://{HOST}:{self.port}/'
+        return f"http://{HOST}:{self.port}/"
 
 
 def run_test(test_info: TestInfo) -> None:

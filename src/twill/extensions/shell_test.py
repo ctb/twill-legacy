@@ -2,7 +2,8 @@
 
 from twill.errors import TwillAssertionError
 
-__all__ = ['set_flag', 'unset_flag', 'assert_flag_set', 'assert_flag_unset']
+__all__ = ["set_flag", "unset_flag", "assert_flag_set", "assert_flag_unset"]
+
 
 class Flag:
     """Global flag value."""
@@ -23,10 +24,10 @@ def unset_flag() -> None:
 def assert_flag_set() -> None:
     """Assert that the flag has been set."""
     if not Flag.value:
-        raise TwillAssertionError('The flag has not been set')
+        raise TwillAssertionError("The flag has not been set")
 
 
 def assert_flag_unset() -> None:
     """Assert that the flag has not been set."""
     if Flag.value:
-        raise TwillAssertionError('The flag has been set')
+        raise TwillAssertionError("The flag has been set")

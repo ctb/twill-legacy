@@ -10,7 +10,7 @@ import os
 
 from twill import commands, log
 
-__all__ = ['chdir', 'popd']
+__all__ = ["chdir", "popd"]
 
 _dir_stack = []
 
@@ -28,7 +28,7 @@ def chdir(where: str) -> None:
     os.chdir(where)
     log.info('changed directory to "%s"', where)
 
-    commands.setglobal('__dir__', where)
+    commands.setglobal("__dir__", where)
 
 
 def popd() -> None:
@@ -41,4 +41,4 @@ def popd() -> None:
     os.chdir(where)
     log.info('popped back to directory "%s"', where)
 
-    commands.setglobal('__dir__', where)
+    commands.setglobal("__dir__", where)

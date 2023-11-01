@@ -22,7 +22,7 @@ def run_server(port: int = PORT) -> None:
 def test():
     """The unit test"""
     # abspath to the script
-    script = str(Path(test_dir, 'test_unit_support.twill'))
+    script = str(Path(test_dir, "test_unit_support.twill"))
 
     # create test_info object
     test_info = twill.unit.TestInfo(script, run_server, PORT, SLEEP)
@@ -31,5 +31,5 @@ def test():
     twill.unit.run_test(test_info)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test()

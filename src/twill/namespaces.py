@@ -39,7 +39,7 @@ def pop_local_dict() -> Dict[str, Any]:
 def get_twill_glocals() -> Tuple[Dict[str, Any], Dict[str, Any]]:
     """Return both global and current local dictionary."""
     if global_dict is None:
-        raise errors.TwillException('Must initialize global namespace first!')
+        raise errors.TwillException("Must initialize global namespace first!")
     if not _local_dict_stack:
         new_local_dict()
     return global_dict, _local_dict_stack[-1]

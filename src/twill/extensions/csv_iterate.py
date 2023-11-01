@@ -9,7 +9,7 @@ import csv
 
 from twill import execute_file, log, namespaces
 
-__all__ = ['csv_iterate']
+__all__ = ["csv_iterate"]
 
 
 def csv_iterate(file_name: str, script_name: str) -> None:
@@ -20,11 +20,11 @@ def csv_iterate(file_name: str, script_name: str) -> None:
     """
     global_dict, local_dict = namespaces.get_twill_glocals()
 
-    with open(file_name, encoding='utf-8') as csv_file:
+    with open(file_name, encoding="utf-8") as csv_file:
         reader = csv.reader(csv_file)
         for i, row in enumerate(reader, 1):
-            log.debug('csv_iterate: on row %d of %s', i, file_name)
+            log.debug("csv_iterate: on row %d of %s", i, file_name)
             for j, col in enumerate(row, 1):
-                global_dict[f'col{j}'] = col
+                global_dict[f"col{j}"] = col
 
     execute_file(script_name, no_reset=True)

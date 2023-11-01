@@ -8,7 +8,7 @@ Commands:
 
 from twill import log, namespaces, shell
 
-__all__ = ['get_args']
+__all__ = ["get_args"]
 
 
 def get_args(require: int = 0) -> None:
@@ -23,14 +23,16 @@ def get_args(require: int = 0) -> None:
 
     if len(shell.twill_args) < require:
         from twill.errors import TwillAssertionError
+
         given = len(shell.twill_args)
         raise TwillAssertionError(
-            f'too few arguments; {given} rather than {require}')
+            f"too few arguments; {given} rather than {require}"
+        )
 
     if shell.twill_args:
         for n, arg in enumerate(shell.twill_args, 1):
-            global_dict[f'arg{n}'] = arg
+            global_dict[f"arg{n}"] = arg
         n = len(shell.twill_args)
-        log.info('get_args: loaded %d args as $arg1..$arg%d.', n, n)
+        log.info("get_args: loaded %d args as $arg1..$arg%d.", n, n)
     else:
-        log.info('no arguments to parse!')
+        log.info("no arguments to parse!")

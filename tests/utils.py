@@ -15,7 +15,7 @@ import twill
 test_dir = Path(__file__).parent  # test directory
 current_dir = Path.cwd()  # current working directory
 
-HOST = '127.0.0.1'  # interface to run the server on
+HOST = "127.0.0.1"  # interface to run the server on
 PORT = 8080  # default port to run the server on
 SLEEP = 0.5  # time to wait for the server to start
 
@@ -28,7 +28,7 @@ _url = None  # current server url
 def get_url() -> str:
     """Get the current server URL."""
     if _url is None:
-        raise RuntimeError('Server has not yet been started!')
+        raise RuntimeError("Server has not yet been started!")
     return _url
 
 
@@ -43,17 +43,18 @@ def pop_test_dir() -> None:
 
 
 def mock_getpass(
-        prompt: str = 'Password: ',  # noqa: ARG001
-        stream: Optional[TextIO] = None,  # noqa: ARG001
-    ) -> str:
+    prompt: str = "Password: ",  # noqa: ARG001
+    stream: Optional[TextIO] = None,  # noqa: ARG001
+) -> str:
     """Mock getpass function."""
-    return 'pass'
+    return "pass"
 
 
-def execute_script(filename: str, inp: Optional[str] = None,
-        initial_url: Optional[str] = None) -> None:
+def execute_script(
+    filename: str, inp: Optional[str] = None, initial_url: Optional[str] = None
+) -> None:
     """Execute twill script with the given filename."""
-    if filename != '-':
+    if filename != "-":
         filename = str(Path(test_dir, filename))
 
     if inp:
@@ -68,17 +69,21 @@ def execute_script(filename: str, inp: Optional[str] = None,
             getpass.getpass = real_getpass
 
 
-def execute_shell(filename: str, inp: Optional[str] = None,
-        initial_url: Optional[str] = None, *,
-        fail_on_unknown: bool = False) -> None:
+def execute_shell(
+    filename: str,
+    inp: Optional[str] = None,
+    initial_url: Optional[str] = None,
+    *,
+    fail_on_unknown: bool = False,
+) -> None:
     """Execute twill script with the given filename using the shell."""
     # use filename as the stdin *for the shell object only*
-    if filename != '-':
+    if filename != "-":
         filename = str(Path(test_dir, filename))
 
-    with open(filename, encoding='utf-8') as cmd_file:
+    with open(filename, encoding="utf-8") as cmd_file:
         cmd_content = cmd_file.read()
-    cmd_content += '\nquit\n'
+    cmd_content += "\nquit\n"
     cmd_inp = StringIO(cmd_content)
 
     if inp:
@@ -87,8 +92,10 @@ def execute_shell(filename: str, inp: Optional[str] = None,
         real_getpass, getpass.getpass = getpass.getpass, mock_getpass
     try:
         loop = twill.shell.TwillCommandLoop(
-            initial_url=initial_url, stdin=cmd_inp,
-            fail_on_unknown=fail_on_unknown)
+            initial_url=initial_url,
+            stdin=cmd_inp,
+            fail_on_unknown=fail_on_unknown,
+        )
         loop.cmdloop()
     except SystemExit:
         pass
@@ -110,20 +117,23 @@ def start_server(port: Optional[int] = None) -> None:
     global _url  # noqa: PLW0603
 
     if port is None:
-        port = int(os.environ.get('TWILL_TEST_PORT', PORT))
+        port = int(os.environ.get("TWILL_TEST_PORT", PORT))
 
     if START:
-        out = open(LOG or os.devnull, 'w', buffering=1)  # noqa: SIM115
+        out = open(LOG or os.devnull, "w", buffering=1)  # noqa: SIM115
         print(  # noqa: T201
-            'Starting:', sys.executable, 'tests/server.py', Path.cwd())
+            "Starting:", sys.executable, "tests/server.py", Path.cwd()
+        )
         subprocess.Popen(
-            [sys.executable, '-u', 'server.py'],  # noqa: S603
-            stderr=subprocess.STDOUT, stdout=out)
+            [sys.executable, "-u", "server.py"],  # noqa: S603
+            stderr=subprocess.STDOUT,
+            stdout=out,
+        )
         time.sleep(SLEEP)  # wait until the server is up and running
-        print('The server has been started.')  # noqa: T201
+        print("The server has been started.")  # noqa: T201
 
     # noinspection HttpUrlsUsage
-    _url = f'http://{HOST}:{port}/'
+    _url = f"http://{HOST}:{port}/"
 
 
 def stop_server() -> None:
@@ -133,8 +143,8 @@ def stop_server() -> None:
     if _url:
         if START:
             try:
-                requests.get(f'{_url}exit', timeout=10)
+                requests.get(f"{_url}exit", timeout=10)
             except Exception as error:  # noqa: BLE001
-                print('ERROR:', error)  # noqa: T201
-                print('Could not stop the server.')  # noqa: T201
+                print("ERROR:", error)  # noqa: T201
+                print("Could not stop the server.")  # noqa: T201
         _url = None

@@ -36,18 +36,38 @@ from . import log, twill_ext
 from .errors import TwillException
 
 __all__ = [
-    'gather_filenames', 'get_equiv_refresh_interval', 'html_to_tree',
-    'is_hidden_filename', 'is_twill_filename', 'print_form',
-    'make_boolean', 'make_int', 'make_twill_filename',
-    'run_tidy', 'tree_to_html',  'trunc', 'unique_match',
-    'CheckboxGroup', 'FieldElement', 'FormElement',
-    'HtmlElement', 'InputElement', 'Link', 'RadioGroup',
-    'ResultWrapper', 'SelectElement', 'Singleton', 'TextareaElement',
-    'UrlWithRealm', 'Response']
+    "gather_filenames",
+    "get_equiv_refresh_interval",
+    "html_to_tree",
+    "is_hidden_filename",
+    "is_twill_filename",
+    "print_form",
+    "make_boolean",
+    "make_int",
+    "make_twill_filename",
+    "run_tidy",
+    "tree_to_html",
+    "trunc",
+    "unique_match",
+    "CheckboxGroup",
+    "FieldElement",
+    "FormElement",
+    "HtmlElement",
+    "InputElement",
+    "Link",
+    "RadioGroup",
+    "ResultWrapper",
+    "SelectElement",
+    "Singleton",
+    "TextareaElement",
+    "UrlWithRealm",
+    "Response",
+]
 
 
 FieldElement = Union[
-    CheckboxGroup, InputElement, RadioGroup, SelectElement, TextareaElement]
+    CheckboxGroup, InputElement, RadioGroup, SelectElement, TextareaElement
+]
 
 
 class Link(NamedTuple):
@@ -64,9 +84,9 @@ UrlWithRealm = Union[str, Tuple[str, str]]
 class Singleton:
     """A mixin class to create singleton objects."""
 
-    def __new__(cls, *_args, **_kw) -> 'Singleton':
+    def __new__(cls, *_args, **_kw) -> "Singleton":
         """Create a new instance."""
-        it = cls.__dict__.get('__it__')
+        it = cls.__dict__.get("__it__")
         if it is not None:
             return it
         cls.__it__ = it = object.__new__(cls)
@@ -98,7 +118,7 @@ class ResultWrapper:
 
     @property
     def url(self) -> str:
-        """"Get the url of the result page."""
+        """Get the url of the result page."""
         return self.response.url
 
     @property
@@ -125,15 +145,17 @@ class ResultWrapper:
     def title(self) -> Optional[str]:
         """Get the title of the result page."""
         try:
-            return self.xpath('//title[1]/text()')[0]
+            return self.xpath("//title[1]/text()")[0]
         except IndexError:
             return None
 
     @property
     def links(self) -> List[Link]:
         """Get all links in the result page."""
-        return [Link(a.text_content(), a.get('href'))
-                for a in self.xpath('//a[@href]')]
+        return [
+            Link(a.text_content(), a.get("href"))
+            for a in self.xpath("//a[@href]")
+        ]
 
     def find_link(self, pattern: str) -> Optional[Link]:
         """Find a link with a given pattern on the result page."""
@@ -146,8 +168,11 @@ class ResultWrapper:
     def find_links(self, pattern: str) -> List[Link]:
         """Find all links with a given pattern on the result page."""
         regex = re.compile(pattern)
-        return [link for link in self.links
-                if regex.search(link.text) or regex.search(link.url)]
+        return [
+            link
+            for link in self.links
+            if regex.search(link.text) or regex.search(link.url)
+        ]
 
     def form(self, name_or_num: Union[str, int] = 1) -> Optional[FormElement]:
         """Get the form with the given name or number on the result page.
@@ -157,17 +182,16 @@ class ResultWrapper:
         forms = self.forms
 
         if isinstance(name_or_num, str):
-
             # first, try ID
             for form in forms:
-                form_id = form.get('id')
+                form_id = form.get("id")
                 if form_id and form_id == name_or_num:
                     return form
 
             # next, try regex with name
             regex = re.compile(name_or_num)
             for form in forms:
-                name = form.get('name')
+                name = form.get("name")
                 if name and regex.search(name):
                     return form
 
@@ -184,11 +208,14 @@ class ResultWrapper:
     def _fix_forms(self) -> None:
         """Fix forms on the page for use with twill."""
         # put all stray fields into a form
-        orphans = self.xpath('//input[not(ancestor::form)]')
+        orphans = self.xpath("//input[not(ancestor::form)]")
         if orphans:
-            form_parts = [b'<form>'] + [
-                tree_to_html(orphan) for orphan in orphans] + [b'</form>']
-            self.forms = html_to_tree(b''.join(form_parts)).forms
+            form_parts = (
+                [b"<form>"]
+                + [tree_to_html(orphan) for orphan in orphans]
+                + [b"</form>"]
+            )
+            self.forms = html_to_tree(b"".join(form_parts)).forms
             self.forms.extend(self.tree.forms)
         else:
             self.forms = self.tree.forms
@@ -196,7 +223,7 @@ class ResultWrapper:
         # otherwise lxml will not recognize them as form input fields
         for form in self.forms:
             for button in form.xpath("//button[@type='submit']"):
-                button.tag = 'input'
+                button.tag = "input"
 
 
 def trunc(s: Optional[str], length: int) -> str:
@@ -206,41 +233,44 @@ def trunc(s: Optional[str], length: int) -> str:
     and replacing them with ' ...'
     """
     if s and len(s) > length:
-        return s[:length - 4] + ' ...'
-    return s or ''
+        return s[: length - 4] + " ..."
+    return s or ""
 
 
 def print_form(form: FormElement, n: int) -> None:
     """Pretty-print the given form, with the assigned number."""
     info = log.info
-    name = form.get('name')
-    info('\nForm name=%s (#%d)', name, n) if name else info('\nForm #%d', n)
+    name = form.get("name")
+    info("\nForm name=%s (#%d)", name, n) if name else info("\nForm #%d", n)
 
     if form.inputs is not None:
-        info('## __Name__________________'
-             ' __Type___ __ID________ __Value__________________')
+        info(
+            "## __Name__________________"
+            " __Type___ __ID________ __Value__________________"
+        )
 
         for n, field in enumerate(form.inputs, 1):
             value = field.value
-            value_options = getattr(field, 'value_options', None)
+            value_options = getattr(field, "value_options", None)
             if value_options:
-                items = ', '.join(
-                    f"'{getattr(opt, 'name', opt)}'"
-                    for opt in value_options)
-                value_displayed = f'{value} of {items}'
+                items = ", ".join(
+                    f"'{getattr(opt, 'name', opt)}'" for opt in value_options
+                )
+                value_displayed = f"{value} of {items}"
             else:
-                value_displayed = f'{value}'
+                value_displayed = f"{value}"
             field_name = field.name
-            field_type = getattr(field, 'type', 'select')
-            field_id = field.get('id')
+            field_type = getattr(field, "type", "select")
+            field_id = field.get("id")
             strings = (
-                f'{n:2}',
-                f'{trunc(field_name, 24):24}',
-                f'{trunc(field_type, 9):9}',
-                f'{trunc(field_id, 12):12}',
-                trunc(value_displayed, 40))
-            info(' '.join(strings))
-    info('')
+                f"{n:2}",
+                f"{trunc(field_name, 24):24}",
+                f"{trunc(field_type, 9):9}",
+                f"{trunc(field_id, 12):12}",
+                trunc(value_displayed, 40),
+            )
+            info(" ".join(strings))
+    info("")
 
 
 def make_boolean(value: Any) -> bool:
@@ -248,8 +278,8 @@ def make_boolean(value: Any) -> bool:
     value = str(value).lower().strip()
 
     # true/false
-    if value in ('true', 'false'):
-        return value == 'true'
+    if value in ("true", "false"):
+        return value == "true"
 
     # 0/nonzero
     try:
@@ -260,12 +290,12 @@ def make_boolean(value: Any) -> bool:
         return bool(ival)
 
     # +/-
-    if value in ('+', '-'):
-        return value == '+'
+    if value in ("+", "-"):
+        return value == "+"
 
     # on/off
-    if value in ('on', 'off'):
-        return value == 'on'
+    if value in ("on", "off"):
+        return value == "on"
 
     raise TwillException(f"unable to convert '{value}' into true/false")
 
@@ -276,7 +306,8 @@ def make_int(value: Any) -> int:
         ival = int(value)
     except Exception as error:  # noqa: BLE001
         raise TwillException(
-            f"unable to convert '{value}' into an int") from error
+            f"unable to convert '{value}' into an int"
+        ) from error
     return ival
 
 
@@ -295,37 +326,37 @@ def set_form_control_value(control: FieldElement, value: str) -> None:
                 pass
             else:
                 control.checked = boolean_value
-        elif control.type not in ('submit', 'image'):
+        elif control.type not in ("submit", "image"):
             control.value = value
 
     elif isinstance(control, (TextareaElement, RadioGroup)):
         control.value = value
 
     elif isinstance(control, CheckboxGroup):
-        if value.startswith('-'):
+        if value.startswith("-"):
             value = value[1:]
             with suppress(KeyError):
                 control.value.remove(value)
         else:
-            if value.startswith('+'):
+            if value.startswith("+"):
                 value = value[1:]
             control.value.add(value)
 
     elif isinstance(control, SelectElement):
         # for ListControls we need to find the right *value*,
         # and figure out if we want to *select* or *deselect*
-        if value.startswith('-'):
+        if value.startswith("-"):
             add = False
             value = value[1:]
         else:
             add = True
-            if value.startswith('+'):
+            if value.startswith("+"):
                 value = value[1:]
 
         # now, select the value.
         option_values = [val.strip() for val in control.value_options]
         options = control.getchildren()
-        option_names = [(c.text or '').strip() for c in options]
+        option_names = [(c.text or "").strip() for c in options]
         for name, opt in zip(option_names, option_values):
             if value not in (name, opt):
                 continue
@@ -335,13 +366,13 @@ def set_form_control_value(control: FieldElement, value: str) -> None:
                 elif opt in control.value:
                     control.value.remove(opt)
             else:
-                control.value = opt if add else ''
+                control.value = opt if add else ""
             break
         else:
-            raise TwillException('Attempt to set an invalid value')
+            raise TwillException("Attempt to set an invalid value")
 
     else:
-        raise TwillException('Attempt to set value on invalid control')
+        raise TwillException("Attempt to set value on invalid control")
 
 
 def _all_the_same_submit(matches: Sequence[FieldElement]) -> bool:
@@ -353,7 +384,7 @@ def _all_the_same_submit(matches: Sequence[FieldElement]) -> bool:
     for match in matches:
         if not isinstance(match, InputElement):
             return False
-        if match.type not in ('submit', 'hidden'):
+        if match.type not in ("submit", "hidden"):
             return False
         if name is None:
             name = match.name
@@ -375,7 +406,7 @@ def _all_the_same_checkbox(matches: Sequence[FieldElement]) -> bool:
     for match in matches:
         if not isinstance(match, InputElement):
             return False
-        if match.type not in ('checkbox', 'hidden'):
+        if match.type not in ("checkbox", "hidden"):
             return False
         if name is None:
             name = match.name
@@ -386,8 +417,11 @@ def _all_the_same_checkbox(matches: Sequence[FieldElement]) -> bool:
 
 def unique_match(matches: Sequence[FieldElement]) -> bool:
     """Check whether a match is unique."""
-    return (len(matches) == 1 or
-            _all_the_same_checkbox(matches) or _all_the_same_submit(matches))
+    return (
+        len(matches) == 1
+        or _all_the_same_checkbox(matches)
+        or _all_the_same_submit(matches)
+    )
 
 
 def run_tidy(html: str) -> Tuple[Optional[str], Optional[str]]:
@@ -397,16 +431,21 @@ def run_tidy(html: str) -> Tuple[Optional[str], Optional[str]]:
     PyTidyLib (or the required shared library for tidy) isn't installed.
     """
     from .commands import options
-    require_tidy = options.get('require_tidy')
+
+    require_tidy = options.get("require_tidy")
 
     if not tidylib:
         if require_tidy:
             raise TwillException(
-                'Option require_tidy is set, but PyTidyLib is not installed')
+                "Option require_tidy is set, but PyTidyLib is not installed"
+            )
         return None, None
 
-    opts = {key[5:].replace('_', '-'): value
-            for key, value in options.items() if key.startswith('tidy_')}
+    opts = {
+        key[5:].replace("_", "-"): value
+        for key, value in options.items()
+        if key.startswith("tidy_")
+    }
     clean_html, errors = tidylib.tidy_document(html, opts)
     return clean_html, errors
 
@@ -417,12 +456,13 @@ def get_equiv_refresh_interval() -> Optional[int]:
     Redirection happens if the given interval is smaller than this.
     """
     from .commands import options
-    return options.get('equiv_refresh_interval')
+
+    return options.get("equiv_refresh_interval")
 
 
 def is_hidden_filename(filename: str) -> bool:
     """Check if this is a hidden file (starting with a dot)."""
-    return filename not in ('.', '..') and Path(filename).name.startswith('.')
+    return filename not in (".", "..") and Path(filename).name.startswith(".")
 
 
 def is_twill_filename(filename: str) -> bool:
@@ -432,7 +472,7 @@ def is_twill_filename(filename: str) -> bool:
 
 def make_twill_filename(name: str) -> str:
     """Add the twill extension to the name of a script if necessary."""
-    if name not in ('.', '..'):
+    if name not in (".", ".."):
         path = Path(name)
         twill_name = path.stem
         ext = path.suffix
@@ -452,11 +492,13 @@ def gather_filenames(args: Sequence[str]) -> List[str]:
         name = make_twill_filename(arg)
         if is_dir(name):
             for dir_path, dir_names, names in walk(name):
-                dir_names[:] = [name for name in dir_names
-                    if not is_hidden_filename(name)]
+                dir_names[:] = [
+                    name for name in dir_names if not is_hidden_filename(name)
+                ]
                 path = dir_path + sep
-                extend(path + name for name in names
-                       if is_twill_filename(name))
+                extend(
+                    path + name for name in names if is_twill_filename(name)
+                )
         else:
             append(name)
     return collected_names

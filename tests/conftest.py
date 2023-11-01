@@ -8,7 +8,7 @@ import pytest
 from . import utils
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def url() -> Generator[str, None, None]:
     """Start a server and returns its URL."""
     utils.cd_test_dir()
@@ -22,15 +22,17 @@ def url() -> Generator[str, None, None]:
     set_output()
     try:
         go(url)
-        find('These are the twill tests')
+        find("These are the twill tests")
     except Exception as error:  # noqa: BLE001
-        raise RuntimeError("""
+        raise RuntimeError(
+            """
 ***
 Hello! The twill test server is not running or cannot be reached;
 please free port 8080 (or set TWILL_TEST_PORT to something else),
 and clear your proxy settings too!
 ***
-""") from error
+"""
+        ) from error
 
     yield url
 
@@ -40,8 +42,9 @@ and clear your proxy settings too!
 
 @pytest.fixture()
 def output() -> Generator[StringIO, None, None]:
-    """"Get output from the test."""
+    """Get output from the test."""
     from twill import set_output
+
     with StringIO() as output:
         set_output(output)
         yield output

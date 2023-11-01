@@ -7,4 +7,4 @@ def setup_module():
 
 
 def test(url: str):
-    execute_script('test_dns.twill', initial_url=url)
+    execute_script("test_dns.twill", initial_url=url)

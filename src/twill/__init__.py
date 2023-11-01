@@ -24,32 +24,41 @@ from typing import Optional, TextIO, Union
 
 metadata = importlib.metadata.metadata(__package__)
 
-__version__: str = metadata['Version']
+__version__: str = metadata["Version"]
 
-__url__: str = metadata['Project-URL'].rsplit(None, 1)[-1]
+__url__: str = metadata["Project-URL"].rsplit(None, 1)[-1]
 
 __all__ = [
-    'browser', 'execute_file', 'execute_string',
-    'log', 'set_log_level', 'set_output', 'set_err_out',
-    'twill_ext', 'TwillCommandLoop',
-    '__url__', '__version__']
+    "browser",
+    "execute_file",
+    "execute_string",
+    "log",
+    "set_log_level",
+    "set_output",
+    "set_err_out",
+    "twill_ext",
+    "TwillCommandLoop",
+    "__url__",
+    "__version__",
+]
 
 this_dir = Path(__file__).parent
 # Add extensions directory at the *end* of sys.path.
 # This means that user extensions will take priority over twill extensions.
-extensions = this_dir / 'extensions'
+extensions = this_dir / "extensions"
 sys.path.append(str(extensions))
 
-twill_ext = '.twill'  # file extension for twill scripts
+twill_ext = ".twill"  # file extension for twill scripts
 
 
 log_levels = {
-    'CRITICAL': logging.CRITICAL,
-    'ERROR': logging.ERROR,
-    'WARNING': logging.WARNING,
-    'INFO': logging.INFO,
-    'DEBUG': logging.DEBUG,
-    'NOTSET': logging.NOTSET}
+    "CRITICAL": logging.CRITICAL,
+    "ERROR": logging.ERROR,
+    "WARNING": logging.WARNING,
+    "INFO": logging.INFO,
+    "DEBUG": logging.DEBUG,
+    "NOTSET": logging.NOTSET,
+}
 
 log = logging.getLogger(__name__)
 handler = None
@@ -57,7 +66,7 @@ handler = None
 stdout, stderr = sys.stdout, sys.stderr
 
 
-def set_log_level(level: Optional[Union[int, str]]=None) -> None:
+def set_log_level(level: Optional[Union[int, str]] = None) -> None:
     """Set the logging level.
 
     If no level is passed, use INFO as logging level.
@@ -69,7 +78,7 @@ def set_log_level(level: Optional[Union[int, str]]=None) -> None:
     log.setLevel(level)
 
 
-def set_output(stream: Optional[TextIO]=None) -> None:
+def set_output(stream: Optional[TextIO] = None) -> None:
     """Set the standard output.
 
     If no stream is passed, use standard output.
@@ -84,7 +93,7 @@ def set_output(stream: Optional[TextIO]=None) -> None:
     sys.stdout = stream
 
 
-def set_err_out(stream: Optional[TextIO]=None) -> None:
+def set_err_out(stream: Optional[TextIO] = None) -> None:
     """Set the error output.
 
     If no stream is passed, use standard error.
@@ -106,9 +115,11 @@ set_output()
 
 
 # initialize global dict
-from . import namespaces  # noqa: E402, I001
+from . import namespaces  # noqa: E402
+
 # a convenience function:
 from .browser import browser  # noqa: E402
+
 # the two core components of twill:
 from .parse import execute_file, execute_string  # noqa: E402
 from .shell import TwillCommandLoop  # noqa: E402

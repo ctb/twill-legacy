@@ -13,11 +13,11 @@ bad_html = """<a href="test">you</a> <b>hello."""
 
 
 def setup_module():
-    config('require_tidy', 1)
+    config("require_tidy", 1)
 
 
 def teardown_module():
-    config('require_tidy', 0)
+    config("require_tidy", 0)
 
 
 def test_bad_html():
@@ -30,14 +30,14 @@ def test_bad_html():
 def test_no_tidylib():
     tidylib, utils.tidylib = utils.tidylib, None
     try:
-        with pytest.raises(TwillException, match='PyTidyLib is not installed'):
+        with pytest.raises(TwillException, match="PyTidyLib is not installed"):
             utils.run_tidy(bad_html)
     finally:
         utils.tidylib = tidylib
 
 
 def test_no_tidylib_but_not_required():
-    config('require_tidy', 0)
+    config("require_tidy", 0)
     tidylib, utils.tidylib = utils.tidylib, None
     try:
         output, errors = utils.run_tidy(bad_html)
@@ -46,22 +46,22 @@ def test_no_tidylib_but_not_required():
 
     assert output is None
     assert errors is None
-    config('require_tidy', 1)
+    config("require_tidy", 1)
 
 
 def test_tidy_options():
-    good_content = '<h1>Hello, World!</h1>'
+    good_content = "<h1>Hello, World!</h1>"
     output, errors = utils.run_tidy(good_content)
     assert errors
-    config('tidy_show_body_only', 1)
+    config("tidy_show_body_only", 1)
     output, errors = utils.run_tidy(good_content)
     assert not errors
-    config('tidy_show_body_only', 0)
+    config("tidy_show_body_only", 0)
     output, errors = utils.run_tidy(good_content)
     assert errors
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     setup_module()
     test_bad_html()
     teardown_module()

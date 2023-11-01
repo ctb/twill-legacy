@@ -12,12 +12,12 @@ def test_switch_buttons(url: str):
         browser.title  # noqa: B018
 
     commands.go(url)
-    commands.go('/test_radiobuttons')
+    commands.go("/test_radiobuttons")
 
     commands.submit()
-    assert 'RADIOBUTTONTEST' not in browser.html
+    assert "RADIOBUTTONTEST" not in browser.html
 
-    for x in ('one', 'two', 'three'):
-        commands.fv('1', 'radiobuttontest', x)
+    for x in ("one", "two", "three"):
+        commands.fv("1", "radiobuttontest", x)
         commands.submit()
-        assert f'RADIOBUTTONTEST: =={x}==' in browser.html
+        assert f"RADIOBUTTONTEST: =={x}==" in browser.html
