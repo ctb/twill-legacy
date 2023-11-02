@@ -27,7 +27,7 @@ def project_version():
             if line.startswith("version ="):
                 version = line.split("=")[1].strip().strip('"')
                 return version
-    raise Exception("Cannot determine PyGreSQL version")
+    raise Exception("Cannot determine project version")
 
 
 project = "twill"
