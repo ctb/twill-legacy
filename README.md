@@ -3,9 +3,9 @@ twill: a simple scripting language for web browsing
 
 twill is a simple scripting language intended for programmatic or automated browsing of websites.
 
-The current version 3.1 supports Python 3.6 to 3.11.
+The current version 3.2 supports Python 3.8 to 3.12.
 
-See also the [changelog](https://twill-tools.github.io/twill/changelog.html) for a summary of the things that have been changed and improved since version 2.0, and the [acknowledgements](https://twill-tools.github.io/twill/overview.html#acknowledgements) for a short overview of the earlier history of twill.
+See also the [changelog](https://twill-tools.github.io/twill/changelog.html) for a summary of the things that have been changed and improved since version 2.0, and the [acknowledgements and history](https://twill-tools.github.io/twill/overview.html#acknowledgements-and-history) section for a short overview of twill's evolutionary history.
 
 The full [documentation](https://twill-tools.github.io/twill/) is included in the distribution and provided online.
 

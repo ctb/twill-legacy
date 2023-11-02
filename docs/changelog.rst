@@ -6,8 +6,13 @@ ChangeLog
 
 3.2 (released ...)
 ------------------
+* The supported Python versions are now 3.8 to 3.12.
+* A new method 'find_links' was added to the twill browser (#17).
 * Twill now uses httpx_ instead of requests_.
 * WSGI apps are now supported via httpx, wsgi_intercept is not needed anymore.
+* We now use 'pyproject.toml' instead of 'setup.py'.
+* Type hints and code style have been improved and are checked with ruff.
+* Internal code was reformatted using ruff format (compatible with black).
 
 3.1 (released 2022-10-30)
 -------------------------

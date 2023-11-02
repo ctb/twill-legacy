@@ -16,12 +16,12 @@ twill is open source and written in Python.
 Downloading twill
 -----------------
 
-The latest release of twill is twill version 3.0.
+The latest release of twill is twill version 3.2.
 It is available for `download`_ from the Python Package Index,
 and you can use Python's `pip`_ tool to install or upgrade twill.
 Please see the :ref:`changelog` for what's new in this version.
 
-twill 3.0 works with Python 3.6 and newer.
+twill 3.2 works with Python 3.8 and newer.
 
 To start using twill, install it and then type ``twill``.
 At the prompt, type::
@@ -76,8 +76,8 @@ release; they are acknowledged below.
 The original twill source code is Copyright (C) 2005, 2006, 2007
 C. Titus Brown. twill is available under the `MIT license`_.
 
-Acknowledgements
-----------------
+Acknowledgements and History
+----------------------------
 
 In May 2004, Cory Dodt had a great idea with "Python Browser Poseur"
 (PBP), his insights helped C. Titus Brown. creating twill. Ian Bicking
@@ -111,7 +111,12 @@ in April 2012 as a fork from twill 0.9 by Adam Victor Brandizzi.
 
 The official relaunch of twill on its current `GitHub project page`_
 and the release of version 2.0 happened in April 2020 with the approval
-of its original author C. Titus Brown.
+of its original author C. Titus Brown, and Christoph Zwerschke acting
+as new maintainer of the project.
+
+In February 2021, twill 3.0 was released, followed by twill 3.1 in
+October 2022, and twill 3.2 in October 2023. These versions do not
+support Python 2 and more, adding type hints and more modernizations.
 
 Thanks, all!
 
