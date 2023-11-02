@@ -6,7 +6,8 @@ ChangeLog
 
 3.2 (released ...)
 ------------------
-...
+* Twill now uses httpx_ instead of requests_.
+* WSGI apps are now supported via httpx, wsgi_intercept is not needed anymore.
 
 3.1 (released 2022-10-30)
 -------------------------
@@ -134,6 +135,7 @@ The following improvements and changes were made in this version:
 
 .. _lxml: https://lxml.de/
 .. _requests: https://requests.readthedocs.io/
+.. _httpx: https://www.python-httpx.org/
 .. _mechanize: https://mechanize.readthedocs.io/
 .. _cssselect: https://github.com/scrapy/cssselect
 .. _Beautiful Soup: https://www.crummy.com/software/BeautifulSoup/

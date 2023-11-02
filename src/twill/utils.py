@@ -10,6 +10,7 @@ from contextlib import suppress
 from pathlib import Path
 from typing import Any, List, NamedTuple, Optional, Sequence, Tuple, Union
 
+from httpx import Headers, Response
 from lxml.html import (
     CheckboxGroup,
     FormElement,
@@ -22,8 +23,6 @@ from lxml.html import (
 )
 from lxml.html import fromstring as html_to_tree
 from lxml.html import tostring as tree_to_html
-from requests import Response
-from requests.structures import CaseInsensitiveDict
 
 try:
     import tidylib  # type: ignore[import-untyped]
@@ -118,12 +117,12 @@ class ResultWrapper:
 
     @property
     def url(self) -> str:
-        """Get the url of the result page."""
-        return self.response.url
+        """Get the URL of the result page."""
+        return str(self.response.url)
 
     @property
     def http_code(self) -> int:
-        """Get the http status code of the result page."""
+        """Get the HTTP status code of the result page."""
         return self.response.status_code
 
     @property
@@ -137,7 +136,7 @@ class ResultWrapper:
         return self.response.content
 
     @property
-    def headers(self) -> CaseInsensitiveDict:
+    def headers(self) -> Headers:
         """Get the headers of the result page."""
         return self.response.headers
 

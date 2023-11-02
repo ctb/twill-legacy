@@ -5,14 +5,14 @@ twill's Python API
 ==================
 
 twill is essentially a web browsing and testing tool based on the
-`requests`_ and `lxml`_ packages. All twill commands are implemented in
+`httpx`_ and `lxml`_ packages. All twill commands are implemented in
 the ``commands.py`` file, and pyparsing_ does the work of parsing the
 input and converting it into Python commands (see ``parse.py``).
 Interactive shell work and readline support is implemented via the `cmd`_
 module (from the standard Python library).
 
+.. _httpx: https://www.python-httpx.org/
 .. _lxml: https://lxml.de/
-.. _requests: https://requests.readthedocs.io/
 .. _pyparsing: https://github.com/pyparsing/pyparsing
 .. _cmd: https://docs.python.org/3/library/cmd.html
 

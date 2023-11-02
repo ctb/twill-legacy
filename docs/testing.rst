@@ -120,29 +120,32 @@ A few things to note:
 Testing WSGI applications "in-process"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can use `wsgi_intercept`_ for testing `WSGI applications`_.
-
-It provides two functions, `add_wsgi_intercept` and `remove_wsgi_intercept`,
-that allow Python applications to redirect HTTP calls into a WSGI application
-"in-process", without going via an external Internet call. This is
-particularly useful for unit tests, where setting up an externally
-available Web server can be inconvenient.
+You can pass a WSGI_ application to the ``reset()`` method of the browser.
+HTTP calls will then go to this application "in-process" directly instead
+of going over the network. This is particularly useful for unit tests,
+where setting up an externally available Web server can be inconvenient.
 
 For example, the following code redirects all ``localhost:80`` calls to
-the given WSGI app: ::
+a simple Flask_ app: ::
 
-    def create_app():
-        return wsgi_app
+    from flask import Flask
+    from twill import browser, commands
 
-    import wsgi_intercept
+    app = Flask(__name__)
 
-    wsgi_intercept.requests_intercept.install()
-    wsgi_intercept.add_wsgi_intercept('localhost', 80, create_app)
-    # your twill tests go here...
-    wsgi_intercept.remove_wsgi_intercept('localhost', 80)
-    wsgi_intercept.requests_intercept.uninstall()
 
-See the ``tests/test_wsgi_intercept.py`` unit test for more examples.
+    @app.route("/")
+    def hello():
+        return "Hello World!"
 
-.. _wsgi_intercept: https://pypi.python.org/pypi/wsgi_intercept
-.. _WSGI applications: https://www.python.org/dev/peps/pep-0333/
+
+    browser.reset(app=app)
+
+    commands.go("http://localhost:80")
+    commands.find("Hello World!")
+
+
+See the ``tests/test_wsgi`` unit test for more examples.
+
+.. _WSGI: https://peps.python.org/pep-3333/
+.. _Flask: https://flask.palletsprojects.com/

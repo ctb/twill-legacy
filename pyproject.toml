@@ -40,7 +40,7 @@ classifiers = [
 requires-python = ">=3.8"
 dependencies = [
   "lxml >=4.9, <5",
-  "requests >=2.31, <3",
+  "httpx >=0.25.0, <1",
   "pyparsing >=3.0, <4",
 ]
 
@@ -57,7 +57,6 @@ tests = [
   "pytest >=7.4, <8",
   "pytidylib >=0.3, <0.4",
   "quixote >=3.6, <4",
-  "wsgi_intercept >=1.10, <2",
 ]
 
 [project.scripts]
@@ -161,7 +160,7 @@ inline-quotes = "double"
 max-complexity = 25
 
 [tool.ruff.pylint]
-# max-args = 12
+max-args = 12
 max-branches = 25
 max-returns = 7
 max-statements = 75

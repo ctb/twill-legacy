@@ -15,9 +15,9 @@ import org.apache.commons.logging.LogFactory;
 
 
 /**
- * Generates a test case in Twill script.
+ * Generates a test case as a twill script.
  * Take a look at the IScriptGenerator Interface to see how to specify which one you want.
- * The important information is that this class generates a Twill script.
+ * The important information is that this class generates a twill script.
  * @see IScriptGenerator
  * @author Titus Brown titus@caltech.edu
  */

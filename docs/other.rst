@@ -23,6 +23,9 @@ on the WSGI interception stuff for in-process testing of WSGI apps by twill.
 This is for people who want to talk directly to their Web apps without going
 through a network connection.
 
+Note that since twill 3.2, WSGI apps are supported directly via https,
+so this pacakge is not needed any more for twill itself.
+
 .. _wsgi_intercept: https://pypi.python.org/pypi/wsgi_intercept
 
 Other Python-based Web testing and browsing tools
@@ -35,7 +38,7 @@ PBP_ was very similar to twill -- twill was initially based on it --
 but the project seems to be defunct now.
 Like PBP, twill was based on mechanize_ in the past,
 unfortunately development of that project also stalled.
-The current version is based on requests_ and lxml_ instead.
+The current version is based on httpx_ and lxml_ instead.
 
 funkload_ is a nifty looking tool that does functional load testing.
 It is built on webunit_.
@@ -74,7 +77,7 @@ WebTst_ also looks interesting.
 .. _pyparsing: http://pyparsing.sourceforge.net/
 .. _PyXPCOM: https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Language_bindings/PyXPCOM
 .. _Quixote: http://www.mems-exchange.org/software/quixote/
-.. _requests: http://docs.python-requests.org/
+.. _httpx: https://www.python-httpx.org/
 .. _Selenium: http://www.seleniumhq.org/
 .. _twill in Javascript: http://blog.ianbicking.org/twill-in-javascript.html
 .. _webtest: https://pypi.python.org/pypi/WebTest

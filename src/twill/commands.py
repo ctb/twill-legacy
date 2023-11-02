@@ -91,12 +91,14 @@ __all__ = [
 ]
 
 
-def reset_browser() -> None:
-    """>> reset_browser
+def reset_browser(
+    base_url: str = "",
+) -> None:
+    """>> reset_browser [base_url]
 
     Reset the browser completely.
     """
-    browser.reset()
+    browser.reset(base_url=base_url)
     options.clear()
     options.update(default_options)
 

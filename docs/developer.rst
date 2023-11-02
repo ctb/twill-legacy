@@ -10,13 +10,12 @@ or newer to use and develop it.
 Package tests
 ~~~~~~~~~~~~~
 
-twill comes with several unit tests. They depend on `pytest`_,
-`wsgi_intercept`_ and `Quixote`_. To run them, type 'pytest'
-in the top level directory. To run an individual test, you can use
-the command 'pytest tests/test_something.py'.
+twill comes with several unit tests. They depend on `pytest`_ and
+`Quixote`_. To run them, type 'pytest' in the top level directory.
+To run an individual test, you can use the command
+``pytest tests/test_something.py``.
 
 .. _pytest: https://pytest.org/
-.. _wsgi_intercept: https://pypi.org/project/wsgi-intercept/
 .. _Quixote: http://quixote.ca/
 
 Licensing

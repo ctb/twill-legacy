@@ -6,10 +6,10 @@ from contextlib import suppress
 from http import HTTPStatus
 from typing import (
     IO,
+    Any,
     Callable,
     Dict,
     List,
-    MutableMapping,
     Optional,
     Sequence,
     Tuple,
@@ -18,10 +18,7 @@ from typing import (
 )
 from urllib.parse import urljoin
 
-from requests import Session
-from requests.auth import HTTPBasicAuth
-from requests.cookies import RequestsCookieJar
-from requests.exceptions import ConnectionError, InvalidSchema
+from httpx import BasicAuth, Client, ConnectError, Cookies, Headers, InvalidURL
 
 from . import __version__, log
 from .errors import TwillException
@@ -46,17 +43,6 @@ from .utils import (
 __all__ = ["browser"]
 
 
-def _disable_insecure_request_warnings() -> None:
-    """Disable insecure request warnings."""
-    try:
-        from requests.packages import urllib3  # type: ignore[attr-defined]
-    except ImportError:
-        import urllib3
-    # noinspection PyUnresolvedReferences
-    insecure_request_warning = urllib3.exceptions.InsecureRequestWarning
-    urllib3.disable_warnings(insecure_request_warning)
-
-
 def _set_http_connection_debuglevel(level: int) -> None:
     """Set the debug level for the connection pool."""
     from http.client import HTTPConnection
@@ -69,8 +55,28 @@ class TwillBrowser:
 
     user_agent = f"TwillBrowser/{__version__}"
 
-    def __init__(self) -> None:
-        self.reset()
+    def __init__(
+        self,
+        base_url: str = "",
+        app: Optional[Callable[..., Any]] = None,
+        follow_redirects: bool = True,  # noqa: FBT001, FBT002
+        verify: Union[bool, str] = False,  # noqa: FBT002
+    ) -> None:
+        """Initialize the twill browser.
+
+        Optionally, you can send requests to a WSGI app instead over the
+        network, and you can specify a base URL for all requests.
+        The "follow_redirects" parameter has the default value True so that
+        the browser by default automatically follows all redirects.
+        The "verify" argument can be used to specify whether or how server
+        certificates shall be verified; this can also be a CA bundle path.
+        """
+        self.reset(
+            app=app,
+            base_url=base_url,
+            follow_redirects=follow_redirects,
+            verify=verify,
+        )
 
     def _assert_result_for(self, what: str) -> ResultWrapper:
         if not self.result:
@@ -86,8 +92,41 @@ class TwillBrowser:
         _set_http_connection_debuglevel(level)
         self._debug_level = level
 
-    def reset(self) -> None:
-        """Reset the browser."""
+    def close(self) -> None:
+        try:
+            client = self._client
+        except AttributeError:
+            pass
+        else:
+            client.close()
+            del self.result
+            del self.last_submit_button
+            del self.first_error
+            del self._client
+            del self._form
+            del self._form_files
+            del self._auth
+            del self._post_load_hooks
+            del self._history
+
+    def reset(
+        self,
+        base_url: str = "",
+        app: Optional[Callable[..., Any]] = None,
+        follow_redirects: bool = True,  # noqa: FBT001, FBT002
+        verify: Union[bool, str] = False,  # noqa: FBT002
+    ) -> None:
+        """Reset the browser.
+
+        Optionally, you can send requests to a WSGI app instead over the
+        network, and you can specify a base URL for all requests.
+        The "follow_redirects" parameter has the default value True so that
+        the browser by default automatically follows all redirects.
+        The "verify" argument can be used to specify whether or how server
+        certificates shall be verified; this can also be a CA bundle path.
+        """
+        self.close()
+
         self.result: Optional[ResultWrapper] = None
         self.last_submit_button: Optional[InputElement] = None
         self.first_error: Optional[str] = None
@@ -98,19 +137,21 @@ class TwillBrowser:
         # debug level to be used for the connection pool
         self._debug_level = 0
 
-        # whether the SSL cert will be verified, or can be a ca bundle path
-        self.verify = False
-
-        # Session stores cookies
-        self._session = Session()
+        # Client stores cookies
+        self._client = Client(
+            app=app,
+            base_url=base_url,
+            follow_redirects=follow_redirects,
+            verify=verify,
+        )
 
         # A lxml FormElement, None until a form is selected
         # replaces self._browser.form from mechanize
         self._form: Optional[FormElement] = None
         self._form_files: Dict[str, IO] = {}
 
-        # A dict of HTTPBasicAuth from requests, keyed off URL
-        self._auth: Dict[UrlWithRealm, HTTPBasicAuth] = {}
+        # A dict of BasicAuth from httpx, keyed off URL
+        self._auth: Dict[UrlWithRealm, BasicAuth] = {}
 
         # callables to be called after each page load.
         self._post_load_hooks: List[Callable] = []
@@ -121,13 +162,13 @@ class TwillBrowser:
         self.reset_headers()
 
     @property
-    def creds(self) -> Dict[UrlWithRealm, HTTPBasicAuth]:
+    def creds(self) -> Dict[UrlWithRealm, BasicAuth]:
         """Get the credentials for basic authentication."""
         return self._auth
 
     def add_creds(self, url: UrlWithRealm, user: str, password: str) -> None:
         """Set the credentials for basic authentication."""
-        self._auth[url] = HTTPBasicAuth(user, password)
+        self._auth[url] = BasicAuth(user, password)
 
     def go(self, url: str) -> None:
         """Visit given URL."""
@@ -151,8 +192,8 @@ class TwillBrowser:
                 self._journey("open", try_url)
             except (
                 OSError,
-                ConnectionError,
-                InvalidSchema,
+                ConnectError,
+                InvalidURL,
                 UnicodeError,
             ) as error:
                 log.info("cannot go to '%s': %s", try_url, error)
@@ -224,9 +265,9 @@ class TwillBrowser:
         log.info("==> at %s", self.url)
 
     @property
-    def headers(self) -> MutableMapping[str, Union[str, bytes]]:
+    def headers(self) -> Headers:
         """Return the request headers currently used by the browser."""
-        return self._session.headers
+        return self._client.headers
 
     def reset_headers(self) -> None:
         """Reset the request headers currently used by the browser."""
@@ -236,7 +277,7 @@ class TwillBrowser:
         )
 
     @property
-    def response_headers(self) -> MutableMapping[str, Union[str, bytes]]:
+    def response_headers(self) -> Headers:
         """Get the headers returned with the current page."""
         return self._assert_result_for("headers").headers
 
@@ -465,7 +506,7 @@ class TwillBrowser:
         # @BRT: For now, the referrer is always the current page
         # @CTB: this seems like an issue for further work.
         # Note: We do not set Content-Type from form.attrib.get('enctype'),
-        # since Requests does a much better job at setting the proper one.
+        # since httpx does a much better job at setting the proper one.
         headers = {"Referer": self.url}
 
         payload = form.form_values()
@@ -473,25 +514,25 @@ class TwillBrowser:
             name = ctl.get("name")
             if name:
                 payload.append((name, ctl.value or ""))
-        encoded_payload = self._encode_payload(payload)
+        payload_dict = self._make_payload_dict(payload)
 
         # now actually GO
         if form.method == "POST":
             if self._form_files:
                 log.debug("Submitting files: %r", self._form_files)
-                r = self._session.post(
+                result = self._client.post(
                     form.action,
-                    data=encoded_payload,
+                    data=payload_dict,
                     headers=headers,
                     files=self._form_files,
                 )
             else:
-                r = self._session.post(
-                    form.action, data=encoded_payload, headers=headers
+                result = self._client.post(
+                    form.action, data=payload_dict, headers=headers
                 )
         else:
-            r = self._session.get(
-                form.action, params=encoded_payload, headers=headers
+            result = self._client.get(
+                form.action, params=payload_dict, headers=headers
             )
 
         self._form = None
@@ -499,30 +540,30 @@ class TwillBrowser:
         self.last_submit_button = None
         if self.result is not None:
             self._history.append(self.result)
-        self.result = ResultWrapper(r)
+        self.result = ResultWrapper(result)
 
-    def cookies(self) -> RequestsCookieJar:
-        """Get all cookies from the current session."""
-        return self._session.cookies
+    def cookies(self) -> Cookies:
+        """Get all cookies from the current client session."""
+        return self._client.cookies
 
     def save_cookies(self, filename: str) -> None:
         """Save cookies into the given file."""
         with open(filename, "wb") as f:
-            pickle.dump(self._session.cookies, f)
+            pickle.dump(dict(self._client.cookies), f)
 
     def load_cookies(self, filename: str) -> None:
         """Load cookies from the given file."""
         with open(filename, "rb") as f:
-            self._session.cookies = pickle.load(f)  # noqa: S301
+            self._client.cookies = pickle.load(f)  # noqa: S301
 
     def clear_cookies(self) -> None:
         """Delete all the cookies."""
-        self._session.cookies.clear()
+        self._client.cookies.clear()
 
     def show_cookies(self) -> None:
         """Pretty-print all the cookies."""
         info = log.info
-        cookies = self._session.cookies
+        cookies = self._client.cookies
         n = len(cookies)
         if n:
             log.info("\nThere are %d cookie(s) in the cookie jar.\n", n)
@@ -542,22 +583,31 @@ class TwillBrowser:
         """Evaluate an xpath expression."""
         return self._assert_result_for("xpath").xpath(path)
 
-    def _encode_payload(
+    def _make_payload_dict(
         self,
         payload: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> List[Tuple[str, Union[str, bytes]]]:
-        """Encode a payload with the current encoding if not utf-8."""
-        encoding = self.encoding
-        if not encoding or encoding.lower() in ("utf8", "utf-8"):
-            return list(payload)
-        return [
-            (name, val if isinstance(val, bytes) else val.encode(encoding))
-            for name, val in payload
-        ]
+    ) -> Dict[str, Union[str, List[Union[str]]]]:
+        """Prepare a payload by decoding bytes and converting to a dict."""
+        encoding = self.encoding or "utf-8"
+        data: Dict[str, Union[str, List[Union[str]]]] = {}
+        for key, value in payload:
+            new_value = (
+                value if isinstance(value, str) else value.decode(encoding)
+            )
+            try:
+                existing_value = data[key]
+            except KeyError:
+                data[key] = new_value
+            else:
+                if isinstance(existing_value, list):
+                    existing_value.append(new_value)
+                else:
+                    data[key] = [existing_value, new_value]
+        return data
 
     @staticmethod
     def _get_meta_refresh(
-        response: Response
+        response: Response,
     ) -> Tuple[Optional[int], Optional[str]]:
         """Get meta refresh interval and url from a response."""
         try:
@@ -583,7 +633,7 @@ class TwillBrowser:
             interval = url = None
         else:
             if "://" not in url:  # relative URL, adapt
-                url = urljoin(response.url, url)
+                url = str(response.url.join(url))
         return interval, url
 
     _re_basic_auth = re.compile('Basic realm="(.*)"', re.I)
@@ -624,22 +674,22 @@ class TwillBrowser:
         else:
             raise TwillException(f"Unknown function {func_name!r}")
 
-        r = self._session.get(url, verify=self.verify)
-        if r.status_code == HTTPStatus.UNAUTHORIZED:
-            header = r.headers.get("WWW-Authenticate")
+        result = self._client.get(url)
+        if result.status_code == HTTPStatus.UNAUTHORIZED:
+            header = result.headers.get("WWW-Authenticate")
             match_realm = self._re_basic_auth.match(header)
             if match_realm:
                 realm = match_realm.group(1)
                 auth = self._auth.get((url, realm)) or self._auth.get(url)
                 if auth:
-                    r = self._session.get(url, auth=auth, verify=self.verify)
+                    result = self._client.get(url, auth=auth)
 
         # handle redirection via meta refresh (not handled in requests)
         refresh_interval = get_equiv_refresh_interval()
         if refresh_interval:
             visited = set()  # break circular refresh chains
             while True:
-                interval, url = self._get_meta_refresh(r)
+                interval, url = self._get_meta_refresh(result)
                 if not url:
                     break
                 if interval >= refresh_interval:
@@ -653,18 +703,16 @@ class TwillBrowser:
                 (log.info if self.show_refresh else log.debug)(
                     "Meta refresh to new URL: %s", url
                 )
-                r = self._session.get(url)
+                result = self._client.get(url)
                 visited.add(url)
 
         if func_name in ("follow_link", "open") and (
             # if we're really reloading and just didn't say so, don't store
-            self.result is not None and self.result.url != r.url
+            self.result is not None and self.result.url != result.url
         ):
             self._history.append(self.result)
 
-        self.result = ResultWrapper(r)
+        self.result = ResultWrapper(result)
 
 
 browser = TwillBrowser()  # the global twill browser instance
-
-_disable_insecure_request_warnings()  # should not warn for HTTP requests

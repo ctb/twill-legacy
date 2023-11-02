@@ -9,7 +9,7 @@ from io import StringIO
 from pathlib import Path
 from typing import Optional, TextIO
 
-import requests
+import httpx
 import twill
 
 test_dir = Path(__file__).parent  # test directory
@@ -143,7 +143,7 @@ def stop_server() -> None:
     if _url:
         if START:
             try:
-                requests.get(f"{_url}exit", timeout=10)
+                httpx.get(f"{_url}exit", timeout=10)
             except Exception as error:  # noqa: BLE001
                 print("ERROR:", error)  # noqa: T201
                 print("Could not stop the server.")  # noqa: T201
