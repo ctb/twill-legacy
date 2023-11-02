@@ -4,8 +4,8 @@
 ChangeLog
 =========
 
-3.2 (released ...)
-------------------
+3.2 (released 2023-11-02)
+-------------------------
 * The supported Python versions are now 3.8 to 3.12.
 * A new method 'find_links' was added to the twill browser (#17).
 * Twill now uses httpx_ instead of requests_.
