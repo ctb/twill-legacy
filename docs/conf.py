@@ -7,10 +7,12 @@ https://www.sphinx-doc.org/en/master/usage/configuration.html
 
 # -- Path setup --------------------------------------------------------------
 
-import os
+import os.path as osp
 import sys
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(
+    osp.join(osp.dirname(osp.dirname(osp.abspath(__file__))), "src")
+)
 
 
 # -- Project information -----------------------------------------------------
