@@ -7,24 +7,35 @@ https://www.sphinx-doc.org/en/master/usage/configuration.html
 
 # -- Path setup --------------------------------------------------------------
 
-import os.path as osp
+import os
 import sys
 
 sys.path.append(
-    osp.join(osp.dirname(osp.dirname(osp.abspath(__file__))), "src")
+    os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"
+    )
 )
 
-
 # -- Project information -----------------------------------------------------
+
+
+def project_version():
+    """Fetch version from pyproject.toml file."""
+    # this also works when the package is not installed
+    with open("../pyproject.toml") as toml_file:
+        for line in toml_file:
+            if line.startswith("version ="):
+                version = line.split("=")[1].strip().strip('"')
+                return version
+    raise Exception("Cannot determine PyGreSQL version")
+
 
 project = "twill"
 author = "C. Titus Brown, Ben R. Taylor, Christoph Zwerschke et al"
 copyright = "2023, " + author
 
-from twill import __version__
-
 # The full version, including alpha/beta/rc tags
-version = release = __version__
+version = release = project_version()
 
 language = "en"
 
