@@ -9,7 +9,7 @@ from .utils import execute_script
 def test(url: str):
     # test empty page title
     namespaces.new_local_dict()
-    twill.commands.reset_browser()
+    commands.reset_browser()
     browser = twill.browser
     with pytest.raises(TwillException):
         browser.title  # noqa: B018

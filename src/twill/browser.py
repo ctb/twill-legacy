@@ -18,7 +18,15 @@ from typing import (
 )
 from urllib.parse import urljoin
 
-from httpx import BasicAuth, Client, ConnectError, Cookies, Headers, InvalidURL
+from httpx import (
+    BasicAuth,
+    Client,
+    ConnectError,
+    Cookies,
+    Headers,
+    InvalidURL,
+    Timeout,
+)
 
 from . import __version__, log
 from .errors import TwillException
@@ -61,6 +69,7 @@ class TwillBrowser:
         app: Optional[Callable[..., Any]] = None,
         follow_redirects: bool = True,  # noqa: FBT001, FBT002
         verify: Union[bool, str] = False,  # noqa: FBT002
+        timeout: Union[None, float, Timeout] = 10,
     ) -> None:
         """Initialize the twill browser.
 
@@ -70,12 +79,14 @@ class TwillBrowser:
         the browser by default automatically follows all redirects.
         The "verify" argument can be used to specify whether or how server
         certificates shall be verified; this can also be a CA bundle path.
+        In the "timeout" argument you can specify the timeout in seconds.
         """
         self.reset(
             app=app,
             base_url=base_url,
             follow_redirects=follow_redirects,
             verify=verify,
+            timeout=timeout,
         )
 
     def _assert_result_for(self, what: str) -> ResultWrapper:
@@ -115,6 +126,7 @@ class TwillBrowser:
         app: Optional[Callable[..., Any]] = None,
         follow_redirects: bool = True,  # noqa: FBT001, FBT002
         verify: Union[bool, str] = False,  # noqa: FBT002
+        timeout: Union[None, float, Timeout] = 10,
     ) -> None:
         """Reset the browser.
 
@@ -124,6 +136,7 @@ class TwillBrowser:
         the browser by default automatically follows all redirects.
         The "verify" argument can be used to specify whether or how server
         certificates shall be verified; this can also be a CA bundle path.
+        In the "timeout" argument you can specify the timeout in seconds.
         """
         self.close()
 
@@ -143,6 +156,7 @@ class TwillBrowser:
             base_url=base_url,
             follow_redirects=follow_redirects,
             verify=verify,
+            timeout=timeout,
         )
 
         # A lxml FormElement, None until a form is selected
@@ -293,6 +307,19 @@ class TwillBrowser:
     def agent_string(self, agent: str) -> None:
         """Set the user agent string to the given value."""
         self.headers["User-Agent"] = agent
+
+    @property
+    def timeout(self) -> Union[None, float, Timeout]:
+        """Get the request timeout in seconds."""
+        timeout = self._client.timeout
+        if timeout.connect == timeout.read == timeout.write == timeout.pool:
+            return timeout.connect or None
+        return timeout
+
+    @timeout.setter
+    def timeout(self, timeout: Union[None, float, Timeout]) -> None:
+        """Set the request timeout in seconds."""
+        self._client.timeout = timeout  # type: ignore[assignment]
 
     def show_forms(self) -> None:
         """Pretty-print all forms on the page.
@@ -708,7 +735,8 @@ class TwillBrowser:
 
         if func_name in ("follow_link", "open") and (
             # if we're really reloading and just didn't say so, don't store
-            self.result is not None and self.result.url != result.url
+            self.result is not None
+            and self.result.url != result.url
         ):
             self._history.append(self.result)
 

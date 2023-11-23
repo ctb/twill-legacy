@@ -4,6 +4,7 @@
 
 import os
 from base64 import decodebytes
+from time import sleep
 from typing import Optional
 
 from quixote import (  # type: ignore[import-untyped]
@@ -137,6 +138,7 @@ class TwillTest(Directory):
         "exception",
         "plaintext",
         "xml",
+        "sleep",
         "testform",
         "testformaction",
         "test_radiobuttons",
@@ -346,6 +348,11 @@ hello, world.
     def test_spaces(self) -> str:
         """Test spaces."""
         return "success"
+
+    def sleep(self) -> str:
+        """Test timeouts."""
+        sleep(0.5)
+        return "sorry for the delay"
 
     def increment(self) -> str:
         """Visit session."""

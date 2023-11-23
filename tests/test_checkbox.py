@@ -6,7 +6,7 @@ from twill.errors import TwillException
 
 def test_select_multiple(url: str):
     namespaces.new_local_dict()
-    twill.commands.reset_browser()
+    commands.reset_browser()
 
     with pytest.raises(TwillException):
         browser.title  # noqa: B018
@@ -42,7 +42,7 @@ def test_select_multiple(url: str):
 
 def test_select_single(url: str):
     namespaces.new_local_dict()
-    twill.commands.reset_browser()
+    commands.reset_browser()
     browser = twill.browser
     with pytest.raises(TwillException):
         browser.title  # noqa: B018s

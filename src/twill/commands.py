@@ -91,9 +91,7 @@ __all__ = [
 ]
 
 
-def reset_browser(
-    base_url: str = "",
-) -> None:
+def reset_browser(base_url: str = "") -> None:
     """>> reset_browser [base_url]
 
     Reset the browser completely.
@@ -109,7 +107,7 @@ def exit(code: str = "0") -> None:
 
     Exit twill with given exit code (default 0, "no error").
     """
-    raise SystemExit(int(code))
+    raise SystemExit(int(code) if code else 0)
 
 
 def go(url: str) -> None:
@@ -126,6 +124,16 @@ def reload() -> None:
     Reload the current URL.
     """
     browser.reload()
+
+
+def timeout(timeout: float = 10) -> None:
+    """>> timeout [timeout]
+
+    Set the request timeout (0 for no timeout).
+    """
+    if isinstance(timeout, str):
+        timeout = float(timeout) if timeout else 0
+    browser.timeout = timeout or None
 
 
 def code(should_be: int) -> None:

@@ -3,7 +3,10 @@ from twill import commands
 from twill.errors import TwillException
 
 
-def test(url: str):  # noqa: ARG001
+def test(url: str):
+    commands.reset_browser()
+    commands.go(url)
+
     commands.go("/two_forms")
     commands.find(" NO FORM ")
 

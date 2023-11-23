@@ -214,6 +214,9 @@ These will be run after the current file has executed (successfully or not).
 
 **agent** -- set the browser's "User-agent" string.
 
+**timeout** *[<seconds>]* -- set browser timeout to given number of seconds.
+Defaults to 10 seconds.  Set to 0 for no timeout.
+
 **sleep** *[<seconds>]* -- sleep the given number of seconds.
 Defaults to 1 second.
 
